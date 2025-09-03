@@ -48,7 +48,16 @@ service firebase.storage {
       allow read: if true; // Public read for sharing
       allow write: if isOwner(userId); // Users can manage their own content
     }
-    
+
+    // User-scoped interview uploads
+    match /users/{uid}/intake/{interviewId}/{fileId} {
+      allow read, write: if isOwner(uid);
+      // Optional: enforce size/type
+      // allow write: if request.resource.size < 15 * 1024 * 1024 &&
+      //               request.resource.contentType.matches('image/.*') &&
+      //               isOwner(uid);
+    }
+
     // Palette exports - Public read, authenticated write
     match /palette_exports/{allPaths=**} {
       allow read: if true; // Public read for sharing

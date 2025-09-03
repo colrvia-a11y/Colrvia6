@@ -8,6 +8,7 @@ import 'package:color_canvas/services/voice_assistant.dart';
 import 'package:color_canvas/services/schema_interview_compiler.dart';
 import 'package:color_canvas/widgets/interview_widgets.dart';
 import 'package:color_canvas/screens/interview_review_screen.dart';
+import 'package:color_canvas/widgets/photo_picker_inline.dart';
 
 enum InterviewMode { text, talk }
 
@@ -301,6 +302,41 @@ class _InterviewScreenState extends State<InterviewScreen> {
                         ],
                       );
                     case InterviewPromptType.multiSelect:
+                      if (prompt.id == 'photos') {
+                        final urls = (_engine.answers['photos'] as List?)?.cast<String>() ?? const <String>[];
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ChatBubble(isUser: false, child: Text(prompt.title)),
+                            const SizedBox(height: 8),
+                            PhotoPickerInline(
+                              value: urls,
+                              onChanged: (next) async {
+                                _engine.setAnswer('photos', next);
+                                await _persistAnswers();
+                                setState(() {});
+                              },
+                            ),
+                            const SizedBox(height: 8),
+                            Row(children: [
+                              ElevatedButton.icon(
+                                onPressed: () async {
+                                  _enqueueUser('Photos added');
+                                  _engine.next();
+                                  if (_engine.current != null) {
+                                    _enqueueSystem(_engine.current!.title);
+                                    if (_mode == InterviewMode.talk) _voice.speak(_engine.current!.title);
+                                  } else {
+                                    await _finish();
+                                  }
+                                },
+                                icon: const Icon(Icons.check),
+                                label: const Text('Continue'),
+                              ),
+                            ]),
+                          ],
+                        );
+                      }
                       final labels = prompt.options.map((o) => o.label).toList();
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

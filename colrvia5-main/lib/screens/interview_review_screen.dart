@@ -1,9 +1,9 @@
 // lib/screens/interview_review_screen.dart
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:color_canvas/services/journey/journey_service.dart';
 import 'package:color_canvas/services/analytics_service.dart';
 import 'package:color_canvas/services/interview_engine.dart';
+import 'package:color_canvas/widgets/photo_picker_inline.dart';
 
 class InterviewReviewScreen extends StatefulWidget {
   final InterviewEngine engine; // already loaded & seeded
@@ -254,10 +254,7 @@ class _InterviewReviewScreenState extends State<InterviewReviewScreen> {
   }
 
   Widget _photosSection(List<_Row> rows) {
-    if (rows.isEmpty) return const SizedBox.shrink();
-    final val = _answers['photos'];
-    final uris = (val is List) ? val.cast<String>() : const <String>[];
-
+    final urls = (_answers['photos'] as List?)?.cast<String>() ?? const <String>[];
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Padding(
@@ -267,31 +264,14 @@ class _InterviewReviewScreenState extends State<InterviewReviewScreen> {
           children: [
             Text('Photos', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
-            if (uris.isEmpty) const Text('—'),
-            if (uris.isNotEmpty)
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: uris.map((u) => ActionChip(
-                  label: Text(_truncate(u)),
-                  onPressed: () => launchUrl(Uri.parse(u), mode: LaunchMode.externalApplication),
-                )).toList(),
-              ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Wrap(spacing: 8, children: [
-                TextButton.icon(
-                  onPressed: () => _editInline('photos'),
-                  icon: const Icon(Icons.tune_outlined),
-                  label: const Text('Quick edit'),
-                ),
-                TextButton.icon(
-                  onPressed: () => _editInChat('photos'),
-                  icon: const Icon(Icons.edit_outlined),
-                  label: const Text('Edit in chat'),
-                ),
-              ]),
+            PhotoPickerInline(
+              value: urls,
+              onChanged: (next) async {
+                _answers['photos'] = next;
+                widget.engine.setAnswer('photos', next);
+                await JourneyService.instance.setArtifact('answers', widget.engine.answers);
+                setState(() {});
+              },
             ),
           ],
         ),
@@ -299,10 +279,6 @@ class _InterviewReviewScreenState extends State<InterviewReviewScreen> {
     );
   }
 
-  String _truncate(String s) {
-    if (s.length <= 36) return s;
-    return s.substring(0, 16) + '…' + s.substring(s.length - 12);
-  }
 }
 
 class _Row {
