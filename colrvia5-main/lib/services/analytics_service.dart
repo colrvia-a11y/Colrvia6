@@ -43,6 +43,26 @@ class AnalyticsService {
     await _logEvent(name, params ?? {});
   }
 
+  Future<void> logAppOpen() => _analytics.logAppOpen();
+  Future<void> setUserId(String? uid) => _analytics.setUserId(id: uid);
+  Future<void> interviewStarted({String? mode}) =>
+      _logEvent('interview_started', {'mode': mode});
+  Future<void> interviewAnswerSet(String id) =>
+      _logEvent('interview_answer', {'id': id});
+  Future<void> interviewCompleted() =>
+      _logEvent('interview_completed', {});
+  Future<void> reviewConfirmed() =>
+      _logEvent('review_confirmed', {});
+  Future<void> paletteGenerated({String? brand}) =>
+      _logEvent('palette_generated', {'brand': brand});
+  Future<void> visualizerOpened() =>
+      _logEvent('visualizer_opened', {});
+  Future<void> visualizerStroke({required String role}) =>
+      _logEvent('viz_stroke', {'role': role});
+  Future<void> vizExport() => _logEvent('viz_export', {});
+  Future<void> talkStart() => _logEvent('talk_start', {});
+  Future<void> talkEnd() => _logEvent('talk_end', {});
+
   List<Map<String, dynamic>> get recentEvents =>
       List.unmodifiable(_recentEvents);
 
