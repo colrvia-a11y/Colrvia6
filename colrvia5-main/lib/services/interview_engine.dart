@@ -45,6 +45,7 @@ class InterviewPrompt {
 
 class InterviewEngine extends ChangeNotifier {
   InterviewEngine._(this._allPrompts);
+  factory InterviewEngine.fromPrompts(List<InterviewPrompt> prompts) => InterviewEngine._(prompts);
   static InterviewEngine demo() => InterviewEngine._(_buildDemoPrompts());
 
   final List<InterviewPrompt> _allPrompts;
