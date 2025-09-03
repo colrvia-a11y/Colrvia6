@@ -102,8 +102,9 @@ class _InterviewScreenState extends State<InterviewScreen> {
     await journey.setArtifact('answers', _engine.answers);
     await AnalyticsService.instance.logEvent('interview_completed');
 
+    if (!mounted) return;
     // Navigate to Review (and await potential deep-link edit requests)
-    final result = await Navigator.of(context).push<Map<String, String>?>(
+    final result = await Navigator.of(context).push<Map<String, String>?>( 
       MaterialPageRoute(
         builder: (_) => InterviewReviewScreen(engine: _engine),
         fullscreenDialog: true,
@@ -115,7 +116,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
     if (jumpTo != null && jumpTo.isNotEmpty) {
       _engine.jumpTo(jumpTo);
       if (_engine.current != null) {
-        _enqueueSystem('Let\'s update: ' + _engine.current!.title);
+        _enqueueSystem('Let\'s update: ${_engine.current!.title}');
         if (_mode == InterviewMode.talk) _voice.speak(_engine.current!.title);
       }
       return; // back to chat to edit
@@ -236,7 +237,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: SegmentedButton<InterviewMode>(
-              segments: const [
+              segments: [
                 ButtonSegment(value: InterviewMode.text, label: Text('Text'), icon: Icon(Icons.chat_bubble_outline)),
                 ButtonSegment(value: InterviewMode.talk, label: Text('Talk'), icon: Icon(Icons.mic_none)),
               ],
@@ -247,7 +248,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: SegmentedButton<InterviewDepth>(
-              segments: const [
+              segments: [
                 ButtonSegment(value: InterviewDepth.quick, label: Text('Quick')),
                 ButtonSegment(value: InterviewDepth.full, label: Text('Full')),
               ],
