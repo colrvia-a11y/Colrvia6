@@ -45,6 +45,10 @@
 	<true/>
         <key>UIApplicationSupportsIndirectInputEvents</key>
         <true/>
+        <key>NSPhotoLibraryUsageDescription</key>
+        <string>We use your photos to understand your room lighting and finishes.</string>
+        <key>NSCameraUsageDescription</key>
+        <string>We use the camera so you can capture your room.</string>
         <key>NSMicrophoneUsageDescription</key>
         <string>We use the microphone so you can answer by voice.</string>
         <key>NSSpeechRecognitionUsageDescription</key>
