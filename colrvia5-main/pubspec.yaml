@@ -68,5 +68,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/documents/
-    # Optional if you plan to compile from JSON at runtime later:
-    # - assets/schemas/single-room-color-intake.json
+    - assets/schemas/single-room-color-intake.json

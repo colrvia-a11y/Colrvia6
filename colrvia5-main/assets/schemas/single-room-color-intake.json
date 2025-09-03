@@ -1,0 +1,528 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Single Room Color Intake",
+  "type": "object",
+  "properties": {
+    "roomType": {
+      "title": "Which room are we doing?",
+      "type": "string",
+      "enum": [
+        "kitchen",
+        "bathroom",
+        "bedroom",
+        "livingRoom",
+        "diningRoom",
+        "office",
+        "kidsRoom",
+        "laundryMudroom",
+        "entryHall",
+        "other"
+      ]
+    },
+    "usage": {
+      "title": "Who uses this room most, and what do you do here?",
+      "type": "string",
+      "description": "e.g., Family of four. We cook daily and hang at the island."
+    },
+    "moodWords": {
+      "title": "Pick up to three mood words",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "type": "string",
+        "enum": ["calm","cozy","happy","fresh","focused","moody","bright"]
+      }
+    },
+    "daytimeBrightness": {
+      "title": "How bright is it in the day?",
+      "type": "string",
+      "enum": ["veryBright","kindaBright","dim"]
+    },
+    "bulbColor": {
+      "title": "At night, what kind of bulbs?",
+      "type": "string",
+      "enum": ["cozyYellow_2700K","neutral_3000_3500K","brightWhite_4000KPlus"]
+    },
+    "boldDarkerSpot": {
+      "title": "Do you like a bold darker spot in this room?",
+      "type": "string",
+      "enum": ["loveIt","maybe","noThanks"]
+    },
+    "brandPreference": {
+      "title": "Pick one paint brand (or let us choose)",
+      "type": "string",
+      "enum": ["SherwinWilliams","BenjaminMoore","Behr","pickForMe"]
+    },
+    "existingElements": {
+      "type": "object",
+      "properties": {
+        "floorLook": {
+          "title": "Floors look mostly…",
+          "type": "string",
+          "enum": [
+            "yellowGoldWood",
+            "orangeWood",
+            "redBrownWood",
+            "brownNeutral",
+            "grayBrown",
+            "tileOrStone",
+            "other"
+          ]
+        },
+        "floorLookOtherNote": {
+          "title": "If other, tell us",
+          "type": "string"
+        },
+        "bigThingsToMatch": {
+          "title": "Big things to match (pick all that apply)",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "countertops",
+              "backsplash",
+              "tile",
+              "bigFurniture",
+              "rug",
+              "curtains",
+              "builtIns",
+              "appliances",
+              "fireplace",
+              "none"
+            ]
+          }
+        },
+        "metals": {
+          "title": "If metal shows, what is it?",
+          "type": "string",
+          "enum": ["black","silver","goldWarm","mixed","none"]
+        },
+        "mustStaySame": {
+          "title": "Anything that must stay the same color?",
+          "type": "string",
+          "description": "e.g., trim stays white; cabinets stay navy"
+        }
+      }
+    },
+    "colorComfort": {
+      "type": "object",
+      "properties": {
+        "overallVibe": {
+          "title": "Overall vibe for color",
+          "type": "string",
+          "enum": [
+            "mostlySoftNeutrals",
+            "neutralsPlusGentleColors",
+            "confidentColorMoments"
+          ]
+        },
+        "warmCoolFeel": {
+          "title": "Warm vs cool feel",
+          "type": "string",
+          "enum": ["warmer","cooler","inBetween"]
+        },
+        "contrastLevel": {
+          "title": "Contrast level",
+          "type": "string",
+          "enum": ["verySoft","medium","crisp"]
+        },
+        "popColor": {
+          "title": "Would you enjoy one small “pop” color?",
+          "type": "string",
+          "enum": ["yes","maybe","no"]
+        }
+      }
+    },
+    "finishes": {
+      "type": "object",
+      "properties": {
+        "wallsFinishPriority": {
+          "title": "Walls — what matters most?",
+          "type": "string",
+          "enum": ["easierToWipeClean","softerFlatterLook"]
+        },
+        "trimDoorsFinish": {
+          "title": "Trim/doors finish",
+          "type": "string",
+          "enum": ["aLittleShiny","softerShine"]
+        },
+        "specialNeeds": {
+          "title": "Any special needs?",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "kids",
+              "pets",
+              "steamyShowers",
+              "greaseHeavyCooking",
+              "rentalRules"
+            ]
+          }
+        }
+      }
+    },
+    "guardrails": {
+      "type": "object",
+      "properties": {
+        "mustHaves": {
+          "title": "Must-haves (please include…)",
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "hardNos": {
+          "title": "Hard NOs (please avoid…)",
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "photos": {
+      "title": "Add 2–3 daytime links and 1 nighttime (optional)",
+      "type": "array",
+      "items": {"type": "string", "format": "uri"}
+    }
+  },
+  "required": [
+    "roomType",
+    "usage",
+    "moodWords",
+    "daytimeBrightness",
+    "bulbColor",
+    "boldDarkerSpot",
+    "brandPreference"
+  ],
+  "$defs": {
+    "kitchen": {
+      "type": "object",
+      "properties": {
+        "cabinets": {
+          "title": "Kitchen cabinets",
+          "type": "string",
+          "enum": ["allNewColor","keepCurrentColor"]
+        },
+        "cabinetsCurrentColor": {
+          "title": "If keeping, what color are the cabinets now?",
+          "type": "string"
+        },
+        "island": {
+          "title": "Island",
+          "type": "string",
+          "enum": ["noIsland","hasIsland_okDarker","hasIsland_keepLight"]
+        },
+        "countertopsDescription": {
+          "title": "Countertops look like…",
+          "type": "string",
+          "description": "plain white, creamy, speckled, gray veins, warm stone"
+        },
+        "backsplash": {
+          "title": "Backsplash",
+          "type": "string",
+          "enum": ["white","cream","color","pattern","none","describe"]
+        },
+        "backsplashDescribe": {
+          "title": "Tell us more about the backsplash",
+          "type": "string"
+        },
+        "appliances": {
+          "title": "Appliances",
+          "type": "string",
+          "enum": ["stainless","black","white","mixed"]
+        },
+        "wallFeel": {
+          "title": "Walls should feel…",
+          "type": "string",
+          "enum": ["lightAiry","aBitCozier"]
+        },
+        "darkerSpots": {
+          "title": "Good spots for a darker moment",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["island","lowerCabinets","doors","none"]
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"cabinets": {"const": "keepCurrentColor"}}},
+          "then": {"required": ["cabinetsCurrentColor"]}
+        },
+        {
+          "if": {"properties": {"backsplash": {"const": "describe"}}},
+          "then": {"required": ["backsplashDescribe"]}
+        }
+      ]
+    },
+    "bathroom": {
+      "type": "object",
+      "properties": {
+        "tileMainColor": {
+          "title": "Tile main color",
+          "type": "string",
+          "enum": ["whiteOrCream","gray","color","pattern"]
+        },
+        "tileColorWhich": {
+          "title": "Which tile color?",
+          "type": "string"
+        },
+        "vanityTop": {
+          "title": "Vanity top",
+          "type": "string",
+          "enum": ["white","cream","wood","stone","other"]
+        },
+        "showerSteamLevel": {
+          "title": "Shower/steam level",
+          "type": "string",
+          "enum": ["low","medium","high"]
+        },
+        "fixtureMetal": {
+          "title": "Fixture metal",
+          "type": "string",
+          "enum": ["black","silver","gold","mixed"]
+        },
+        "goal": {
+          "title": "Goal",
+          "type": "string",
+          "enum": ["spaLike","energizing","moody"]
+        },
+        "darkerVanityOrDoor": {
+          "title": "Darker vanity or door?",
+          "type": "string",
+          "enum": ["vanity","door","neither"]
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"tileMainColor": {"const": "color"}}},
+          "then": {"required": ["tileColorWhich"]}
+        }
+      ]
+    },
+    "bedroom": {
+      "type": "object",
+      "properties": {
+        "sleepFeel": {
+          "title": "How should it feel when you sleep?",
+          "type": "string",
+          "enum": ["cocoon","airy","romantic","minimal"]
+        },
+        "beddingColors": {
+          "title": "Bedding colors",
+          "type": "string"
+        },
+        "headboard": {
+          "title": "Headboard",
+          "type": "string",
+          "enum": ["wood","upholstered","metal","none"]
+        },
+        "windowTreatments": {
+          "title": "Window treatments",
+          "type": "string",
+          "enum": ["white","woodTone","color","pattern","none"]
+        },
+        "darkerWallBehindBed": {
+          "title": "Darker wall behind bed?",
+          "type": "string",
+          "enum": ["yes","maybe","no"]
+        }
+      }
+    },
+    "livingRoom": {
+      "type": "object",
+      "properties": {
+        "sofaColor": {"title": "Sofa color", "type": "string"},
+        "rugMainColors": {"title": "Rug main colors", "type": "string"},
+        "fireplace": {
+          "title": "Fireplace",
+          "type": "string",
+          "enum": ["brick","stone","painted","none"]
+        },
+        "fireplaceDetail": {"title": "Fireplace detail", "type": "string"},
+        "tvWall": {
+          "title": "TV wall",
+          "type": "string",
+          "enum": ["yes","no"]
+        },
+        "builtInsOrDoorColor": {
+          "title": "Built-ins or door color",
+          "type": "string"
+        }
+      }
+    },
+    "diningRoom": {
+      "type": "object",
+      "properties": {
+        "tableWoodTone": {"title": "Table wood tone", "type": "string"},
+        "chairs": {
+          "title": "Chairs",
+          "type": "string",
+          "enum": ["wood","upholstered","mixed"]
+        },
+        "lightFixtureMetal": {
+          "title": "Light fixture metal",
+          "type": "string",
+          "enum": ["black","silver","gold","mixed"]
+        },
+        "feeling": {
+          "title": "Feeling",
+          "type": "string",
+          "enum": ["cozy","formal","casual"]
+        },
+        "darkerBelowOrOneWall": {
+          "title": "Darker below or one wall?",
+          "type": "string",
+          "enum": ["darkerBelow","oneWall","no"]
+        }
+      }
+    },
+    "office": {
+      "type": "object",
+      "properties": {
+        "workMood": {
+          "title": "Work mood",
+          "type": "string",
+          "enum": ["focus","creative","relaxed"]
+        },
+        "screenGlare": {
+          "title": "Screen glare",
+          "type": "string",
+          "enum": ["yes","no"]
+        },
+        "deeperLibraryWallsOk": {
+          "title": "Deeper library walls ok?",
+          "type": "string",
+          "enum": ["yes","maybe","no"]
+        },
+        "colorBookshelvesOrBuiltIns": {
+          "title": "Color bookshelves or built-ins",
+          "type": "string",
+          "enum": ["yes","maybe","no"]
+        }
+      }
+    },
+    "kidsRoom": {
+      "type": "object",
+      "properties": {
+        "mood": {
+          "title": "Mood",
+          "type": "string",
+          "enum": ["playful","calm","bright"]
+        },
+        "mainFabricToyColors": {"title": "Main fabric/toy colors", "type": "string"},
+        "superWipeableWalls": {
+          "title": "Super wipeable walls?",
+          "type": "string",
+          "enum": ["yes","no"]
+        },
+        "smallColorPopOk": {
+          "title": "Small color pop ok?",
+          "type": "string",
+          "enum": ["yes","maybe","no"]
+        }
+      }
+    },
+    "laundryMudroom": {
+      "type": "object",
+      "properties": {
+        "traffic": {
+          "title": "Traffic",
+          "type": "string",
+          "enum": ["low","medium","high"]
+        },
+        "cabinetsShelving": {
+          "title": "Cabinets/shelving",
+          "type": "string",
+          "enum": ["open","closed","mixed"]
+        },
+        "cabinetsColor": {
+          "title": "Cabinets color",
+          "type": "string",
+          "enum": ["white","wood","color"]
+        },
+        "hideDirtOrBrightClean": {
+          "title": "Hide dirt or bright clean?",
+          "type": "string",
+          "enum": ["hideDirt","brightClean"]
+        },
+        "doorColorMomentOk": {
+          "title": "Door color moment ok?",
+          "type": "string",
+          "enum": ["yes","maybe","no"]
+        }
+      }
+    },
+    "entryHall": {
+      "type": "object",
+      "properties": {
+        "naturalLight": {
+          "title": "Natural light",
+          "type": "string",
+          "enum": ["lots","some","little"]
+        },
+        "stairsBanister": {
+          "title": "Stairs/banister",
+          "type": "string",
+          "enum": ["wood","painted","none"]
+        },
+        "woodTone": {
+          "title": "Wood tone",
+          "type": "string"
+        },
+        "paintColor": {
+          "title": "Paint color",
+          "type": "string"
+        },
+        "feel": {
+          "title": "Feel",
+          "type": "string",
+          "enum": ["welcoming","dramatic","simple"]
+        },
+        "doorColorMoment": {
+          "title": "Door color moment",
+          "type": "string",
+          "enum": ["yes","maybe","no"]
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"stairsBanister": {"const": "wood"}}},
+          "then": {"required": ["woodTone"]}
+        },
+        {
+          "if": {"properties": {"stairsBanister": {"const": "painted"}}},
+          "then": {"required": ["paintColor"]}
+        }
+      ]
+    },
+    "otherRoom": {
+      "type": "object",
+      "properties": {
+        "describeRoom": {
+          "title": "Describe the room",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "existingElements": {
+            "properties": {
+              "floorLook": {"const": "other"}
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "existingElements": {"required": ["floorLookOtherNote"]}
+        }
+      }
+    }
+  ]
+}
+

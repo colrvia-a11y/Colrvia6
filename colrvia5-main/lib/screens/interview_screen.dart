@@ -1,25 +1,24 @@
 // lib/screens/interview_screen.dart
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:color_canvas/services/journey/journey_service.dart';
 import 'package:color_canvas/services/create_flow_progress.dart';
 import 'package:color_canvas/services/analytics_service.dart';
 import 'package:color_canvas/services/interview_engine.dart';
 import 'package:color_canvas/services/voice_assistant.dart';
+import 'package:color_canvas/services/schema_interview_compiler.dart';
 import 'package:color_canvas/widgets/interview_widgets.dart';
 
 enum InterviewMode { text, talk }
 
 class InterviewScreen extends StatefulWidget {
   const InterviewScreen({super.key});
-
   @override
   State<InterviewScreen> createState() => _InterviewScreenState();
 }
 
 class _InterviewScreenState extends State<InterviewScreen> {
   final JourneyService journey = JourneyService.instance;
-  final _engine = InterviewEngine.demo();
+  late InterviewEngine _engine; // built after schema load
   final _voice = VoiceAssistant();
   final _scroll = ScrollController();
 
@@ -27,22 +26,39 @@ class _InterviewScreenState extends State<InterviewScreen> {
   InterviewDepth _depth = InterviewDepth.quick;
 
   final _messages = <_Message>[];
+  bool _loading = true;
+  String? _loadError;
 
   @override
   void initState() {
     super.initState();
-    _engine.addListener(_onEngine);
+    _load();
+  }
 
+  Future<void> _load() async {
+    try {
+      final compiler = await SchemaInterviewCompiler.loadFromAsset('assets/schemas/single-room-color-intake.json');
+      final prompts = compiler.compile();
+      _engine = InterviewEngine.fromPrompts(prompts);
+    } catch (e) {
+      // graceful fallback to demo prompts if asset missing or invalid
+      _engine = InterviewEngine.demo();
+      _loadError = 'Schema load failed, using fallback prompts.';
+    }
+
+    _engine.addListener(_onEngine);
     final seed = journey.state.value?.artifacts['answers'] as Map<String, dynamic>?;
     _engine.start(seedAnswers: seed, depth: _depth);
 
     _enqueueSystem(_engine.current?.title ?? "Let's get started");
-    _voice.init();
+    await _voice.init();
+
+    if (mounted) setState(() => _loading = false);
   }
 
   @override
   void dispose() {
-    _engine.removeListener(_onEngine);
+    if (!_loading) _engine.removeListener(_onEngine);
     _voice.dispose();
     _scroll.dispose();
     super.dispose();
@@ -130,8 +146,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
     }
   }
 
-  // ---- Voice helpers ----
-
+  // ---- Voice helpers (kept from Patch 2) ----
   final Map<String, List<String>> _synonyms = {
     'veryBright': ['very bright','tons of light','super bright','flooded'],
     'kindaBright': ['pretty bright','fairly bright','some light','medium bright'],
@@ -187,13 +202,19 @@ class _InterviewScreenState extends State<InterviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(
+        appBar: AppBar(title: Text('Interview')),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     final prompt = _engine.current;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Interview'),
         actions: [
-          // Text ↔ Talk
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: SegmentedButton<InterviewMode>(
@@ -205,7 +226,6 @@ class _InterviewScreenState extends State<InterviewScreen> {
               onSelectionChanged: (s) => setState(() => _mode = s.first),
             ),
           ),
-          // Quick ↔ Full
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: SegmentedButton<InterviewDepth>(
@@ -226,6 +246,11 @@ class _InterviewScreenState extends State<InterviewScreen> {
         child: Column(
           children: [
             LinearProgressIndicator(value: _engine.progress > 0 ? _engine.progress : null),
+            if (_loadError != null)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(_loadError!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              ),
             Expanded(
               child: ListView.builder(
                 controller: _scroll,
@@ -341,7 +366,6 @@ class _Message {
 class _TextComposer extends StatefulWidget {
   final Future<void> Function(String) onSubmit;
   const _TextComposer({required this.onSubmit});
-
   @override
   State<_TextComposer> createState() => _TextComposerState();
 }
@@ -349,7 +373,6 @@ class _TextComposer extends StatefulWidget {
 class _TextComposerState extends State<_TextComposer> {
   final _controller = TextEditingController();
   bool _busy = false;
-
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -375,7 +398,6 @@ class _TextComposerState extends State<_TextComposer> {
       ],
     );
   }
-
   Future<void> _submit() async {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
@@ -391,7 +413,6 @@ class _TalkComposer extends StatelessWidget {
   final bool isListening;
   final bool isSpeaking;
   const _TalkComposer({required this.onMic, required this.isListening, required this.isSpeaking});
-
   @override
   Widget build(BuildContext context) {
     return Row(
