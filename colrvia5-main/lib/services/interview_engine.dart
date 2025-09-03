@@ -478,13 +478,13 @@ class InterviewEngine extends ChangeNotifier {
         id: 'colorComfort.overallVibe',
         title: 'Overall vibe for color',
         type: InterviewPromptType.singleSelect,
-        options: opt(['mostlySoftNeutrals','neutralsPlusGentleColors','confidentColorMoments']),
+        options: opt(['mostlySoftNeutrals', 'neutralsPlusGentleColors', 'confidentColorMoments']),
       ),
       InterviewPrompt(
         id: 'colorComfort.warmCoolFeel',
         title: 'Warm vs cool feel',
         type: InterviewPromptType.singleSelect,
-        options: opt(['warmer','cooler','inBetween']),
+        options: opt(['warmer', 'cooler', 'inBetween']),
       ),
       InterviewPrompt(
         id: 'colorComfort.contrastLevel',

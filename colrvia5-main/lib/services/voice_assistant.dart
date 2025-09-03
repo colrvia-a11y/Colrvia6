@@ -1,7 +1,9 @@
 // lib/services/voice_assistant.dart
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+// ignore: depend_on_referenced_packages
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+// ignore: depend_on_referenced_packages
 import 'package:flutter_tts/flutter_tts.dart' as tts;
 
 /// Simple voice layer that powers "AI Talk" mode: Listen → Think → Speak.

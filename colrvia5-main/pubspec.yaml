@@ -15,7 +15,7 @@ dependencies:
   firebase_app_check: ^0.4.0
   firebase_data_connect: ^0.2.0+1
   cloud_functions: ^6.0.0
-  firebase_functions: ^5.1.0
+  
   firebase_storage: ^13.0.0
   firebase_ai: any
   firebase_analytics: ^12.0.0
