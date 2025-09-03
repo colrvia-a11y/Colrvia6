@@ -40,10 +40,10 @@ class Palette {
 
   factory Palette.fromJson(Map<String, dynamic> j) {
     final roles = j['roles'] as Map<String, dynamic>;
-    PaintColor _pc(String k) => PaintColor.fromJson((roles[k] as Map).cast<String, dynamic>());
+    PaintColor pc(String k) => PaintColor.fromJson((roles[k] as Map).cast<String, dynamic>());
     return Palette(
       brand: j['brand'] ?? 'SherwinWilliams',
-      roles: PaletteRoles(anchor: _pc('anchor'), secondary: _pc('secondary'), accent: _pc('accent')),
+      roles: PaletteRoles(anchor: pc('anchor'), secondary: pc('secondary'), accent: pc('accent')),
       rationale: (j['rationale'] as Map?)?.cast<String, dynamic>(),
       id: j['id'] as String?,
     );

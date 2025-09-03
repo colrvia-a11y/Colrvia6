@@ -22,12 +22,12 @@ double _luminanceFromHex(String hex) {
   int g = int.parse(h.substring(3, 5), radix: 16);
   int b = int.parse(h.substring(5, 7), radix: 16);
 
-  double _lin(int c) {
+  double lin(int c) {
     double s = c / 255.0;
     return s <= 0.03928 ? s / 12.92 : pow((s + 0.055) / 1.055, 2.4).toDouble();
   }
 
-  final rl = _lin(r), gl = _lin(g), bl = _lin(b);
+  final rl = lin(r), gl = lin(g), bl = lin(b);
   return 0.2126 * rl + 0.7152 * gl + 0.0722 * bl;
 }
 

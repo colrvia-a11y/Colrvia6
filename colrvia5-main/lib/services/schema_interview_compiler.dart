@@ -224,14 +224,14 @@ class SchemaInterviewCompiler {
       final p = byId[r.targetId];
       if (p == null) continue;
       final orig = p.visibleIf;
-      final visible = (Map<String, dynamic> a) {
+      bool visible(Map<String, dynamic> a) {
         final v = a[r.dependsOn];
         final hit = v == r.equalsValue;
         if (orig != null) {
           return hit && orig(a);
         }
         return hit;
-      };
+      }
       // Replace with a new prompt instance carrying visibleIf
       byId[r.targetId] = InterviewPrompt(
         id: p.id,

@@ -413,7 +413,7 @@ class _MultiSelectEnumEditor extends StatefulWidget {
 }
 
 class _MultiSelectEnumEditorState extends State<_MultiSelectEnumEditor> {
-  late List<String> _selected = [...widget.values];
+  late final List<String> _selected = [...widget.values];
 
   @override
   Widget build(BuildContext context) {
@@ -493,7 +493,7 @@ class _FreeListEditor extends StatefulWidget {
 }
 
 class _FreeListEditorState extends State<_FreeListEditor> {
-  late List<String> _vals = [...widget.values];
+  late final List<String> _vals = [...widget.values];
   final _controller = TextEditingController();
 
   void _add() {

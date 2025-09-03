@@ -329,7 +329,7 @@ class InterviewEngine extends ChangeNotifier {
   // ---- prompts ----
 
   static List<InterviewPrompt> _buildDemoPrompts() {
-    final opt = (List<String> vs) => vs.map((v) => InterviewPromptOption(v, _labelize(v))).toList();
+    List<InterviewPromptOption> opt(List<String> vs) => vs.map((v) => InterviewPromptOption(v, _labelize(v))).toList();
 
     return [
       InterviewPrompt(

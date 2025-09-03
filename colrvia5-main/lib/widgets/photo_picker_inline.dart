@@ -1,6 +1,5 @@
 // lib/widgets/photo_picker_inline.dart
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:color_canvas/services/photo_upload_service.dart';
 
 class PhotoPickerInline extends StatefulWidget {

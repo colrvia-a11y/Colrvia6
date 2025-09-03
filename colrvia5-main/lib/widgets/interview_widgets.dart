@@ -10,7 +10,7 @@ class ChatBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final bg = isUser
         ? Theme.of(context).colorScheme.primaryContainer
-        : Theme.of(context).colorScheme.surfaceVariant;
+        : Theme.of(context).colorScheme.surfaceContainerHighest;
     final fg = Theme.of(context).colorScheme.onSurface;
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,

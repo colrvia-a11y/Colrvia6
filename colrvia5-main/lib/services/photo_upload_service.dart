@@ -17,7 +17,6 @@ class PhotoUploadService {
 
   Future<List<XFile>> pickPhotos({int max = 6}) async {
     final res = await _picker.pickMultiImage();
-    if (res == null) return [];
     return res.take(max).toList();
   }
 
