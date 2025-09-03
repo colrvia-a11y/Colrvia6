@@ -25,7 +25,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
 
   InterviewMode _mode = InterviewMode.text;
   InterviewDepth _depth = InterviewDepth.quick;
-  final _input = TextEditingController();
+
   final _messages = <_Message>[];
 
   @override
@@ -44,7 +44,6 @@ class _InterviewScreenState extends State<InterviewScreen> {
   void dispose() {
     _engine.removeListener(_onEngine);
     _voice.dispose();
-    _input.dispose();
     _scroll.dispose();
     super.dispose();
   }
@@ -80,6 +79,18 @@ class _InterviewScreenState extends State<InterviewScreen> {
     await journey.setArtifact('answers', _engine.answers);
   }
 
+  Future<void> _finish() async {
+    await journey.setArtifact('answers', _engine.answers);
+    await AnalyticsService.instance.logEvent('interview_completed');
+    await journey.completeCurrentStep();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nice! Generating your palette…')),
+      );
+      Navigator.of(context).maybePop();
+    }
+  }
+
   Future<void> _submitFreeText(String text) async {
     final prompt = _engine.current;
     if (prompt == null) return;
@@ -104,10 +115,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
     if (prompt == null) return;
     _enqueueUser(label);
 
-    final opt = prompt.options.firstWhere(
-      (o) => o.label == label,
-      orElse: () => prompt.options.first,
-    );
+    final opt = prompt.options.firstWhere((o) => o.label == label, orElse: () => prompt.options.first);
     _engine.setAnswer(prompt.id, opt.value);
     await _persistAnswers();
 
@@ -122,32 +130,18 @@ class _InterviewScreenState extends State<InterviewScreen> {
     }
   }
 
-  Future<void> _finish() async {
-    await journey.setArtifact('answers', _engine.answers);
-    await AnalyticsService.instance.logEvent('interview_completed');
-    await journey.completeCurrentStep();
-    if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Nice! Generating your palette…')));
-      Navigator.of(context).maybePop();
-    }
-  }
+  // ---- Voice helpers ----
 
-  void _setDepth(InterviewDepth d) {
-    setState(() => _depth = d);
-    _engine.setDepth(d);
-  }
-
-  Map<String, List<String>> _synonyms = {
-    'veryBright': ['very bright', 'tons of light', 'super bright', 'flooded'],
-    'kindaBright': ['pretty bright', 'fairly bright', 'some light', 'medium bright'],
-    'dim': ['dim', 'dark', 'little light', 'not much light'],
-    'cozyYellow_2700K': ['warm bulbs', 'yellow light', '2700', 'cozy'],
-    'neutral_3000_3500K': ['neutral', '3000', '3500', 'soft white'],
-    'brightWhite_4000KPlus': ['cool white', 'bright white', '4000', 'daylight'],
-    'loveIt': ['yes', 'love it', 'i like it', 'for sure'],
-    'maybe': ['maybe', 'not sure', 'depends'],
-    'noThanks': ['no', 'no thanks', 'skip it'],
+  final Map<String, List<String>> _synonyms = {
+    'veryBright': ['very bright','tons of light','super bright','flooded'],
+    'kindaBright': ['pretty bright','fairly bright','some light','medium bright'],
+    'dim': ['dim','dark','little light','not much light'],
+    'cozyYellow_2700K': ['warm bulbs','yellow light','2700','cozy'],
+    'neutral_3000_3500K': ['neutral','3000','3500','soft white'],
+    'brightWhite_4000KPlus': ['cool white','bright white','4000','daylight'],
+    'loveIt': ['yes','love it','i like it','for sure'],
+    'maybe': ['maybe','not sure','depends'],
+    'noThanks': ['no','no thanks','skip it'],
   };
 
   String? _fuzzyValueFromSpeech(InterviewPrompt prompt, String heard) {
@@ -194,38 +188,38 @@ class _InterviewScreenState extends State<InterviewScreen> {
   @override
   Widget build(BuildContext context) {
     final prompt = _engine.current;
-    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Interview'),
         actions: [
-          SegmentedButton<InterviewMode>(
-            segments: const [
-              ButtonSegment(
-                value: InterviewMode.text,
-                label: Text('Text'),
-                icon: Icon(Icons.chat_bubble_outline),
-              ),
-              ButtonSegment(
-                value: InterviewMode.talk,
-                label: Text('Talk'),
-                icon: Icon(Icons.mic_none),
-              ),
-            ],
-            selected: {_mode},
-            onSelectionChanged: (s) => setState(() => _mode = s.first),
+          // Text ↔ Talk
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: SegmentedButton<InterviewMode>(
+              segments: const [
+                ButtonSegment(value: InterviewMode.text, label: Text('Text'), icon: Icon(Icons.chat_bubble_outline)),
+                ButtonSegment(value: InterviewMode.talk, label: Text('Talk'), icon: Icon(Icons.mic_none)),
+              ],
+              selected: {_mode},
+              onSelectionChanged: (s) => setState(() => _mode = s.first),
+            ),
           ),
-          const SizedBox(width: 8),
-          SegmentedButton<InterviewDepth>(
-            segments: const [
-              ButtonSegment(value: InterviewDepth.quick, label: Text('Quick')),
-              ButtonSegment(value: InterviewDepth.full, label: Text('Full')),
-            ],
-            selected: {_depth},
-            onSelectionChanged: (s) => _setDepth(s.first),
+          // Quick ↔ Full
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: SegmentedButton<InterviewDepth>(
+              segments: const [
+                ButtonSegment(value: InterviewDepth.quick, label: Text('Quick')),
+                ButtonSegment(value: InterviewDepth.full, label: Text('Full')),
+              ],
+              selected: {_depth},
+              onSelectionChanged: (s) {
+                setState(() => _depth = s.first);
+                _engine.setDepth(_depth);
+              },
+            ),
           ),
-          const SizedBox(width: 8),
         ],
       ),
       body: SafeArea(
@@ -240,17 +234,15 @@ class _InterviewScreenState extends State<InterviewScreen> {
                 itemBuilder: (context, i) {
                   if (i < _messages.length) {
                     final m = _messages[i];
-                    return ChatBubble(
-                      isUser: m.isUser,
-                      child: Text(m.text),
-                    );
+                    return ChatBubble(isUser: m.isUser, child: Text(m.text));
                   }
+
                   if (prompt == null) return const SizedBox();
 
                   final help = prompt.help != null
                       ? Padding(
                           padding: const EdgeInsets.only(top: 6.0),
-                          child: Text(prompt.help!, style: theme.textTheme.bodySmall),
+                          child: Text(prompt.help!, style: Theme.of(context).textTheme.bodySmall),
                         )
                       : const SizedBox.shrink();
 
@@ -279,8 +271,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
                             maxItems: prompt.maxItems,
                             onChanged: (vals) {
                               final values = vals
-                                  .map((l) =>
-                                      prompt.options.firstWhere((o) => o.label == l).value)
+                                  .map((l) => prompt.options.firstWhere((o) => o.label == l).value)
                                   .toList();
                               _engine.setAnswer(prompt.id, values);
                               _persistAnswers();
@@ -288,26 +279,22 @@ class _InterviewScreenState extends State<InterviewScreen> {
                           ),
                           help,
                           const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              ElevatedButton.icon(
-                                onPressed: () async {
-                                  _enqueueUser('Selections updated');
-                                  _engine.next();
-                                  if (_engine.current != null) {
-                                    _enqueueSystem(_engine.current!.title);
-                                    if (_mode == InterviewMode.talk) {
-                                      _voice.speak(_engine.current!.title);
-                                    }
-                                  } else {
-                                    await _finish();
-                                  }
-                                },
-                                icon: const Icon(Icons.check),
-                                label: const Text('Continue'),
-                              ),
-                            ],
-                          ),
+                          Row(children: [
+                            ElevatedButton.icon(
+                              onPressed: () async {
+                                _enqueueUser('Selections updated');
+                                _engine.next();
+                                if (_engine.current != null) {
+                                  _enqueueSystem(_engine.current!.title);
+                                  if (_mode == InterviewMode.talk) _voice.speak(_engine.current!.title);
+                                } else {
+                                  await _finish();
+                                }
+                              },
+                              icon: const Icon(Icons.check),
+                              label: const Text('Continue'),
+                            ),
+                          ]),
                         ],
                       );
                     case InterviewPromptType.yesNo:
@@ -316,9 +303,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
                         children: [
                           ChatBubble(isUser: false, child: Text(prompt.title)),
                           const SizedBox(height: 8),
-                          OptionChips(options: const ['Yes', 'No'], onTap: (val) {
-                            _selectSingle(val);
-                          }),
+                          OptionChips(options: const ['Yes','No'], onTap: (val) => _selectSingle(val)),
                           help,
                         ],
                       );
@@ -332,11 +317,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
                           const SizedBox(height: 8),
                           _mode == InterviewMode.text
                               ? _TextComposer(onSubmit: _submitFreeText)
-                              : _TalkComposer(
-                                  onMic: _handleTalkTap,
-                                  isListening: _voice.isListening,
-                                  isSpeaking: _voice.isSpeaking,
-                                ),
+                              : _TalkComposer(onMic: _handleTalkTap, isListening: _voice.isListening, isSpeaking: _voice.isSpeaking),
                         ],
                       );
                   }
@@ -409,8 +390,7 @@ class _TalkComposer extends StatelessWidget {
   final VoidCallback onMic;
   final bool isListening;
   final bool isSpeaking;
-  const _TalkComposer(
-      {required this.onMic, required this.isListening, required this.isSpeaking});
+  const _TalkComposer({required this.onMic, required this.isListening, required this.isSpeaking});
 
   @override
   Widget build(BuildContext context) {
@@ -425,9 +405,7 @@ class _TalkComposer extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Theme.of(context).dividerColor),
             ),
-            child: Text(isListening
-                ? 'Listening…'
-                : (isSpeaking ? 'Speaking…' : 'Tap the mic and answer')),
+            child: Text(isListening ? 'Listening…' : (isSpeaking ? 'Speaking…' : 'Tap the mic and answer')),
           ),
         ),
         const SizedBox(width: 8),

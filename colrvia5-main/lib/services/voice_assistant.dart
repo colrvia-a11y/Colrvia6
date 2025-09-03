@@ -4,8 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
 
-/// Simple voice layer that powers "AI Talk" mode: Listen → Think → Speak
-/// The "Think" phase is managed by the InterviewScreen/Engine, not here.
+/// Simple voice layer that powers "AI Talk" mode: Listen → Think → Speak.
 class VoiceAssistant extends ChangeNotifier {
   final stt.SpeechToText _speech = stt.SpeechToText();
   final FlutterTts _tts = FlutterTts();
@@ -31,14 +30,12 @@ class VoiceAssistant extends ChangeNotifier {
 
   Future<String?> listenOnce({Duration timeout = const Duration(seconds: 8)}) async {
     if (!_available) return null;
-    _listening = true;
-    notifyListeners();
+    _listening = true; notifyListeners();
 
     final completer = Completer<String?>();
     String last = '';
 
     await _speech.listen(
-      localeId: null,
       listenMode: stt.ListenMode.dictation,
       onResult: (res) {
         last = res.recognizedWords;
@@ -59,27 +56,22 @@ class VoiceAssistant extends ChangeNotifier {
 
     final text = await completer.future;
     await _speech.stop();
-    _listening = false;
-    notifyListeners();
+    _listening = false; notifyListeners();
     return text;
   }
 
   Future<void> speak(String text) async {
-    _speaking = true;
-    notifyListeners();
+    _speaking = true; notifyListeners();
     await _tts.stop();
     await _tts.speak(text);
     await _tts.awaitSpeakCompletion(true);
-    _speaking = false;
-    notifyListeners();
+    _speaking = false; notifyListeners();
   }
 
   Future<void> stop() async {
     await _speech.stop();
     await _tts.stop();
-    _listening = false;
-    _speaking = false;
-    notifyListeners();
+    _listening = false; _speaking = false; notifyListeners();
   }
 
   @override
