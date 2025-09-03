@@ -6,6 +6,8 @@ import 'package:color_canvas/services/analytics_service.dart';
 import 'package:color_canvas/services/interview_engine.dart';
 import 'package:color_canvas/services/voice_assistant.dart';
 import 'package:color_canvas/services/schema_interview_compiler.dart';
+import 'package:color_canvas/services/nlu_enum_mapper.dart';
+import 'package:color_canvas/services/transcript_recorder.dart';
 import 'package:color_canvas/widgets/interview_widgets.dart';
 import 'package:color_canvas/screens/interview_review_screen.dart';
 import 'package:color_canvas/widgets/photo_picker_inline.dart';
@@ -24,6 +26,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
   late InterviewEngine _engine; // built after schema load
   final _voice = VoiceAssistant();
   final _scroll = ScrollController();
+  final _transcript = TranscriptRecorder();
 
   InterviewMode _mode = InterviewMode.text;
   InterviewDepth _depth = InterviewDepth.quick;
@@ -53,7 +56,16 @@ class _InterviewScreenState extends State<InterviewScreen> {
     final seed = journey.state.value?.artifacts['answers'] as Map<String, dynamic>?;
     _engine.start(seedAnswers: seed, depth: _depth);
 
-    _enqueueSystem(_engine.current?.title ?? "Let's get started");
+    final cur = _engine.current;
+    if (cur != null) {
+      _enqueueSystem(cur.title);
+      _transcript.add(
+        TranscriptEvent(type: 'question', text: cur.title, promptId: cur.id),
+      );
+    } else {
+      _enqueueSystem("Let's get started");
+    }
+
     await _voice.init();
 
     if (mounted) setState(() => _loading = false);
@@ -118,12 +130,19 @@ class _InterviewScreenState extends State<InterviewScreen> {
       _engine.jumpTo(jumpTo);
       if (_engine.current != null) {
         _enqueueSystem('Let\'s update: ${_engine.current!.title}');
+        _transcript.add(TranscriptEvent(
+            type: 'question',
+            text: _engine.current!.title,
+            promptId: _engine.current!.id));
         if (_mode == InterviewMode.talk) _voice.speak(_engine.current!.title);
       }
       return; // back to chat to edit
     }
 
     // If review confirmed (no jump back), the Review screen already completed the journey.
+    try {
+      await _transcript.uploadJson();
+    } catch (_) {}
     if (mounted) Navigator.of(context).maybePop();
   }
 
@@ -134,10 +153,15 @@ class _InterviewScreenState extends State<InterviewScreen> {
     _enqueueUser(text);
     _engine.setAnswer(prompt.id, text);
     await _persistAnswers();
+    _transcript.add(TranscriptEvent(type: 'answer', text: text, promptId: prompt.id));
 
     _engine.next();
     if (_engine.current != null) {
       _enqueueSystem(_engine.current!.title);
+      _transcript.add(TranscriptEvent(
+          type: 'question',
+          text: _engine.current!.title,
+          promptId: _engine.current!.id));
       if (_mode == InterviewMode.talk) {
         _voice.speak(_engine.current!.title);
       }
@@ -154,10 +178,15 @@ class _InterviewScreenState extends State<InterviewScreen> {
     final opt = prompt.options.firstWhere((o) => o.label == label, orElse: () => prompt.options.first);
     _engine.setAnswer(prompt.id, opt.value);
     await _persistAnswers();
+    _transcript.add(TranscriptEvent(type: 'answer', text: opt.value, promptId: prompt.id));
 
     _engine.next();
     if (_engine.current != null) {
       _enqueueSystem(_engine.current!.title);
+      _transcript.add(TranscriptEvent(
+          type: 'question',
+          text: _engine.current!.title,
+          promptId: _engine.current!.id));
       if (_mode == InterviewMode.talk) {
         _voice.speak(_engine.current!.title);
       }
@@ -166,59 +195,108 @@ class _InterviewScreenState extends State<InterviewScreen> {
     }
   }
 
-  // ---- Voice helpers (kept from Patch 2) ----
-  final Map<String, List<String>> _synonyms = {
-    'veryBright': ['very bright','tons of light','super bright','flooded'],
-    'kindaBright': ['pretty bright','fairly bright','some light','medium bright'],
-    'dim': ['dim','dark','little light','not much light'],
-    'cozyYellow_2700K': ['warm bulbs','yellow light','2700','cozy'],
-    'neutral_3000_3500K': ['neutral','3000','3500','soft white'],
-    'brightWhite_4000KPlus': ['cool white','bright white','4000','daylight'],
-    'loveIt': ['yes','love it','i like it','for sure'],
-    'maybe': ['maybe','not sure','depends'],
-    'noThanks': ['no','no thanks','skip it'],
-  };
-
-  String? _fuzzyValueFromSpeech(InterviewPrompt prompt, String heard) {
-    final h = heard.toLowerCase();
-    for (final o in prompt.options) {
-      if (h.contains(o.label.toLowerCase())) return o.value;
-    }
-    for (final o in prompt.options) {
-      final syns = _synonyms[o.value] ?? const [];
-      if (syns.any((s) => h.contains(s))) return o.value;
-    }
-    return null;
-  }
-
   Future<void> _handleTalkTap() async {
     final prompt = _engine.current;
     if (prompt == null) return;
-
     final heard = await _voice.listenOnce();
     if (heard == null || heard.isEmpty) return;
+    _transcript.add(TranscriptEvent(type: 'user', text: heard, promptId: prompt.id));
 
     switch (prompt.type) {
       case InterviewPromptType.singleSelect:
-        final match = _fuzzyValueFromSpeech(prompt, heard);
-        if (match != null) {
-          final label = prompt.options.firstWhere((o) => o.value == match).label;
-          await _selectSingle(label);
+        final m = EnumMapper.instance.mapSingle(prompt, heard);
+        if (m != null) {
+          final label =
+              prompt.options.firstWhere((o) => o.value == m.value).label;
+          _enqueueUser(label);
+          _engine.setAnswer(prompt.id, m.value);
+          await _persistAnswers();
+          _transcript.add(
+              TranscriptEvent(type: 'answer', text: m.value, promptId: prompt.id));
+          _engine.next();
         } else {
-          _enqueueSystem('I heard "$heard". Could you tap or say one of the options?');
+          _enqueueSystem(
+              'I heard "$heard". Could you pick one of the options?');
           _voice.speak('Please choose one of the options on screen.');
+          _transcript.add(
+              TranscriptEvent(type: 'note', text: 'low-confidence'));
         }
         break;
-      case InterviewPromptType.freeText:
-        await _submitFreeText(heard);
-        break;
-      case InterviewPromptType.multiSelect:
+
       case InterviewPromptType.yesNo:
-        _enqueueSystem('Please tap to pick your choices.');
-        _voice.speak('Please tap your choices.');
+        final m = EnumMapper.instance.mapSingle(
+          InterviewPrompt(
+            id: prompt.id,
+            title: prompt.title,
+            type: InterviewPromptType.singleSelect,
+            options: const [
+              InterviewPromptOption('yes', 'Yes'),
+              InterviewPromptOption('no', 'No'),
+            ],
+          ),
+          heard,
+        );
+        if (m != null) {
+          final label = m.value == 'yes' ? 'Yes' : 'No';
+          _enqueueUser(label);
+          _engine.setAnswer(prompt.id, m.value);
+          await _persistAnswers();
+          _transcript.add(
+              TranscriptEvent(type: 'answer', text: m.value, promptId: prompt.id));
+          _engine.next();
+        } else {
+          _enqueueSystem('Please say yes or no.');
+          _voice.speak('Please say yes or no.');
+        }
+        break;
+
+      case InterviewPromptType.multiSelect:
+        if (prompt.options.isEmpty) {
+          _enqueueSystem('Please tap to add items for this one.');
+          _voice.speak('Please tap to add items for this one.');
+          return;
+        }
+        final picks = EnumMapper.instance.mapMulti(prompt, heard);
+        if (picks.isNotEmpty) {
+          final labels = picks
+              .map((v) =>
+                  prompt.options.firstWhere((o) => o.value == v).label)
+              .toList();
+          _enqueueUser(labels.join(', '));
+          _engine.setAnswer(prompt.id, picks);
+          await _persistAnswers();
+          _transcript.add(TranscriptEvent(
+              type: 'answer', text: picks.join(','), promptId: prompt.id));
+          _engine.next();
+        } else {
+          _enqueueSystem(
+              'I heard "$heard". Could you tap to choose one or more options?');
+          _voice.speak('Please tap to choose one or more options.');
+        }
+        break;
+
+      case InterviewPromptType.freeText:
+        _enqueueUser(heard);
+        _engine.setAnswer(prompt.id, heard);
+        await _persistAnswers();
+        _transcript.add(
+            TranscriptEvent(type: 'answer', text: heard, promptId: prompt.id));
+        _engine.next();
         break;
     }
+
+    if (_engine.current != null) {
+      _enqueueSystem(_engine.current!.title);
+      _transcript.add(TranscriptEvent(
+          type: 'question',
+          text: _engine.current!.title,
+          promptId: _engine.current!.id));
+      if (_mode == InterviewMode.talk) _voice.speak(_engine.current!.title);
+    } else {
+      await _finish();
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -334,6 +412,10 @@ class _InterviewScreenState extends State<InterviewScreen> {
                                   _engine.next();
                                   if (_engine.current != null) {
                                     _enqueueSystem(_engine.current!.title);
+                                    _transcript.add(TranscriptEvent(
+                                        type: 'question',
+                                        text: _engine.current!.title,
+                                        promptId: _engine.current!.id));
                                     if (_mode == InterviewMode.talk) _voice.speak(_engine.current!.title);
                                   } else {
                                     await _finish();
@@ -373,6 +455,10 @@ class _InterviewScreenState extends State<InterviewScreen> {
                                 _engine.next();
                                 if (_engine.current != null) {
                                   _enqueueSystem(_engine.current!.title);
+                                  _transcript.add(TranscriptEvent(
+                                      type: 'question',
+                                      text: _engine.current!.title,
+                                      promptId: _engine.current!.id));
                                   if (_mode == InterviewMode.talk) _voice.speak(_engine.current!.title);
                                 } else {
                                   await _finish();

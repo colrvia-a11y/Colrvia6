@@ -3,6 +3,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:firebase_functions/firebase_functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:color_canvas/services/transcript_recorder.dart';
 
 class LiveTalkService {
   LiveTalkService._();
@@ -13,6 +14,8 @@ class LiveTalkService {
   MediaStream? _mic;
   MediaStream? _remote;
   RTCDataChannel? _dc;
+  TranscriptRecorder? _callTranscript;
+  String? _sessionId;
 
   Stream<DocumentSnapshot<Map<String, dynamic>>> sessionStream(String sessionId) =>
       FirebaseFirestore.instance.doc('talkSessions/$sessionId').snapshots();
@@ -39,6 +42,8 @@ class LiveTalkService {
 
   Future<void> connect({required String sessionId, required Uri gatewayWss}) async {
     await _ensureMic();
+    _sessionId = sessionId;
+    _callTranscript = TranscriptRecorder();
 
     final auth = await _issueToken(sessionId);
 
@@ -67,6 +72,29 @@ class LiveTalkService {
 
     // Data channel (events)
     _dc = await _pc!.createDataChannel('events', RTCDataChannelInit()..ordered = true);
+    _dc?.onMessage = (msg) {
+      try {
+        final m = jsonDecode(msg.text) as Map<String, dynamic>;
+        switch (m['type']) {
+          case 'question':
+            _callTranscript?.add(TranscriptEvent(
+                type: 'question',
+                text: m['title'] ?? '',
+                promptId: m['id']));
+            break;
+          case 'partial':
+            _callTranscript?.add(
+                TranscriptEvent(type: 'partial', text: m['text'] ?? ''));
+            break;
+          case 'answer':
+            _callTranscript?.add(TranscriptEvent(
+                type: 'answer',
+                text: '${m['id']}:${m['value']}'
+            ));
+            break;
+        }
+      } catch (_) {}
+    };
 
     // Create offer
     final offer = await _pc!.createOffer();
@@ -108,6 +136,8 @@ class LiveTalkService {
     try { await _dc?.close(); } catch (_) {}
     try { await _pc?.close(); } catch (_) {}
     try { await _mic?.dispose(); } catch (_) {}
+    try { await _callTranscript?.uploadJson(sessionId: _sessionId); } catch (_) {}
+    _callTranscript = null; _sessionId = null;
     _dc = null; _pc = null; _mic = null; _remote = null;
   }
 }
