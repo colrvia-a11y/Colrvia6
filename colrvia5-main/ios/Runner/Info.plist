@@ -50,7 +50,7 @@
         <key>NSCameraUsageDescription</key>
         <string>We use the camera so you can capture your room.</string>
         <key>NSMicrophoneUsageDescription</key>
-        <string>We use the microphone so you can answer by voice.</string>
+        <string>Colrvia uses your mic so you can talk during the AI call.</string>
         <key>NSSpeechRecognitionUsageDescription</key>
         <string>We use speech recognition to transcribe your answers.</string>
 </dict>
