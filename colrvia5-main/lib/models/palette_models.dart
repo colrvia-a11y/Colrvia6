@@ -59,4 +59,18 @@ class Palette {
         if (rationale != null) 'rationale': rationale,
         if (id != null) 'id': id,
       };
+
+  Palette copyWith({
+    String? brand,
+    PaletteRoles? roles,
+    Map<String, dynamic>? rationale,
+    String? id,
+  }) {
+    return Palette(
+      brand: brand ?? this.brand,
+      roles: roles ?? this.roles,
+      rationale: rationale ?? this.rationale,
+      id: id ?? this.id,
+    );
+  }
 }
