@@ -1,5 +1,6 @@
 // lib/screens/interview_review_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' show RadioGroup;
 import 'package:color_canvas/services/journey/journey_service.dart';
 import 'package:color_canvas/services/interview_engine.dart';
 import 'package:color_canvas/widgets/photo_picker_inline.dart';
@@ -389,13 +390,15 @@ class _SingleSelectEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: prompt.options.map((o) => RadioListTile<String>(
-        value: o.value,
-        groupValue: value,
-        onChanged: onChanged,
-        title: Text(o.label),
-      )).toList(),
+    return RadioGroup<String>(
+      groupValue: value,
+      onChanged: onChanged,
+      child: Column(
+        children: prompt.options.map((o) => RadioListTile<String>(
+          value: o.value,
+          title: Text(o.label),
+        )).toList(),
+      ),
     );
   }
 }
@@ -474,10 +477,14 @@ class _YesNoEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      RadioListTile<String>(value: 'yes', groupValue: value, onChanged: onChanged, title: const Text('Yes')),
-      RadioListTile<String>(value: 'no', groupValue: value, onChanged: onChanged, title: const Text('No')),
-    ]);
+    return RadioGroup<String>(
+      groupValue: value,
+      onChanged: onChanged,
+      child: Column(children: [
+        RadioListTile<String>(value: 'yes', title: const Text('Yes')),
+        RadioListTile<String>(value: 'no', title: const Text('No')),
+      ]),
+    );
   }
 }
 
