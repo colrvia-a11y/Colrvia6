@@ -59,6 +59,7 @@ dependencies:
   # Voice assistant dependencies
   speech_to_text: ^7.3.0
   flutter_tts: ^4.2.3
+  flutter_webrtc: ^0.11.7
 
 dev_dependencies:
   flutter_test:

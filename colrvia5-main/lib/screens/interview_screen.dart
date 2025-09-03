@@ -9,6 +9,7 @@ import 'package:color_canvas/services/schema_interview_compiler.dart';
 import 'package:color_canvas/widgets/interview_widgets.dart';
 import 'package:color_canvas/screens/interview_review_screen.dart';
 import 'package:color_canvas/widgets/photo_picker_inline.dart';
+import 'package:color_canvas/screens/talk_entry_screen.dart';
 
 enum InterviewMode { text, talk }
 
@@ -258,6 +259,13 @@ class _InterviewScreenState extends State<InterviewScreen> {
                 _engine.setDepth(_depth);
               },
             ),
+          ),
+          IconButton(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const TalkEntryScreen()),
+            ),
+            icon: const Icon(Icons.call),
+            tooltip: 'Call AI',
           ),
         ],
       ),
