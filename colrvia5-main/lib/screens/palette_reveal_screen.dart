@@ -3,6 +3,7 @@ import 'package:color_canvas/models/palette_models.dart';
 import 'package:color_canvas/services/contrast_utils.dart';
 import 'package:color_canvas/services/palette_suggestions_service.dart';
 import 'package:color_canvas/services/journey/journey_service.dart';
+import 'package:color_canvas/screens/visualizer_painter_alt_screen.dart';
 
 class PaletteRevealScreen extends StatefulWidget {
   final Map<String, dynamic>? paletteJson; // optional direct payload
@@ -108,10 +109,25 @@ class _PaletteRevealScreenState extends State<PaletteRevealScreen> {
             const SizedBox(height: 16),
             _swapAccentSection(context, pal, accent),
             const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: _saving ? null : _goVisualizer,
-              icon: const Icon(Icons.photo_size_select_large_outlined),
-              label: const Text('See it on your walls'),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                FilledButton.icon(
+                  onPressed: _saving ? null : _goVisualizer,
+                  icon: const Icon(Icons.photo_size_select_large_outlined),
+                  label: const Text('See it on your walls'),
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const VisualizerPainterAltScreen()),
+                    );
+                  },
+                  icon: const Icon(Icons.brush_outlined),
+                  label: const Text('Try Paint Overlay (Alt Visualizer)'),
+                ),
+              ],
             ),
           ],
         ),
