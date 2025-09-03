@@ -6,6 +6,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_performance/firebase_performance.dart';
 import 'package:color_canvas/screens/compare_screen.dart';
 // REGION: CODEX-ADD compare-colors-import
 import 'package:color_canvas/screens/compare_colors_screen.dart';
@@ -24,6 +26,7 @@ import 'package:color_canvas/services/network_utils.dart';
 import 'package:color_canvas/utils/debug_logger.dart';
 import 'package:color_canvas/models/user_palette.dart';
 import 'services/feature_flags.dart';
+import 'package:color_canvas/services/analytics_service.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'services/sync_queue_service.dart';
 import 'services/notifications_service.dart';
@@ -32,7 +35,7 @@ import 'services/notifications_service.dart';
 // Global Firebase state
 bool isFirebaseInitialized = false;
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await runZonedGuarded(() async {
@@ -104,7 +107,11 @@ void main() async {
 
     await NotificationsService.instance.init();
 
+    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
+    FirebasePerformance.instance; // warm up
+
     Debug.info('App', 'main', 'Running app');
+    runApp(const MyApp());
   } catch (e, stack) {
     // Handle Firebase initialization errors
     isFirebaseInitialized = false;
@@ -114,7 +121,6 @@ void main() async {
 }, (error, stack) {
   FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
 });
-  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -126,6 +132,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Debug.build('MyApp', 'build', details: 'Building main app widget');
+    AnalyticsService.instance.logAppOpen();
     return Shortcuts(
       shortcuts: {
         LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyK):
@@ -164,6 +171,14 @@ class MyApp extends StatelessWidget {
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: ThemeMode.system,
+          builder: (context, child) {
+            final media = MediaQuery.of(context);
+            final scale = media.textScaler.clamp(maxScaleFactor: 1.3);
+            return MediaQuery(
+              data: media.copyWith(textScaler: scale),
+              child: child ?? const SizedBox(),
+            );
+          },
           home: const AuthCheckScreen(),
           routes: {
             '/auth': (context) => const AuthWrapper(),

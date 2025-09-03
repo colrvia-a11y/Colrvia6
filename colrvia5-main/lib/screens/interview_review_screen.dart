@@ -117,16 +117,24 @@ class _InterviewReviewScreenState extends State<InterviewReviewScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (editable)
-            TextButton.icon(
-              onPressed: () => _editInline(r.id),
-              icon: const Icon(Icons.tune_outlined),
-              label: const Text('Quick edit'),
+            Semantics(
+              button: true,
+              label: 'Quick edit \\${r.label}',
+              child: TextButton.icon(
+                onPressed: () => _editInline(r.id),
+                icon: const Icon(Icons.tune_outlined),
+                label: const Text('Quick edit'),
+              ),
             ),
-          const SizedBox(width: 8),
-          TextButton.icon(
-            onPressed: () => _editInChat(r.id),
-            icon: const Icon(Icons.edit_outlined),
-            label: const Text('Edit in chat'),
+          if (editable) const SizedBox(width: 8),
+          Semantics(
+            button: true,
+            label: 'Edit \\${r.label} in chat',
+            child: TextButton.icon(
+              onPressed: () => _editInChat(r.id),
+              icon: const Icon(Icons.edit_outlined),
+              label: const Text('Edit in chat'),
+            ),
           ),
         ],
       ),

@@ -5,15 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/rendering.dart';
 
 import 'package:color_canvas/models/palette_models.dart';
 import 'package:color_canvas/services/journey/journey_service.dart';
 import 'package:color_canvas/widgets/photo_picker_inline.dart';
+import 'package:color_canvas/services/analytics_service.dart';
 
 class VisualizerPainterAltScreen extends StatefulWidget {
   const VisualizerPainterAltScreen({super.key});
-
   @override
   State<VisualizerPainterAltScreen> createState() => _VisualizerPainterAltScreenState();
 }
@@ -31,7 +30,7 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
 
   final _strokesByPhoto = <int, List<_Stroke>>{};
   _Stroke? _current;
-  Offset? _lastPt;
+  Offset? _lastPt; // decimation
 
   @override
   void initState() {
@@ -45,6 +44,7 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
     Palette? pal; if (pjson != null) pal = Palette.fromJson(pjson);
     final photos = (art['answers']?['photos'] as List?)?.cast<String>() ?? const [];
     setState(() { _pal = pal; _photos = photos; });
+    try { await AnalyticsService.instance.visualizerOpened(); } catch (_) {}
   }
 
   Color _parse(String hex) {
@@ -74,17 +74,23 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
   }
 
   void _drag(Offset p) {
+    // Decimate points for smoother performance on large brushes
     final last = _lastPt; if (last == null) return;
     final dx = p.dx - last.dx, dy = p.dy - last.dy;
     final dist2 = dx*dx + dy*dy;
-    final minDist = (_brush * 0.35);
+    final minDist = (_brush * 0.35); // brush‑relative threshold
     if (dist2 < minDist * minDist) return;
     _current?.path.lineTo(p.dx, p.dy);
     _lastPt = p;
     setState(() {});
   }
 
-  void _end() { _current = null; _lastPt = null; }
+  Future<void> _end() async {
+    if (_current != null) {
+      try { await AnalyticsService.instance.visualizerStroke(role: _current!.role); } catch (_) {}
+    }
+    _current = null; _lastPt = null;
+  }
 
   void _undo() { final s = _strokes; if (s.isNotEmpty) setState(() => s.removeLast()); }
   void _clear() { setState(() => _strokesByPhoto[_index] = <_Stroke>[]); }
@@ -99,11 +105,12 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
       final dir = await getTemporaryDirectory();
       final f = File('${dir.path}/colrvia-overlay-${DateTime.now().millisecondsSinceEpoch}.png');
       await f.writeAsBytes(bytes);
-      // ignore: use_build_context_synchronously
+      if (!mounted) return;
       await Share.shareXFiles([XFile(f.path)], text: 'Colrvia Paint Overlay');
+      try { await AnalyticsService.instance.vizExport(); } catch (_) {}
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Export failed: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Export failed')));
     }
   }
 
@@ -151,9 +158,9 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
         const SizedBox(width: 8),
         _rolePill('accent', pal.roles.accent.name, pal.roles.accent.code, 'Door/Built-ins'),
         const Spacer(),
-        IconButton(onPressed: _undo, icon: const Icon(Icons.undo), tooltip: 'Undo'),
-        IconButton(onPressed: _clear, icon: const Icon(Icons.delete_sweep_outlined), tooltip: 'Clear'),
-        IconButton(onPressed: _export, icon: const Icon(Icons.ios_share), tooltip: 'Share'),
+        IconButton(onPressed: _undo, icon: const Icon(Icons.undo), tooltip: 'Undo last stroke'),
+        IconButton(onPressed: _clear, icon: const Icon(Icons.delete_sweep_outlined), tooltip: 'Clear painting'),
+        IconButton(onPressed: _export, icon: const Icon(Icons.ios_share), tooltip: 'Share image'),
       ]),
     );
   }
@@ -278,7 +285,7 @@ class _Painter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round
-        ..blendMode = BlendMode.multiply; // keep texture
+        ..blendMode = BlendMode.multiply; // preserve texture
       canvas.drawPath(s.path, paint);
     }
   }

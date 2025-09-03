@@ -28,12 +28,13 @@ dependencies:
   just_audio: ^0.10.4
   share_plus: ^11.1.0
   firebase_crashlytics: ^5.0.0
+  firebase_performance: ^0.10.0+18
   package_info_plus: ^8.0.0
   collection: ^1.18.0
   logging: ^1.2.0
   cupertino_icons: ^1.0.8
   google_fonts: ^6.1.0
-  shared_preferences: ^2.0.0
+  shared_preferences: ^2.3.2
   flutter_svg: ^2.0.0
   image: ^4.3.0
   path_provider: ^2.1.3
