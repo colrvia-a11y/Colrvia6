@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:color_canvas/services/interview_engine.dart';
 
-/// Compiles a (subset of) JSON Schema → List<InterviewPrompt>
+/// Compiles a (subset of) JSON Schema to List<InterviewPrompt>
 /// Supported: object/string/array/boolean, enum, min/maxItems, uniqueItems,
 /// nested properties, $defs (room branches), basic if/then required visibility.
 class SchemaInterviewCompiler {
@@ -25,7 +25,7 @@ class SchemaInterviewCompiler {
     _compileObject('', props, requiredTop, out);
 
     // 2) Room branches under $defs (kitchen/bathroom/...)
-    final defs = (root['$defs'] as Map?)?.cast<String, dynamic>() ?? {};
+    final defs = (root[r'$defs'] as Map?)?.cast<String, dynamic>() ?? {};
     final roomDefs = [
       'kitchen',
       'bathroom',
@@ -172,7 +172,7 @@ class SchemaInterviewCompiler {
       final thenPart = (block['then'] as Map?)?.cast<String, dynamic>();
       if (ifPart == null || thenPart == null) continue;
 
-      final conditions = <String, dynamic>[];
+      final conditions = <Map<String, dynamic>>[];
       _collectConstConditions(ifPart, '', conditions);
       if (conditions.isEmpty) continue;
 

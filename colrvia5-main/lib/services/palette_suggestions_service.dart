@@ -11,14 +11,14 @@ class PaletteSuggestionsService {
     final accent = base.roles.accent;
     final List<PaintColor> out = [];
     // Generate light/dark neighbors
-    out.add(_nudgeLightness(accent, +0.10));
+    out.add(_nudgeLightness(accent, 0.10));
     out.add(_nudgeLightness(accent, -0.10));
     // If we have mood/lighting, bias an extra option
     final mood = (answers?['moodWords'] as List?)?.cast<String>() ?? const [];
     if (mood.contains('moody')) {
       out.add(_nudgeLightness(accent, -0.18));
     } else {
-      out.add(_nudgeLightness(accent, +0.18));
+      out.add(_nudgeLightness(accent, 0.18));
     }
     // Deduplicate by hex
     final seen = <String>{};
@@ -27,8 +27,8 @@ class PaletteSuggestionsService {
 
   PaintColor _nudgeLightness(PaintColor c, double delta) {
     final hsl = _hexToHsl(c.code);
-    final l = (hsl.l + delta).clamp(0.05, 0.95);
-    final hex = _hslToHex(HSLColor(hue: hsl.h, saturation: hsl.s, lightness: l));
+    final l = (hsl.lightness + delta).clamp(0.05, 0.95);
+    final hex = _hslToHex(HSLColor(hue: hsl.hue, saturation: hsl.saturation, lightness: l));
     final lrv = c.lrv == null ? null : (c.lrv! * (1 + delta * 0.6)).clamp(0, 100);
     return PaintColor(name: c.name, code: hex, lrv: lrv?.toDouble(), undertone: c.undertone);
   }
