@@ -1,9 +1,10 @@
 // lib/screens/interview_review_screen.dart
 import 'package:flutter/material.dart';
 import 'package:color_canvas/services/journey/journey_service.dart';
-import 'package:color_canvas/services/analytics_service.dart';
 import 'package:color_canvas/services/interview_engine.dart';
 import 'package:color_canvas/widgets/photo_picker_inline.dart';
+import 'package:color_canvas/services/palette_service.dart';
+import 'package:color_canvas/screens/palette_reveal_screen.dart';
 
 class InterviewReviewScreen extends StatefulWidget {
   final InterviewEngine engine; // already loaded & seeded
@@ -48,16 +49,17 @@ class _InterviewReviewScreenState extends State<InterviewReviewScreen> {
   }
 
   Future<void> _generate() async {
-    await JourneyService.instance.setArtifact('answers', _answers);
-    await AnalyticsService.instance.logEvent('interview_review_confirmed');
+    final answers = Map<String, dynamic>.from(_answers);
+
+    setState(() {}); // optional: show loading state on button
+    await PaletteService.instance.generateFromAnswers(answers);
+
     await JourneyService.instance.completeCurrentStep();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nice! Generating your palette…')),
-      );
-      Navigator.of(context).maybePop();
-      Navigator.of(context).maybePop();
-    }
+
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const PaletteRevealScreen()),
+    );
   }
 
   void _editInChat(String id) {
