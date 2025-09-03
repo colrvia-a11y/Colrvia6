@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "596436988958",
+    "firebase_url": "https://v29bvc2fec6tbbyy7j9h4tddz1dq28-default-rtdb.firebaseio.com",
+    "project_id": "v29bvc2fec6tbbyy7j9h4tddz1dq28",
+    "storage_bucket": "v29bvc2fec6tbbyy7j9h4tddz1dq28.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:596436988958:android:90ee03dbcf78051f9e6a0f",
+        "android_client_info": {
+          "package_name": "com.example.color_canvas"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "596436988958-mmj4r6l3j7r7v6koh19s7mddbb6pih3v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyX1wCqWd3u6FQ-5lTSiW6C1crkySH0zU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "596436988958-mmj4r6l3j7r7v6koh19s7mddbb6pih3v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,11 @@
+{
+  "name": "firebase",
+  "version": "0.0.1",
+  "mcpServers": {
+    "firebase": {
+      "command": "npx",
+      "args": ["-y", "firebase-tools", "experimental:mcp", "--dir", "c:\Users\corey\OneDrive\Desktop\colrvia5-2"]
+    }
+  },
+  "contextFileName": "FIREBASE.md"
+}

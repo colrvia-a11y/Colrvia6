@@ -1,0 +1,14 @@
+      mode.index,
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final file =
+        await picker.pickImage(source: ImageSource.gallery, imageQuality: 90);
+    if (file == null) return;
+
+    final bytes = await file.readAsBytes();
+    setState(() => _originalImage 

@@ -1,0 +1,34 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn()       { return request.auth != null; }
+    function isProjectOwner() { return signedIn() && resource.data.ownerId == request.auth.uid; }
+    function canCreateProject() { return signedIn() && request.resource.data.ownerId == request.auth.uid; }
+    function isPaletteOwner() { return signedIn() && resource.data.userId == request.auth.uid; }
+    function canCreatePalette() { return signedIn() && request.resource.data.userId == request.auth.uid; }
+
+    // palettes owned by userId
+    match /palettes/{paletteId} {
+      allow read, update, delete: if isPaletteOwner();
+      allow create: if canCreatePalette();
+    }
+
+    // projects owned by ownerId
+    match /projects/{projectId} {
+      allow read, update, delete: if isProjectOwner();
+      allow create: if canCreateProject();
+    }
+
+    match /users/{userId} {
+      allow read, write: if request.auth.uid == userId;
+
+      // Allow read/write to all subcollections and documents under a user's path
+      match /{documents=**} {
+        allow read, write: if request.auth.uid == userId;
+      }
+    }
+
+    match /{document=**} { allow read, write: if false; }
+  }
+}

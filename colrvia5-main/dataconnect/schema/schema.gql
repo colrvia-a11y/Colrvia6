@@ -1,0 +1,41 @@
+type User @table {
+  displayName: String!
+  createdAt: Timestamp!
+  email: String
+  photoUrl: String
+}
+
+type ColorPalette @table {
+  name: String!
+  isPublic: Boolean!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  description: String
+  tags: [String]
+  user: User
+}
+
+type Color @table {
+  hexCode: String!
+  position: Int!
+  name: String
+  type: String
+  colorPalette: ColorPalette
+}
+
+type ColorStory @table {
+  title: String!
+  isPublic: Boolean!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  description: String
+  tags: [String]
+  user: User
+}
+
+type StoryPalette @table(key: ["colorStory", "colorPalette"]) {
+  order: Int!
+  note: String
+  colorStory: ColorStory!
+  colorPalette: ColorPalette!
+}

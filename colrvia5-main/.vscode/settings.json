@@ -1,0 +1,36 @@
+{
+    "dart.flutterSdkPath": "C:\\src\\flutter",
+    "github.copilot.chat.agent.autoFix": true,
+    "chatgpt.openOnStartup": true,
+    "github.copilot.chat.codesearch.enabled": true,
+    "github.copilot.chat.agent.thinkingTool": true,
+    "github.copilot.chat.newWorkspace.useContext7": true,
+    "github.copilot.enable": {
+        "GitHub Copilot": true,
+        "dart": true,
+        "flutter": true,
+        "C:\\Users\\corey\\OneDrive\\Desktop\\colrvia5\\flutter\\": true,
+        "flutter\\": true,
+        "github.copilot.chat.useWorkspaceContext": true
+    },
+
+    "mcp": {
+        "servers": {
+            "firebase": {
+                "type": "stdio",
+                "command": "npx",
+                "args": ["-y", "firebase-tools@latest", "experimental:mcp"]
+            }
+        }
+    },
+    "github.copilot.codex.enable": {
+        "Codex": true,
+        "fullAccess": true,
+        "useWorkspaceContext": true,
+        "dart": true,
+        "flutter": true,
+        "C:\\Users\\corey\\OneDrive\\Desktop\\colrvia5\\flutter\\": true,
+        "flutter\\": true
+    },
+    "copilot.vision.provider": "Gemini"
+}

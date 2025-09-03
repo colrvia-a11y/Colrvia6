@@ -1,0 +1,641 @@
+extend type Color {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "Color", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `Color` table.
+  """
+  _count: Int! @fdc_generated(from: "Color", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Color` table where the `colorPaletteId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  colorPaletteId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Color.colorPaletteId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Color` table where the `hexCode` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  hexCode_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Color.hexCode", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Color` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Color.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Color` table where the `name` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  name_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Color.name", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Color` table where the `position` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  position_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Color.position", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Color` table where the `type` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  type_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Color.type", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `position` field in the `Color` table.
+  """
+  position_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "Color.position", purpose: QUERY_SUM)
+  """
+  ✨ Average the `position` field in the `Color` table.
+  """
+  position_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "Color.position", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `position` field in the `Color` table.
+  """
+  position_min: Int @fdc_generated(from: "Color.position", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `position` field in the `Color` table.
+  """
+  position_max: Int @fdc_generated(from: "Color.position", purpose: QUERY_MAX)
+}
+extend type ColorPalette {
+  """
+  ✨ List `Color` objects in a one-to-many relationship (where `Color`.`colorPalette` is this object).
+  """
+  colors_on_colorPalette(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Color_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Color_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Color_Having
+  ): [Color!]! @fdc_generated(from: "Color.colorPalette", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  ✨ List `StoryPalette` objects in a one-to-many relationship (where `StoryPalette`.`colorPalette` is this object).
+  """
+  storyPalettes_on_colorPalette(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: StoryPalette_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [StoryPalette_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: StoryPalette_Having
+  ): [StoryPalette!]! @fdc_generated(from: "StoryPalette.colorPalette", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  ✨ List `ColorStory` objects using `StoryPalette` as the join table (a `StoryPalette` object exists where its `colorPalette` is this and its `colorStory` is that).
+  """
+  colorStories_via_StoryPalette(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: StoryPalette_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [StoryPalette_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: StoryPalette_Having
+  ): [ColorStory!]! @fdc_generated(from: "StoryPalette", purpose: QUERY_MULTIPLE_MANY_TO_MANY)
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "ColorPalette", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `ColorPalette` table.
+  """
+  _count: Int! @fdc_generated(from: "ColorPalette", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ColorPalette` table where the `createdAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  createdAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ColorPalette.createdAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ColorPalette` table where the `description` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  description_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ColorPalette.description", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ColorPalette` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ColorPalette.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ColorPalette` table where the `isPublic` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  isPublic_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ColorPalette.isPublic", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ColorPalette` table where the `name` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  name_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ColorPalette.name", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ColorPalette` table where the `updatedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  updatedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ColorPalette.updatedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ColorPalette` table where the `userId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  userId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ColorPalette.userId", purpose: QUERY_COUNT)
+  """
+  ✨ Minimum of the `createdAt` field in the `ColorPalette` table.
+  """
+  createdAt_min: Timestamp @fdc_generated(from: "ColorPalette.createdAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `updatedAt` field in the `ColorPalette` table.
+  """
+  updatedAt_min: Timestamp @fdc_generated(from: "ColorPalette.updatedAt", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `createdAt` field in the `ColorPalette` table.
+  """
+  createdAt_max: Timestamp @fdc_generated(from: "ColorPalette.createdAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `updatedAt` field in the `ColorPalette` table.
+  """
+  updatedAt_max: Timestamp @fdc_generated(from: "ColorPalette.updatedAt", purpose: QUERY_MAX)
+}
+extend type ColorStory {
+  """
+  ✨ List `StoryPalette` objects in a one-to-many relationship (where `StoryPalette`.`colorStory` is this object).
+  """
+  storyPalettes_on_colorStory(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: StoryPalette_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [StoryPalette_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: StoryPalette_Having
+  ): [StoryPalette!]! @fdc_generated(from: "StoryPalette.colorStory", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  ✨ List `ColorPalette` objects using `StoryPalette` as the join table (a `StoryPalette` object exists where its `colorStory` is this and its `colorPalette` is that).
+  """
+  colorPalettes_via_StoryPalette(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: StoryPalette_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [StoryPalette_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: StoryPalette_Having
+  ): [ColorPalette!]! @fdc_generated(from: "StoryPalette", purpose: QUERY_MULTIPLE_MANY_TO_MANY)
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "ColorStory", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `ColorStory` table.
+  """
+  _count: Int! @fdc_generated(from: "ColorStory", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ColorStory` table where the `createdAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  createdAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ColorStory.createdAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ColorStory` table where the `description` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  description_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ColorStory.description", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ColorStory` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ColorStory.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ColorStory` table where the `isPublic` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  isPublic_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ColorStory.isPublic", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ColorStory` table where the `title` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  title_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ColorStory.title", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ColorStory` table where the `updatedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  updatedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ColorStory.updatedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ColorStory` table where the `userId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  userId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ColorStory.userId", purpose: QUERY_COUNT)
+  """
+  ✨ Minimum of the `createdAt` field in the `ColorStory` table.
+  """
+  createdAt_min: Timestamp @fdc_generated(from: "ColorStory.createdAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `updatedAt` field in the `ColorStory` table.
+  """
+  updatedAt_min: Timestamp @fdc_generated(from: "ColorStory.updatedAt", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `createdAt` field in the `ColorStory` table.
+  """
+  createdAt_max: Timestamp @fdc_generated(from: "ColorStory.createdAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `updatedAt` field in the `ColorStory` table.
+  """
+  updatedAt_max: Timestamp @fdc_generated(from: "ColorStory.updatedAt", purpose: QUERY_MAX)
+}
+extend type StoryPalette {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "StoryPalette", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `StoryPalette` table.
+  """
+  _count: Int! @fdc_generated(from: "StoryPalette", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `StoryPalette` table where the `colorPaletteId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  colorPaletteId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "StoryPalette.colorPaletteId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `StoryPalette` table where the `colorStoryId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  colorStoryId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "StoryPalette.colorStoryId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `StoryPalette` table where the `note` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  note_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "StoryPalette.note", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `StoryPalette` table where the `order` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  order_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "StoryPalette.order", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `order` field in the `StoryPalette` table.
+  """
+  order_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "StoryPalette.order", purpose: QUERY_SUM)
+  """
+  ✨ Average the `order` field in the `StoryPalette` table.
+  """
+  order_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "StoryPalette.order", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `order` field in the `StoryPalette` table.
+  """
+  order_min: Int @fdc_generated(from: "StoryPalette.order", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `order` field in the `StoryPalette` table.
+  """
+  order_max: Int @fdc_generated(from: "StoryPalette.order", purpose: QUERY_MAX)
+}
+extend type User {
+  """
+  ✨ List `ColorPalette` objects in a one-to-many relationship (where `ColorPalette`.`user` is this object).
+  """
+  colorPalettes_on_user(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: ColorPalette_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [ColorPalette_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: ColorPalette_Having
+  ): [ColorPalette!]! @fdc_generated(from: "ColorPalette.user", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  ✨ List `ColorStory` objects in a one-to-many relationship (where `ColorStory`.`user` is this object).
+  """
+  colorStories_on_user(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: ColorStory_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [ColorStory_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: ColorStory_Having
+  ): [ColorStory!]! @fdc_generated(from: "ColorStory.user", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "User", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `User` table.
+  """
+  _count: Int! @fdc_generated(from: "User", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `createdAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  createdAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.createdAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `displayName` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  displayName_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.displayName", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `email` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  email_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.email", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `photoUrl` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  photoUrl_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.photoUrl", purpose: QUERY_COUNT)
+  """
+  ✨ Minimum of the `createdAt` field in the `User` table.
+  """
+  createdAt_min: Timestamp @fdc_generated(from: "User.createdAt", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `createdAt` field in the `User` table.
+  """
+  createdAt_max: Timestamp @fdc_generated(from: "User.createdAt", purpose: QUERY_MAX)
+}

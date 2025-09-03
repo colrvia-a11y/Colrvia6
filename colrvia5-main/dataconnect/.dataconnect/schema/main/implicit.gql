@@ -1,0 +1,46 @@
+extend type Color {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "Color", purpose: IMPLICIT_KEY_FIELD)
+  """
+  ✨ Implicit foreign key field based on `Color`.`colorPalette`. It must match the value of `ColorPalette`.`id`. See `@ref` for how to customize it.
+  """
+  colorPaletteId: UUID @fdc_generated(from: "Color.colorPalette", purpose: IMPLICIT_REF_FIELD)
+}
+extend type ColorPalette {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "ColorPalette", purpose: IMPLICIT_KEY_FIELD)
+  """
+  ✨ Implicit foreign key field based on `ColorPalette`.`user`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
+  """
+  userId: UUID @fdc_generated(from: "ColorPalette.user", purpose: IMPLICIT_REF_FIELD)
+}
+extend type ColorStory {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "ColorStory", purpose: IMPLICIT_KEY_FIELD)
+  """
+  ✨ Implicit foreign key field based on `ColorStory`.`user`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
+  """
+  userId: UUID @fdc_generated(from: "ColorStory.user", purpose: IMPLICIT_REF_FIELD)
+}
+extend type StoryPalette {
+  """
+  ✨ Implicit foreign key field based on `StoryPalette`.`colorStory`. It must match the value of `ColorStory`.`id`. See `@ref` for how to customize it.
+  """
+  colorStoryId: UUID! @fdc_generated(from: "StoryPalette.colorStory", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `StoryPalette`.`colorPalette`. It must match the value of `ColorPalette`.`id`. See `@ref` for how to customize it.
+  """
+  colorPaletteId: UUID! @fdc_generated(from: "StoryPalette.colorPalette", purpose: IMPLICIT_REF_FIELD)
+}
+extend type User {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "User", purpose: IMPLICIT_KEY_FIELD)
+}

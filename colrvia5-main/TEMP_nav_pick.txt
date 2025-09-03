@@ -1,0 +1,25 @@
+void _navigateToMode(VisualizerMode mode) {
+    setState(() {
+      _currentMode = mode;
+    });
+    _pageController.animateToPage(
+      mode.index,
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final file =
+        await picker.pickImage(source: ImageSource.gallery, imageQuality: 90);
+    if (file == null) return;
+
+    final bytes = await file.readAsBytes();
+    setState(() => _originalImage = bytes);
+    
+    // Note: Analysis will be triggered manually by user pressing "Analyze Image" button
+    print('📷 Image selected and ready for analysis');
+  }
+
+  

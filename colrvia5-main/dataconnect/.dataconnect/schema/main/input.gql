@@ -1,0 +1,1513 @@
+"""
+✨ `Color_KeyOutput` returns the primary key fields of table type `Color`.
+
+It has the same format as `Color_Key`, but is only used as mutation return value.
+"""
+scalar Color_KeyOutput
+"""
+✨ `ColorPalette_KeyOutput` returns the primary key fields of table type `ColorPalette`.
+
+It has the same format as `ColorPalette_Key`, but is only used as mutation return value.
+"""
+scalar ColorPalette_KeyOutput
+"""
+✨ `ColorStory_KeyOutput` returns the primary key fields of table type `ColorStory`.
+
+It has the same format as `ColorStory_Key`, but is only used as mutation return value.
+"""
+scalar ColorStory_KeyOutput
+"""
+✨ `StoryPalette_KeyOutput` returns the primary key fields of table type `StoryPalette`.
+
+It has the same format as `StoryPalette_Key`, but is only used as mutation return value.
+"""
+scalar StoryPalette_KeyOutput
+"""
+✨ `User_KeyOutput` returns the primary key fields of table type `User`.
+
+It has the same format as `User_Key`, but is only used as mutation return value.
+"""
+scalar User_KeyOutput
+"""
+✨ Generated data input type for table 'Color'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input Color_Data {
+  """
+  ✨ Generated from Field `Color`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Color`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+  """
+  ✨ Generated from Field `Color`.`colorPaletteId` of type `UUID`
+  """
+  colorPaletteId: UUID
+  """
+  ✨ `_expr` server value variant of `colorPaletteId` (✨ Generated from Field `Color`.`colorPaletteId` of type `UUID`)
+  """
+  colorPaletteId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `Color`.`colorPalette` of type `ColorPalette`
+  """
+  colorPalette: ColorPalette_Key
+  """
+  ✨ Generated from Field `Color`.`hexCode` of type `String!`
+  """
+  hexCode: String
+  """
+  ✨ `_expr` server value variant of `hexCode` (✨ Generated from Field `Color`.`hexCode` of type `String!`)
+  """
+  hexCode_expr: String_Expr
+  """
+  ✨ Generated from Field `Color`.`name` of type `String`
+  """
+  name: String
+  """
+  ✨ `_expr` server value variant of `name` (✨ Generated from Field `Color`.`name` of type `String`)
+  """
+  name_expr: String_Expr
+  """
+  ✨ Generated from Field `Color`.`position` of type `Int!`
+  """
+  position: Int
+  """
+  ✨ `_expr` server value variant of `position` (✨ Generated from Field `Color`.`position` of type `Int!`)
+  """
+  position_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `position` (✨ Generated from Field `Color`.`position` of type `Int!`)
+  """
+  position_update: [Int_Update!]
+  """
+  ✨ Generated from Field `Color`.`type` of type `String`
+  """
+  type: String
+  """
+  ✨ `_expr` server value variant of `type` (✨ Generated from Field `Color`.`type` of type `String`)
+  """
+  type_expr: String_Expr
+}
+"""
+✨ Generated filter input type for table 'Color'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input Color_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [Color_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: Color_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [Color_Filter!]
+  """
+  ✨ Generated from Field `Color`.`id` of type `UUID!`
+  """
+  id: UUID_Filter
+  """
+  ✨ Generated from Field `Color`.`colorPaletteId` of type `UUID`
+  """
+  colorPaletteId: UUID_Filter
+  """
+  ✨ Generated from Field `Color`.`colorPalette` of type `ColorPalette`
+  """
+  colorPalette: ColorPalette_Filter
+  """
+  ✨ Generated from Field `Color`.`hexCode` of type `String!`
+  """
+  hexCode: String_Filter
+  """
+  ✨ Generated from Field `Color`.`name` of type `String`
+  """
+  name: String_Filter
+  """
+  ✨ Generated from Field `Color`.`position` of type `Int!`
+  """
+  position: Int_Filter
+  """
+  ✨ Generated from Field `Color`.`type` of type `String`
+  """
+  type: String_Filter
+}
+"""
+✨ Generated first-row input type for table 'Color'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input Color_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [Color_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: Color_Filter
+}
+"""
+✨ Generated having input type for table 'Color'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input Color_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [Color_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: Color_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [Color_Having!]
+  """
+  ✨ Generated from Field `Color`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `Color`.`colorPaletteId_count` of type `Int!`
+  """
+  colorPaletteId_count: Int_Filter
+  """
+  ✨ Generated from Field `Color`.`hexCode_count` of type `Int!`
+  """
+  hexCode_count: Int_Filter
+  """
+  ✨ Generated from Field `Color`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `Color`.`name_count` of type `Int!`
+  """
+  name_count: Int_Filter
+  """
+  ✨ Generated from Field `Color`.`position_count` of type `Int!`
+  """
+  position_count: Int_Filter
+  """
+  ✨ Generated from Field `Color`.`type_count` of type `Int!`
+  """
+  type_count: Int_Filter
+  """
+  ✨ Generated from Field `Color`.`position_sum` of type `Int`
+  """
+  position_sum: Int_Filter
+  """
+  ✨ Generated from Field `Color`.`position_avg` of type `Float`
+  """
+  position_avg: Float_Filter
+  """
+  ✨ Generated from Field `Color`.`position_min` of type `Int`
+  """
+  position_min: Int_Filter
+  """
+  ✨ Generated from Field `Color`.`position_max` of type `Int`
+  """
+  position_max: Int_Filter
+}
+"""
+✨ Generated key input type for table 'Color'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input Color_Key {
+  """
+  ✨ Generated from Field `Color`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Color`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'Color'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input Color_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: Color_Filter
+}
+"""
+✨ Generated order input type for table 'Color'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input Color_Order {
+  """
+  ✨ Generated from Field `Color`.`id` of type `UUID!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `Color`.`colorPaletteId` of type `UUID`
+  """
+  colorPaletteId: OrderDirection
+  """
+  ✨ Generated from Field `Color`.`colorPalette` of type `ColorPalette`
+  """
+  colorPalette: ColorPalette_Order
+  """
+  ✨ Generated from Field `Color`.`hexCode` of type `String!`
+  """
+  hexCode: OrderDirection
+  """
+  ✨ Generated from Field `Color`.`name` of type `String`
+  """
+  name: OrderDirection
+  """
+  ✨ Generated from Field `Color`.`position` of type `Int!`
+  """
+  position: OrderDirection
+  """
+  ✨ Generated from Field `Color`.`type` of type `String`
+  """
+  type: OrderDirection
+  """
+  ✨ Generated from Field `Color`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `Color`.`colorPaletteId_count` of type `Int!`
+  """
+  colorPaletteId_count: OrderDirection
+  """
+  ✨ Generated from Field `Color`.`hexCode_count` of type `Int!`
+  """
+  hexCode_count: OrderDirection
+  """
+  ✨ Generated from Field `Color`.`id_count` of type `Int!`
+  """
+  id_count: OrderDirection
+  """
+  ✨ Generated from Field `Color`.`name_count` of type `Int!`
+  """
+  name_count: OrderDirection
+  """
+  ✨ Generated from Field `Color`.`position_count` of type `Int!`
+  """
+  position_count: OrderDirection
+  """
+  ✨ Generated from Field `Color`.`type_count` of type `Int!`
+  """
+  type_count: OrderDirection
+  """
+  ✨ Generated from Field `Color`.`position_sum` of type `Int`
+  """
+  position_sum: OrderDirection
+  """
+  ✨ Generated from Field `Color`.`position_avg` of type `Float`
+  """
+  position_avg: OrderDirection
+  """
+  ✨ Generated from Field `Color`.`position_min` of type `Int`
+  """
+  position_min: OrderDirection
+  """
+  ✨ Generated from Field `Color`.`position_max` of type `Int`
+  """
+  position_max: OrderDirection
+}
+"""
+✨ Generated data input type for table 'ColorPalette'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input ColorPalette_Data {
+  """
+  ✨ Generated from Field `ColorPalette`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `ColorPalette`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+  """
+  ✨ Generated from Field `ColorPalette`.`userId` of type `UUID`
+  """
+  userId: UUID
+  """
+  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `ColorPalette`.`userId` of type `UUID`)
+  """
+  userId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `ColorPalette`.`user` of type `User`
+  """
+  user: User_Key
+  """
+  ✨ Generated from Field `ColorPalette`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: Timestamp
+  """
+  ✨ `_expr` server value variant of `createdAt` (✨ Generated from Field `ColorPalette`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_expr: Timestamp_Expr
+  """
+  ✨ `_time` server value variant of `createdAt` (✨ Generated from Field `ColorPalette`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_time: Timestamp_Relative
+  """
+  ✨ `_update` server value variant of `createdAt` (✨ Generated from Field `ColorPalette`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_update: [Timestamp_Update!]
+  """
+  ✨ Generated from Field `ColorPalette`.`description` of type `String`
+  """
+  description: String
+  """
+  ✨ `_expr` server value variant of `description` (✨ Generated from Field `ColorPalette`.`description` of type `String`)
+  """
+  description_expr: String_Expr
+  """
+  ✨ Generated from Field `ColorPalette`.`isPublic` of type `Boolean!`
+  """
+  isPublic: Boolean
+  """
+  ✨ `_expr` server value variant of `isPublic` (✨ Generated from Field `ColorPalette`.`isPublic` of type `Boolean!`)
+  """
+  isPublic_expr: Boolean_Expr
+  """
+  ✨ Generated from Field `ColorPalette`.`name` of type `String!`
+  """
+  name: String
+  """
+  ✨ `_expr` server value variant of `name` (✨ Generated from Field `ColorPalette`.`name` of type `String!`)
+  """
+  name_expr: String_Expr
+  """
+  ✨ Generated from Field `ColorPalette`.`tags` of type `[String]`
+  """
+  tags: [String!]
+  """
+  ✨ `_update` server value variant of `tags` (✨ Generated from Field `ColorPalette`.`tags` of type `[String]`)
+  """
+  tags_update: [String_ListUpdate!]
+  """
+  ✨ Generated from Field `ColorPalette`.`updatedAt` of type `Timestamp!`
+  """
+  updatedAt: Timestamp
+  """
+  ✨ `_expr` server value variant of `updatedAt` (✨ Generated from Field `ColorPalette`.`updatedAt` of type `Timestamp!`)
+  """
+  updatedAt_expr: Timestamp_Expr
+  """
+  ✨ `_time` server value variant of `updatedAt` (✨ Generated from Field `ColorPalette`.`updatedAt` of type `Timestamp!`)
+  """
+  updatedAt_time: Timestamp_Relative
+  """
+  ✨ `_update` server value variant of `updatedAt` (✨ Generated from Field `ColorPalette`.`updatedAt` of type `Timestamp!`)
+  """
+  updatedAt_update: [Timestamp_Update!]
+}
+"""
+✨ Generated filter input type for table 'ColorPalette'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input ColorPalette_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [ColorPalette_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: ColorPalette_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [ColorPalette_Filter!]
+  """
+  ✨ Generated from Field `ColorPalette`.`id` of type `UUID!`
+  """
+  id: UUID_Filter
+  """
+  ✨ Generated from Field `ColorPalette`.`userId` of type `UUID`
+  """
+  userId: UUID_Filter
+  """
+  ✨ Generated from Field `ColorPalette`.`user` of type `User`
+  """
+  user: User_Filter
+  """
+  ✨ Generated from Field `ColorPalette`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: Timestamp_Filter
+  """
+  ✨ Generated from Field `ColorPalette`.`description` of type `String`
+  """
+  description: String_Filter
+  """
+  ✨ Generated from Field `ColorPalette`.`isPublic` of type `Boolean!`
+  """
+  isPublic: Boolean_Filter
+  """
+  ✨ Generated from Field `ColorPalette`.`name` of type `String!`
+  """
+  name: String_Filter
+  """
+  ✨ Generated from Field `ColorPalette`.`tags` of type `[String]`
+  """
+  tags: String_ListFilter
+  """
+  ✨ Generated from Field `ColorPalette`.`updatedAt` of type `Timestamp!`
+  """
+  updatedAt: Timestamp_Filter
+  """
+  ✨ Generated from Field `ColorPalette`.`colors_on_colorPalette` of type `[Color!]!`
+  """
+  colors_on_colorPalette: Color_ListFilter
+  """
+  ✨ Generated from Field `ColorPalette`.`storyPalettes_on_colorPalette` of type `[StoryPalette!]!`
+  """
+  storyPalettes_on_colorPalette: StoryPalette_ListFilter
+  """
+  ✨ Generated from Field `ColorPalette`.`colorStories_via_StoryPalette` of type `[ColorStory!]!`
+  """
+  colorStories_via_StoryPalette: ColorStory_ListFilter
+}
+"""
+✨ Generated first-row input type for table 'ColorPalette'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input ColorPalette_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [ColorPalette_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: ColorPalette_Filter
+}
+"""
+✨ Generated having input type for table 'ColorPalette'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input ColorPalette_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [ColorPalette_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: ColorPalette_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [ColorPalette_Having!]
+  """
+  ✨ Generated from Field `ColorPalette`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `ColorPalette`.`createdAt_count` of type `Int!`
+  """
+  createdAt_count: Int_Filter
+  """
+  ✨ Generated from Field `ColorPalette`.`description_count` of type `Int!`
+  """
+  description_count: Int_Filter
+  """
+  ✨ Generated from Field `ColorPalette`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `ColorPalette`.`isPublic_count` of type `Int!`
+  """
+  isPublic_count: Int_Filter
+  """
+  ✨ Generated from Field `ColorPalette`.`name_count` of type `Int!`
+  """
+  name_count: Int_Filter
+  """
+  ✨ Generated from Field `ColorPalette`.`updatedAt_count` of type `Int!`
+  """
+  updatedAt_count: Int_Filter
+  """
+  ✨ Generated from Field `ColorPalette`.`userId_count` of type `Int!`
+  """
+  userId_count: Int_Filter
+  """
+  ✨ Generated from Field `ColorPalette`.`createdAt_min` of type `Timestamp`
+  """
+  createdAt_min: Timestamp_Filter
+  """
+  ✨ Generated from Field `ColorPalette`.`updatedAt_min` of type `Timestamp`
+  """
+  updatedAt_min: Timestamp_Filter
+  """
+  ✨ Generated from Field `ColorPalette`.`createdAt_max` of type `Timestamp`
+  """
+  createdAt_max: Timestamp_Filter
+  """
+  ✨ Generated from Field `ColorPalette`.`updatedAt_max` of type `Timestamp`
+  """
+  updatedAt_max: Timestamp_Filter
+}
+"""
+✨ Generated key input type for table 'ColorPalette'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input ColorPalette_Key {
+  """
+  ✨ Generated from Field `ColorPalette`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `ColorPalette`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'ColorPalette'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input ColorPalette_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: ColorPalette_Filter
+}
+"""
+✨ Generated order input type for table 'ColorPalette'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input ColorPalette_Order {
+  """
+  ✨ Generated from Field `ColorPalette`.`id` of type `UUID!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `ColorPalette`.`userId` of type `UUID`
+  """
+  userId: OrderDirection
+  """
+  ✨ Generated from Field `ColorPalette`.`user` of type `User`
+  """
+  user: User_Order
+  """
+  ✨ Generated from Field `ColorPalette`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: OrderDirection
+  """
+  ✨ Generated from Field `ColorPalette`.`description` of type `String`
+  """
+  description: OrderDirection
+  """
+  ✨ Generated from Field `ColorPalette`.`isPublic` of type `Boolean!`
+  """
+  isPublic: OrderDirection
+  """
+  ✨ Generated from Field `ColorPalette`.`name` of type `String!`
+  """
+  name: OrderDirection
+  """
+  ✨ Generated from Field `ColorPalette`.`updatedAt` of type `Timestamp!`
+  """
+  updatedAt: OrderDirection
+  """
+  ✨ Generated from Field `ColorPalette`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `ColorPalette`.`createdAt_count` of type `Int!`
+  """
+  createdAt_count: OrderDirection
+  """
+  ✨ Generated from Field `ColorPalette`.`description_count` of type `Int!`
+  """
+  description_count: OrderDirection
+  """
+  ✨ Generated from Field `ColorPalette`.`id_count` of type `Int!`
+  """
+  id_count: OrderDirection
+  """
+  ✨ Generated from Field `ColorPalette`.`isPublic_count` of type `Int!`
+  """
+  isPublic_count: OrderDirection
+  """
+  ✨ Generated from Field `ColorPalette`.`name_count` of type `Int!`
+  """
+  name_count: OrderDirection
+  """
+  ✨ Generated from Field `ColorPalette`.`updatedAt_count` of type `Int!`
+  """
+  updatedAt_count: OrderDirection
+  """
+  ✨ Generated from Field `ColorPalette`.`userId_count` of type `Int!`
+  """
+  userId_count: OrderDirection
+  """
+  ✨ Generated from Field `ColorPalette`.`createdAt_min` of type `Timestamp`
+  """
+  createdAt_min: OrderDirection
+  """
+  ✨ Generated from Field `ColorPalette`.`updatedAt_min` of type `Timestamp`
+  """
+  updatedAt_min: OrderDirection
+  """
+  ✨ Generated from Field `ColorPalette`.`createdAt_max` of type `Timestamp`
+  """
+  createdAt_max: OrderDirection
+  """
+  ✨ Generated from Field `ColorPalette`.`updatedAt_max` of type `Timestamp`
+  """
+  updatedAt_max: OrderDirection
+}
+"""
+✨ Generated data input type for table 'ColorStory'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input ColorStory_Data {
+  """
+  ✨ Generated from Field `ColorStory`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `ColorStory`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+  """
+  ✨ Generated from Field `ColorStory`.`userId` of type `UUID`
+  """
+  userId: UUID
+  """
+  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `ColorStory`.`userId` of type `UUID`)
+  """
+  userId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `ColorStory`.`user` of type `User`
+  """
+  user: User_Key
+  """
+  ✨ Generated from Field `ColorStory`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: Timestamp
+  """
+  ✨ `_expr` server value variant of `createdAt` (✨ Generated from Field `ColorStory`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_expr: Timestamp_Expr
+  """
+  ✨ `_time` server value variant of `createdAt` (✨ Generated from Field `ColorStory`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_time: Timestamp_Relative
+  """
+  ✨ `_update` server value variant of `createdAt` (✨ Generated from Field `ColorStory`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_update: [Timestamp_Update!]
+  """
+  ✨ Generated from Field `ColorStory`.`description` of type `String`
+  """
+  description: String
+  """
+  ✨ `_expr` server value variant of `description` (✨ Generated from Field `ColorStory`.`description` of type `String`)
+  """
+  description_expr: String_Expr
+  """
+  ✨ Generated from Field `ColorStory`.`isPublic` of type `Boolean!`
+  """
+  isPublic: Boolean
+  """
+  ✨ `_expr` server value variant of `isPublic` (✨ Generated from Field `ColorStory`.`isPublic` of type `Boolean!`)
+  """
+  isPublic_expr: Boolean_Expr
+  """
+  ✨ Generated from Field `ColorStory`.`tags` of type `[String]`
+  """
+  tags: [String!]
+  """
+  ✨ `_update` server value variant of `tags` (✨ Generated from Field `ColorStory`.`tags` of type `[String]`)
+  """
+  tags_update: [String_ListUpdate!]
+  """
+  ✨ Generated from Field `ColorStory`.`title` of type `String!`
+  """
+  title: String
+  """
+  ✨ `_expr` server value variant of `title` (✨ Generated from Field `ColorStory`.`title` of type `String!`)
+  """
+  title_expr: String_Expr
+  """
+  ✨ Generated from Field `ColorStory`.`updatedAt` of type `Timestamp!`
+  """
+  updatedAt: Timestamp
+  """
+  ✨ `_expr` server value variant of `updatedAt` (✨ Generated from Field `ColorStory`.`updatedAt` of type `Timestamp!`)
+  """
+  updatedAt_expr: Timestamp_Expr
+  """
+  ✨ `_time` server value variant of `updatedAt` (✨ Generated from Field `ColorStory`.`updatedAt` of type `Timestamp!`)
+  """
+  updatedAt_time: Timestamp_Relative
+  """
+  ✨ `_update` server value variant of `updatedAt` (✨ Generated from Field `ColorStory`.`updatedAt` of type `Timestamp!`)
+  """
+  updatedAt_update: [Timestamp_Update!]
+}
+"""
+✨ Generated filter input type for table 'ColorStory'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input ColorStory_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [ColorStory_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: ColorStory_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [ColorStory_Filter!]
+  """
+  ✨ Generated from Field `ColorStory`.`id` of type `UUID!`
+  """
+  id: UUID_Filter
+  """
+  ✨ Generated from Field `ColorStory`.`userId` of type `UUID`
+  """
+  userId: UUID_Filter
+  """
+  ✨ Generated from Field `ColorStory`.`user` of type `User`
+  """
+  user: User_Filter
+  """
+  ✨ Generated from Field `ColorStory`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: Timestamp_Filter
+  """
+  ✨ Generated from Field `ColorStory`.`description` of type `String`
+  """
+  description: String_Filter
+  """
+  ✨ Generated from Field `ColorStory`.`isPublic` of type `Boolean!`
+  """
+  isPublic: Boolean_Filter
+  """
+  ✨ Generated from Field `ColorStory`.`tags` of type `[String]`
+  """
+  tags: String_ListFilter
+  """
+  ✨ Generated from Field `ColorStory`.`title` of type `String!`
+  """
+  title: String_Filter
+  """
+  ✨ Generated from Field `ColorStory`.`updatedAt` of type `Timestamp!`
+  """
+  updatedAt: Timestamp_Filter
+  """
+  ✨ Generated from Field `ColorStory`.`storyPalettes_on_colorStory` of type `[StoryPalette!]!`
+  """
+  storyPalettes_on_colorStory: StoryPalette_ListFilter
+  """
+  ✨ Generated from Field `ColorStory`.`colorPalettes_via_StoryPalette` of type `[ColorPalette!]!`
+  """
+  colorPalettes_via_StoryPalette: ColorPalette_ListFilter
+}
+"""
+✨ Generated first-row input type for table 'ColorStory'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input ColorStory_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [ColorStory_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: ColorStory_Filter
+}
+"""
+✨ Generated having input type for table 'ColorStory'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input ColorStory_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [ColorStory_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: ColorStory_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [ColorStory_Having!]
+  """
+  ✨ Generated from Field `ColorStory`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `ColorStory`.`createdAt_count` of type `Int!`
+  """
+  createdAt_count: Int_Filter
+  """
+  ✨ Generated from Field `ColorStory`.`description_count` of type `Int!`
+  """
+  description_count: Int_Filter
+  """
+  ✨ Generated from Field `ColorStory`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `ColorStory`.`isPublic_count` of type `Int!`
+  """
+  isPublic_count: Int_Filter
+  """
+  ✨ Generated from Field `ColorStory`.`title_count` of type `Int!`
+  """
+  title_count: Int_Filter
+  """
+  ✨ Generated from Field `ColorStory`.`updatedAt_count` of type `Int!`
+  """
+  updatedAt_count: Int_Filter
+  """
+  ✨ Generated from Field `ColorStory`.`userId_count` of type `Int!`
+  """
+  userId_count: Int_Filter
+  """
+  ✨ Generated from Field `ColorStory`.`createdAt_min` of type `Timestamp`
+  """
+  createdAt_min: Timestamp_Filter
+  """
+  ✨ Generated from Field `ColorStory`.`updatedAt_min` of type `Timestamp`
+  """
+  updatedAt_min: Timestamp_Filter
+  """
+  ✨ Generated from Field `ColorStory`.`createdAt_max` of type `Timestamp`
+  """
+  createdAt_max: Timestamp_Filter
+  """
+  ✨ Generated from Field `ColorStory`.`updatedAt_max` of type `Timestamp`
+  """
+  updatedAt_max: Timestamp_Filter
+}
+"""
+✨ Generated key input type for table 'ColorStory'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input ColorStory_Key {
+  """
+  ✨ Generated from Field `ColorStory`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `ColorStory`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'ColorStory'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input ColorStory_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: ColorStory_Filter
+}
+"""
+✨ Generated order input type for table 'ColorStory'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input ColorStory_Order {
+  """
+  ✨ Generated from Field `ColorStory`.`id` of type `UUID!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `ColorStory`.`userId` of type `UUID`
+  """
+  userId: OrderDirection
+  """
+  ✨ Generated from Field `ColorStory`.`user` of type `User`
+  """
+  user: User_Order
+  """
+  ✨ Generated from Field `ColorStory`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: OrderDirection
+  """
+  ✨ Generated from Field `ColorStory`.`description` of type `String`
+  """
+  description: OrderDirection
+  """
+  ✨ Generated from Field `ColorStory`.`isPublic` of type `Boolean!`
+  """
+  isPublic: OrderDirection
+  """
+  ✨ Generated from Field `ColorStory`.`title` of type `String!`
+  """
+  title: OrderDirection
+  """
+  ✨ Generated from Field `ColorStory`.`updatedAt` of type `Timestamp!`
+  """
+  updatedAt: OrderDirection
+  """
+  ✨ Generated from Field `ColorStory`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `ColorStory`.`createdAt_count` of type `Int!`
+  """
+  createdAt_count: OrderDirection
+  """
+  ✨ Generated from Field `ColorStory`.`description_count` of type `Int!`
+  """
+  description_count: OrderDirection
+  """
+  ✨ Generated from Field `ColorStory`.`id_count` of type `Int!`
+  """
+  id_count: OrderDirection
+  """
+  ✨ Generated from Field `ColorStory`.`isPublic_count` of type `Int!`
+  """
+  isPublic_count: OrderDirection
+  """
+  ✨ Generated from Field `ColorStory`.`title_count` of type `Int!`
+  """
+  title_count: OrderDirection
+  """
+  ✨ Generated from Field `ColorStory`.`updatedAt_count` of type `Int!`
+  """
+  updatedAt_count: OrderDirection
+  """
+  ✨ Generated from Field `ColorStory`.`userId_count` of type `Int!`
+  """
+  userId_count: OrderDirection
+  """
+  ✨ Generated from Field `ColorStory`.`createdAt_min` of type `Timestamp`
+  """
+  createdAt_min: OrderDirection
+  """
+  ✨ Generated from Field `ColorStory`.`updatedAt_min` of type `Timestamp`
+  """
+  updatedAt_min: OrderDirection
+  """
+  ✨ Generated from Field `ColorStory`.`createdAt_max` of type `Timestamp`
+  """
+  createdAt_max: OrderDirection
+  """
+  ✨ Generated from Field `ColorStory`.`updatedAt_max` of type `Timestamp`
+  """
+  updatedAt_max: OrderDirection
+}
+"""
+✨ Generated data input type for table 'StoryPalette'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input StoryPalette_Data {
+  """
+  ✨ Generated from Field `StoryPalette`.`colorStoryId` of type `UUID!`
+  """
+  colorStoryId: UUID
+  """
+  ✨ `_expr` server value variant of `colorStoryId` (✨ Generated from Field `StoryPalette`.`colorStoryId` of type `UUID!`)
+  """
+  colorStoryId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `StoryPalette`.`colorPaletteId` of type `UUID!`
+  """
+  colorPaletteId: UUID
+  """
+  ✨ `_expr` server value variant of `colorPaletteId` (✨ Generated from Field `StoryPalette`.`colorPaletteId` of type `UUID!`)
+  """
+  colorPaletteId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `StoryPalette`.`colorPalette` of type `ColorPalette!`
+  """
+  colorPalette: ColorPalette_Key
+  """
+  ✨ Generated from Field `StoryPalette`.`colorStory` of type `ColorStory!`
+  """
+  colorStory: ColorStory_Key
+  """
+  ✨ Generated from Field `StoryPalette`.`note` of type `String`
+  """
+  note: String
+  """
+  ✨ `_expr` server value variant of `note` (✨ Generated from Field `StoryPalette`.`note` of type `String`)
+  """
+  note_expr: String_Expr
+  """
+  ✨ Generated from Field `StoryPalette`.`order` of type `Int!`
+  """
+  order: Int
+  """
+  ✨ `_expr` server value variant of `order` (✨ Generated from Field `StoryPalette`.`order` of type `Int!`)
+  """
+  order_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `order` (✨ Generated from Field `StoryPalette`.`order` of type `Int!`)
+  """
+  order_update: [Int_Update!]
+}
+"""
+✨ Generated filter input type for table 'StoryPalette'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input StoryPalette_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [StoryPalette_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: StoryPalette_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [StoryPalette_Filter!]
+  """
+  ✨ Generated from Field `StoryPalette`.`colorStoryId` of type `UUID!`
+  """
+  colorStoryId: UUID_Filter
+  """
+  ✨ Generated from Field `StoryPalette`.`colorPaletteId` of type `UUID!`
+  """
+  colorPaletteId: UUID_Filter
+  """
+  ✨ Generated from Field `StoryPalette`.`colorPalette` of type `ColorPalette!`
+  """
+  colorPalette: ColorPalette_Filter
+  """
+  ✨ Generated from Field `StoryPalette`.`colorStory` of type `ColorStory!`
+  """
+  colorStory: ColorStory_Filter
+  """
+  ✨ Generated from Field `StoryPalette`.`note` of type `String`
+  """
+  note: String_Filter
+  """
+  ✨ Generated from Field `StoryPalette`.`order` of type `Int!`
+  """
+  order: Int_Filter
+}
+"""
+✨ Generated first-row input type for table 'StoryPalette'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input StoryPalette_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [StoryPalette_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: StoryPalette_Filter
+}
+"""
+✨ Generated having input type for table 'StoryPalette'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input StoryPalette_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [StoryPalette_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: StoryPalette_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [StoryPalette_Having!]
+  """
+  ✨ Generated from Field `StoryPalette`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `StoryPalette`.`colorPaletteId_count` of type `Int!`
+  """
+  colorPaletteId_count: Int_Filter
+  """
+  ✨ Generated from Field `StoryPalette`.`colorStoryId_count` of type `Int!`
+  """
+  colorStoryId_count: Int_Filter
+  """
+  ✨ Generated from Field `StoryPalette`.`note_count` of type `Int!`
+  """
+  note_count: Int_Filter
+  """
+  ✨ Generated from Field `StoryPalette`.`order_count` of type `Int!`
+  """
+  order_count: Int_Filter
+  """
+  ✨ Generated from Field `StoryPalette`.`order_sum` of type `Int`
+  """
+  order_sum: Int_Filter
+  """
+  ✨ Generated from Field `StoryPalette`.`order_avg` of type `Float`
+  """
+  order_avg: Float_Filter
+  """
+  ✨ Generated from Field `StoryPalette`.`order_min` of type `Int`
+  """
+  order_min: Int_Filter
+  """
+  ✨ Generated from Field `StoryPalette`.`order_max` of type `Int`
+  """
+  order_max: Int_Filter
+}
+"""
+✨ Generated key input type for table 'StoryPalette'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input StoryPalette_Key {
+  """
+  ✨ Generated from Field `StoryPalette`.`colorStoryId` of type `UUID!`
+  """
+  colorStoryId: UUID
+  """
+  ✨ `_expr` server value variant of `colorStoryId` (✨ Generated from Field `StoryPalette`.`colorStoryId` of type `UUID!`)
+  """
+  colorStoryId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `StoryPalette`.`colorPaletteId` of type `UUID!`
+  """
+  colorPaletteId: UUID
+  """
+  ✨ `_expr` server value variant of `colorPaletteId` (✨ Generated from Field `StoryPalette`.`colorPaletteId` of type `UUID!`)
+  """
+  colorPaletteId_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'StoryPalette'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input StoryPalette_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: StoryPalette_Filter
+}
+"""
+✨ Generated order input type for table 'StoryPalette'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input StoryPalette_Order {
+  """
+  ✨ Generated from Field `StoryPalette`.`colorStoryId` of type `UUID!`
+  """
+  colorStoryId: OrderDirection
+  """
+  ✨ Generated from Field `StoryPalette`.`colorPaletteId` of type `UUID!`
+  """
+  colorPaletteId: OrderDirection
+  """
+  ✨ Generated from Field `StoryPalette`.`colorPalette` of type `ColorPalette!`
+  """
+  colorPalette: ColorPalette_Order
+  """
+  ✨ Generated from Field `StoryPalette`.`colorStory` of type `ColorStory!`
+  """
+  colorStory: ColorStory_Order
+  """
+  ✨ Generated from Field `StoryPalette`.`note` of type `String`
+  """
+  note: OrderDirection
+  """
+  ✨ Generated from Field `StoryPalette`.`order` of type `Int!`
+  """
+  order: OrderDirection
+  """
+  ✨ Generated from Field `StoryPalette`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `StoryPalette`.`colorPaletteId_count` of type `Int!`
+  """
+  colorPaletteId_count: OrderDirection
+  """
+  ✨ Generated from Field `StoryPalette`.`colorStoryId_count` of type `Int!`
+  """
+  colorStoryId_count: OrderDirection
+  """
+  ✨ Generated from Field `StoryPalette`.`note_count` of type `Int!`
+  """
+  note_count: OrderDirection
+  """
+  ✨ Generated from Field `StoryPalette`.`order_count` of type `Int!`
+  """
+  order_count: OrderDirection
+  """
+  ✨ Generated from Field `StoryPalette`.`order_sum` of type `Int`
+  """
+  order_sum: OrderDirection
+  """
+  ✨ Generated from Field `StoryPalette`.`order_avg` of type `Float`
+  """
+  order_avg: OrderDirection
+  """
+  ✨ Generated from Field `StoryPalette`.`order_min` of type `Int`
+  """
+  order_min: OrderDirection
+  """
+  ✨ Generated from Field `StoryPalette`.`order_max` of type `Int`
+  """
+  order_max: OrderDirection
+}
+"""
+✨ Generated data input type for table 'User'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input User_Data {
+  """
+  ✨ Generated from Field `User`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `User`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+  """
+  ✨ Generated from Field `User`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: Timestamp
+  """
+  ✨ `_expr` server value variant of `createdAt` (✨ Generated from Field `User`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_expr: Timestamp_Expr
+  """
+  ✨ `_time` server value variant of `createdAt` (✨ Generated from Field `User`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_time: Timestamp_Relative
+  """
+  ✨ `_update` server value variant of `createdAt` (✨ Generated from Field `User`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_update: [Timestamp_Update!]
+  """
+  ✨ Generated from Field `User`.`displayName` of type `String!`
+  """
+  displayName: String
+  """
+  ✨ `_expr` server value variant of `displayName` (✨ Generated from Field `User`.`displayName` of type `String!`)
+  """
+  displayName_expr: String_Expr
+  """
+  ✨ Generated from Field `User`.`email` of type `String`
+  """
+  email: String
+  """
+  ✨ `_expr` server value variant of `email` (✨ Generated from Field `User`.`email` of type `String`)
+  """
+  email_expr: String_Expr
+  """
+  ✨ Generated from Field `User`.`photoUrl` of type `String`
+  """
+  photoUrl: String
+  """
+  ✨ `_expr` server value variant of `photoUrl` (✨ Generated from Field `User`.`photoUrl` of type `String`)
+  """
+  photoUrl_expr: String_Expr
+}
+"""
+✨ Generated filter input type for table 'User'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input User_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [User_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: User_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [User_Filter!]
+  """
+  ✨ Generated from Field `User`.`id` of type `UUID!`
+  """
+  id: UUID_Filter
+  """
+  ✨ Generated from Field `User`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: Timestamp_Filter
+  """
+  ✨ Generated from Field `User`.`displayName` of type `String!`
+  """
+  displayName: String_Filter
+  """
+  ✨ Generated from Field `User`.`email` of type `String`
+  """
+  email: String_Filter
+  """
+  ✨ Generated from Field `User`.`photoUrl` of type `String`
+  """
+  photoUrl: String_Filter
+  """
+  ✨ Generated from Field `User`.`colorPalettes_on_user` of type `[ColorPalette!]!`
+  """
+  colorPalettes_on_user: ColorPalette_ListFilter
+  """
+  ✨ Generated from Field `User`.`colorStories_on_user` of type `[ColorStory!]!`
+  """
+  colorStories_on_user: ColorStory_ListFilter
+}
+"""
+✨ Generated first-row input type for table 'User'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input User_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [User_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: User_Filter
+}
+"""
+✨ Generated having input type for table 'User'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input User_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [User_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: User_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [User_Having!]
+  """
+  ✨ Generated from Field `User`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`createdAt_count` of type `Int!`
+  """
+  createdAt_count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`displayName_count` of type `Int!`
+  """
+  displayName_count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`email_count` of type `Int!`
+  """
+  email_count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`photoUrl_count` of type `Int!`
+  """
+  photoUrl_count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`createdAt_min` of type `Timestamp`
+  """
+  createdAt_min: Timestamp_Filter
+  """
+  ✨ Generated from Field `User`.`createdAt_max` of type `Timestamp`
+  """
+  createdAt_max: Timestamp_Filter
+}
+"""
+✨ Generated key input type for table 'User'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input User_Key {
+  """
+  ✨ Generated from Field `User`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `User`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'User'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input User_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: User_Filter
+}
+"""
+✨ Generated order input type for table 'User'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input User_Order {
+  """
+  ✨ Generated from Field `User`.`id` of type `UUID!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `User`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: OrderDirection
+  """
+  ✨ Generated from Field `User`.`displayName` of type `String!`
+  """
+  displayName: OrderDirection
+  """
+  ✨ Generated from Field `User`.`email` of type `String`
+  """
+  email: OrderDirection
+  """
+  ✨ Generated from Field `User`.`photoUrl` of type `String`
+  """
+  photoUrl: OrderDirection
+  """
+  ✨ Generated from Field `User`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `User`.`createdAt_count` of type `Int!`
+  """
+  createdAt_count: OrderDirection
+  """
+  ✨ Generated from Field `User`.`displayName_count` of type `Int!`
+  """
+  displayName_count: OrderDirection
+  """
+  ✨ Generated from Field `User`.`email_count` of type `Int!`
+  """
+  email_count: OrderDirection
+  """
+  ✨ Generated from Field `User`.`id_count` of type `Int!`
+  """
+  id_count: OrderDirection
+  """
+  ✨ Generated from Field `User`.`photoUrl_count` of type `Int!`
+  """
+  photoUrl_count: OrderDirection
+  """
+  ✨ Generated from Field `User`.`createdAt_min` of type `Timestamp`
+  """
+  createdAt_min: OrderDirection
+  """
+  ✨ Generated from Field `User`.`createdAt_max` of type `Timestamp`
+  """
+  createdAt_max: OrderDirection
+}

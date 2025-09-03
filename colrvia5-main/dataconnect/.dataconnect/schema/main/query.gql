@@ -1,0 +1,262 @@
+extend type Query {
+  """
+  ✨ Look up a single `Color` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  color(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Color_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Color_FirstRow
+  ): Color @fdc_generated(from: "Color", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `ColorPalette` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  colorPalette(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ColorPalette_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ColorPalette_FirstRow
+  ): ColorPalette @fdc_generated(from: "ColorPalette", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `ColorStory` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  colorStory(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ColorStory_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ColorStory_FirstRow
+  ): ColorStory @fdc_generated(from: "ColorStory", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `StoryPalette` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  storyPalette(
+    """
+    The key used to identify the object.
+    """
+    key: StoryPalette_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: StoryPalette_FirstRow
+  ): StoryPalette @fdc_generated(from: "StoryPalette", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `User` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  user(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: User_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: User_FirstRow
+  ): User @fdc_generated(from: "User", purpose: QUERY_SINGLE)
+  """
+  ✨ List `Color` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  colors(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Color_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Color_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Color_Having
+  ): [Color!]! @fdc_generated(from: "Color", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `ColorPalette` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  colorPalettes(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: ColorPalette_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [ColorPalette_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: ColorPalette_Having
+  ): [ColorPalette!]! @fdc_generated(from: "ColorPalette", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `ColorStory` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  colorStories(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: ColorStory_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [ColorStory_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: ColorStory_Having
+  ): [ColorStory!]! @fdc_generated(from: "ColorStory", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `StoryPalette` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  storyPalettes(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: StoryPalette_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [StoryPalette_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: StoryPalette_Having
+  ): [StoryPalette!]! @fdc_generated(from: "StoryPalette", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `User` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  users(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: User_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [User_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: User_Having
+  ): [User!]! @fdc_generated(from: "User", purpose: QUERY_MULTIPLE)
+}

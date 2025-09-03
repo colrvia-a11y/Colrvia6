@@ -1,0 +1,13 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - lib/dataconnect_generated/**
+    # Exclude local Flutter SDK sources from analysis to avoid
+    # surfacing TODOs and hints from framework files.
+    - flutter/**
+
+lint:
+  rules:
+    # Keep recommended lints; we only exclude generated code from analysis.
+    - always_use_package_imports

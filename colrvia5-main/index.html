@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colorvia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for frosted glass effect */
+        .frosted-glass {
+            background-color: rgba(255, 255, 255, 0.1); /* Light background for blur */
+            backdrop-filter: blur(10px); /* Frosted glass effect */
+            -webkit-backdrop-filter: blur(10px); /* Safari support */
+            border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border */
+        }
+
+        /* Gradient overlay for hero image */
+        .hero-gradient-overlay {
+            background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.45) 45%, rgba(0, 0, 0, 0.6) 60%);
+        }
+
+        /* Responsive font sizing for strapline */
+        .clamp-text {
+            font-size: clamp(28px, 5vw, 56px);
+        }
+
+        /* Smooth transition for tab content */
+        .tab-content-transition {
+            transition: opacity 250ms ease-in-out;
+        }
+
+        /* Simulate safe-area inset for notch padding */
+        .safe-area-top {
+            padding-top: env(safe-area-inset-top, 0);
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-100 overflow-x-hidden">
+    <div id="app" class="relative min-h-screen flex flex-col">
+        <!-- Hero Section -->
+        <div class="relative w-full h-[66vh] md:h-[66vh] flex items-center justify-center overflow-hidden rounded-b-3xl md:rounded-b-[40px]">
+            <img id="hero-image" src="https://via.placeholder.com/1920x1080?text=Modern+Home+Interior" alt="Modern home interior" class="absolute inset-0 w-full h-full object-cover">
+            <div class="absolute inset-0 hero-gradient-overlay"></div>
+
+            <!-- Logotype/Strapline -->
+            <div class="absolute left-8 md:left-16 text-white z-10 safe-area-top">
+                <h1 class="clamp-text font-light leading-tight">color your next chapter</h1>
+            </div>
+
+            <!-- Segmented Pill -->
+            <div class="absolute bottom-0 mb-8 md:mb-12 z-20">
+                <div class="frosted-glass rounded-full p-2 flex space-x-2 shadow-xl" role="tablist" aria-label="Content sections">
+                    <button id="tab-interview" role="tab" aria-selected="true" aria-controls="panel-interview" class="tab-button px-6 py-3 rounded-full text-white font-medium transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50">
+                        Interview
+                    </button>
+                    <button id="tab-roller" role="tab" aria-selected="false" aria-controls="panel-roller" class="tab-button px-6 py-3 rounded-full text-gray-300 font-medium transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50">
+                        Roller
+                    </button>
+                    <button id="tab-visualize" role="tab" aria-selected="false" aria-controls="panel-visualize" class="tab-button px-6 py-3 rounded-full text-gray-300 font-medium transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50">
+                        Visualize
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lower Content Section -->
+        <div class="relative flex-grow bg-white rounded-t-3xl md:rounded-t-[40px] -mt-8 md:-mt-10 p-8 md:p-12 shadow-lg z-30">
+            <div class="max-w-3xl mx-auto">
+                <!-- Tab Panels -->
+                <div id="panel-interview" role="tabpanel" aria-labelledby="tab-interview" class="tab-content tab-content-transition">
+                    <p class="text-lg text-gray-700 mb-6">Answer a few quick questions and we’ll suggest a palette and plan.</p>
+                    <button class="cta-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" onclick="console.log('start_guided')">
+                        Start Interview
+                    </button>
+                </div>
+
+                <div id="panel-roller" role="tabpanel" aria-labelledby="tab-roller" hidden class="tab-content tab-content-transition">
+                    <p class="text-lg text-gray-700 mb-6">Design your paint palette fast—lock swatches, explore variants, and save.</p>
+                    <button class="cta-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" onclick="console.log('start_roller')">
+                        Open Roller
+                    </button>
+                </div>
+
+                <div id="panel-visualize" role="tabpanel" aria-labelledby="tab-visualize" hidden class="tab-content tab-content-transition">
+                    <p class="text-lg text-gray-700 mb-6">See colors on your walls in minutes—get a fast preview, queue HQ render.</p>
+                    <button class="cta-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" onclick="console.log('start_visualizer')">
+                        Visualize My Room
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll('.tab-button');
+        const panels = document.querySelectorAll('.tab-content');
+        const pillContainer = document.querySelector('.frosted-glass');
+
+        let activeTab = document.getElementById('tab-interview');
+        let activePanel = document.getElementById('panel-interview');
+
+        function setActiveTab(newActiveTab) {
+            // Update active tab styling
+            activeTab.classList.remove('bg-white', 'text-black', 'shadow-md');
+            activeTab.classList.add('text-gray-300');
+            activeTab.setAttribute('aria-selected', 'false');
+
+            newActiveTab.classList.add('bg-white', 'text-black', 'shadow-md');
+            newActiveTab.classList.remove('text-gray-300');
+            newActiveTab.setAttribute('aria-selected', 'true');
+
+            // Update active panel visibility
+            activePanel.hidden = true;
+            activePanel.style.opacity = '0'; // Start fade out
+
+            const newActivePanelId = newActiveTab.getAttribute('aria-controls');
+            const newActivePanel = document.getElementById(newActivePanelId);
+
+            newActivePanel.hidden = false;
+            setTimeout(() => {
+                newActivePanel.style.opacity = '1'; // Fade in
+            }, 10); // Small delay to allow hidden to apply
+
+            activeTab = newActiveTab;
+            activePanel = newActivePanel;
+        }
+
+        // Initial active tab styling
+        setActiveTab(activeTab);
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                setActiveTab(tab);
+            });
+        });
+
+        // Keyboard navigation for tabs
+        pillContainer.addEventListener('keydown', (e) => {
+            const currentFocus = document.activeElement;
+            if (!currentFocus || !currentFocus.classList.contains('tab-button')) return;
+
+            let newFocus = null;
+            if (e.key === 'ArrowRight') {
+                newFocus = currentFocus.nextElementSibling;
+                if (!newFocus || !newFocus.classList.contains('tab-button')) {
+                    newFocus = tabs[0]; // Loop to first tab
+                }
+            } else if (e.key === 'ArrowLeft') {
+                newFocus = currentFocus.previousElementSibling;
+                if (!newFocus || !newFocus.classList.contains('tab-button')) {
+                    newFocus = tabs[tabs.length - 1]; // Loop to last tab
+                }
+            }
+
+            if (newFocus) {
+                e.preventDefault();
+                newFocus.focus();
+                setActiveTab(newFocus);
+            }
+        });
+
+        // Optional: Set hero image URL via prop (simulated)
+        function setHeroImage(url, altText = "Modern home interior") {
+            const heroImage = document.getElementById('hero-image');
+            if (heroImage) {
+                heroImage.src = url;
+                heroImage.alt = altText;
+            }
+        }
+
+        // Example of how to use setHeroImage (uncomment to test)
+        // setHeroImage('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', 'Spacious modern living room');
+    </script>
+</body>
+</html>

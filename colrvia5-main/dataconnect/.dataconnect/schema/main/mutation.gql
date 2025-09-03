@@ -1,0 +1,552 @@
+extend type Mutation {
+  """
+  ✨ Insert a single `Color` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  color_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Color_Data!
+  ): Color_KeyOutput! @fdc_generated(from: "Color", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `ColorPalette` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  colorPalette_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: ColorPalette_Data!
+  ): ColorPalette_KeyOutput! @fdc_generated(from: "ColorPalette", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `ColorStory` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  colorStory_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: ColorStory_Data!
+  ): ColorStory_KeyOutput! @fdc_generated(from: "ColorStory", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `StoryPalette` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  storyPalette_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: StoryPalette_Data!
+  ): StoryPalette_KeyOutput! @fdc_generated(from: "StoryPalette", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `User` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  user_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: User_Data!
+  ): User_KeyOutput! @fdc_generated(from: "User", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert `Color` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  color_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Color_Data!]!
+  ): [Color_KeyOutput!]! @fdc_generated(from: "Color", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `ColorPalette` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  colorPalette_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [ColorPalette_Data!]!
+  ): [ColorPalette_KeyOutput!]! @fdc_generated(from: "ColorPalette", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `ColorStory` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  colorStory_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [ColorStory_Data!]!
+  ): [ColorStory_KeyOutput!]! @fdc_generated(from: "ColorStory", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `StoryPalette` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  storyPalette_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [StoryPalette_Data!]!
+  ): [StoryPalette_KeyOutput!]! @fdc_generated(from: "StoryPalette", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `User` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  user_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [User_Data!]!
+  ): [User_KeyOutput!]! @fdc_generated(from: "User", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert or update a single `Color` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Color`.
+  """
+  color_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Color_Data!
+  ): Color_KeyOutput! @fdc_generated(from: "Color", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `ColorPalette` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ColorPalette`.
+  """
+  colorPalette_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: ColorPalette_Data!
+  ): ColorPalette_KeyOutput! @fdc_generated(from: "ColorPalette", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `ColorStory` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ColorStory`.
+  """
+  colorStory_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: ColorStory_Data!
+  ): ColorStory_KeyOutput! @fdc_generated(from: "ColorStory", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `StoryPalette` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `StoryPalette`.
+  """
+  storyPalette_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: StoryPalette_Data!
+  ): StoryPalette_KeyOutput! @fdc_generated(from: "StoryPalette", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `User` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `User`.
+  """
+  user_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: User_Data!
+  ): User_KeyOutput! @fdc_generated(from: "User", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update `Color` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Color`.
+  """
+  color_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Color_Data!]!
+  ): [Color_KeyOutput!]! @fdc_generated(from: "Color", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `ColorPalette` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ColorPalette`.
+  """
+  colorPalette_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [ColorPalette_Data!]!
+  ): [ColorPalette_KeyOutput!]! @fdc_generated(from: "ColorPalette", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `ColorStory` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ColorStory`.
+  """
+  colorStory_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [ColorStory_Data!]!
+  ): [ColorStory_KeyOutput!]! @fdc_generated(from: "ColorStory", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `StoryPalette` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `StoryPalette`.
+  """
+  storyPalette_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [StoryPalette_Data!]!
+  ): [StoryPalette_KeyOutput!]! @fdc_generated(from: "StoryPalette", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `User` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `User`.
+  """
+  user_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [User_Data!]!
+  ): [User_KeyOutput!]! @fdc_generated(from: "User", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Update a single `Color` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Color` or `null` if not found.
+  """
+  color_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Color_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Color_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Color_Data!
+  ): Color_KeyOutput @fdc_generated(from: "Color", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `ColorPalette` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `ColorPalette` or `null` if not found.
+  """
+  colorPalette_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ColorPalette_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ColorPalette_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: ColorPalette_Data!
+  ): ColorPalette_KeyOutput @fdc_generated(from: "ColorPalette", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `ColorStory` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `ColorStory` or `null` if not found.
+  """
+  colorStory_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ColorStory_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ColorStory_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: ColorStory_Data!
+  ): ColorStory_KeyOutput @fdc_generated(from: "ColorStory", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `StoryPalette` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `StoryPalette` or `null` if not found.
+  """
+  storyPalette_update(
+    """
+    The key used to identify the object.
+    """
+    key: StoryPalette_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: StoryPalette_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: StoryPalette_Data!
+  ): StoryPalette_KeyOutput @fdc_generated(from: "StoryPalette", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `User` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `User` or `null` if not found.
+  """
+  user_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: User_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: User_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: User_Data!
+  ): User_KeyOutput @fdc_generated(from: "User", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update `Color` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  color_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Color_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Color_Data!
+  ): Int! @fdc_generated(from: "Color", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `ColorPalette` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  colorPalette_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: ColorPalette_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: ColorPalette_Data!
+  ): Int! @fdc_generated(from: "ColorPalette", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `ColorStory` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  colorStory_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: ColorStory_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: ColorStory_Data!
+  ): Int! @fdc_generated(from: "ColorStory", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `StoryPalette` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  storyPalette_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: StoryPalette_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: StoryPalette_Data!
+  ): Int! @fdc_generated(from: "StoryPalette", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `User` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  user_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: User_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: User_Data!
+  ): Int! @fdc_generated(from: "User", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Delete a single `Color` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  color_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Color_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Color_FirstRow
+  ): Color_KeyOutput @fdc_generated(from: "Color", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `ColorPalette` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  colorPalette_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ColorPalette_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ColorPalette_FirstRow
+  ): ColorPalette_KeyOutput @fdc_generated(from: "ColorPalette", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `ColorStory` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  colorStory_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ColorStory_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ColorStory_FirstRow
+  ): ColorStory_KeyOutput @fdc_generated(from: "ColorStory", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `StoryPalette` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  storyPalette_delete(
+    """
+    The key used to identify the object.
+    """
+    key: StoryPalette_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: StoryPalette_FirstRow
+  ): StoryPalette_KeyOutput @fdc_generated(from: "StoryPalette", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `User` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  user_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: User_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: User_FirstRow
+  ): User_KeyOutput @fdc_generated(from: "User", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete `Color` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  color_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Color_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Color", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `ColorPalette` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  colorPalette_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: ColorPalette_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "ColorPalette", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `ColorStory` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  colorStory_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: ColorStory_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "ColorStory", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `StoryPalette` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  storyPalette_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: StoryPalette_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "StoryPalette", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `User` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  user_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: User_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "User", purpose: DELETE_MULTIPLE)
+}

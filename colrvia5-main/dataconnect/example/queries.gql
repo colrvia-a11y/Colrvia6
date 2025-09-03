@@ -1,0 +1,32 @@
+mutation CreateColorPalette @auth(level: USER) {
+  colorPalette_insert(data: {
+    name: "My Palette",
+    description: "A beautiful color palette",
+    isPublic: true
+  })
+}
+
+query GetPublicColorPalettes @auth(level: PUBLIC) {
+  colorPalettes(where: {isPublic: {eq: true}}) {
+    id
+    name
+    description
+  }
+}
+
+mutation UpdateColorStory($id: UUID!, $description: String) @auth(level: USER) {
+  colorStory_update(
+    id: $id,
+    data: {
+      description: $description
+    }
+  )
+}
+
+query ListMyColorStories @auth(level: USER) {
+  colorStories(where: {userId: {eq_expr: "auth.uid"}}) {
+    id
+    title
+    description
+  }
+}

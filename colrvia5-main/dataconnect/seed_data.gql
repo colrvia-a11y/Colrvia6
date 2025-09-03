@@ -1,0 +1,56 @@
+mutation SeedData @auth(level: USER) {
+  user_upsertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      displayName: "bobuser",
+      email: "bob@example.com",
+      createdAt: "2024-01-01T00:00:00Z"
+    },
+    {
+      id: "661f9511-f3ac-52e5-b827-557766551111",
+      displayName: "aliceuser",
+      email: "alice@example.com",
+      createdAt: "2024-02-15T12:30:00Z"
+    }
+  ])
+  colorPalette_upsertMany(data: [
+    {
+      id: "7720a622-04bb-63f6-c938-668877662222",
+      userId: "550e8400-e29b-41d4-a716-446655440000",
+      name: "My First Palette",
+      description: "A test palette",
+      isPublic: true,
+      createdAt: "2024-03-01T08:00:00Z",
+      updatedAt: "2024-03-01T08:00:00Z",
+      tags: ["test", "primary"]
+    },
+    {
+      id: "8831b733-15cc-7407-da49-779988773333",
+      userId: "661f9511-f3ac-52e5-b827-557766551111",
+      name: "Alice's Favorites",
+      description: "Alice's preferred colors",
+      isPublic: false,
+      createdAt: "2024-03-05T14:45:00Z",
+      updatedAt: "2024-03-05T14:45:00Z",
+      tags: ["favorites", "warm"]
+    }
+  ])
+  color_upsertMany(data: [
+    {
+      id: "9942c844-26dd-8518-eb5a-88aabb884444",
+      colorPaletteId: "7720a622-04bb-63f6-c938-668877662222",
+      name: "Red",
+      hexCode: "#FF0000",
+      position: 1,
+      type: "primary"
+    },
+    {
+      id: "aa53d955-37ee-9629-fc6b-99bbcc995555",
+      colorPaletteId: "7720a622-04bb-63f6-c938-668877662222",
+      name: "Blue",
+      hexCode: "#0000FF",
+      position: 2,
+      type: "primary"
+    }
+  ])
+}
