@@ -65,6 +65,37 @@ class InterviewEngine extends ChangeNotifier {
       ? _allPrompts.firstWhere((p) => p.id == _sequence[_index])
       : null;
 
+  List<InterviewPrompt> get visiblePrompts => _sequence
+      .where((id) => _isVisible(id))
+      .map((id) => _allPrompts.firstWhere(
+            (p) => p.id == id,
+            orElse: () => InterviewPrompt(
+                id: id,
+                title: id,
+                type: InterviewPromptType.freeText),
+          ))
+      .toList();
+
+  InterviewPrompt? byId(String id) {
+    try {
+      return _allPrompts.firstWhere((p) => p.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  int indexOf(String id) => _sequence.indexOf(id);
+
+  void jumpTo(String id) {
+    final idx = indexOf(id);
+    if (idx >= 0) {
+      _index = idx;
+      notifyListeners();
+    }
+  }
+
+  bool isPromptVisible(String id) => _isVisible(id);
+
   void setDepth(InterviewDepth d) {
     _depth = d;
     _recomputeSequence();
