@@ -1,7 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:firebase_functions/firebase_functions.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:color_canvas/services/transcript_recorder.dart';
 
@@ -144,8 +145,6 @@ class LiveTalkService {
 
 class _GatewayAuth { final String token; _GatewayAuth({required this.token}); }
 
-// Minimal WS client (platform channel or dart:html alternative). In Flutter mobile, use WebSocket from dart:io
-import 'dart:io';
 class _WebSocketClient {
   WebSocket _ws; void Function(String data)? onMessage;
   _WebSocketClient._(this._ws) { _ws.listen((d) { if (d is String) onMessage?.call(d); }); }

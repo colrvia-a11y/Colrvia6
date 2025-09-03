@@ -1,4 +1,5 @@
 // lib/screens/visualizer_painter_alt_screen.dart
+import 'package:flutter/rendering.dart';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
