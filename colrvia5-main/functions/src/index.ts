@@ -34,6 +34,8 @@ export const generatePaletteOnCall = onCall({
     await admin.firestore().collection('paletteJobs').add({ uid, createdAt: admin.firestore.FieldValue.serverTimestamp(), answers, output: out });
     return { ok: true, palette: out };
   } catch (e:any) {
-    throw new HttpsError('failed-precondition', e.message);
-  }
-});
+      throw new HttpsError('failed-precondition', e.message);
+    }
+  });
+
+export { createTalkSession, issueVoiceGatewayToken } from './talk.js';
