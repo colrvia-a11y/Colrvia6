@@ -43,7 +43,10 @@ class VoiceAssistant extends ChangeNotifier {
       onResult: (res) {
         last = res.recognizedWords;
         if (res.finalResult) {
-          completer.tryComplete(last.trim().isEmpty ? null : last.trim());
+        if (!completer.isCompleted) {
+  completer.complete(last.trim().isEmpty ? null : last.trim());
+}
+
         }
       },
     );

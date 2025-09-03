@@ -4,7 +4,7 @@
   "mcpServers": {
     "firebase": {
       "command": "npx",
-      "args": ["-y", "firebase-tools", "experimental:mcp", "--dir", "c:\Users\corey\OneDrive\Desktop\colrvia5-2"]
+      "args": ["-y", "firebase-tools", "experimental:mcp", "--dir", "c:\Users\corey\OneDrive\Desktop\Colrvia6\colrvia5-main"]
     }
   },
   "contextFileName": "FIREBASE.md"
