@@ -2,12 +2,12 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-import 'package:flutter_tts/flutter_tts.dart';
+import 'package:flutter_tts/flutter_tts.dart' as tts;
 
 /// Simple voice layer that powers "AI Talk" mode: Listen → Think → Speak.
 class VoiceAssistant extends ChangeNotifier {
   final stt.SpeechToText _speech = stt.SpeechToText();
-  final FlutterTts _tts = FlutterTts();
+  final tts.FlutterTts _tts = tts.FlutterTts();
 
   bool _listening = false;
   bool get isListening => _listening;
@@ -39,11 +39,8 @@ class VoiceAssistant extends ChangeNotifier {
       listenMode: stt.ListenMode.dictation,
       onResult: (res) {
         last = res.recognizedWords;
-        if (res.finalResult) {
-        if (!completer.isCompleted) {
-  completer.complete(last.trim().isEmpty ? null : last.trim());
-}
-
+        if (res.finalResult && !completer.isCompleted) {
+          completer.complete(last.trim().isEmpty ? null : last.trim());
         }
       },
     );
