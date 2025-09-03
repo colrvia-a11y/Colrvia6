@@ -76,7 +76,21 @@ class _PaletteRevealScreenState extends State<PaletteRevealScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(
+        appBar: AppBar(title: const Text('Your palette')),
+        body: ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: 4,
+          itemBuilder: (_, i) => Container(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            height: i == 3 ? 120 : 72,
+            decoration: BoxDecoration(
+              color: Colors.black12.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+      );
     }
     if (_error != null) {
       return Scaffold(appBar: AppBar(title: const Text('Palette')), body: Center(child: Text(_error!)));
