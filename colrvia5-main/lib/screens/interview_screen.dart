@@ -7,6 +7,7 @@ import 'package:color_canvas/services/interview_engine.dart';
 import 'package:color_canvas/services/voice_assistant.dart';
 import 'package:color_canvas/services/schema_interview_compiler.dart';
 import 'package:color_canvas/widgets/interview_widgets.dart';
+import 'package:color_canvas/screens/interview_review_screen.dart';
 
 enum InterviewMode { text, talk }
 
@@ -96,15 +97,31 @@ class _InterviewScreenState extends State<InterviewScreen> {
   }
 
   Future<void> _finish() async {
+    // Persist current answers
     await journey.setArtifact('answers', _engine.answers);
     await AnalyticsService.instance.logEvent('interview_completed');
-    await journey.completeCurrentStep();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nice! Generating your palette…')),
-      );
-      Navigator.of(context).maybePop();
+
+    // Navigate to Review (and await potential deep-link edit requests)
+    final result = await Navigator.of(context).push<Map<String, String>?>(
+      MaterialPageRoute(
+        builder: (_) => InterviewReviewScreen(engine: _engine),
+        fullscreenDialog: true,
+      ),
+    );
+
+    // If review asked to jump back to a specific prompt, do it and continue chat
+    final jumpTo = result != null ? result['jumpTo'] : null;
+    if (jumpTo != null && jumpTo.isNotEmpty) {
+      _engine.jumpTo(jumpTo);
+      if (_engine.current != null) {
+        _enqueueSystem('Let\'s update: ' + _engine.current!.title);
+        if (_mode == InterviewMode.talk) _voice.speak(_engine.current!.title);
+      }
+      return; // back to chat to edit
     }
+
+    // If review confirmed (no jump back), the Review screen already completed the journey.
+    if (mounted) Navigator.of(context).maybePop();
   }
 
   Future<void> _submitFreeText(String text) async {
