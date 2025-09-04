@@ -91,63 +91,63 @@ ThemeData get lightTheme => ThemeData(
         type: BottomNavigationBarType.fixed,
       ),
       textTheme: TextTheme(
-        displayLarge: GoogleFonts.inter(
+        displayLarge: GoogleFonts.outfit(
           fontSize: FontSizes.displayLarge,
           fontWeight: FontWeight.normal,
         ),
-        displayMedium: GoogleFonts.inter(
+        displayMedium: GoogleFonts.outfit(
           fontSize: FontSizes.displayMedium,
           fontWeight: FontWeight.normal,
         ),
-        displaySmall: GoogleFonts.inter(
+        displaySmall: GoogleFonts.outfit(
           fontSize: FontSizes.displaySmall,
           fontWeight: FontWeight.w600,
         ),
-        headlineLarge: GoogleFonts.inter(
+        headlineLarge: GoogleFonts.outfit(
           fontSize: FontSizes.headlineLarge,
           fontWeight: FontWeight.normal,
         ),
-        headlineMedium: GoogleFonts.inter(
+        headlineMedium: GoogleFonts.outfit(
           fontSize: FontSizes.headlineMedium,
           fontWeight: FontWeight.w500,
         ),
-        headlineSmall: GoogleFonts.inter(
+        headlineSmall: GoogleFonts.outfit(
           fontSize: FontSizes.headlineSmall,
           fontWeight: FontWeight.bold,
         ),
-        titleLarge: GoogleFonts.inter(
+        titleLarge: GoogleFonts.outfit(
           fontSize: FontSizes.titleLarge,
           fontWeight: FontWeight.w500,
         ),
-        titleMedium: GoogleFonts.inter(
+        titleMedium: GoogleFonts.outfit(
           fontSize: FontSizes.titleMedium,
           fontWeight: FontWeight.w500,
         ),
-        titleSmall: GoogleFonts.inter(
+        titleSmall: GoogleFonts.outfit(
           fontSize: FontSizes.titleSmall,
           fontWeight: FontWeight.w500,
         ),
-        labelLarge: GoogleFonts.inter(
+        labelLarge: GoogleFonts.outfit(
           fontSize: FontSizes.labelLarge,
           fontWeight: FontWeight.w500,
         ),
-        labelMedium: GoogleFonts.inter(
+        labelMedium: GoogleFonts.outfit(
           fontSize: FontSizes.labelMedium,
           fontWeight: FontWeight.w500,
         ),
-        labelSmall: GoogleFonts.inter(
+        labelSmall: GoogleFonts.outfit(
           fontSize: FontSizes.labelSmall,
           fontWeight: FontWeight.w500,
         ),
-        bodyLarge: GoogleFonts.inter(
+        bodyLarge: GoogleFonts.outfit(
           fontSize: FontSizes.bodyLarge,
           fontWeight: FontWeight.normal,
         ),
-        bodyMedium: GoogleFonts.inter(
+        bodyMedium: GoogleFonts.outfit(
           fontSize: FontSizes.bodyMedium,
           fontWeight: FontWeight.normal,
         ),
-        bodySmall: GoogleFonts.inter(
+        bodySmall: GoogleFonts.outfit(
           fontSize: FontSizes.bodySmall,
           fontWeight: FontWeight.normal,
         ),
@@ -191,63 +191,63 @@ ThemeData get darkTheme => ThemeData(
         type: BottomNavigationBarType.fixed,
       ),
       textTheme: TextTheme(
-        displayLarge: GoogleFonts.inter(
+        displayLarge: GoogleFonts.outfit(
           fontSize: FontSizes.displayLarge,
           fontWeight: FontWeight.normal,
         ),
-        displayMedium: GoogleFonts.inter(
+        displayMedium: GoogleFonts.outfit(
           fontSize: FontSizes.displayMedium,
           fontWeight: FontWeight.normal,
         ),
-        displaySmall: GoogleFonts.inter(
+        displaySmall: GoogleFonts.outfit(
           fontSize: FontSizes.displaySmall,
           fontWeight: FontWeight.w600,
         ),
-        headlineLarge: GoogleFonts.inter(
+        headlineLarge: GoogleFonts.outfit(
           fontSize: FontSizes.headlineLarge,
           fontWeight: FontWeight.normal,
         ),
-        headlineMedium: GoogleFonts.inter(
+        headlineMedium: GoogleFonts.outfit(
           fontSize: FontSizes.headlineMedium,
           fontWeight: FontWeight.w500,
         ),
-        headlineSmall: GoogleFonts.inter(
+        headlineSmall: GoogleFonts.outfit(
           fontSize: FontSizes.headlineSmall,
           fontWeight: FontWeight.bold,
         ),
-        titleLarge: GoogleFonts.inter(
+        titleLarge: GoogleFonts.outfit(
           fontSize: FontSizes.titleLarge,
           fontWeight: FontWeight.w500,
         ),
-        titleMedium: GoogleFonts.inter(
+        titleMedium: GoogleFonts.outfit(
           fontSize: FontSizes.titleMedium,
           fontWeight: FontWeight.w500,
         ),
-        titleSmall: GoogleFonts.inter(
+        titleSmall: GoogleFonts.outfit(
           fontSize: FontSizes.titleSmall,
           fontWeight: FontWeight.w500,
         ),
-        labelLarge: GoogleFonts.inter(
+        labelLarge: GoogleFonts.outfit(
           fontSize: FontSizes.labelLarge,
           fontWeight: FontWeight.w500,
         ),
-        labelMedium: GoogleFonts.inter(
+        labelMedium: GoogleFonts.outfit(
           fontSize: FontSizes.labelMedium,
           fontWeight: FontWeight.w500,
         ),
-        labelSmall: GoogleFonts.inter(
+        labelSmall: GoogleFonts.outfit(
           fontSize: FontSizes.labelSmall,
           fontWeight: FontWeight.w500,
         ),
-        bodyLarge: GoogleFonts.inter(
+        bodyLarge: GoogleFonts.outfit(
           fontSize: FontSizes.bodyLarge,
           fontWeight: FontWeight.normal,
         ),
-        bodyMedium: GoogleFonts.inter(
+        bodyMedium: GoogleFonts.outfit(
           fontSize: FontSizes.bodyMedium,
           fontWeight: FontWeight.normal,
         ),
-        bodySmall: GoogleFonts.inter(
+        bodySmall: GoogleFonts.outfit(
           fontSize: FontSizes.bodySmall,
           fontWeight: FontWeight.normal,
         ),
