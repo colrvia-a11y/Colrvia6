@@ -373,46 +373,88 @@ class _ComposerBar extends StatefulWidget {
 class _ComposerBarState extends State<_ComposerBar> {
   void _submit() => widget.onSend(widget.controller.text);
 
+  Future<void> _showAttachMenu(BuildContext context) async {
+    final RenderBox box = context.findRenderObject() as RenderBox;
+    final Offset offset = box.localToGlobal(Offset.zero);
+    final RelativeRect position = RelativeRect.fromLTRB(
+      offset.dx + 16,
+      offset.dy - 8,
+      offset.dx,
+      0,
+    );
+    final choice = await showMenu<String>(
+      context: context,
+      position: position,
+      items: [
+        const PopupMenuItem(value: 'image', child: Text('Attach Image')),
+        const PopupMenuItem(value: 'doc', child: Text('Attach Document')),
+      ],
+    );
+    if (choice == 'image') {
+      widget.onAttachImage();
+    } else if (choice == 'doc') {
+      widget.onAttachDoc();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
       child: Row(
         children: [
-          _GhostIconButton(icon: Icons.image_rounded, onTap: widget.onAttachImage),
-          const SizedBox(width: 6),
-          _GhostIconButton(icon: Icons.folder_open_rounded, onTap: widget.onAttachDoc),
-          const SizedBox(width: 8),
           Expanded(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(22)),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(22),
+                boxShadow: const [BoxShadow(color: Color(0x0F000000), blurRadius: 10, offset: Offset(0, 2))],
+              ),
               child: TextField(
                 controller: widget.controller,
                 focusNode: widget.focusNode,
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => _submit(),
-                decoration: const InputDecoration(hintText: 'Type your question…', isDense: true, border: InputBorder.none),
                 minLines: 1,
                 maxLines: 4,
+                decoration: InputDecoration(
+                  hintText: 'Type your message…',
+                  isDense: true,
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  prefixIcon: Builder(
+                    builder: (ctx) => IconButton(
+                      tooltip: 'Attach',
+                      icon: const Icon(Icons.attach_file_rounded),
+                      onPressed: () => _showAttachMenu(ctx),
+                    ),
+                  ),
+                  prefixIconConstraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        tooltip: 'Voice',
+                        icon: const Icon(Icons.mic_none_rounded),
+                        onPressed: widget.sending ? null : widget.onMic,
+                      ),
+                      widget.sending
+                          ? const Padding(
+                              padding: EdgeInsets.only(right: 8),
+                              child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                            )
+                          : IconButton(
+                              tooltip: 'Send',
+                              icon: const Icon(Icons.send_rounded),
+                              onPressed: _submit,
+                            ),
+                      const SizedBox(width: 4),
+                    ],
+                  ),
+                  suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 8),
-          _GhostIconButton(icon: Icons.mic_none_rounded, onTap: widget.onMic),
-          const SizedBox(width: 6),
-          ElevatedButton(
-            onPressed: widget.sending ? null : _submit,
-            style: ElevatedButton.styleFrom(
-              elevation: 0,
-              backgroundColor: _ViaOverlayState._brandPeach,
-              foregroundColor: Colors.black,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-            ),
-            child: widget.sending
-                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                : const Text('Send'),
           ),
         ],
       ),
