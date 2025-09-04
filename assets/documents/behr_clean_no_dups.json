@@ -1,12 +1,6 @@
 [
   {
     "brandName": "Behr",
-    "name": "Barely Pink",
-    "code": "100A-1",
-    "hex": "#F9ECFC"
-  },
-  {
-    "brandName": "Behr",
     "name": "Be Mine",
     "code": "100A-2",
     "hex": "#F8E0FA"
@@ -253,12 +247,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Swiss Coffee",
-    "code": "12",
-    "hex": "#F3F2E6"
-  },
-  {
-    "brandName": "Behr",
     "name": "Light Chiffon",
     "code": "120A-1",
     "hex": "#F7E9F5"
@@ -382,12 +370,6 @@
     "name": "Plum Raisin",
     "code": "120F-7",
     "hex": "#4F2F3D"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Cottage White",
-    "code": "13",
-    "hex": "#F5EEDA"
   },
   {
     "brandName": "Behr",
@@ -1147,66 +1129,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Swiss Coffee 1812",
-    "code": "1812",
-    "hex": "#F2F1E5"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Cottage White 1813",
-    "code": "1813",
-    "hex": "#F4ECD9"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Navajo White 1822",
-    "code": "1822",
-    "hex": "#ECE2C5"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Antique White 1823",
-    "code": "1823",
-    "hex": "#E7E2CA"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Ultra Pure White 1850",
-    "code": "1850",
-    "hex": "#FAFDF7"
-  },
-  {
-    "brandName": "Behr",
-    "name": "White 1852",
-    "code": "1852",
-    "hex": "#EEF2EE"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Frost 1857",
-    "code": "1857",
-    "hex": "#F2F7F5"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Linen White 1870",
-    "code": "1870",
-    "hex": "#F7EEDC"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Off White 1873",
-    "code": "1873",
-    "hex": "#E7E9D7"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Polar Bear 1875",
-    "code": "1875",
-    "hex": "#F8F9F2"
-  },
-  {
-    "brandName": "Behr",
     "name": "Soft Pink",
     "code": "190A-1",
     "hex": "#FDE2E8"
@@ -1252,12 +1174,6 @@
     "name": "Frolic",
     "code": "190C-1",
     "hex": "#FBE7EF"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Full Bloom",
-    "code": "190C-2",
-    "hex": "#FFC5D7"
   },
   {
     "brandName": "Behr",
@@ -1585,21 +1501,9 @@
   },
   {
     "brandName": "Behr",
-    "name": "Navajo White",
-    "code": "22",
-    "hex": "#EDE5C8"
-  },
-  {
-    "brandName": "Behr",
     "name": "Powdered Peach",
     "code": "220A-1",
     "hex": "#FEE0DB"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Friendship",
-    "code": "220A-2",
-    "hex": "#FFD3CD"
   },
   {
     "brandName": "Behr",
@@ -1717,12 +1621,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Antique White",
-    "code": "23",
-    "hex": "#EBE4D0"
-  },
-  {
-    "brandName": "Behr",
     "name": "Shell Ginger",
     "code": "230A-1",
     "hex": "#FBE4E0"
@@ -1768,12 +1666,6 @@
     "name": "Winthrop Peach",
     "code": "230C-1",
     "hex": "#FDE4DF"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Shell Coral",
-    "code": "230C-2",
-    "hex": "#FFD3CD"
   },
   {
     "brandName": "Behr",
@@ -1981,12 +1873,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Wistful Beige",
-    "code": "250A-2",
-    "hex": "#FCE9E2"
-  },
-  {
-    "brandName": "Behr",
     "name": "Whispering Peach",
     "code": "250A-3",
     "hex": "#FFD6C9"
@@ -2101,12 +1987,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Feather White",
-    "code": "260A-1",
-    "hex": "#FCE9E2"
-  },
-  {
-    "brandName": "Behr",
     "name": "Derry Coast Sunrise",
     "code": "260A-2",
     "hex": "#FCDFDA"
@@ -2182,12 +2062,6 @@
     "name": "Copper Mountain",
     "code": "260D-7",
     "hex": "#A65F33"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Lilting Laughter",
-    "code": "260E-1",
-    "hex": "#FCECDF"
   },
   {
     "brandName": "Behr",
@@ -2767,12 +2641,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Saffron Thread",
-    "code": "310B-7",
-    "hex": "#FFA600"
-  },
-  {
-    "brandName": "Behr",
     "name": "Kansas Grain",
     "code": "310C-1",
     "hex": "#FEE7CD"
@@ -3235,12 +3103,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Ruffled Clam",
-    "code": "350A-1",
-    "hex": "#FBF9E0"
-  },
-  {
-    "brandName": "Behr",
     "name": "Vanilla Milkshake",
     "code": "350A-2",
     "hex": "#FDF5D0"
@@ -3250,12 +3112,6 @@
     "name": "Pale Sunshine",
     "code": "350A-3",
     "hex": "#FFF0BC"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Lemon Souffle",
-    "code": "350B-4",
-    "hex": "#FEECA1"
   },
   {
     "brandName": "Behr",
@@ -3736,12 +3592,6 @@
     "name": "Crocodile",
     "code": "380F-7",
     "hex": "#6A6E48"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Star Dust",
-    "code": "390A-1",
-    "hex": "#FBF9E0"
   },
   {
     "brandName": "Behr",
@@ -4663,12 +4513,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Aegean Mist",
-    "code": "460C-1",
-    "hex": "#EAF9EC"
-  },
-  {
-    "brandName": "Behr",
     "name": "Spearmint Stick",
     "code": "460C-2",
     "hex": "#E3FCDF"
@@ -4873,12 +4717,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Minted Ice",
-    "code": "480A-1",
-    "hex": "#DAFFEB"
-  },
-  {
-    "brandName": "Behr",
     "name": "Botanical Tint",
     "code": "480A-2",
     "hex": "#AEFFCA"
@@ -4894,12 +4732,6 @@
     "name": "Shoreline Green",
     "code": "480B-4",
     "hex": "#63FF95"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Mermaid Song",
-    "code": "480B-5",
-    "hex": "#3CF16F"
   },
   {
     "brandName": "Behr",
@@ -5125,18 +4957,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Ultra Pure White",
-    "code": "50",
-    "hex": "#FAFDF7"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Glacier Bay",
-    "code": "500A-1",
-    "hex": "#DEFFF1"
-  },
-  {
-    "brandName": "Behr",
     "name": "Refreshing Pool",
     "code": "500A-2",
     "hex": "#BDFFE7"
@@ -5176,12 +4996,6 @@
     "name": "Himalayan Mist",
     "code": "500C-1",
     "hex": "#E4FFF4"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Aqua Pura",
-    "code": "500C-2",
-    "hex": "#DEFFF1"
   },
   {
     "brandName": "Behr",
@@ -5380,12 +5194,6 @@
     "name": "Teal Forest",
     "code": "510F-7",
     "hex": "#2A5757"
-  },
-  {
-    "brandName": "Behr",
-    "name": "White",
-    "code": "52",
-    "hex": "#EEF3EE"
   },
   {
     "brandName": "Behr",
@@ -6016,12 +5824,6 @@
     "name": "Twilight Chimes",
     "code": "560F-7",
     "hex": "#264968"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Frost",
-    "code": "57",
-    "hex": "#F3F8F6"
   },
   {
     "brandName": "Behr",
@@ -6823,12 +6625,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Lavender Haze",
-    "code": "630C-1",
-    "hex": "#E8EDFB"
-  },
-  {
-    "brandName": "Behr",
     "name": "Sweet Harbor",
     "code": "630C-2",
     "hex": "#DEE7FA"
@@ -6862,12 +6658,6 @@
     "name": "Deep Orchid",
     "code": "630D-7",
     "hex": "#364196"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Dreamy Cloud",
-    "code": "630E-1",
-    "hex": "#E8EDFB"
   },
   {
     "brandName": "Behr",
@@ -7453,12 +7243,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Wispy Pink",
-    "code": "680C-1",
-    "hex": "#F6EFF7"
-  },
-  {
-    "brandName": "Behr",
     "name": "Wing Flutter",
     "code": "680C-2",
     "hex": "#F0DFF8"
@@ -7579,12 +7363,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Sweet Illusion",
-    "code": "690C-1",
-    "hex": "#F9ECFC"
-  },
-  {
-    "brandName": "Behr",
     "name": "Pink Amour",
     "code": "690C-2",
     "hex": "#F9E1FD"
@@ -7660,12 +7438,6 @@
     "name": "Indulgent",
     "code": "690F-7",
     "hex": "#4E4562"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Linen White",
-    "code": "70",
-    "hex": "#F9F0DE"
   },
   {
     "brandName": "Behr",
@@ -7753,12 +7525,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Dew Drop",
-    "code": "700E-1",
-    "hex": "#EAF9EC"
-  },
-  {
-    "brandName": "Behr",
     "name": "Lime Light",
     "code": "700E-2",
     "hex": "#D6EDDB"
@@ -7771,12 +7537,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Pinedale Shores",
-    "code": "700F-4",
-    "hex": "#92B59E"
-  },
-  {
-    "brandName": "Behr",
     "name": "Wild Sage",
     "code": "700F-5",
     "hex": "#6F9479"
@@ -7786,12 +7546,6 @@
     "name": "Dense Shrub",
     "code": "700F-6",
     "hex": "#4E6D5B"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Evergreen Bough",
-    "code": "700F-7",
-    "hex": "#3B5646"
   },
   {
     "brandName": "Behr",
@@ -7840,12 +7594,6 @@
     "name": "Parchment Paper",
     "code": "710C-1",
     "hex": "#F2EDDD"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Raffia Cream",
-    "code": "710C-2",
-    "hex": "#EDE3CA"
   },
   {
     "brandName": "Behr",
@@ -8044,12 +7792,6 @@
     "name": "Dark As Night",
     "code": "720F-7",
     "hex": "#304749"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Off White",
-    "code": "73",
-    "hex": "#E9EBD9"
   },
   {
     "brandName": "Behr",
@@ -8302,12 +8044,6 @@
     "name": "Night Shade",
     "code": "740F-7",
     "hex": "#243A41"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Polar Bear",
-    "code": "75",
-    "hex": "#F8F9F3"
   },
   {
     "brandName": "Behr",
@@ -8995,12 +8731,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Cotton Denim",
-    "code": "BIC-10",
-    "hex": "#8EC3D5"
-  },
-  {
-    "brandName": "Behr",
     "name": "Serene Journey",
     "code": "BIC-11",
     "hex": "#D2EADA"
@@ -9310,12 +9040,6 @@
     "name": "Silver Polish",
     "code": "BL-W13",
     "hex": "#E5ECE8"
-  },
-  {
-    "brandName": "Behr",
-    "name": "White Bl-w14",
-    "code": "BL-W14",
-    "hex": "#EEF3EE"
   },
   {
     "brandName": "Behr",
@@ -10075,12 +9799,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Marquee White",
-    "code": "BXC-47",
-    "hex": "#F7EEDC"
-  },
-  {
-    "brandName": "Behr",
     "name": "Courtyard Blue",
     "code": "BXC-48",
     "hex": "#628B8F"
@@ -10552,12 +10270,6 @@
     "name": "Grant Gray",
     "code": "HDC-AC-19",
     "hex": "#91908C"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Halls Of Ivy",
-    "code": "HDC-AC-20",
-    "hex": "#747768"
   },
   {
     "brandName": "Behr",
@@ -11125,12 +10837,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Cotton Denim",
-    "code": "HDC-FL14-11",
-    "hex": "#597D8D"
-  },
-  {
-    "brandName": "Behr",
     "name": "Rain Boots",
     "code": "HDC-FL14-12",
     "hex": "#334C66"
@@ -11686,12 +11392,6 @@
     "name": "Tilled Earth",
     "code": "HDC-SP14-6",
     "hex": "#816250"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Full Bloom",
-    "code": "HDC-SP14-7",
-    "hex": "#FFD193"
   },
   {
     "brandName": "Behr",
@@ -13324,12 +13024,6 @@
     "name": "Rainforest",
     "code": "M440-7",
     "hex": "#33624A"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Dew Pointe",
-    "code": "M450-1",
-    "hex": "#DAFFEB"
   },
   {
     "brandName": "Behr",
@@ -16267,12 +15961,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Double Fudge",
-    "code": "N130-7",
-    "hex": "#5B4542"
-  },
-  {
-    "brandName": "Behr",
     "name": "White City",
     "code": "N140-1",
     "hex": "#DADADA"
@@ -16342,12 +16030,6 @@
     "name": "French Truffle",
     "code": "N150-5",
     "hex": "#7A625D"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Coffee Beans",
-    "code": "N150-6",
-    "hex": "#5B4542"
   },
   {
     "brandName": "Behr",
@@ -16909,12 +16591,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Authentic Tan",
-    "code": "N290-2",
-    "hex": "#EDE3CA"
-  },
-  {
-    "brandName": "Behr",
     "name": "Comfy Beige",
     "code": "N290-3",
     "hex": "#E4D9BB"
@@ -17425,12 +17101,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Natures Gift",
-    "code": "N410-4",
-    "hex": "#92B59E"
-  },
-  {
-    "brandName": "Behr",
     "name": "Village Green",
     "code": "N410-5",
     "hex": "#70927A"
@@ -17482,12 +17152,6 @@
     "name": "Pine Mountain",
     "code": "N420-6",
     "hex": "#476B54"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Alpine Trail",
-    "code": "N420-7",
-    "hex": "#3B5646"
   },
   {
     "brandName": "Behr",
@@ -18118,12 +17782,6 @@
     "name": "Black Elegance",
     "code": "N570-7",
     "hex": "#3C3F4D"
-  },
-  {
-    "brandName": "Behr",
-    "name": "White Blush",
-    "code": "OR-W1",
-    "hex": "#FCECDF"
   },
   {
     "brandName": "Behr",
@@ -18901,12 +18559,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Banana Mania",
-    "code": "P260-4",
-    "hex": "#FFDA7D"
-  },
-  {
-    "brandName": "Behr",
     "name": "Yellow Jubilee",
     "code": "P260-5",
     "hex": "#FFD165"
@@ -18940,12 +18592,6 @@
     "name": "Sunflower Seed",
     "code": "P270-3",
     "hex": "#FFE5A0"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Egg Cream",
-    "code": "P270-4",
-    "hex": "#FFDA7D"
   },
   {
     "brandName": "Behr",
@@ -19012,12 +18658,6 @@
     "name": "Soft Buttercup",
     "code": "P290-1",
     "hex": "#FFF1BA"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Sweet As Honey",
-    "code": "P290-2",
-    "hex": "#FEECA1"
   },
   {
     "brandName": "Behr",
@@ -19621,12 +19261,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Enchanted Wells",
-    "code": "P430-5",
-    "hex": "#3CF16F"
-  },
-  {
-    "brandName": "Behr",
     "name": "Fairy Queen",
     "code": "P430-6",
     "hex": "#22B34A"
@@ -19798,12 +19432,6 @@
     "name": "Bella Vista",
     "code": "P470-6",
     "hex": "#2AB8A0"
-  },
-  {
-    "brandName": "Behr",
-    "name": "The Real Teal",
-    "code": "P470-7",
-    "hex": "#1D9186"
   },
   {
     "brandName": "Behr",
@@ -20227,78 +19855,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Folklore",
-    "code": "PPU1-01",
-    "hex": "#564447"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Divine Wine",
-    "code": "PPU1-02",
-    "hex": "#583E3F"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Tibetan Temple",
-    "code": "PPU1-03",
-    "hex": "#786466"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Wild Watermelon",
-    "code": "PPU1-04",
-    "hex": "#DE8781"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Watermelon Punch",
-    "code": "PPU1-04A",
-    "hex": "#E08881"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Japanese Kimono",
-    "code": "PPU1-05",
-    "hex": "#CC6359"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Red Coral",
-    "code": "PPU1-05A",
-    "hex": "#CD6359"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Rose Marquee",
-    "code": "PPU1-06",
-    "hex": "#A76465"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Powder Room",
-    "code": "PPU1-07",
-    "hex": "#A14D52"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Pompeian Red",
-    "code": "PPU1-08",
-    "hex": "#915050"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Red Willow",
-    "code": "PPU1-09",
-    "hex": "#885A56"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Folklore",
-    "code": "PPU1-1",
-    "hex": "#564447"
-  },
-  {
-    "brandName": "Behr",
     "name": "Forbidden Red",
     "code": "PPU1-10",
     "hex": "#8A4647"
@@ -20359,129 +19915,9 @@
   },
   {
     "brandName": "Behr",
-    "name": "Divine Wine",
-    "code": "PPU1-2",
-    "hex": "#583E3F"
-  },
-  {
-    "brandName": "Behr",
     "name": "Spiced Plum",
     "code": "PPU1-20",
     "hex": "#6C4C58"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Tibetan Temple",
-    "code": "PPU1-3",
-    "hex": "#786466"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Wild Watermelon",
-    "code": "PPU1-4",
-    "hex": "#DE8781"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Watermelon Punch",
-    "code": "PPU1-4A",
-    "hex": "#E08881"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Japanese Kimono",
-    "code": "PPU1-5",
-    "hex": "#CC6359"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Red Coral",
-    "code": "PPU1-5A",
-    "hex": "#CD6359"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Rose Marquee",
-    "code": "PPU1-6",
-    "hex": "#A76465"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Powder Room",
-    "code": "PPU1-7",
-    "hex": "#A14D52"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Pompeian Red",
-    "code": "PPU1-8",
-    "hex": "#915050"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Red Willow",
-    "code": "PPU1-9",
-    "hex": "#885A56"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Scallion",
-    "code": "PPU10-01",
-    "hex": "#667659"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Tuscany Hillside",
-    "code": "PPU10-02",
-    "hex": "#7E8760"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Green Energy",
-    "code": "PPU10-03",
-    "hex": "#809060"
-  },
-  {
-    "brandName": "Behr",
-    "name": "New Bamboo",
-    "code": "PPU10-04",
-    "hex": "#93A462"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Intoxication",
-    "code": "PPU10-05",
-    "hex": "#A1AC4E"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Spring Walk",
-    "code": "PPU10-06",
-    "hex": "#ACB094"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Lima Green",
-    "code": "PPU10-07",
-    "hex": "#B1B688"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Minted Lemon",
-    "code": "PPU10-08",
-    "hex": "#C0C6A9"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Chinese Jade",
-    "code": "PPU10-09",
-    "hex": "#CBD1BB"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Scallion",
-    "code": "PPU10-1",
-    "hex": "#667659"
   },
   {
     "brandName": "Behr",
@@ -20539,123 +19975,9 @@
   },
   {
     "brandName": "Behr",
-    "name": "Conifer Green",
-    "code": "PPU10-19",
-    "hex": "#747768"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Tuscany Hillside",
-    "code": "PPU10-2",
-    "hex": "#7E8760"
-  },
-  {
-    "brandName": "Behr",
     "name": "Pastoral",
     "code": "PPU10-20",
     "hex": "#595F53"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Green Energy",
-    "code": "PPU10-3",
-    "hex": "#809060"
-  },
-  {
-    "brandName": "Behr",
-    "name": "New Bamboo",
-    "code": "PPU10-4",
-    "hex": "#93A462"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Intoxication",
-    "code": "PPU10-5",
-    "hex": "#A1AC4E"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Spring Walk",
-    "code": "PPU10-6",
-    "hex": "#ACB094"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Lima Green",
-    "code": "PPU10-7",
-    "hex": "#B1B688"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Minted Lemon",
-    "code": "PPU10-8",
-    "hex": "#C0C6A9"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Chinese Jade",
-    "code": "PPU10-9",
-    "hex": "#CBD1BB"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Royal Orchard",
-    "code": "PPU11-01",
-    "hex": "#5F6C5A"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Shallot Bulb",
-    "code": "PPU11-02",
-    "hex": "#7A8D73"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Botanical Green",
-    "code": "PPU11-03",
-    "hex": "#77966E"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Alamosa Green",
-    "code": "PPU11-04",
-    "hex": "#939A72"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Pesto Green",
-    "code": "PPU11-05",
-    "hex": "#98A98C"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Willow Grove",
-    "code": "PPU11-06",
-    "hex": "#A6B291"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Clary Sage",
-    "code": "PPU11-07",
-    "hex": "#9FA688"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Moss Print",
-    "code": "PPU11-08",
-    "hex": "#AFB797"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Environmental",
-    "code": "PPU11-09",
-    "hex": "#B0B5A1"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Royal Orchard",
-    "code": "PPU11-1",
-    "hex": "#5F6C5A"
   },
   {
     "brandName": "Behr",
@@ -20719,117 +20041,9 @@
   },
   {
     "brandName": "Behr",
-    "name": "Shallot Bulb",
-    "code": "PPU11-2",
-    "hex": "#7A8D73"
-  },
-  {
-    "brandName": "Behr",
     "name": "Congo",
     "code": "PPU11-20",
     "hex": "#4D6053"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Botanical Green",
-    "code": "PPU11-3",
-    "hex": "#77966E"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Alamosa Green",
-    "code": "PPU11-4",
-    "hex": "#939A72"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Pesto Green",
-    "code": "PPU11-5",
-    "hex": "#98A98C"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Willow Grove",
-    "code": "PPU11-6",
-    "hex": "#A6B291"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Clary Sage",
-    "code": "PPU11-7",
-    "hex": "#9FA688"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Moss Print",
-    "code": "PPU11-8",
-    "hex": "#AFB797"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Environmental",
-    "code": "PPU11-9",
-    "hex": "#B0B5A1"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Abysse",
-    "code": "PPU12-01",
-    "hex": "#3D5759"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Sequoia Lake",
-    "code": "PPU12-02",
-    "hex": "#4F6C6C"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Dragonfly",
-    "code": "PPU12-03",
-    "hex": "#72908E"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Agave",
-    "code": "PPU12-04",
-    "hex": "#879D9A"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Lotus Leaf",
-    "code": "PPU12-05",
-    "hex": "#93A69F"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Lap Pool Blue",
-    "code": "PPU12-06",
-    "hex": "#98BBB9"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Spring Stream",
-    "code": "PPU12-07",
-    "hex": "#98BEB3"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Opal Silk",
-    "code": "PPU12-08",
-    "hex": "#9DB8B3"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Frozen Pond",
-    "code": "PPU12-09",
-    "hex": "#A5B4AF"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Abysse",
-    "code": "PPU12-1",
-    "hex": "#3D5759"
   },
   {
     "brandName": "Behr",
@@ -20893,117 +20107,9 @@
   },
   {
     "brandName": "Behr",
-    "name": "Sequoia Lake",
-    "code": "PPU12-2",
-    "hex": "#4F6C6C"
-  },
-  {
-    "brandName": "Behr",
     "name": "Underwater",
     "code": "PPU12-20",
     "hex": "#4E6163"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Dragonfly",
-    "code": "PPU12-3",
-    "hex": "#72908E"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Agave",
-    "code": "PPU12-4",
-    "hex": "#879D9A"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Lotus Leaf",
-    "code": "PPU12-5",
-    "hex": "#93A69F"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Lap Pool Blue",
-    "code": "PPU12-6",
-    "hex": "#98BBB9"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Spring Stream",
-    "code": "PPU12-7",
-    "hex": "#98BEB3"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Opal Silk",
-    "code": "PPU12-8",
-    "hex": "#9DB8B3"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Frozen Pond",
-    "code": "PPU12-9",
-    "hex": "#A5B4AF"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Caribe",
-    "code": "PPU13-01",
-    "hex": "#127D88"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Juniper Berries",
-    "code": "PPU13-02",
-    "hex": "#547075"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Catalina Coast",
-    "code": "PPU13-03",
-    "hex": "#5C7885"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Atlantic Shoreline",
-    "code": "PPU13-04",
-    "hex": "#70818A"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Bali Bliss",
-    "code": "PPU13-05",
-    "hex": "#5E9EA1"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Polaris Blue",
-    "code": "PPU13-06",
-    "hex": "#6F8A8D"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Voyage",
-    "code": "PPU13-07",
-    "hex": "#709CA5"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Venus Teal",
-    "code": "PPU13-08",
-    "hex": "#85A4A3"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Tahoe Blue",
-    "code": "PPU13-09",
-    "hex": "#94B8C3"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Caribe",
-    "code": "PPU13-1",
-    "hex": "#127D88"
   },
   {
     "brandName": "Behr",
@@ -21067,117 +20173,9 @@
   },
   {
     "brandName": "Behr",
-    "name": "Juniper Berries",
-    "code": "PPU13-2",
-    "hex": "#547075"
-  },
-  {
-    "brandName": "Behr",
     "name": "Restless Sea",
     "code": "PPU13-20",
     "hex": "#37515E"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Catalina Coast",
-    "code": "PPU13-3",
-    "hex": "#5C7885"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Atlantic Shoreline",
-    "code": "PPU13-4",
-    "hex": "#70818A"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Bali Bliss",
-    "code": "PPU13-5",
-    "hex": "#5E9EA1"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Polaris Blue",
-    "code": "PPU13-6",
-    "hex": "#6F8A8D"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Voyage",
-    "code": "PPU13-7",
-    "hex": "#709CA5"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Venus Teal",
-    "code": "PPU13-8",
-    "hex": "#85A4A3"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Tahoe Blue",
-    "code": "PPU13-9",
-    "hex": "#94B8C3"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Arrowhead Lake",
-    "code": "PPU14-01",
-    "hex": "#57728B"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Glass Sapphire",
-    "code": "PPU14-02",
-    "hex": "#587A9C"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Cayman Bay",
-    "code": "PPU14-03",
-    "hex": "#52788E"
-  },
-  {
-    "brandName": "Behr",
-    "name": "French Court",
-    "code": "PPU14-04",
-    "hex": "#698EA3"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Forever Denim",
-    "code": "PPU14-05",
-    "hex": "#778591"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Coastal Vista",
-    "code": "PPU14-06",
-    "hex": "#8293A2"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Hawaiian Sky",
-    "code": "PPU14-07",
-    "hex": "#82A1BE"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Paris",
-    "code": "PPU14-08",
-    "hex": "#91A7BD"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Windsurf",
-    "code": "PPU14-09",
-    "hex": "#90A9B9"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Arrowhead Lake",
-    "code": "PPU14-1",
-    "hex": "#57728B"
   },
   {
     "brandName": "Behr",
@@ -21241,117 +20239,9 @@
   },
   {
     "brandName": "Behr",
-    "name": "Glass Sapphire",
-    "code": "PPU14-2",
-    "hex": "#587A9C"
-  },
-  {
-    "brandName": "Behr",
     "name": "Starless Night",
     "code": "PPU14-20",
     "hex": "#3E4855"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Cayman Bay",
-    "code": "PPU14-3",
-    "hex": "#52788E"
-  },
-  {
-    "brandName": "Behr",
-    "name": "French Court",
-    "code": "PPU14-4",
-    "hex": "#698EA3"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Forever Denim",
-    "code": "PPU14-5",
-    "hex": "#778591"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Coastal Vista",
-    "code": "PPU14-6",
-    "hex": "#8293A2"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Hawaiian Sky",
-    "code": "PPU14-7",
-    "hex": "#82A1BE"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Paris",
-    "code": "PPU14-8",
-    "hex": "#91A7BD"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Windsurf",
-    "code": "PPU14-9",
-    "hex": "#90A9B9"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Nobility Blue",
-    "code": "PPU15-01",
-    "hex": "#41496A"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Mozart",
-    "code": "PPU15-02",
-    "hex": "#485381"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Dark Cobalt Blue",
-    "code": "PPU15-03",
-    "hex": "#32578B"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Mosaic Blue",
-    "code": "PPU15-04",
-    "hex": "#476387"
-  },
-  {
-    "brandName": "Behr",
-    "name": "New Age Blue",
-    "code": "PPU15-05",
-    "hex": "#486EAE"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Neon Blue",
-    "code": "PPU15-06",
-    "hex": "#5C83B5"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Tranquil Pond",
-    "code": "PPU15-07",
-    "hex": "#768195"
-  },
-  {
-    "brandName": "Behr",
-    "name": "River Tour",
-    "code": "PPU15-08",
-    "hex": "#838B9A"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Hilo Bay",
-    "code": "PPU15-09",
-    "hex": "#758AA2"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Nobility Blue",
-    "code": "PPU15-1",
-    "hex": "#41496A"
   },
   {
     "brandName": "Behr",
@@ -21415,117 +20305,9 @@
   },
   {
     "brandName": "Behr",
-    "name": "Mozart",
-    "code": "PPU15-2",
-    "hex": "#485381"
-  },
-  {
-    "brandName": "Behr",
     "name": "Poppy Seed",
     "code": "PPU15-20",
     "hex": "#4A4E55"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Dark Cobalt Blue",
-    "code": "PPU15-3",
-    "hex": "#32578B"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Mosaic Blue",
-    "code": "PPU15-4",
-    "hex": "#476387"
-  },
-  {
-    "brandName": "Behr",
-    "name": "New Age Blue",
-    "code": "PPU15-5",
-    "hex": "#486EAE"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Neon Blue",
-    "code": "PPU15-6",
-    "hex": "#5C83B5"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Tranquil Pond",
-    "code": "PPU15-7",
-    "hex": "#768195"
-  },
-  {
-    "brandName": "Behr",
-    "name": "River Tour",
-    "code": "PPU15-8",
-    "hex": "#838B9A"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Hilo Bay",
-    "code": "PPU15-9",
-    "hex": "#758AA2"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Aurora Splendor",
-    "code": "PPU16-01",
-    "hex": "#585683"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Vigorous Violet",
-    "code": "PPU16-02",
-    "hex": "#645681"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Purple Paradise",
-    "code": "PPU16-03",
-    "hex": "#79669E"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Purple Agate",
-    "code": "PPU16-04",
-    "hex": "#8C7EAF"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Lily Of The Nile",
-    "code": "PPU16-05",
-    "hex": "#9191BC"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Lilac Mist",
-    "code": "PPU16-06",
-    "hex": "#E4E3E8"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Mystic Fairy",
-    "code": "PPU16-07",
-    "hex": "#DDD4DA"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Hint Of Violet",
-    "code": "PPU16-08",
-    "hex": "#D1D5E2"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Aster",
-    "code": "PPU16-09",
-    "hex": "#BEB7C1"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Aurora Splendor",
-    "code": "PPU16-1",
-    "hex": "#585683"
   },
   {
     "brandName": "Behr",
@@ -21589,117 +20371,15 @@
   },
   {
     "brandName": "Behr",
-    "name": "Vigorous Violet",
-    "code": "PPU16-2",
-    "hex": "#645681"
-  },
-  {
-    "brandName": "Behr",
     "name": "Renaissance",
     "code": "PPU16-20",
     "hex": "#434258"
   },
   {
     "brandName": "Behr",
-    "name": "Purple Paradise",
-    "code": "PPU16-3",
-    "hex": "#79669E"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Purple Agate",
-    "code": "PPU16-4",
-    "hex": "#8C7EAF"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Lily Of The Nile",
-    "code": "PPU16-5",
-    "hex": "#9191BC"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Lilac Mist",
-    "code": "PPU16-6",
-    "hex": "#E4E3E8"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Mystic Fairy",
-    "code": "PPU16-7",
-    "hex": "#DDD4DA"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Hint Of Violet",
-    "code": "PPU16-8",
-    "hex": "#D1D5E2"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Aster",
-    "code": "PPU16-9",
-    "hex": "#BEB7C1"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Mata Hari",
-    "code": "PPU17-01",
-    "hex": "#55475A"
-  },
-  {
-    "brandName": "Behr",
     "name": "Oriental Eggplant",
     "code": "PPU17-02",
     "hex": "#533E50"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Vixen",
-    "code": "PPU17-03",
-    "hex": "#5B4051"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Darkest Grape",
-    "code": "PPU17-04",
-    "hex": "#625769"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Preservation Plum",
-    "code": "PPU17-05",
-    "hex": "#655865"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Crushed Peony",
-    "code": "PPU17-06",
-    "hex": "#E3DCDA"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Vienna Lace",
-    "code": "PPU17-07",
-    "hex": "#E9D9D5"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Peony Blush",
-    "code": "PPU17-08",
-    "hex": "#D8C1BF"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Embroidery",
-    "code": "PPU17-09",
-    "hex": "#D4BEC0"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Mata Hari",
-    "code": "PPU17-1",
-    "hex": "#55475A"
   },
   {
     "brandName": "Behr",
@@ -21769,108 +20449,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Vixen",
-    "code": "PPU17-3",
-    "hex": "#5B4051"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Darkest Grape",
-    "code": "PPU17-4",
-    "hex": "#625769"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Preservation Plum",
-    "code": "PPU17-5",
-    "hex": "#655865"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Crushed Peony",
-    "code": "PPU17-6",
-    "hex": "#E3DCDA"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Vienna Lace",
-    "code": "PPU17-7",
-    "hex": "#E9D9D5"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Peony Blush",
-    "code": "PPU17-8",
-    "hex": "#D8C1BF"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Embroidery",
-    "code": "PPU17-9",
-    "hex": "#D4BEC0"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Cracked Pepper",
-    "code": "PPU18-01",
-    "hex": "#4F5152"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Pencil Point",
-    "code": "PPU18-02",
-    "hex": "#595D62"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Antique Tin",
-    "code": "PPU18-03",
-    "hex": "#6E7174"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Dark Pewter",
-    "code": "PPU18-04",
-    "hex": "#8D9397"
-  },
-  {
-    "brandName": "Behr",
-    "name": "French Silver",
-    "code": "PPU18-05",
-    "hex": "#B8BCBE"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Ultra Pure White\u00c2\u00ae",
-    "code": "PPU18-06",
-    "hex": "#F8F8F4"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Falling Snow",
-    "code": "PPU18-07",
-    "hex": "#F0F0E9"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Painter's White",
-    "code": "PPU18-08",
-    "hex": "#E5E1DC"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Burnished Clay",
-    "code": "PPU18-09",
-    "hex": "#D2CCC5"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Cracked Pepper",
-    "code": "PPU18-1",
-    "hex": "#4F5152"
-  },
-  {
-    "brandName": "Behr",
     "name": "Natural Gray",
     "code": "PPU18-10",
     "hex": "#C4BFBC"
@@ -21931,117 +20509,9 @@
   },
   {
     "brandName": "Behr",
-    "name": "Pencil Point",
-    "code": "PPU18-2",
-    "hex": "#595D62"
-  },
-  {
-    "brandName": "Behr",
     "name": "Broadway",
     "code": "PPU18-20",
     "hex": "#434442"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Antique Tin",
-    "code": "PPU18-3",
-    "hex": "#6E7174"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Dark Pewter",
-    "code": "PPU18-4",
-    "hex": "#8D9397"
-  },
-  {
-    "brandName": "Behr",
-    "name": "French Silver",
-    "code": "PPU18-5",
-    "hex": "#B8BCBE"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Ultra Pure White\u00c2\u00ae",
-    "code": "PPU18-6",
-    "hex": "#F8F8F4"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Falling Snow",
-    "code": "PPU18-7",
-    "hex": "#F0F0E9"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Painter's White",
-    "code": "PPU18-8",
-    "hex": "#E5E1DC"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Burnished Clay",
-    "code": "PPU18-9",
-    "hex": "#D2CCC5"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Chipotle Paste",
-    "code": "PPU2-01",
-    "hex": "#683E3B"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Red Pepper",
-    "code": "PPU2-02",
-    "hex": "#7A3F39"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Allure",
-    "code": "PPU2-03",
-    "hex": "#8C423D"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Pale Cashmere",
-    "code": "PPU2-04",
-    "hex": "#E8DED6"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Sheer Scarf",
-    "code": "PPU2-05",
-    "hex": "#E3D5CB"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Wisp Of Mauve",
-    "code": "PPU2-06",
-    "hex": "#D9C7BF"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Coral Stone",
-    "code": "PPU2-07",
-    "hex": "#DDC2B7"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Pink Ginger",
-    "code": "PPU2-08",
-    "hex": "#CFA699"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Ginger Rose",
-    "code": "PPU2-09",
-    "hex": "#BE8775"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Chipotle Paste",
-    "code": "PPU2-1",
-    "hex": "#683E3B"
   },
   {
     "brandName": "Behr",
@@ -22105,117 +20575,9 @@
   },
   {
     "brandName": "Behr",
-    "name": "Red Pepper",
-    "code": "PPU2-2",
-    "hex": "#7A3F39"
-  },
-  {
-    "brandName": "Behr",
     "name": "Oxblood",
     "code": "PPU2-20",
     "hex": "#75554E"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Allure",
-    "code": "PPU2-3",
-    "hex": "#8C423D"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Pale Cashmere",
-    "code": "PPU2-4",
-    "hex": "#E8DED6"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Sheer Scarf",
-    "code": "PPU2-5",
-    "hex": "#E3D5CB"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Wisp Of Mauve",
-    "code": "PPU2-6",
-    "hex": "#D9C7BF"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Coral Stone",
-    "code": "PPU2-7",
-    "hex": "#DDC2B7"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Pink Ginger",
-    "code": "PPU2-8",
-    "hex": "#CFA699"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Ginger Rose",
-    "code": "PPU2-9",
-    "hex": "#BE8775"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Moroccan Sky",
-    "code": "PPU3-01",
-    "hex": "#BF7756"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Marmalade Glaze",
-    "code": "PPU3-02",
-    "hex": "#C27545"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Flaming Torch",
-    "code": "PPU3-03",
-    "hex": "#D3864F"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Ballet White",
-    "code": "PPU3-04",
-    "hex": "#F2E7DA"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Splendor",
-    "code": "PPU3-05",
-    "hex": "#F3DECD"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Venetian Mask",
-    "code": "PPU3-06",
-    "hex": "#E6CDB8"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Pale Coral",
-    "code": "PPU3-07",
-    "hex": "#F0D0B5"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Sienna Dust",
-    "code": "PPU3-08",
-    "hex": "#DCC4AD"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Pumpkin Cream",
-    "code": "PPU3-09",
-    "hex": "#DBB99E"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Moroccan Sky",
-    "code": "PPU3-1",
-    "hex": "#BF7756"
   },
   {
     "brandName": "Behr",
@@ -22279,117 +20641,9 @@
   },
   {
     "brandName": "Behr",
-    "name": "Marmalade Glaze",
-    "code": "PPU3-2",
-    "hex": "#C27545"
-  },
-  {
-    "brandName": "Behr",
     "name": "Cinnabark",
     "code": "PPU3-20",
     "hex": "#634D45"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Flaming Torch",
-    "code": "PPU3-3",
-    "hex": "#D3864F"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Ballet White",
-    "code": "PPU3-4",
-    "hex": "#F2E7DA"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Splendor",
-    "code": "PPU3-5",
-    "hex": "#F3DECD"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Venetian Mask",
-    "code": "PPU3-6",
-    "hex": "#E6CDB8"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Pale Coral",
-    "code": "PPU3-7",
-    "hex": "#F0D0B5"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Sienna Dust",
-    "code": "PPU3-8",
-    "hex": "#DCC4AD"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Pumpkin Cream",
-    "code": "PPU3-9",
-    "hex": "#DBB99E"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Caramel Swirl",
-    "code": "PPU4-01",
-    "hex": "#8F6A50"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Coco Rum",
-    "code": "PPU4-02",
-    "hex": "#9B7758"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Butter Rum",
-    "code": "PPU4-03",
-    "hex": "#C38551"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Soft Chamois",
-    "code": "PPU4-04",
-    "hex": "#AE927C"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Basketry",
-    "code": "PPU4-05",
-    "hex": "#BEA287"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Teatime",
-    "code": "PPU4-06",
-    "hex": "#BE9B7A"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Mushroom Bisque",
-    "code": "PPU4-07",
-    "hex": "#C9B49C"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Plateau",
-    "code": "PPU4-08",
-    "hex": "#DBC4AC"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Cafe Cream",
-    "code": "PPU4-09",
-    "hex": "#F9E7D5"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Caramel Swirl",
-    "code": "PPU4-1",
-    "hex": "#8F6A50"
   },
   {
     "brandName": "Behr",
@@ -22453,117 +20707,9 @@
   },
   {
     "brandName": "Behr",
-    "name": "Coco Rum",
-    "code": "PPU4-2",
-    "hex": "#9B7758"
-  },
-  {
-    "brandName": "Behr",
     "name": "Ancient Root",
     "code": "PPU4-20",
     "hex": "#70553E"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Butter Rum",
-    "code": "PPU4-3",
-    "hex": "#C38551"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Soft Chamois",
-    "code": "PPU4-4",
-    "hex": "#AE927C"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Basketry",
-    "code": "PPU4-5",
-    "hex": "#BEA287"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Teatime",
-    "code": "PPU4-6",
-    "hex": "#BE9B7A"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Mushroom Bisque",
-    "code": "PPU4-7",
-    "hex": "#C9B49C"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Plateau",
-    "code": "PPU4-8",
-    "hex": "#DBC4AC"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Cafe Cream",
-    "code": "PPU4-9",
-    "hex": "#F9E7D5"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Espresso Beans",
-    "code": "PPU5-01",
-    "hex": "#4C443E"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Aging Barrel",
-    "code": "PPU5-02",
-    "hex": "#695B4F"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Antique Earth",
-    "code": "PPU5-03",
-    "hex": "#7E6C60"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Mocha Latte",
-    "code": "PPU5-04",
-    "hex": "#827060"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Coconut Shell",
-    "code": "PPU5-05",
-    "hex": "#8D7967"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Ethiopia",
-    "code": "PPU5-06",
-    "hex": "#968777"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Studio Taupe",
-    "code": "PPU5-07",
-    "hex": "#A5978A"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Sculptor Clay",
-    "code": "PPU5-08",
-    "hex": "#CCC3B6"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Bleached Linen",
-    "code": "PPU5-09",
-    "hex": "#F3ECE3"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Espresso Beans",
-    "code": "PPU5-1",
-    "hex": "#4C443E"
   },
   {
     "brandName": "Behr",
@@ -22627,117 +20773,9 @@
   },
   {
     "brandName": "Behr",
-    "name": "Aging Barrel",
-    "code": "PPU5-2",
-    "hex": "#695B4F"
-  },
-  {
-    "brandName": "Behr",
     "name": "Sweet Molasses",
     "code": "PPU5-20",
     "hex": "#4C423F"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Antique Earth",
-    "code": "PPU5-3",
-    "hex": "#7E6C60"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Mocha Latte",
-    "code": "PPU5-4",
-    "hex": "#827060"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Coconut Shell",
-    "code": "PPU5-5",
-    "hex": "#8D7967"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Ethiopia",
-    "code": "PPU5-6",
-    "hex": "#968777"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Studio Taupe",
-    "code": "PPU5-7",
-    "hex": "#A5978A"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Sculptor Clay",
-    "code": "PPU5-8",
-    "hex": "#CCC3B6"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Bleached Linen",
-    "code": "PPU5-9",
-    "hex": "#F3ECE3"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Curry Powder",
-    "code": "PPU6-01",
-    "hex": "#9D6C38"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Saffron Strands",
-    "code": "PPU6-02",
-    "hex": "#D39953"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Sunburst",
-    "code": "PPU6-03",
-    "hex": "#ECB370"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Pyramid Gold",
-    "code": "PPU6-04",
-    "hex": "#E6B473"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Cork",
-    "code": "PPU6-05",
-    "hex": "#D9AC7B"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Honey Locust",
-    "code": "PPU6-06",
-    "hex": "#FFC368"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Jackfruit",
-    "code": "PPU6-07",
-    "hex": "#F7C681"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Pale Honey",
-    "code": "PPU6-08",
-    "hex": "#F4D5AB"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Polished Pearl",
-    "code": "PPU6-09",
-    "hex": "#F8EDD9"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Curry Powder",
-    "code": "PPU6-1",
-    "hex": "#9D6C38"
   },
   {
     "brandName": "Behr",
@@ -22801,123 +20839,9 @@
   },
   {
     "brandName": "Behr",
-    "name": "Saffron Strands",
-    "code": "PPU6-2",
-    "hex": "#D39953"
-  },
-  {
-    "brandName": "Behr",
     "name": "Eden Prairie",
     "code": "PPU6-20",
     "hex": "#877448"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Sunburst",
-    "code": "PPU6-3",
-    "hex": "#ECB370"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Pyramid Gold",
-    "code": "PPU6-4",
-    "hex": "#E6B473"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Cork",
-    "code": "PPU6-5",
-    "hex": "#D9AC7B"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Honey Locust",
-    "code": "PPU6-6",
-    "hex": "#FFC368"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Jackfruit",
-    "code": "PPU6-7",
-    "hex": "#F7C681"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Pale Honey",
-    "code": "PPU6-8",
-    "hex": "#F4D5AB"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Polished Pearl",
-    "code": "PPU6-9",
-    "hex": "#F8EDD9"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Moss Stone",
-    "code": "PPU7-01",
-    "hex": "#67583E"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Tree Swing",
-    "code": "PPU7-02",
-    "hex": "#726144"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Macchiato",
-    "code": "PPU7-03",
-    "hex": "#928169"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Sofisticata",
-    "code": "PPU7-03A",
-    "hex": "#94806C"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Collectible",
-    "code": "PPU7-04",
-    "hex": "#9B8368"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Pure Earth",
-    "code": "PPU7-05",
-    "hex": "#A79481"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Chateau",
-    "code": "PPU7-06",
-    "hex": "#B5A18B"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Riviera Beach",
-    "code": "PPU7-07",
-    "hex": "#C0AE97"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Baja",
-    "code": "PPU7-08",
-    "hex": "#D2C1A9"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Aged Beige",
-    "code": "PPU7-09",
-    "hex": "#D7CFC1"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Moss Stone",
-    "code": "PPU7-1",
-    "hex": "#67583E"
   },
   {
     "brandName": "Behr",
@@ -22981,12 +20905,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Tree Swing",
-    "code": "PPU7-2",
-    "hex": "#726144"
-  },
-  {
-    "brandName": "Behr",
     "name": "Raffia Ribbon",
     "code": "PPU7-20",
     "hex": "#CBB08D"
@@ -23020,114 +20938,6 @@
     "name": "Clove Brown",
     "code": "PPU7-25",
     "hex": "#685A48"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Macchiato",
-    "code": "PPU7-3",
-    "hex": "#928169"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Sofisticata",
-    "code": "PPU7-3A",
-    "hex": "#94806C"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Collectible",
-    "code": "PPU7-4",
-    "hex": "#9B8368"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Pure Earth",
-    "code": "PPU7-5",
-    "hex": "#A79481"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Chateau",
-    "code": "PPU7-6",
-    "hex": "#B5A18B"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Riviera Beach",
-    "code": "PPU7-7",
-    "hex": "#C0AE97"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Baja",
-    "code": "PPU7-8",
-    "hex": "#D2C1A9"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Aged Beige",
-    "code": "PPU7-9",
-    "hex": "#D7CFC1"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Olive",
-    "code": "PPU8-01",
-    "hex": "#7B6C4E"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Gingko Tree",
-    "code": "PPU8-02",
-    "hex": "#928161"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Dry Pasture",
-    "code": "PPU8-03",
-    "hex": "#948972"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Urban Safari",
-    "code": "PPU8-04",
-    "hex": "#968B6F"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Eco Green",
-    "code": "PPU8-05",
-    "hex": "#A89669"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Exploring Khaki",
-    "code": "PPU8-06",
-    "hex": "#AA9A7A"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Chamois Tan",
-    "code": "PPU8-07",
-    "hex": "#B4A286"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Kaffir Lime",
-    "code": "PPU8-08",
-    "hex": "#B9AB86"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Tea Bag",
-    "code": "PPU8-09",
-    "hex": "#C7BB99"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Olive",
-    "code": "PPU8-1",
-    "hex": "#7B6C4E"
   },
   {
     "brandName": "Behr",
@@ -23191,12 +21001,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Gingko Tree",
-    "code": "PPU8-2",
-    "hex": "#928161"
-  },
-  {
-    "brandName": "Behr",
     "name": "Dusty Olive",
     "code": "PPU8-20",
     "hex": "#9D9787"
@@ -23230,108 +21034,6 @@
     "name": "Ivy Topiary",
     "code": "PPU8-25",
     "hex": "#676150"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Dry Pasture",
-    "code": "PPU8-3",
-    "hex": "#948972"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Urban Safari",
-    "code": "PPU8-4",
-    "hex": "#968B6F"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Eco Green",
-    "code": "PPU8-5",
-    "hex": "#A89669"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Exploring Khaki",
-    "code": "PPU8-6",
-    "hex": "#AA9A7A"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Chamois Tan",
-    "code": "PPU8-7",
-    "hex": "#B4A286"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Kaffir Lime",
-    "code": "PPU8-8",
-    "hex": "#B9AB86"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Tea Bag",
-    "code": "PPU8-9",
-    "hex": "#C7BB99"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Alligator Skin",
-    "code": "PPU9-01",
-    "hex": "#645F49"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Lucky Bamboo",
-    "code": "PPU9-02",
-    "hex": "#93834C"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Retro Avocado",
-    "code": "PPU9-03",
-    "hex": "#958C45"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Fresh Olive",
-    "code": "PPU9-04",
-    "hex": "#A69D74"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Natchez Moss",
-    "code": "PPU9-05",
-    "hex": "#B1A771"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Riesling Grape",
-    "code": "PPU9-06",
-    "hex": "#BFAF66"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Fresh Sprout",
-    "code": "PPU9-07",
-    "hex": "#C7C077"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Tarragon Tease",
-    "code": "PPU9-08",
-    "hex": "#B4AC85"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Seedling",
-    "code": "PPU9-09",
-    "hex": "#B8B396"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Alligator Skin",
-    "code": "PPU9-1",
-    "hex": "#645F49"
   },
   {
     "brandName": "Behr",
@@ -23395,12 +21097,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Lucky Bamboo",
-    "code": "PPU9-2",
-    "hex": "#93834C"
-  },
-  {
-    "brandName": "Behr",
     "name": "Dill Seed",
     "code": "PPU9-20",
     "hex": "#B3B197"
@@ -23434,48 +21130,6 @@
     "name": "Eastern Bamboo",
     "code": "PPU9-25",
     "hex": "#5E5D3E"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Retro Avocado",
-    "code": "PPU9-3",
-    "hex": "#958C45"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Fresh Olive",
-    "code": "PPU9-4",
-    "hex": "#A69D74"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Natchez Moss",
-    "code": "PPU9-5",
-    "hex": "#B1A771"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Riesling Grape",
-    "code": "PPU9-6",
-    "hex": "#BFAF66"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Fresh Sprout",
-    "code": "PPU9-7",
-    "hex": "#C7C077"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Tarragon Tease",
-    "code": "PPU9-8",
-    "hex": "#B4AC85"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Seedling",
-    "code": "PPU9-9",
-    "hex": "#B8B396"
   },
   {
     "brandName": "Behr",
@@ -23530,12 +21184,6 @@
     "name": "Opulent Opal",
     "code": "PR-W4",
     "hex": "#F2EDF5"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Sweet Roses",
-    "code": "PR-W5",
-    "hex": "#F6EFF7"
   },
   {
     "brandName": "Behr",
@@ -24187,12 +21835,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Desert Glow",
-    "code": "S-G-350",
-    "hex": "#FFA600"
-  },
-  {
-    "brandName": "Behr",
     "name": "Bright Star",
     "code": "S-G-360",
     "hex": "#FFCF22"
@@ -24280,12 +21922,6 @@
     "name": "Tropical Waters",
     "code": "S-G-500",
     "hex": "#1D9676"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Beach Towel",
-    "code": "S-G-510",
-    "hex": "#1D9186"
   },
   {
     "brandName": "Behr",
@@ -25993,12 +23629,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Yogi",
-    "code": "S360-5",
-    "hex": "#7C9950"
-  },
-  {
-    "brandName": "Behr",
     "name": "Secret Meadow",
     "code": "S360-6",
     "hex": "#5F7B33"
@@ -26032,12 +23662,6 @@
     "name": "Rejuvenation",
     "code": "S370-4",
     "hex": "#9DB977"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Pesto Paste",
-    "code": "S370-5",
-    "hex": "#7C9950"
   },
   {
     "brandName": "Behr",
@@ -27403,7 +25027,7 @@
   },
   {
     "brandName": "Behr",
-    "name": "Grape Cr\u00c3\u02c6me",
+    "name": "Grape CrÃˆme",
     "code": "UL250-10",
     "hex": "#BDBABB"
   },
@@ -27541,12 +25165,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Ultra Pure White",
-    "code": "W-B-500",
-    "hex": "#FAFDF7"
-  },
-  {
-    "brandName": "Behr",
     "name": "Frosted Juniper",
     "code": "W-B-510",
     "hex": "#F1FBF1"
@@ -27574,12 +25192,6 @@
     "name": "Frosty Morning",
     "code": "W-B-620",
     "hex": "#EFECF3"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Swiss Coffee",
-    "code": "W-B-700",
-    "hex": "#F2F1E5"
   },
   {
     "brandName": "Behr",
@@ -27634,18 +25246,6 @@
     "name": "Eggshell Cream(w-d-300)",
     "code": "W-D-300",
     "hex": "#F6F3DF"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Linen White",
-    "code": "W-D-310",
-    "hex": "#F7EEDC"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Navajo White",
-    "code": "W-D-320",
-    "hex": "#ECE2C5"
   },
   {
     "brandName": "Behr",
@@ -27739,12 +25339,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Polar Bear",
-    "code": "W-F-200",
-    "hex": "#F8F9F2"
-  },
-  {
-    "brandName": "Behr",
     "name": "Nude W-f-210",
     "code": "W-F-210",
     "hex": "#F2F0E6"
@@ -27763,18 +25357,6 @@
   },
   {
     "brandName": "Behr",
-    "name": "Cottage White",
-    "code": "W-F-310",
-    "hex": "#F4ECD9"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Antique White",
-    "code": "W-F-320",
-    "hex": "#E7E2CA"
-  },
-  {
-    "brandName": "Behr",
     "name": "Swan Wing",
     "code": "W-F-400",
     "hex": "#F7F6EE"
@@ -27784,18 +25366,6 @@
     "name": "Ostrich",
     "code": "W-F-410",
     "hex": "#E9EBDC"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Off White",
-    "code": "W-F-420",
-    "hex": "#E7E9D7"
-  },
-  {
-    "brandName": "Behr",
-    "name": "Frost",
-    "code": "W-F-500",
-    "hex": "#F2F7F5"
   },
   {
     "brandName": "Behr",
@@ -27820,12 +25390,6 @@
     "name": "White Fur",
     "code": "W-F-610",
     "hex": "#F2F4EF"
-  },
-  {
-    "brandName": "Behr",
-    "name": "White",
-    "code": "W-F-620",
-    "hex": "#EEF2EE"
   },
   {
     "brandName": "Behr",
@@ -27880,12 +25444,6 @@
     "name": "YL-W14",
     "code": "YL-W14",
     "hex": "#E9EBD7"
-  },
-  {
-    "brandName": "Behr",
-    "name": "YL-W15",
-    "code": "YL-W15",
-    "hex": "#F8F9F3"
   },
   {
     "brandName": "Behr",

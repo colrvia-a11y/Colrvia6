@@ -20,6 +20,18 @@ service cloud.firestore {
       allow create: if canCreateProject();
     }
 
+    // Public reference data: paints (read-only)
+    // These are non-user documents used for lookups and rendering.
+    match /paints/{paintId} {
+      allow read: if true;   // public read
+      allow write: if false; // no client writes
+    }
+    // Optional: brands metadata (read-only)
+    match /brands/{brandId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     match /users/{userId} {
       allow read, write: if request.auth.uid == userId;
 
@@ -29,6 +41,7 @@ service cloud.firestore {
       }
     }
 
+    // Default deny for everything else not explicitly matched above
     match /{document=**} { allow read, write: if false; }
   }
 }

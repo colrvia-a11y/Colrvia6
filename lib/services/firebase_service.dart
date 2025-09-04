@@ -646,6 +646,8 @@ class FirebaseService {
     });
   }
 
+  // Note: use removeFavoritePaint(paintId) which infers the current user.
+
   static Future<void> addCopiedPaint(String uid, Paint paint) async {
     await _db.collection('users').doc(uid).collection('copiedPaints').add({
       'paintId': paint.id,

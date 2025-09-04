@@ -1379,6 +1379,9 @@ class _ToolsDockState extends State<ToolsDock> with TickerProviderStateMixin {
             if (panelWidth <= 1) return const SizedBox.shrink();
 
             final panelHeight = (size.height * 0.8).clamp(200.0, size.height);
+            // Avoid building complex panel content until there is enough width to lay out
+            // tiles with trailing controls (e.g., Switch) without ListTile assertions.
+            const double minContentWidth = 220.0;
             return Container(
               width: panelWidth,
               height: panelHeight,
@@ -1395,7 +1398,7 @@ class _ToolsDockState extends State<ToolsDock> with TickerProviderStateMixin {
                 ],
               ),
               clipBehavior: Clip.antiAlias,
-              child: (widget.activeTool != null && widget.activeTool != ActiveTool.temperature)
+              child: (widget.activeTool != null && widget.activeTool != ActiveTool.temperature && panelWidth >= minContentWidth)
                   ? widget.panelBuilder(widget.activeTool!)
                   : null,
             );
@@ -1685,11 +1688,30 @@ class _StylePanel extends StatelessWidget {
           ],
           
           const SizedBox(height: 16),
-          SwitchListTile(
-            title: const Text('Diversify brands'),
-            subtitle: const Text('Mix different paint brands'),
-            value: diversifyBrands,
-            onChanged: onDiversifyChanged,
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Diversify brands'),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Mix different paint brands',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+                Switch(
+                  value: diversifyBrands,
+                  onChanged: onDiversifyChanged,
+                ),
+              ],
+            ),
           ),
           
           const SizedBox(height: 16),
