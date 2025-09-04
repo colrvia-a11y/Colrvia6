@@ -15,7 +15,18 @@ class AnalyticsService {
 
   static AnalyticsService get instance => _instance;
 
-  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
+  FirebaseAnalytics? _analytics;
+
+  // Attempt to attach to FirebaseAnalytics if Firebase is initialized.
+  void _ensureAnalytics() {
+    if (_analytics != null) return;
+    try {
+      _analytics = FirebaseAnalytics.instance;
+    } catch (_) {
+      // In tests or environments without Firebase.initializeApp(), skip wiring.
+      _analytics = null;
+    }
+  }
 
   bool _isEnabled = true;
   final List<Map<String, dynamic>> _recentEvents = [];
@@ -23,7 +34,8 @@ class AnalyticsService {
   /// Enable or disable analytics tracking
   void setAnalyticsCollectionEnabled(bool enabled) {
     _isEnabled = enabled;
-    _analytics.setAnalyticsCollectionEnabled(enabled);
+    _ensureAnalytics();
+    _analytics?.setAnalyticsCollectionEnabled(enabled);
   }
 
   /// Log a screen view event
@@ -43,8 +55,15 @@ class AnalyticsService {
     await _logEvent(name, params ?? {});
   }
 
-  Future<void> logAppOpen() => _analytics.logAppOpen();
-  Future<void> setUserId(String? uid) => _analytics.setUserId(id: uid);
+  Future<void> logAppOpen() {
+    _ensureAnalytics();
+    return _analytics?.logAppOpen() ?? Future.value();
+  }
+
+  Future<void> setUserId(String? uid) {
+    _ensureAnalytics();
+    return _analytics?.setUserId(id: uid) ?? Future.value();
+  }
   Future<void> interviewStarted({String? mode}) =>
       _logEvent('interview_started', {'mode': mode});
   Future<void> interviewAnswerSet(String id) =>
@@ -648,8 +667,12 @@ class AnalyticsService {
         'ts': DateTime.now().toIso8601String(),
       });
       if (_recentEvents.length > 50) _recentEvents.removeAt(0);
-      await _analytics.logEvent(
-          name: eventName, parameters: parameters as Map<String, Object>?);
+      _ensureAnalytics();
+      await (_analytics?.logEvent(
+            name: eventName,
+            parameters: parameters as Map<String, Object>?,
+          )
+          ?? Future.value());
     } catch (e) {
       developer.log('Failed to log analytics event $eventName: $e',
           name: 'AnalyticsService');
