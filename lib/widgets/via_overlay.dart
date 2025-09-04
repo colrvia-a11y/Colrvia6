@@ -179,8 +179,18 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
               height: (isExpanded ? expandedHeight : peekHeight),
               child: _SolidSurface(
                 blurSigma: 12,
-                color: const Color(0xF5FFFFFF), // high-opacity white for maximum legibility
-                child: SafeArea(
+                color: isExpanded
+                    ? const Color(0xF5FFFFFF)
+                    : _ViaOverlayState._brandPeach.withValues(alpha: 0.95),
+                topGradient: isExpanded
+                    ? null
+                    : const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Color(0xFFFFFFFF), Colors.transparent],
+                        stops: [0.0, 1.0],
+                      ),
+                child: SafeArea(child: SafeArea(
                   top: false,
                   left: false,
                   right: false,
@@ -200,14 +210,51 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                         const SizedBox(height: 6),
 
                         if (!isExpanded)
-                          _GreetingAndChips(
-                            greeting: _msgs.isNotEmpty ? _msgs.last.text : 'Hi â€” how can I help today?',
-                            suggestions: _suggestions(),
-                            onChip: (s) {
-                              AnalyticsService.instance.log('via_chip', {'label': s.label, 'context': widget.contextLabel});
-                              _send(s.prompt);
-                              _expand();
-                            },
+                          Expanded(
+                            child: Stack(
+                              children: [
+                                Align(
+                                  alignment: const Alignment(0, 0.1),
+                                  child: _GreetingAndChips(
+                                    greeting: _msgs.isNotEmpty
+                                        ? _msgs.last.text
+                                        : 'Hi — how can I help today?',
+                                    suggestions: _suggestions(),
+                                    onChip: (s) {
+                                      AnalyticsService.instance.log(
+                                          'via_chip', {'label': s.label, 'context': widget.contextLabel});
+                                      _send(s.prompt);
+                                      _expand();
+                                    },
+                                  ),
+                                ),
+                                Positioned(
+                                  right: 12,
+                                  bottom: 8,
+                                  child: Row(
+                                    children: [
+                                      _OutlinedSquareIcon(
+                                        icon: Icons.keyboard_rounded,
+                                        onTap: () {
+                                          _expand();
+                                          Future.delayed(
+                                              const Duration(milliseconds: 50), () => _focus.requestFocus());
+                                        },
+                                      ),
+                                      const SizedBox(width: 8),
+                                      _OutlinedSquareIcon(
+                                        icon: Icons.mic_none_rounded,
+                                        onTap: () {
+                                          AnalyticsService.instance
+                                              .log('via_mic', {'context': widget.contextLabel});
+                                          _expand();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
 
                         if (isExpanded) ...[
@@ -467,7 +514,8 @@ class _SolidSurface extends StatelessWidget {
   final double blurSigma;
   final Color color;
   final Widget child;
-  const _SolidSurface({required this.blurSigma, required this.color, required this.child});
+  final Gradient? topGradient;
+  const _SolidSurface({required this.blurSigma, required this.color, required this.child, this.topGradient});
 
   @override
   Widget build(BuildContext context) {
@@ -492,6 +540,14 @@ class _SolidSurface extends StatelessWidget {
               ],
             ),
           ),
+          if (topGradient != null)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 20,
+              child: IgnorePointer(child: Container(decoration: BoxDecoration(gradient: topGradient))),
+            ),
           Material(type: MaterialType.transparency, child: child),
         ],
       ),
@@ -555,3 +611,31 @@ class _Suggestion {
   final String prompt;
   const _Suggestion(this.label, this.prompt);
 }
+
+
+class _OutlinedSquareIcon extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  const _OutlinedSquareIcon({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: onTap,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.35), width: 1),
+        ),
+        child: Icon(icon, size: 20, color: Colors.white),
+      ),
+    );
+  }
+}
+
+
+
