@@ -562,7 +562,7 @@ class _SolidSurface extends StatelessWidget {
           colors: [
             Colors.black,
             Colors.black,
-            Colors.black.withOpacity(topAlpha),
+            Colors.black.withValues(alpha: topAlpha),
           ],
           stops: [0.0, s, 1.0],
         ).createShader(bounds),
@@ -658,6 +658,7 @@ class _OutlinedSquareIcon extends StatelessWidget {
     );
   }
 }
+
 
 
 

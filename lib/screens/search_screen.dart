@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:color_canvas/services/analytics_service.dart';
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
-import 'package:color_canvas/screens/paint_detail_screen.dart';
+import 'paint_detail_screen.dart';
 import 'package:color_canvas/screens/compare_colors_screen.dart';
 import 'package:color_canvas/screens/home_screen.dart';
 import '../models/color_filters.dart';
@@ -792,3 +792,4 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
     );
   }
 }
+

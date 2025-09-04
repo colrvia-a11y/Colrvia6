@@ -25,8 +25,8 @@ import 'package:color_canvas/screens/interview_home_screen.dart';
 import 'package:color_canvas/screens/interview_voice_setup_screen.dart';
 import 'package:color_canvas/screens/interview_voice_screen.dart';
 import 'package:color_canvas/screens/interview_text_screen.dart';
-import 'package:color_canvas/screens/paint_detail_screen.dart';
-import 'package:color_canvas/firestore/firestore_data_schema.dart' as schema;
+// import 'package:color_canvas/screens/paint_detail_screen.dart';
+// import 'package:color_canvas/firestore/firestore_data_schema.dart' as schema;
 import 'package:color_canvas/services/firebase_service.dart';
 import 'package:color_canvas/services/network_utils.dart';
 import 'package:color_canvas/utils/debug_logger.dart';
@@ -334,3 +334,4 @@ class _AuthCheckScreenState extends State<AuthCheckScreen> {
     );
   }
 }
+

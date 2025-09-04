@@ -54,11 +54,13 @@ class CompareTray extends StatelessWidget {
                   children: [
                     // mini carousel
                     Expanded(
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: items.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 8),
-                        itemBuilder: (_, i) {
+                      child: SizedBox(
+                        height: 44,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: items.length,
+                          separatorBuilder: (_, __) => const SizedBox(width: 8),
+                          itemBuilder: (_, i) {
                           final p = items[i];
                           final c = ColorUtils.getPaintColor(p.hex);
                           return GestureDetector(
@@ -96,6 +98,7 @@ class CompareTray extends StatelessWidget {
                             ),
                           );
                         },
+                        ),
                       ),
                     ),
 

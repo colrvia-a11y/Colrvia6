@@ -9,7 +9,7 @@ import '../services/create_flow_progress.dart';
 import 'create_screen.dart';
 import 'projects_screen.dart';
 import 'search_screen.dart';
-import 'settings_screen.dart';
+import 'dashboard_screen.dart';
 import 'roller_screen.dart';
 import 'visualizer_screen.dart';
 import 'package:color_canvas/widgets/via_overlay.dart';
@@ -49,7 +49,7 @@ class HomeScreenState extends State<HomeScreen> {
     const CreateHubScreen(),
     const ProjectsScreen(),
     const SearchScreen(),
-    const SettingsScreen(),
+    const DashboardScreen(), // Account/Dashboard (Settings accessible inside)
   ];
 
   @override
@@ -668,3 +668,4 @@ enum ViaQuickAction {
   suggestComplements,
   openVisualizer,
 }
+
