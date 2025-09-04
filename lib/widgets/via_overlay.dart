@@ -305,17 +305,35 @@ class _OverlayHeader extends StatelessWidget {
           const SizedBox(width: 8),
           const Text('Assistant', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           const Spacer(),
-          IconButton(
-            visualDensity: VisualDensity.compact,
-            onPressed: isExpanded ? onCollapse : onExpand,
-            icon: Icon(isExpanded ? Icons.unfold_less_rounded : Icons.unfold_more_rounded),
-          ),
-          IconButton(
-            visualDensity: VisualDensity.compact,
-            onPressed: onClose,
-            icon: const Icon(Icons.close_rounded),
+          _HeaderSquareIcon(
+            icon: isExpanded ? Icons.close_fullscreen_rounded : Icons.open_in_full_rounded,
+            onTap: isExpanded ? onCollapse : onExpand,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _HeaderSquareIcon extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  const _HeaderSquareIcon({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.25), width: 1),
+        ),
+        child: Icon(icon, size: 18, color: Colors.white),
       ),
     );
   }
