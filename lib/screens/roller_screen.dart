@@ -1378,9 +1378,10 @@ class _ToolsDockState extends State<ToolsDock> with TickerProviderStateMixin {
             final double panelWidth = _panelProgress.value * targetWidth;
             if (panelWidth <= 1) return const SizedBox.shrink();
 
+            final panelHeight = (size.height * 0.8).clamp(200.0, size.height);
             return Container(
               width: panelWidth,
-              constraints: BoxConstraints(maxHeight: size.height * 0.8),
+              height: panelHeight,
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -1393,6 +1394,7 @@ class _ToolsDockState extends State<ToolsDock> with TickerProviderStateMixin {
                   ),
                 ],
               ),
+              clipBehavior: Clip.antiAlias,
               child: (widget.activeTool != null && widget.activeTool != ActiveTool.temperature)
                   ? widget.panelBuilder(widget.activeTool!)
                   : null,

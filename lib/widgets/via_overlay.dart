@@ -4,34 +4,16 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../services/via_service.dart';
 import '../services/analytics_service.dart';
-import '../services/journey/journey_service.dart';
 
-/// Premium floating assistant overlay for "Via".
-/// Overlay-only: access bubble lives in HomeScreen.
-/// States: peek card ↔ expanded chat (no collapsed bubble state).
 class ViaOverlay extends StatefulWidget {
   final String contextLabel;
   final Map<String, dynamic> state;
-
-  /// Optional: invoked when Via suggests making a plan.
   final VoidCallback? onMakePlan;
-
-  /// Optional: invoked when Via suggests opening the visualizer.
   final VoidCallback? onVisualize;
-
-  /// Optional: if you want to pass the user's display name directly.
   final String? userDisplayName;
-
-  /// Optional: start in expanded state (defaults to peek).
   final bool startOpen;
-
-  /// Optional: Use this to handle sending messages yourself.
-  /// Should return Via's reply text.
-  final Future<String> Function(
-    String message, {
-    String? contextLabel,
-    Map<String, dynamic>? state,
-  })? onAsk;
+  final Future<String> Function(String message, {String? contextLabel, Map<String, dynamic>? state})?
+      onAsk;
 
   const ViaOverlay({
     super.key,
@@ -51,51 +33,61 @@ class ViaOverlay extends StatefulWidget {
 enum _OverlayStage { peek, expanded }
 
 class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
-  _OverlayStage _stage = _OverlayStage.peek;
-
-  final TextEditingController _composer = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
-  final ScrollController _listController = ScrollController();
-
-
-
-  bool _sending = false;
-  final List<_ChatBubble> _messages = <_ChatBubble>[];
-
   static const _brandPeach = Color(0xFFF2B897);
-
-  // --- Layout tuning ---------------------------------------------------------
-  // Reserve space so the overlay panel does NOT cover the bottom circular nav.
-  static const double _kBottomNavGuard = 86; // ~56 button + paddings + buffer
+  static const double _kBottomNavGuard = 86;
   static const double _kSideGutter = 14;
   static const double _kPanelRadius = 28;
+  static const double _kBackdropOpacity = 0.48;
 
-  // Stronger dim behind the panel (adds on top of showDialog barrierColor).
-  static const double _kBackdropOpacity = 0.38;
+  _OverlayStage _stage = _OverlayStage.peek;
+  final TextEditingController _composer = TextEditingController();
+  final FocusNode _focus = FocusNode();
+  final ScrollController _list = ScrollController();
+  bool _sending = false;
+  final List<_ChatBubble> _msgs = <_ChatBubble>[];
 
   @override
   void initState() {
     super.initState();
-
-    // Overlay appears immediately; default to peek or expanded based on startOpen.
     _stage = widget.startOpen ? _OverlayStage.expanded : _OverlayStage.peek;
     _seedGreeting();
 
-    // Focus composer if starting expanded.
     if (_stage == _OverlayStage.expanded) {
-      Future.delayed(const Duration(milliseconds: 80), _focusNode.requestFocus);
+      Future.delayed(const Duration(milliseconds: 80), _focus.requestFocus);
     }
+    _focus.addListener(() {
+      if (_focus.hasFocus) _expand();
+    });
   }
 
   @override
   void dispose() {
     _composer.dispose();
-    _focusNode.dispose();
-    _listController.dispose();
+    _focus.dispose();
+    _list.dispose();
     super.dispose();
   }
 
-  void _closeOverlay() {
+  void _seedGreeting() {
+    final hi = widget.userDisplayName?.trim().isNotEmpty == true
+        ? 'Hi ${widget.userDisplayName}'
+        : 'Hi there';
+    final msg = "$hi — how can I help today?";
+    _msgs.add(_ChatBubble(text: msg, fromUser: false, timestamp: DateTime.now()));
+  }
+
+  void _scrollToBottomSoon() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_list.hasClients) return;
+      _list.animateTo(
+        0,
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
+  void _close() {
     AnalyticsService.instance.log('via_close', {'context': widget.contextLabel});
     Navigator.of(context).maybePop();
   }
@@ -103,162 +95,72 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
   void _expand() {
     if (_stage == _OverlayStage.expanded) return;
     setState(() => _stage = _OverlayStage.expanded);
-    // Focus the composer when expanded.
-    Future.delayed(const Duration(milliseconds: 80), _focusNode.requestFocus);
+    Future.delayed(const Duration(milliseconds: 80), _focus.requestFocus);
   }
 
-  void _collapseToPeek() {
+  void _collapse() {
     if (_stage == _OverlayStage.peek) return;
     setState(() => _stage = _OverlayStage.peek);
     FocusScope.of(context).unfocus();
   }
 
-  // --- Messaging -------------------------------------------------------------
-
   Future<void> _send(String text) async {
-    if (text.trim().isEmpty || _sending) return;
+    final trimmed = text.trim();
+    if (trimmed.isEmpty || _sending) return;
     setState(() {
       _sending = true;
-      _messages.insert(0, _ChatBubble(text: text.trim(), fromUser: true, timestamp: DateTime.now()));
+      _msgs.insert(0, _ChatBubble(text: trimmed, fromUser: true, timestamp: DateTime.now()));
     });
-
     _composer.clear();
     _scrollToBottomSoon();
 
-    AnalyticsService.instance.log('via_send', {
-      'context': widget.contextLabel,
-      'len': text.length,
-    });
+    AnalyticsService.instance.log('via_send', {'context': widget.contextLabel, 'chars': trimmed.length});
 
-    String reply = 'Working on that…';
-    try {
+    Future<String> _ask(String q) async {
       if (widget.onAsk != null) {
-        reply = await widget.onAsk!(text,
-            contextLabel: widget.contextLabel, state: widget.state);
-      } else {
-        // Try the app's ViaService if available.
-        final service = ViaService() as dynamic;
-        final res = await service.ask(
-          text,
-          contextLabel: widget.contextLabel,
-          state: widget.state,
-        );
-        reply = (res?.toString() ?? reply);
+        return widget.onAsk!(q, contextLabel: widget.contextLabel, state: widget.state);
       }
-    } catch (_) {
-      reply =
-          "Here’s a first suggestion based on what I know. (I couldn’t reach the network just now.)";
+      try {
+        // Default path: use cloud function based reply using context + state.
+        return await ViaService().reply(widget.contextLabel, widget.state);
+      } catch (e) {
+        return 'Sorry — I ran into an issue. Please try again.';
+      }
     }
 
+    final reply = await _ask(trimmed);
+    if (!mounted) return;
     setState(() {
-      _messages.insert(0, _ChatBubble(text: reply, fromUser: false, timestamp: DateTime.now()));
+      _msgs.insert(0, _ChatBubble(text: reply, fromUser: false, timestamp: DateTime.now()));
       _sending = false;
     });
-
     _scrollToBottomSoon();
   }
 
-  void _scrollToBottomSoon() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_listController.hasClients) {
-        _listController.animateTo(
-          0,
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOut,
-        );
-      }
-    });
-  }
-
-  void _seedGreeting() {
-    if (_messages.isNotEmpty) return;
-    final name = (widget.userDisplayName ??
-            widget.state['firstName'] ??
-            widget.state['userName'] ??
-            '')
-        .toString()
-        .trim();
-    final hi = name.isEmpty ? "Hi there" : "Hi $name";
-    final msg = "$hi — how can I help today?";
-    setState(() {
-      _messages.add(_ChatBubble(text: msg, fromUser: false, timestamp: DateTime.now(), isSystem: true));
-    });
-  }
-
-  // --- Suggestions -----------------------------------------------------------
-
-  List<_Suggestion> _buildSuggestions() {
-    final step = JourneyService.instance.state.value?.currentStepId;
-    switch (step) {
-      case 'interview.basic':
-        return [
-          _Suggestion('How do I answer?', 'Give me tips for the interview.'),
-          _Suggestion('Suggest a palette', 'Suggest a starting palette.'),
-        ];
-      case 'roller.build':
-        return [
-          _Suggestion('Balance undertones', 'Help me balance undertones.'),
-          _Suggestion('Add bridge color', 'Suggest a bridge color between hues.'),
-        ];
-      case 'visualizer.photo':
-        return [
-          _Suggestion('Pick a good photo', 'What makes a good reference photo?'),
-        ];
-      case 'visualizer.generate':
-        return [
-          _Suggestion('Refine edges', 'Sharpen mask edges and fix spill.'),
-          _Suggestion('Try 10% darker', 'Show a slightly darker simulation.'),
-        ];
-      case 'plan.create':
-        return [
-          _Suggestion('Room plan tips', 'How should I use these colors?'),
-        ];
-      case 'guide.export':
-        return [
-          _Suggestion('What\'s next?', 'How do I share this guide?'),
-        ];
-      default:
-        return [
-          _Suggestion('Suggest a paint color',
-              'Suggest a paint color for my space.'),
-          _Suggestion('Talk about lighting',
-              'Consider my room\'s orientation and time of day.'),
-        ];
-    }
-  }
-
-  // --- Build -----------------------------------------------------------------
+  List<_Suggestion> _suggestions() => [
+        _Suggestion('Name my palette', 'Can you suggest names for this palette?'),
+        _Suggestion('Lighting advice', 'How will these colors look at night?'),
+        _Suggestion('Next steps', 'What should I do next?'),
+      ];
 
   @override
   Widget build(BuildContext context) {
-    final viewInsets = MediaQuery.of(context).viewInsets.bottom; // keyboard
     final media = MediaQuery.of(context).size;
+    final insets = MediaQuery.of(context).viewInsets.bottom;
     final isExpanded = _stage == _OverlayStage.expanded;
 
-    // Heights for peek/expanded relative to screen.
-    // Peek is a touch bigger for breathing room (was 0.46).
     final double peekHeight = media.height * 0.54;
     final double expandedHeight = media.height * 0.86;
-
-    // When keyboard is up, let the panel sit near the bottom (14).
-    // Otherwise, hold it above the custom bottom nav by reserving extra space.
-    final double bottomOffset = viewInsets > 0 ? _kSideGutter : (_kSideGutter + _kBottomNavGuard);
+    final double bottomOffset = insets > 0 ? 0 : (_kSideGutter + _kBottomNavGuard);
 
     return Material(
       type: MaterialType.transparency,
       child: Stack(
         children: [
-          // Interactive backdrop with a stronger scrim to fix "too transparent".
           Positioned.fill(
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: () {
-                if (isExpanded) {
-                  _collapseToPeek();
-                } else {
-                  _closeOverlay();
-                }
-              },
+              onTap: () => isExpanded ? _collapse() : _close(),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
                 curve: Curves.easeOutCubic,
@@ -267,7 +169,6 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
             ),
           ),
 
-          // Feathered glass overlay (peek/expanded)
           Positioned(
             left: _kSideGutter,
             right: _kSideGutter,
@@ -275,18 +176,17 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 240),
               curve: Curves.easeOutCubic,
-              height: (_stage == _OverlayStage.peek ? peekHeight : expandedHeight) + viewInsets,
+              height: (isExpanded ? expandedHeight : peekHeight),
               child: _FeatheredGlass(
                 blurSigma: 18,
                 feather: 38,
-                // Slightly more opaque interior so content pops against the dim.
                 gradient: const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Color(0xCCFFFFFF), // ~80% white
-                    Color(0xA6FFFFFF), // ~65% white
-                    Color(0x80FFFFFF), // ~50% white
+                    Color(0xF2FFFFFF),
+                    Color(0xEBFFFFFF),
+                    Color(0xE0FFFFFF),
                   ],
                 ),
                 child: SafeArea(
@@ -294,67 +194,51 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                   left: false,
                   right: false,
                   bottom: false,
-                  child: Column(
-                    children: [
-                      _OverlayHeader(
-                        onClose: _closeOverlay,
-                        onExpand: _expand,
-                        onCollapse: _collapseToPeek,
-                        isExpanded: isExpanded,
-                      ),
-                      const SizedBox(height: 6),
-
-                      // Greeting + chips (peek state)
-                      if (_stage == _OverlayStage.peek)
-                        _GreetingAndChips(
-                          greeting: _messages.isNotEmpty
-                              ? _messages.last.text
-                              : "Hi — how can I help today?",
-                          suggestions: _buildSuggestions(),
-                          onChip: (s) {
-                            AnalyticsService.instance
-                                .log('via_chip', {'label': s.label, 'context': widget.contextLabel});
-                            if (s.onTapOverride != null) {
-                              s.onTapOverride!();
-                              return;
-                            }
-                            _send(s.prompt);
-                            _expand();
-                          },
-                        ),
-
-                      // Chat area (expanded)
-                      if (_stage == _OverlayStage.expanded) ...[
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                            child: _ChatList(
-                              messages: _messages,
-                              controller: _listController,
-                            ),
-                          ),
-                        ),
-                        _ComposerBar(
-                          controller: _composer,
-                          focusNode: _focusNode,
-                          sending: _sending,
-                          onSend: _send,
-                          onMic: () {
-                            AnalyticsService.instance
-                                .log('via_mic', {'context': widget.contextLabel});
-                          },
-                          onAttachImage: () {
-                            AnalyticsService.instance
-                                .log('via_attach_image', {'context': widget.contextLabel});
-                          },
-                          onAttachDoc: () {
-                            AnalyticsService.instance
-                                .log('via_attach_doc', {'context': widget.contextLabel});
-                          },
+                  child: AnimatedPadding(
+                    duration: const Duration(milliseconds: 160),
+                    curve: Curves.easeOutCubic,
+                    padding: EdgeInsets.only(bottom: insets + 8),
+                    child: Column(
+                      children: [
+                        _OverlayHeader(
+                          onClose: _close,
+                          onExpand: _expand,
+                          onCollapse: _collapse,
+                          isExpanded: isExpanded,
                         ),
                         const SizedBox(height: 6),
+
+                        if (!isExpanded)
+                          _GreetingAndChips(
+                            greeting: _msgs.isNotEmpty ? _msgs.last.text : 'Hi — how can I help today?',
+                            suggestions: _suggestions(),
+                            onChip: (s) {
+                              AnalyticsService.instance.log('via_chip', {'label': s.label, 'context': widget.contextLabel});
+                              _send(s.prompt);
+                              _expand();
+                            },
+                          ),
+
+                        if (isExpanded) ...[
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                              child: _ChatList(messages: _msgs, controller: _list),
+                            ),
+                          ),
+                          _ComposerBar(
+                            controller: _composer,
+                            focusNode: _focus,
+                            sending: _sending,
+                            onSend: _send,
+                            onMic: () => AnalyticsService.instance.log('via_mic', {'context': widget.contextLabel}),
+                            onAttachImage: () => AnalyticsService.instance.log('via_attach_image', {'context': widget.contextLabel}),
+                            onAttachDoc: () => AnalyticsService.instance.log('via_attach_doc', {'context': widget.contextLabel}),
+                          ),
+                          const SizedBox(height: 6),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -365,8 +249,6 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
     );
   }
 }
-
-// == UI Pieces ================================================================
 
 class _OverlayHeader extends StatelessWidget {
   final VoidCallback onClose;
@@ -388,10 +270,7 @@ class _OverlayHeader extends StatelessWidget {
         children: [
           const Icon(Icons.flash_on_rounded, size: 22, color: _ViaOverlayState._brandPeach),
           const SizedBox(width: 8),
-          const Text(
-            "Assistant",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
+          const Text('Assistant', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           const Spacer(),
           IconButton(
             visualDensity: VisualDensity.compact,
@@ -412,35 +291,28 @@ class _OverlayHeader extends StatelessWidget {
 class _GreetingAndChips extends StatelessWidget {
   final String greeting;
   final List<_Suggestion> suggestions;
-  final void Function(_Suggestion) onChip;
-
-  const _GreetingAndChips({
-    required this.greeting,
-    required this.suggestions,
-    required this.onChip,
-  });
+  final ValueChanged<_Suggestion> onChip;
+  const _GreetingAndChips({required this.greeting, required this.suggestions, required this.onChip});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 6, 16, 12),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            greeting,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          ),
+          Text(greeting, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           const SizedBox(height: 10),
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: suggestions.take(6).map((s) {
-              return _ChipButton(
-                label: s.label,
-                onTap: () => onChip(s),
-              );
-            }).toList(),
+            children: [
+              for (final s in suggestions)
+                _ChipButton(
+                  label: s.label,
+                  onTap: () => onChip(s),
+                )
+            ],
           ),
         ],
       ),
@@ -451,7 +323,6 @@ class _GreetingAndChips extends StatelessWidget {
 class _ChatList extends StatelessWidget {
   final List<_ChatBubble> messages;
   final ScrollController controller;
-
   const _ChatList({required this.messages, required this.controller});
 
   @override
@@ -464,8 +335,7 @@ class _ChatList extends StatelessWidget {
       itemBuilder: (context, i) {
         final m = messages[i];
         final align = m.fromUser ? Alignment.centerRight : Alignment.centerLeft;
-        final bg = m.fromUser ? const Color(0xFFEFE8E1) : Colors.white.withValues(alpha: 209 / 255.0);
-
+        final bg = m.fromUser ? const Color(0xFFEFE8E1) : Colors.white;
         return Align(
           alignment: align,
           child: Container(
@@ -476,11 +346,7 @@ class _ChatList extends StatelessWidget {
               color: bg,
               borderRadius: BorderRadius.circular(16),
               boxShadow: const [
-                BoxShadow(
-                  color: Color(0x0F000000),
-                  blurRadius: 14,
-                  offset: Offset(0, 6),
-                ),
+                BoxShadow(color: Color(0x0F000000), blurRadius: 14, offset: Offset(0, 6)),
               ],
             ),
             child: Text(m.text, style: const TextStyle(color: Colors.black87, height: 1.35)),
@@ -499,7 +365,6 @@ class _ComposerBar extends StatefulWidget {
   final VoidCallback onMic;
   final VoidCallback onAttachImage;
   final VoidCallback onAttachDoc;
-
   const _ComposerBar({
     required this.controller,
     required this.focusNode,
@@ -515,10 +380,7 @@ class _ComposerBar extends StatefulWidget {
 }
 
 class _ComposerBarState extends State<_ComposerBar> {
-  void _submit() {
-    final text = widget.controller.text;
-    widget.onSend(text);
-  }
+  void _submit() => widget.onSend(widget.controller.text);
 
   @override
   Widget build(BuildContext context) {
@@ -533,20 +395,13 @@ class _ComposerBarState extends State<_ComposerBar> {
           Expanded(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 209 / 255.0),
-                borderRadius: BorderRadius.circular(22),
-              ),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(22)),
               child: TextField(
                 controller: widget.controller,
                 focusNode: widget.focusNode,
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => _submit(),
-                decoration: const InputDecoration(
-                  hintText: "Type your question…",
-                  isDense: true,
-                  border: InputBorder.none,
-                ),
+                decoration: const InputDecoration(hintText: 'Type your question…', isDense: true, border: InputBorder.none),
                 minLines: 1,
                 maxLines: 4,
               ),
@@ -566,7 +421,7 @@ class _ComposerBarState extends State<_ComposerBar> {
             ),
             child: widget.sending
                 ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.arrow_upward_rounded, size: 18),
+                : const Text('Send'),
           ),
         ],
       ),
@@ -574,71 +429,41 @@ class _ComposerBarState extends State<_ComposerBar> {
   }
 }
 
-// == Visual Helpers ===========================================================
-
-/// Feathered, frosted container with soft, transparent edges.
-/// Uses BackdropFilter + radial ShaderMask to dissolve borders.
 class _FeatheredGlass extends StatelessWidget {
-  final Widget child;
   final double blurSigma;
-  final double feather; // width of the fade at the edges
+  final double feather;
   final Gradient gradient;
-
+  final Widget child;
   const _FeatheredGlass({
-    required this.child,
     required this.blurSigma,
     required this.feather,
     required this.gradient,
+    required this.child,
   });
 
   @override
   Widget build(BuildContext context) {
     return ShaderMask(
       blendMode: BlendMode.dstIn,
-      shaderCallback: (Rect bounds) {
-        // Radial gradient mask: solid center → transparent edges.
-        return const RadialGradient(
-          center: Alignment.center,
-          radius: 1.05,
-          colors: [Colors.white, Colors.white, Colors.transparent],
-          stops: [0.72, 0.92, 1.0],
-        ).createShader(bounds);
-      },
+      shaderCallback: (Rect bounds) => RadialGradient(
+        center: Alignment.center,
+        radius: 1.05,
+        colors: const [Colors.white, Colors.white, Colors.transparent],
+        stops: const [0.72, 0.92, 1.0],
+      ).createShader(bounds),
       child: ClipRRect(
-        // Mild rounding—actual edge softness comes from the mask.
         borderRadius: BorderRadius.circular(_ViaOverlayState._kPanelRadius),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Frosted glass effect
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-              child: const SizedBox.expand(),
+        child: Stack(fit: StackFit.expand, children: [
+          BackdropFilter(filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma), child: const SizedBox.expand()),
+          Container(decoration: BoxDecoration(gradient: gradient)),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(_ViaOverlayState._kPanelRadius),
+              boxShadow: const [BoxShadow(color: Color(0x1A000000), blurRadius: 30, spreadRadius: -8, offset: Offset(0, 16))],
             ),
-            // Tint + ambient wash
-            Container(
-              decoration: BoxDecoration(gradient: gradient),
-            ),
-            // Subtle inner highlight + outer ambient glow
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(_ViaOverlayState._kPanelRadius),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x1A000000),
-                    blurRadius: 30,
-                    spreadRadius: -8,
-                    offset: Offset(0, 16),
-                  ),
-                ],
-              ),
-            ),
-            Material(
-              type: MaterialType.transparency,
-              child: child,
-            ),
-          ],
-        ),
+          ),
+          Material(type: MaterialType.transparency, child: child),
+        ]),
       ),
     );
   }
@@ -647,7 +472,6 @@ class _FeatheredGlass extends StatelessWidget {
 class _ChipButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
-
   const _ChipButton({required this.label, required this.onTap});
 
   @override
@@ -658,14 +482,11 @@ class _ChipButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 217 / 255.0),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: _ViaOverlayState._brandPeach.withValues(alpha: 115 / 255.0), width: 1),
         ),
-        child: Text(
-          label,
-          style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500),
-        ),
+        child: Text(label, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500)),
       ),
     );
   }
@@ -685,38 +506,23 @@ class _GhostIconButton extends StatelessWidget {
         width: 40,
         height: 40,
         alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 209 / 255.0),
-          shape: BoxShape.circle,
-        ),
+        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
         child: Icon(icon, size: 20, color: Colors.black87),
       ),
     );
   }
 }
 
-// == Models ===================================================================
-
 class _ChatBubble {
   final String text;
   final bool fromUser;
   final DateTime timestamp;
   final bool isSystem;
-  _ChatBubble({
-    required this.text,
-    required this.fromUser,
-    required this.timestamp,
-    this.isSystem = false,
-  });
+  _ChatBubble({required this.text, required this.fromUser, required this.timestamp, this.isSystem = false});
 }
 
 class _Suggestion {
   final String label;
   final String prompt;
-  final bool requiresCallback;
-  final VoidCallback? onTapOverride;
-
-  _Suggestion(this.label, this.prompt,
-      {this.onTapOverride, bool? requiresCallback})
-      : requiresCallback = requiresCallback ?? (onTapOverride != null);
+  const _Suggestion(this.label, this.prompt);
 }

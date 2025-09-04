@@ -10,7 +10,6 @@ import 'package:color_canvas/services/project_service.dart';
 import 'package:color_canvas/services/user_prefs_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'interview_screen.dart';
 import 'roller_screen.dart';
 import 'visualizer_screen.dart';
 import 'learn_screen.dart';
@@ -157,7 +156,7 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
           // Sections with quick actions (read‑only for now)
           _SectionHeader(title: "Design a Palette"),
           _ToolRow(items: [
-            _ToolItem(label: "Interview", onTap: () => _open(context, const InterviewScreen())),
+            _ToolItem(label: "Interview", onTap: () => Navigator.of(context).pushNamed('/interview/home')),
             _ToolItem(label: "Roller", onTap: () => _open(context, const RollerScreen())),
           ]),
           _SectionHeader(title: "Refine your Palette"),
@@ -181,7 +180,7 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
         children: [
           _SectionHeader(title: "Design a Palette"),
           _ToolRow(items: [
-            _ToolItem(label: "Interview", onTap: () => _open(context, const InterviewScreen())),
+            _ToolItem(label: "Interview", onTap: () => Navigator.of(context).pushNamed('/interview/home')),
             _ToolItem(label: "Roller", onTap: () => _open(context, const RollerScreen())),
           ]),
           _SectionHeader(title: "Refine your Palette"),
@@ -206,7 +205,7 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
     final current = _journey.stepById(s?.currentStepId) ?? _journey.firstStep;
     switch (current.id) {
       case 'interview.basic':
-        _open(context, const InterviewScreen());
+        Navigator.of(context).pushNamed('/interview/home');
         break;
       case 'roller.build':
         _open(context, const RollerScreen());

@@ -1,0 +1,6 @@
+{
+  "approvalPolicy": "on-request",
+  "sandboxMode": "danger-full-access",
+  "networkAccess": "enabled",
+  "notes": "The agent must request approval before any code changes as documented in AGENTS.md."
+}
