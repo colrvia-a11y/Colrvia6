@@ -79,7 +79,7 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
             children: [
               Text(title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
               const SizedBox(height: 2),
-              Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.7))),
+              Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.white)),
             ],
           ),
           bottom: TabBar(
@@ -143,7 +143,7 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Your Color Story", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                  const Text("Your Color Story", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.white)),
                   const SizedBox(height: 8),
                   JourneyTimeline(journey: journey),
                   const SizedBox(height: 12),
@@ -247,7 +247,7 @@ class _NextBestAction extends StatelessWidget {
         final label = step?.title ?? 'Start your Color Story';
         return Row(
           children: [
-            Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600))),
+            Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white))),
             ElevatedButton(onPressed: onGo, child: const Text('Go')),
           ],
         );
@@ -263,7 +263,7 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 18, 4, 8),
-      child: Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+      child: Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
     );
   }
 }
@@ -290,7 +290,7 @@ class _ToolRow extends StatelessWidget {
                   padding: const EdgeInsets.all(12),
                   child: Align(
                     alignment: Alignment.bottomLeft,
-                    child: Text(it.label, style: const TextStyle(fontWeight: FontWeight.w600)),
+                    child: Text(it.label, style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
                   ),
                 ),
               ))
@@ -304,3 +304,4 @@ class _ToolItem {
   final VoidCallback onTap;
   _ToolItem({required this.label, required this.onTap});
 }
+
