@@ -23,6 +23,7 @@ import 'package:color_canvas/screens/visualizer_screen.dart';
 import 'package:color_canvas/screens/color_plan_screen.dart';
 import 'package:color_canvas/screens/interview_home_screen.dart';
 import 'package:color_canvas/screens/interview_voice_setup_screen.dart';
+import 'package:color_canvas/screens/interview_voice_screen.dart';
 import 'package:color_canvas/services/firebase_service.dart';
 import 'package:color_canvas/services/network_utils.dart';
 import 'package:color_canvas/utils/debug_logger.dart';
@@ -188,6 +189,7 @@ class MyApp extends StatelessWidget {
             '/login': (context) => const LoginScreen(),
             '/interview/home': (context) => const InterviewHomeScreen(),
             '/interview/voice-setup': (context) => const InterviewVoiceSetupScreen(),
+            '/interview/voice': (context) => const InterviewVoiceScreen(),
             '/colorPlan': (context) {
               final args =
                   ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
