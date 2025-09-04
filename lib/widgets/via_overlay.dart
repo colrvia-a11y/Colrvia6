@@ -168,7 +168,6 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
               ),
             ),
           ),
-
           Positioned(
             left: _kSideGutter,
             right: _kSideGutter,
@@ -182,14 +181,7 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                 color: isExpanded
                     ? const Color(0xF5FFFFFF)
                     : _ViaOverlayState._brandPeach.withValues(alpha: 0.95),
-                topGradient: isExpanded
-                    ? null
-                    : const LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Color(0xFFFFFFFF), Colors.transparent],
-                        stops: [0.0, 1.0],
-                      ),
+                topFadeStart: (isExpanded ? null : 0.5),
                 child: SafeArea(
                   top: false,
                   left: false,
@@ -208,55 +200,56 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                           isExpanded: isExpanded,
                         ),
                         const SizedBox(height: 6),
-
                         if (!isExpanded)
                           Expanded(
-                            child: Stack(
-                              children: [
-                                Align(
-                                  alignment: const Alignment(0, 0.1),
-                                  child: _GreetingAndChips(
-                                    greeting: _msgs.isNotEmpty
-                                        ? _msgs.last.text
-                                        : 'Hi � how can I help today?',
-                                    suggestions: _suggestions(),
-                                    onChip: (s) {
-                                      AnalyticsService.instance.log(
-                                          'via_chip', {'label': s.label, 'context': widget.contextLabel});
-                                      _send(s.prompt);
-                                      _expand();
-                                    },
+                            child: LayoutBuilder(
+                              builder: (context, constraints) => Stack(
+                                children: [
+                                  Positioned(
+                                    top: constraints.maxHeight * 0.5,
+                                    left: 0,
+                                    right: 0,
+                                    child: _GreetingAndChips(
+                                      greeting: _msgs.isNotEmpty
+                                          ? _msgs.last.text
+                                          : 'Hi — how can I help today?',
+                                      suggestions: _suggestions(),
+                                      onChip: (s) {
+                                        AnalyticsService.instance
+                                            .log('via_chip', {'label': s.label, 'context': widget.contextLabel});
+                                        _send(s.prompt);
+                                        _expand();
+                                      },
+                                    ),
                                   ),
-                                ),
-                                Positioned(
-                                  right: 12,
-                                  bottom: 8,
-                                  child: Row(
-                                    children: [
-                                      _OutlinedSquareIcon(
-                                        icon: Icons.keyboard_rounded,
-                                        onTap: () {
-                                          _expand();
-                                          Future.delayed(
-                                              const Duration(milliseconds: 50), () => _focus.requestFocus());
-                                        },
-                                      ),
-                                      const SizedBox(width: 8),
-                                      _OutlinedSquareIcon(
-                                        icon: Icons.mic_none_rounded,
-                                        onTap: () {
-                                          AnalyticsService.instance
-                                              .log('via_mic', {'context': widget.contextLabel});
-                                          _expand();
-                                        },
-                                      ),
-                                    ],
+                                  Positioned(
+                                    right: 12,
+                                    bottom: 8,
+                                    child: Row(
+                                      children: [
+                                        _OutlinedSquareIcon(
+                                          icon: Icons.keyboard_rounded,
+                                          onTap: () {
+                                            _expand();
+                                            Future.delayed(const Duration(milliseconds: 50), () => _focus.requestFocus());
+                                          },
+                                        ),
+                                        const SizedBox(width: 8),
+                                        _OutlinedSquareIcon(
+                                          icon: Icons.mic_none_rounded,
+                                          onTap: () {
+                                            AnalyticsService.instance
+                                                .log('via_mic', {'context': widget.contextLabel});
+                                            _expand();
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-
                         if (isExpanded) ...[
                           Expanded(
                             child: Padding(
@@ -270,8 +263,10 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                             sending: _sending,
                             onSend: _send,
                             onMic: () => AnalyticsService.instance.log('via_mic', {'context': widget.contextLabel}),
-                            onAttachImage: () => AnalyticsService.instance.log('via_attach_image', {'context': widget.contextLabel}),
-                            onAttachDoc: () => AnalyticsService.instance.log('via_attach_doc', {'context': widget.contextLabel}),
+                            onAttachImage: () => AnalyticsService.instance
+                                .log('via_attach_image', {'context': widget.contextLabel}),
+                            onAttachDoc: () => AnalyticsService.instance
+                                .log('via_attach_doc', {'context': widget.contextLabel}),
                           ),
                           const SizedBox(height: 6),
                         ],
@@ -514,47 +509,50 @@ class _SolidSurface extends StatelessWidget {
   final double blurSigma;
   final Color color;
   final Widget child;
-  final Gradient? topGradient;
-  const _SolidSurface({required this.blurSigma, required this.color, required this.child, this.topGradient});
+  final double? topFadeStart; // 0..1 from bottom to top (e.g., 0.5)
+  const _SolidSurface({required this.blurSigma, required this.color, required this.child, this.topFadeStart});
 
   @override
   Widget build(BuildContext context) {
+    Widget surface = Stack(
+      fit: StackFit.expand,
+      children: [
+        BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
+          child: const SizedBox.expand(),
+        ),
+        Container(color: color),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(_ViaOverlayState._kPanelRadius),
+            boxShadow: const [
+              BoxShadow(color: Color(0x1A000000), blurRadius: 30, spreadRadius: -8, offset: Offset(0, 16)),
+            ],
+          ),
+        ),
+        Material(type: MaterialType.transparency, child: child),
+      ],
+    );
+
+    if (topFadeStart != null) {
+      surface = ShaderMask(
+        shaderCallback: (Rect bounds) => const LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: [Colors.black, Colors.black, Colors.transparent],
+          stops: [0.0, 0.5, 1.0],
+        ).createShader(bounds),
+        blendMode: BlendMode.dstIn,
+        child: surface,
+      );
+    }
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(_ViaOverlayState._kPanelRadius),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Optional frosted blur for context continuity
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-            child: const SizedBox.expand(),
-          ),
-          // Solid high-opacity surface for maximum readability (no gradient)
-          Container(color: color),
-          // Subtle ambient shadow
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(_ViaOverlayState._kPanelRadius),
-              boxShadow: const [
-                BoxShadow(color: Color(0x1A000000), blurRadius: 30, spreadRadius: -8, offset: Offset(0, 16)),
-              ],
-            ),
-          ),
-          if (topGradient != null)
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 20,
-              child: IgnorePointer(child: Container(decoration: BoxDecoration(gradient: topGradient))),
-            ),
-          Material(type: MaterialType.transparency, child: child),
-        ],
-      ),
+      child: surface,
     );
   }
-}
-class _ChipButton extends StatelessWidget {
+}class _ChipButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
   const _ChipButton({required this.label, required this.onTap});
@@ -636,6 +634,13 @@ class _OutlinedSquareIcon extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+
+
 
 
 
