@@ -711,6 +711,39 @@ class PaletteGenerator {
       if (beams.isEmpty) break;
     }
 
+    List<Paint> _ensureHueSpan(List<Paint> cur, Map<int, Paint> locked) {
+      if (cur.length < 2) return cur;
+      double minH = 360.0, maxH = 0.0;
+      for (final p in cur) {
+        final h = p.lch[2];
+        if (h < minH) minH = h;
+        if (h > maxH) maxH = h;
+      }
+      if ((maxH - minH).abs() >= 15.0) return cur;
+
+      final used = <String>{for (final p in cur) paintIdentity(p)};
+      final sortedByHue = [...paints]
+        ..sort((a, b) => a.lch[2].compareTo(b.lch[2]));
+      Paint pMin = sortedByHue.firstWhere(
+        (p) => !used.contains(paintIdentity(p)),
+        orElse: () => cur.first,
+      );
+      Paint pMax = sortedByHue.lastWhere(
+        (p) => !used.contains(paintIdentity(p)),
+        orElse: () => cur.last,
+      );
+
+      final res = [...cur];
+      // Replace at first and last non-locked indices
+      int left = 0;
+      while (left < res.length && locked.containsKey(left)) left++;
+      int right = res.length - 1;
+      while (right >= 0 && locked.containsKey(right)) right--;
+      if (left < res.length) res[left] = pMin;
+      if (right >= 0) res[right] = pMax;
+      return res;
+    }
+
     if (beams.isEmpty) {
       // Fallback: pick first non-duplicated candidate per slot; then backfill.
       final out = <Paint>[];
@@ -738,7 +771,8 @@ class PaletteGenerator {
           }
         }
       }
-      return out.take(size).toList();
+      final adjusted = _ensureHueSpan(out.take(size).toList(), locked);
+      return adjusted;
     }
     final best = List<Paint>.from(beams.first['seq'] as List<Paint>);
     // Pad/truncate to size
@@ -758,6 +792,7 @@ class PaletteGenerator {
         }
       }
     }
+    out = _ensureHueSpan(out, locked);
     return out;
   }
 

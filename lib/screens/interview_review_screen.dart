@@ -53,10 +53,16 @@ class _InterviewReviewScreenState extends State<InterviewReviewScreen> {
     final answers = Map<String, dynamic>.from(_answers);
 
     setState(() {}); // optional: show loading state on button
-    await shared.InterviewEngine().saveSessionToFirestore();
-    await PaletteService.instance.generateFromAnswers(answers);
 
-    await JourneyService.instance.completeCurrentStep();
+    // Persist the voice/text interview session (if any) then end it to avoid stale turns.
+    await shared.InterviewEngine().saveSessionToFirestore();
+    shared.InterviewEngine().endSession();
+
+    // Generate palette from the final answers and advance the Journey, persisting answers.
+    await PaletteService.instance.generateFromAnswers(answers);
+    await JourneyService.instance.completeCurrentStep(artifacts: {
+      'answers': answers,
+    });
 
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
