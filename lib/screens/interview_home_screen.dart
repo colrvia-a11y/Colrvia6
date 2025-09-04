@@ -73,7 +73,7 @@ class InterviewHomeScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   ExpansionTile(
                     title: const Text("How it works"),
-                    children: const [
+                    children: [
                       ListTile(title: Text("1. Chat for a few minutes.")),
                       ListTile(
                           title: Text(
@@ -81,14 +81,11 @@ class InterviewHomeScreen extends StatelessWidget {
                       ListTile(
                           title: Text(
                               "3. Get your personalized palette plan.")),
-                      ListTile(
+                      const ListTile(
                         title: Text(
                           "Privacy & mic permissions",
                           style: TextStyle(color: Colors.blue),
                         ),
-                        onTap: () {
-                          // TODO: Implement privacy link
-                        },
                       ),
                     ],
                   ),
