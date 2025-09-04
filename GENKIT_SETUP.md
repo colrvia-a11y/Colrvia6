@@ -1,6 +1,6 @@
 # ✅ Google AI Genkit Setup - COMPLETE
 
-The Color Canvas app now uses Google's Genkit framework with Gemini AI for generating color stories. **The setup is COMPLETE and ready to use!**
+The ColrVia app now uses Google's Genkit framework with Gemini AI for generating color stories. **The setup is COMPLETE and ready to use!**
 
 ## 🚀 Current Status: READY TO USE
 

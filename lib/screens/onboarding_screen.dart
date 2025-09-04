@@ -27,7 +27,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 onPageChanged: (i) => setState(() => _index = i),
                 children: const [
                   _OnboardPage(
-                    title: 'Welcome to Color Canvas',
+                    title: 'Welcome to ColrVia',
                     text:
                         'Discover paint palettes and visualize them in your space.',
                   ),

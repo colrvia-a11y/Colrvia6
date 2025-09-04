@@ -591,7 +591,7 @@ class _PhotoLibraryScreenState extends State<PhotoLibraryScreen> {
           )],
           text: photo.description.isNotEmpty 
               ? 'Check out this photo: ${photo.description}'
-              : 'Check out this photo from Color Canvas!',
+              : 'Check out this photo from ColrVia!',
         ),
       );
     } catch (e) {

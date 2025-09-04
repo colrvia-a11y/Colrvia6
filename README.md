@@ -1,4 +1,4 @@
-# Color Canvas
+# ColrVia
 
 A Flutter app for color palette management and visualization.
 

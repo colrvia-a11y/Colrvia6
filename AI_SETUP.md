@@ -1,4 +1,4 @@
-# AI Integration Setup for Color Canvas
+# AI Integration Setup for ColrVia
 
 ## Setting up OpenAI API Key in DreamFlow
 
