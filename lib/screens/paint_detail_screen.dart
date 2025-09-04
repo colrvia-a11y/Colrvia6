@@ -242,164 +242,7 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
     );
   }
 
-  Widget _buildSimilarItem(BuildContext context, int i, double baseH, double expandedH) {
-    final p = _similar[i];
-    final color = ColorUtils.getPaintColor(p.hex);
-    final onDark = ThemeData.estimateBrightnessForColor(color) == Brightness.dark;
-    final fg = onDark ? Colors.white : Colors.black;
-    final selected = _selected == i;
-    final targetH = selected ? expandedH : baseH;
-    final baseOverlap = i == 0 ? 0.0 : -_kOverlap;
-    final rawShift = 0.0;
-    final shiftY = (selected ? 0.0 : rawShift) + baseOverlap;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selected = selected ? null : i;
-        });
-      },
-      child: Transform.translate(
-        offset: Offset(0, shiftY),
-        child: ClipRRect(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(_kCardBottomRadius)),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 280),
-            curve: Curves.easeOutCubic,
-            height: targetH,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(_kCardBottomRadius)),
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.vertical(bottom: Radius.circular(_kCardBottomRadius)),
-                boxShadow: selected
-                    ? [BoxShadow(color: Colors.black.withAlpha(50), blurRadius: 16, offset: const Offset(0, 6))]
-                    : null,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: AnimatedSlide(
-                            duration: const Duration(milliseconds: 280),
-                            curve: Curves.easeOutCubic,
-                            offset: selected ? Offset.zero : const Offset(0, 0.02),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  p.brandName,
-                                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                        color: fg,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  p.name,
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                        color: fg,
-                                        fontWeight: FontWeight.w800,
-                                      ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        _OutlineSquareIconButton(
-                          icon: Icons.arrow_forward,
-                          color: fg,
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => PaintDetailScreen(paint: p)),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                    AnimatedSize(
-                      duration: const Duration(milliseconds: 240),
-                      curve: Curves.easeOutCubic,
-                      child: selected
-                          ? Padding(
-                              padding: const EdgeInsets.only(top: 10),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Wrap(
-                                    spacing: 8,
-                                    runSpacing: 8,
-                                    children: [
-                                      _similarInfoTag(context, fg, '#'+p.hex.replaceFirst('#','').toUpperCase()),
-                                      if (p.code.isNotEmpty) _similarInfoTag(context, fg, p.code),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: OutlinedButton.icon(
-                                          style: OutlinedButton.styleFrom(
-                                            foregroundColor: fg,
-                                            side: BorderSide(color: fg.withAlpha(140)),
-                                          ),
-                                          onPressed: () {
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: (_) => RollerScreen(initialPaints: [p]),
-                                              ),
-                                            );
-                                          },
-                                          icon: const Icon(Icons.grid_goldenratio),
-                                          label: const Text('Add to Roller'),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Expanded(
-                                        child: OutlinedButton.icon(
-                                          style: OutlinedButton.styleFrom(
-                                            foregroundColor: fg,
-                                            side: BorderSide(color: fg.withAlpha(140)),
-                                          ),
-                                          onPressed: () {
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: (_) => const VisualizerScreen(),
-                                              ),
-                                            );
-                                          },
-                                          icon: const Icon(Icons.visibility_outlined),
-                                          label: const Text('Add to Visualizer'),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            )
-                          : const SizedBox.shrink(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  // (moved) _buildSimilarItem now lives inside _SimilarTabState
 
   
 
@@ -1215,18 +1058,7 @@ class _SimilarTabState extends State<_SimilarTab> {
           itemCount: _similar.length,
           itemBuilder: (ctx, visualIdx) {
             final i = _kFirstOnTop ? (_similar.length - 1 - visualIdx) : visualIdx;
-            final p = _similar[i];
-            final color = ColorUtils.getPaintColor(p.hex);
-            final onDark = ThemeData.estimateBrightnessForColor(color) == Brightness.dark;
-            final fg = onDark ? Colors.white : Colors.black;
-            final selected = _selected == i;
-            final targetH = selected ? expandedH : baseH;
-            // Overlap the cards so the curved bottoms peek above the next card
-            final baseOverlap = i == 0 ? 0.0 : -_kOverlap;
-            final rawShift = 0.0; // keep logical slot; adjust if adding animations
-            final shiftY = (selected ? 0.0 : rawShift) + baseOverlap;
             return _buildSimilarItem(ctx, i, baseH, expandedH);
-            /* old item UI removed */
           },
         ),
         // Subtle top/bottom fade indicators
@@ -1299,6 +1131,167 @@ class _SimilarTabState extends State<_SimilarTab> {
         color: Colors.white.withAlpha(20),
       ),
       child: Text(text, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: fg)),
+    );
+  }
+
+  // Moved here from _PaintDetailScreenState so it can access _similar, _selected, and constants.
+  Widget _buildSimilarItem(BuildContext context, int i, double baseH, double expandedH) {
+    final p = _similar[i];
+    final color = ColorUtils.getPaintColor(p.hex);
+    final onDark = ThemeData.estimateBrightnessForColor(color) == Brightness.dark;
+    final fg = onDark ? Colors.white : Colors.black;
+    final selected = _selected == i;
+    final targetH = selected ? expandedH : baseH;
+    final baseOverlap = i == 0 ? 0.0 : -_kOverlap;
+    final rawShift = 0.0;
+    final shiftY = (selected ? 0.0 : rawShift) + baseOverlap;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selected = selected ? null : i;
+        });
+      },
+      child: Transform.translate(
+        offset: Offset(0, shiftY),
+        child: ClipRRect(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(_kCardBottomRadius)),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 280),
+            curve: Curves.easeOutCubic,
+            height: targetH,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(_kCardBottomRadius)),
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.vertical(bottom: Radius.circular(_kCardBottomRadius)),
+                boxShadow: selected
+                    ? [BoxShadow(color: Colors.black.withAlpha(50), blurRadius: 16, offset: const Offset(0, 6))]
+                    : null,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: AnimatedSlide(
+                            duration: const Duration(milliseconds: 280),
+                            curve: Curves.easeOutCubic,
+                            offset: selected ? Offset.zero : const Offset(0, 0.02),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  p.brandName,
+                                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                        color: fg,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  p.name,
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        color: fg,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        _OutlineSquareIconButton(
+                          icon: Icons.arrow_forward,
+                          color: fg,
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => PaintDetailScreen(paint: p)),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 240),
+                      curve: Curves.easeOutCubic,
+                      child: selected
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: 10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children: [
+                                      // use interpolation instead of string concatenation
+                                      _similarInfoTag(context, fg, '#${p.hex.replaceFirst('#','').toUpperCase()}'),
+                                      if (p.code.isNotEmpty) _similarInfoTag(context, fg, p.code),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: OutlinedButton.icon(
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: fg,
+                                            side: BorderSide(color: fg.withAlpha(140)),
+                                          ),
+                                          onPressed: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (_) => RollerScreen(initialPaints: [p]),
+                                              ),
+                                            );
+                                          },
+                                          icon: const Icon(Icons.grid_goldenratio),
+                                          label: const Text('Add to Roller'),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: OutlinedButton.icon(
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: fg,
+                                            side: BorderSide(color: fg.withAlpha(140)),
+                                          ),
+                                          onPressed: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (_) => const VisualizerScreen(),
+                                              ),
+                                            );
+                                          },
+                                          icon: const Icon(Icons.visibility_outlined),
+                                          label: const Text('Add to Visualizer'),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
