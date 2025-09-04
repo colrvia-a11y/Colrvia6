@@ -1,7 +1,6 @@
 // lib/screens/interview_text_screen.dart
 import 'package:flutter/material.dart';
-import 'package:color_canvas/services/interview_voice_engine.dart';
-import 'package:color_canvas/models/interview_turn.dart';
+import 'package:color_canvas/services/interview_shared_engine.dart';
 import 'package:color_canvas/widgets/user_bubble.dart';
 import 'package:color_canvas/widgets/via_bubble.dart';
 
@@ -15,21 +14,19 @@ class InterviewTextScreen extends StatefulWidget {
 class _InterviewTextScreenState extends State<InterviewTextScreen> {
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
-  List<InterviewTurn> turns = [];
+  final InterviewEngine engine = InterviewEngine();
 
   @override
   void initState() {
     super.initState();
-    final engine = InterviewVoiceEngine();
     engine.startTextMode();
-    turns = engine.initialTurns;
   }
 
   @override
   void dispose() {
     _controller.dispose();
     _scrollController.dispose();
-    InterviewVoiceEngine().endSession();
+    engine.endSession();
     super.dispose();
   }
 
@@ -45,23 +42,14 @@ class _InterviewTextScreenState extends State<InterviewTextScreen> {
     });
   }
 
-  void submitAnswer() {
+  Future<void> submitAnswer() async {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
 
-    setState(() {
-      turns.add(InterviewTurn(text: text, isUser: true));
-      _controller.clear();
-    });
+    _controller.clear();
+    await engine.submitTextAnswer(text);
+    setState(() {});
     _scrollToBottom();
-
-    InterviewVoiceEngine().submitTextAnswer(text).then((viaResponse) {
-      if (!mounted) return;
-      setState(() {
-        turns.add(InterviewTurn(text: viaResponse, isUser: false));
-      });
-      _scrollToBottom();
-    });
   }
 
   Future<void> showExitDialog(BuildContext context) async {
@@ -103,14 +91,14 @@ class _InterviewTextScreenState extends State<InterviewTextScreen> {
       body: Column(
         children: [
           Expanded(
-            child: turns.isEmpty
+            child: engine.initialTurns.isEmpty
                 ? const Center(child: Text('No questions loaded'))
                 : ListView.builder(
                     controller: _scrollController,
                     padding: const EdgeInsets.all(16),
-                    itemCount: turns.length,
+                    itemCount: engine.initialTurns.length,
                     itemBuilder: (context, index) {
-                      final turn = turns[index];
+                      final turn = engine.initialTurns[index];
                       return turn.isUser
                           ? UserBubble(text: turn.text)
                           : ViaBubble(text: turn.text);

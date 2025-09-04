@@ -1,17 +1,22 @@
-// lib/services/interview_voice_engine.dart
+// lib/services/interview_shared_engine.dart
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:color_canvas/models/interview_turn.dart';
+import 'package:color_canvas/models/interview_session.dart';
+
 /// Shared Interview voice/text engine (singleton).
-class InterviewVoiceEngine {
-  InterviewVoiceEngine._internal();
-  static final InterviewVoiceEngine _instance = InterviewVoiceEngine._internal();
-  factory InterviewVoiceEngine() => _instance;
+class InterviewEngine {
+  InterviewEngine._internal();
+  static final InterviewEngine _instance = InterviewEngine._internal();
+  factory InterviewEngine() => _instance;
 
   // Optional analytics hook
   void Function(String event, Map<String, dynamic> props)? onAnalytics;
 
   final _turns = <InterviewTurn>[];
   final _liveTranscript = StreamController<String?>.broadcast();
+  DateTime _startedAt = DateTime.now();
 
   // Voice state
   bool _isListening = false;
@@ -33,6 +38,7 @@ class InterviewVoiceEngine {
   void startTextMode() {
     _log('start_text_mode');
     _turns.clear();
+    _startedAt = DateTime.now();
     _turns.add(InterviewTurn(text: _getNextPrompt(), isUser: false));
   }
 
@@ -51,6 +57,7 @@ class InterviewVoiceEngine {
   void startVoiceMode() {
     _log('start_voice_mode');
     _turns.clear();
+    _startedAt = DateTime.now();
     _turns.add(InterviewTurn(text: _getNextPrompt(), isUser: false));
     _isListening = true;
     _sub?.cancel();
@@ -84,6 +91,21 @@ class InterviewVoiceEngine {
     _isListening = false;
     _turns.clear();
     _liveTranscript.add(null);
+  }
+
+  Future<void> saveSessionToFirestore() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid ?? 'anonymous';
+    final session = InterviewSession(
+      id: FirebaseFirestore.instance.collection('interviewSessions').doc().id,
+      userId: uid,
+      turns: _turns,
+      startedAt: _startedAt,
+      updatedAt: DateTime.now(),
+    );
+    await FirebaseFirestore.instance
+        .collection('interviewSessions')
+        .doc(session.id)
+        .set(session.toJson());
   }
 
   void dispose() {

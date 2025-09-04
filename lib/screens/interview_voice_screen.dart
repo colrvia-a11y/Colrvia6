@@ -1,7 +1,7 @@
 // lib/screens/interview_voice_screen.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:color_canvas/services/interview_voice_engine.dart';
+import 'package:color_canvas/services/interview_shared_engine.dart';
 import 'package:color_canvas/widgets/via_orb.dart';
 
 class InterviewVoiceScreen extends StatefulWidget {
@@ -12,7 +12,7 @@ class InterviewVoiceScreen extends StatefulWidget {
 }
 
 class _InterviewVoiceScreenState extends State<InterviewVoiceScreen> {
-  final InterviewVoiceEngine _engine = InterviewVoiceEngine();
+  final InterviewEngine _engine = InterviewEngine();
   StreamSubscription<String?>? _subscription;
   String? liveTranscript;
 
