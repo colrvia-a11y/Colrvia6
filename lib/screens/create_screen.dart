@@ -84,7 +84,7 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
           ),
           bottom: TabBar(
             controller: _tab,
-            tabs: const [Tab(text: "Guided"), Tab(text: "Tools")],
+            tabs: const [Tab(text: "AI Guided"), Tab(text: "Design Tools")],
             labelColor: peach,
             unselectedLabelColor: Colors.white70,
             indicatorColor: peach,
