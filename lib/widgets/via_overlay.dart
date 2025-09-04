@@ -149,8 +149,8 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
     final insets = MediaQuery.of(context).viewInsets.bottom;
     final isExpanded = _stage == _OverlayStage.expanded;
 
-    final double peekHeight = media.height * 0.54;
-    final double expandedHeight = media.height * 0.86;
+    final double peekHeight = media.height * 0.58;
+    final double expandedHeight = media.height * 0.96;
     final double bottomOffset = insets > 0 ? 0 : (_kSideGutter + _kBottomNavGuard);
 
     return Material(
@@ -177,18 +177,9 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
               duration: const Duration(milliseconds: 240),
               curve: Curves.easeOutCubic,
               height: (isExpanded ? expandedHeight : peekHeight),
-              child: _FeatheredGlass(
-                blurSigma: 18,
-                feather: 38,
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xF2FFFFFF),
-                    Color(0xEBFFFFFF),
-                    Color(0xE0FFFFFF),
-                  ],
-                ),
+              child: _SolidSurface(
+                blurSigma: 12,
+                color: const Color(0xF5FFFFFF), // high-opacity white for maximum legibility
                 child: SafeArea(
                   top: false,
                   left: false,
@@ -429,46 +420,42 @@ class _ComposerBarState extends State<_ComposerBar> {
   }
 }
 
-class _FeatheredGlass extends StatelessWidget {
+
+class _SolidSurface extends StatelessWidget {
   final double blurSigma;
-  final double feather;
-  final Gradient gradient;
+  final Color color;
   final Widget child;
-  const _FeatheredGlass({
-    required this.blurSigma,
-    required this.feather,
-    required this.gradient,
-    required this.child,
-  });
+  const _SolidSurface({required this.blurSigma, required this.color, required this.child});
 
   @override
   Widget build(BuildContext context) {
-    return ShaderMask(
-      blendMode: BlendMode.dstIn,
-      shaderCallback: (Rect bounds) => RadialGradient(
-        center: Alignment.center,
-        radius: 1.05,
-        colors: const [Colors.white, Colors.white, Colors.transparent],
-        stops: const [0.72, 0.92, 1.0],
-      ).createShader(bounds),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(_ViaOverlayState._kPanelRadius),
-        child: Stack(fit: StackFit.expand, children: [
-          BackdropFilter(filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma), child: const SizedBox.expand()),
-          Container(decoration: BoxDecoration(gradient: gradient)),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(_ViaOverlayState._kPanelRadius),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Optional frosted blur for context continuity
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
+            child: const SizedBox.expand(),
+          ),
+          // Solid high-opacity surface for maximum readability (no gradient)
+          Container(color: color),
+          // Subtle ambient shadow
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(_ViaOverlayState._kPanelRadius),
-              boxShadow: const [BoxShadow(color: Color(0x1A000000), blurRadius: 30, spreadRadius: -8, offset: Offset(0, 16))],
+              boxShadow: const [
+                BoxShadow(color: Color(0x1A000000), blurRadius: 30, spreadRadius: -8, offset: Offset(0, 16)),
+              ],
             ),
           ),
           Material(type: MaterialType.transparency, child: child),
-        ]),
+        ],
       ),
     );
   }
 }
-
 class _ChipButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
