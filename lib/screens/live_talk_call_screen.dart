@@ -3,6 +3,8 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:color_canvas/services/live_talk_service.dart';
 import 'package:color_canvas/services/journey/journey_service.dart';
+import 'package:color_canvas/services/interview_engine.dart';
+import 'package:color_canvas/services/schema_interview_compiler.dart';
 import 'package:color_canvas/screens/interview_review_screen.dart';
 
 class LiveTalkCallScreen extends StatefulWidget {
@@ -46,8 +48,22 @@ class _LiveTalkCallScreenState extends State<LiveTalkCallScreen> {
   void _onEnded() async {
     // After hangup, jump to Review with current answers
     if (!mounted) return;
-    final engineAnswers = JourneyService.instance.state.value?.artifacts['answers'] as Map<String, dynamic>?;
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => InterviewReviewScreen(engine: /* reuse active engine or rebuild with answers */ throw UnimplementedError('Inject engine instance here'))));
+    // Build an InterviewEngine from schema, seeded with JourneyService answers
+    InterviewEngine engine;
+    try {
+      final compiler = await SchemaInterviewCompiler.loadFromAsset('assets/schemas/single-room-color-intake.json');
+      final prompts = compiler.compile();
+      engine = InterviewEngine.fromPrompts(prompts);
+    } catch (_) {
+      engine = InterviewEngine.demo();
+    }
+    final seed = JourneyService.instance.state.value?.artifacts['answers'] as Map<String, dynamic>?;
+    engine.start(seedAnswers: seed);
+
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => InterviewReviewScreen(engine: engine)),
+    );
   }
 
   @override
