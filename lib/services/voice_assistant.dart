@@ -38,13 +38,13 @@ class VoiceAssistant extends ChangeNotifier {
     String last = '';
 
     await _speech.listen(
-      listenMode: stt.ListenMode.dictation,
       onResult: (res) {
         last = res.recognizedWords;
         if (res.finalResult && !completer.isCompleted) {
           completer.complete(last.trim().isEmpty ? null : last.trim());
         }
       },
+      listenOptions: stt.SpeechListenOptions(listenMode: stt.ListenMode.dictation),
     );
 
     Future.delayed(timeout, () {

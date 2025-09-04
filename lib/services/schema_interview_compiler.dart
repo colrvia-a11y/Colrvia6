@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:color_canvas/services/interview_engine.dart';
 
-/// Compiles a (subset of) JSON Schema to List<InterviewPrompt>
+/// Compiles a (subset of) JSON Schema to a list of InterviewPrompt
 /// Supported: object/string/array/boolean, enum, min/maxItems, uniqueItems,
 /// nested properties, $defs (room branches), basic if/then required visibility.
 class SchemaInterviewCompiler {

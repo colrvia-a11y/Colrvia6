@@ -20,7 +20,7 @@ class _InterviewTextScreenState extends State<InterviewTextScreen> {
   @override
   void initState() {
     super.initState();
-    final engine = InterviewEngine();
+    final engine = InterviewVoiceEngine();
     engine.startTextMode();
     turns = engine.initialTurns;
   }
@@ -29,7 +29,7 @@ class _InterviewTextScreenState extends State<InterviewTextScreen> {
   void dispose() {
     _controller.dispose();
     _scrollController.dispose();
-    InterviewEngine().endSession();
+    InterviewVoiceEngine().endSession();
     super.dispose();
   }
 
@@ -55,7 +55,7 @@ class _InterviewTextScreenState extends State<InterviewTextScreen> {
     });
     _scrollToBottom();
 
-    InterviewEngine().submitTextAnswer(text).then((viaResponse) {
+    InterviewVoiceEngine().submitTextAnswer(text).then((viaResponse) {
       if (!mounted) return;
       setState(() {
         turns.add(InterviewTurn(text: viaResponse, isUser: false));
@@ -82,7 +82,8 @@ class _InterviewTextScreenState extends State<InterviewTextScreen> {
         ],
       ),
     );
-    if (shouldExit == true && mounted) {
+    if (!context.mounted) return;
+    if (shouldExit == true) {
       Navigator.of(context).maybePop();
     }
   }

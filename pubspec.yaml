@@ -28,7 +28,7 @@ dependencies:
   just_audio: ^0.10.4
   share_plus: ^11.1.0
   firebase_crashlytics: ^5.0.0
-  firebase_performance: 0.11.0+1
+  firebase_performance: ^0.11.0+1
   package_info_plus: ^8.0.0
   collection: ^1.18.0
   logging: ^1.2.0

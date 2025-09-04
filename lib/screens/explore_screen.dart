@@ -570,7 +570,7 @@ class _CardSkeleton extends StatelessWidget {
                       const Color(0xFF8B5CF6),
                       const Color(0xFFEC4899),
                       const Color(0xFF06B6D4),
-                    ][index % 4].withOpacity(0.3 + math.sin(value) * 0.2),
+                    ][index % 4].withValues(alpha: 0.3 + math.sin(value) * 0.2),
                   ),
                 ),
               );
@@ -627,7 +627,7 @@ class _CardSkeleton extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
               height: 1.6,
               letterSpacing: 0.3,
             ),
@@ -668,15 +668,15 @@ class _CardSkeleton extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: Colors.white.withOpacity(0.1),
+          color: Colors.white.withValues(alpha: 0.1),
           width: 1,
         ),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.white.withOpacity(0.05),
-            Colors.white.withOpacity(0.02),
+            Colors.white.withValues(alpha: 0.05),
+            Colors.white.withValues(alpha: 0.02),
           ],
         ),
       ),
@@ -722,7 +722,7 @@ class _CardSkeleton extends StatelessWidget {
             feature['description'] as String,
             style: TextStyle(
               fontSize: 16,
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
               height: 1.6,
             ),
           ),
@@ -763,9 +763,9 @@ class _CardSkeleton extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha: 0.3),
                   width: 2,
                 ),
               ),
@@ -834,7 +834,7 @@ class _CardSkeleton extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
               letterSpacing: 0.3,
             ),
           ),
@@ -868,12 +868,12 @@ class _CardSkeleton extends StatelessWidget {
                                   gradient: RadialGradient(
                                     colors: [
                                       step['color'] as Color,
-                                      (step['color'] as Color).withOpacity(0.6),
+                                      (step['color'] as Color).withValues(alpha: 0.6),
                                     ],
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: (step['color'] as Color).withOpacity(0.4),
+                                      color: (step['color'] as Color).withValues(alpha: 0.4),
                                       blurRadius: 20,
                                       spreadRadius: 5,
                                     ),
@@ -918,7 +918,7 @@ class _CardSkeleton extends StatelessWidget {
                                     begin: Alignment.topCenter,
                                     end: Alignment.bottomCenter,
                                     colors: [
-                                      (step['color'] as Color).withOpacity(value),
+                                      (step['color'] as Color).withValues(alpha: value),
                                       Colors.transparent,
                                     ],
                                   ),
@@ -952,7 +952,7 @@ class _CardSkeleton extends StatelessWidget {
                               step['description'] as String,
                               style: TextStyle(
                                 fontSize: 16,
-                                color: Colors.white.withOpacity(0.7),
+                                color: Colors.white.withValues(alpha: 0.7),
                                 height: 1.6,
                               ),
                             ),
@@ -1014,15 +1014,15 @@ class _CardSkeleton extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withOpacity(0.1),
+          color: Colors.white.withValues(alpha: 0.1),
           width: 1,
         ),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.white.withOpacity(0.1),
-            Colors.white.withOpacity(0.05),
+            Colors.white.withValues(alpha: 0.1),
+            Colors.white.withValues(alpha: 0.05),
           ],
         ),
       ),
@@ -1267,7 +1267,7 @@ class _CardSkeleton extends StatelessWidget {
                                           ),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: const Color(0xFF6366F1).withOpacity(0.4),
+                                              color: const Color(0xFF6366F1).withValues(alpha: 0.4),
                                               blurRadius: 40,
                                               spreadRadius: 10,
                                             ),
@@ -1438,7 +1438,7 @@ class _CardSkeleton extends StatelessWidget {
                                   Text(
                                     'Discover More',
                                     style: TextStyle(
-                                      color: Colors.white.withOpacity(0.6),
+                                      color: Colors.white.withValues(alpha: 0.6),
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                       letterSpacing: 1.2,
@@ -1453,7 +1453,7 @@ class _CardSkeleton extends StatelessWidget {
                                         offset: Offset(0, math.sin(value) * 3),
                                         child: Icon(
                                           Icons.keyboard_arrow_down_rounded,
-                                          color: Colors.white.withOpacity(0.6),
+                                          color: Colors.white.withValues(alpha: 0.6),
                                           size: 32,
                                         ),
                                       );
@@ -1541,7 +1541,7 @@ class _CardSkeleton extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
             ),
           ),
           child: Column(
@@ -1593,7 +1593,7 @@ class _CardSkeleton extends StatelessWidget {
                             child: Text(
                               'AI Generated',
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -1606,13 +1606,13 @@ class _CardSkeleton extends StatelessWidget {
                             Icon(
                               Icons.favorite,
                               size: 14,
-                              color: Colors.red.withOpacity(0.7),
+                              color: Colors.red.withValues(alpha: 0.7),
                             ),
                             const SizedBox(width: 2),
                             Text(
                               '0', // Placeholder - would need actual like count
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                               ),
                             ),
                           ],
@@ -1654,7 +1654,7 @@ class _CardSkeleton extends StatelessWidget {
       child: Center(
         child: Icon(
           Icons.palette,
-          color: Colors.white.withOpacity(0.8),
+          color: Colors.white.withValues(alpha: 0.8),
           size: 32,
         ),
       ),

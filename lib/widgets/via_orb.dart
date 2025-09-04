@@ -53,8 +53,8 @@ class _ViaOrbState extends State<ViaOrb> with SingleTickerProviderStateMixin {
           shape: BoxShape.circle,
           gradient: RadialGradient(
             colors: [
-              Theme.of(context).colorScheme.primary.withOpacity(0.8),
-              Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+              Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
             ],
           ),
         ),

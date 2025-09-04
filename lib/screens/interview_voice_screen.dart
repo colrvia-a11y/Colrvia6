@@ -12,7 +12,7 @@ class InterviewVoiceScreen extends StatefulWidget {
 }
 
 class _InterviewVoiceScreenState extends State<InterviewVoiceScreen> {
-  final InterviewEngine _engine = InterviewEngine();
+  final InterviewVoiceEngine _engine = InterviewVoiceEngine();
   StreamSubscription<String?>? _subscription;
   String? liveTranscript;
 
@@ -58,7 +58,8 @@ class _InterviewVoiceScreenState extends State<InterviewVoiceScreen> {
         ],
       ),
     );
-    if (shouldExit == true && mounted) {
+    if (!context.mounted) return;
+    if (shouldExit == true) {
       Navigator.of(context).maybePop();
     }
   }

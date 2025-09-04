@@ -1,11 +1,11 @@
 // lib/services/interview_voice_engine.dart
 import 'dart:async';
 import 'package:color_canvas/models/interview_turn.dart';
-/// Shared InterviewEngine for both text and voice modes (singleton).
-class InterviewEngine {
-  InterviewEngine._internal();
-  static final InterviewEngine _instance = InterviewEngine._internal();
-  factory InterviewEngine() => _instance;
+/// Shared Interview voice/text engine (singleton).
+class InterviewVoiceEngine {
+  InterviewVoiceEngine._internal();
+  static final InterviewVoiceEngine _instance = InterviewVoiceEngine._internal();
+  factory InterviewVoiceEngine() => _instance;
 
   // Optional analytics hook
   void Function(String event, Map<String, dynamic> props)? onAnalytics;
@@ -84,6 +84,11 @@ class InterviewEngine {
     _isListening = false;
     _turns.clear();
     _liveTranscript.add(null);
+  }
+
+  void dispose() {
+    _cancelStream();
+    _liveTranscript.close();
   }
 
   void _cancelStream() {

@@ -85,7 +85,7 @@ class _PaletteRevealScreenState extends State<PaletteRevealScreen> {
             margin: const EdgeInsets.symmetric(vertical: 8),
             height: i == 3 ? 120 : 72,
             decoration: BoxDecoration(
-              color: Colors.black12.withOpacity(0.08),
+              color: Colors.black12.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
             ),
           ),

@@ -107,6 +107,7 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
       final f = File('${dir.path}/colrvia-overlay-${DateTime.now().millisecondsSinceEpoch}.png');
       await f.writeAsBytes(bytes);
       if (!mounted) return;
+      // ignore: deprecated_member_use
       await Share.shareXFiles([XFile(f.path)], text: 'Colrvia Paint Overlay');
       try { await AnalyticsService.instance.vizExport(); } catch (_) {}
     } catch (e) {
@@ -281,7 +282,7 @@ class _Painter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     for (final s in strokes) {
       final paint = Paint()
-        ..color = _roleColor(s.role).withOpacity(s.opacity)
+        ..color = _roleColor(s.role).withValues(alpha: s.opacity)
         ..strokeWidth = s.width
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round
