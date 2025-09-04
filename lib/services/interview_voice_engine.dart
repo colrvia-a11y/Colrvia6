@@ -1,7 +1,9 @@
 // lib/services/interview_voice_engine.dart
 import 'dart:async';
 
-/// Placeholder voice interview engine that exposes a live transcript stream.
+import 'package:color_canvas/models/interview_turn.dart';
+
+/// Placeholder interview engine supporting both voice and text modes.
 class InterviewEngine {
   InterviewEngine._internal();
   static final InterviewEngine _instance = InterviewEngine._internal();
@@ -13,7 +15,14 @@ class InterviewEngine {
   bool _isListening = false;
   bool get isListening => _isListening;
 
+  final List<String> _prompts = [
+    'Tell me about your space',
+    'What mood are you hoping to create?',
+    'Any colors you love or hate?'
+  ];
+
   String currentPrompt = 'Tell me about your space';
+  int _promptIndex = 0;
 
   Timer? _timer;
 
@@ -25,6 +34,27 @@ class InterviewEngine {
     _timer = Timer.periodic(const Duration(seconds: 3), (t) {
       _controller.add('Sample response ${t.tick}');
     });
+  }
+
+  /// Initialize text interview mode.
+  void startTextMode() {
+    _promptIndex = 0;
+    currentPrompt = _prompts[_promptIndex];
+  }
+
+  /// Initial turns to seed the chat UI.
+  List<InterviewTurn> get initialTurns =>
+      [InterviewTurn(text: currentPrompt, isUser: false)];
+
+  /// Submit a user answer and receive Via's next prompt.
+  Future<String> submitTextAnswer(String answer) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    _promptIndex++;
+    if (_promptIndex < _prompts.length) {
+      currentPrompt = _prompts[_promptIndex];
+      return currentPrompt;
+    }
+    return 'Thanks for sharing!';
   }
 
   /// Pause voice capture.
