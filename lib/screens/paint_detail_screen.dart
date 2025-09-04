@@ -926,6 +926,8 @@ class _SimilarTabState extends State<_SimilarTab> {
   bool _showBottomGlow = true;
   bool _showHint = true;
   int? _selected;
+  double _scrollOffset = 0.0;
+  final Map<int, GlobalKey> _itemKeys = {};
 
   // Card styling + overlap constants
   static const double _kCardBottomRadius = 28.0;
@@ -995,11 +997,12 @@ class _SimilarTabState extends State<_SimilarTab> {
     final off = _sc.offset;
     final top = off > 4;
     final bottom = off < (max - 4);
-    if (top != _showTopGlow || bottom != _showBottomGlow || _showHint) {
+    if (top != _showTopGlow || bottom != _showBottomGlow || _showHint || off != _scrollOffset) {
       setState(() {
         _showTopGlow = top;
         _showBottomGlow = bottom;
         _showHint = false;
+        _scrollOffset = off;
       });
     }
   }
@@ -1024,8 +1027,9 @@ class _SimilarTabState extends State<_SimilarTab> {
         ListView.builder(
           controller: _sc,
           reverse: _kFirstOnTop,
-          // Ensure the last card isn't clipped by the bottom when overlapping
-          padding: EdgeInsets.only(bottom: _kOverlap + 24),
+          clipBehavior: Clip.none,
+          // Allow first card to tuck under the hero and keep last card visible
+          padding: EdgeInsets.fromLTRB(0, _kCardBottomRadius, 0, _kOverlap + 24),
           itemCount: _similar.length,
           itemBuilder: (ctx, visualIdx) {
             final i = _kFirstOnTop ? (_similar.length - 1 - visualIdx) : visualIdx;
@@ -1111,180 +1115,193 @@ class _SimilarTabState extends State<_SimilarTab> {
   Widget _buildSimilarItem(BuildContext context, int i, double baseH, double expandedH) {
     final p = _similar[i];
     final color = ColorUtils.getPaintColor(p.hex);
+    final nextColor = i + 1 < _similar.length ? ColorUtils.getPaintColor(_similar[i + 1].hex) : null;
     final onDark = ThemeData.estimateBrightnessForColor(color) == Brightness.dark;
     final fg = onDark ? Colors.white : Colors.black;
     final selected = _selected == i;
     final targetH = selected ? expandedH : baseH;
-    var baseOverlap = i == 0 ? 0.0 : -_kOverlap;
+
+    var baseOverlap = i == 0 ? -_kCardBottomRadius : -_kOverlap;
     // Give the second item a touch more room to avoid text being obscured
     if (i == 1) baseOverlap += _kSecondExtraRoom;
-    final rawShift = 0.0;
-    final shiftY = (selected ? 0.0 : rawShift) + baseOverlap;
+    final parallaxFactor = 0.06 + i * 0.015;
+    final parallaxShift = (-_scrollOffset * parallaxFactor).clamp(-40.0, 40.0);
+    final shiftY = selected ? 0.0 : baseOverlap + parallaxShift;
+
+    final key = _itemKeys.putIfAbsent(i, () => GlobalKey());
 
     return GestureDetector(
+      key: key,
       onTap: () {
-        setState(() {
-          _selected = selected ? null : i;
-        });
-        if (i == 0) {
+        final newSel = selected ? null : i;
+        setState(() => _selected = newSel);
+        if (newSel != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!_sc.hasClients) return;
-            if (_selected == 0) {
-              final desired = (expandedH - baseH + 12).clamp(0.0, double.infinity);
-              if (_kFirstOnTop) {
-                final target = (_sc.position.maxScrollExtent - desired).clamp(0.0, _sc.position.maxScrollExtent);
-                _sc.animateTo(target, duration: const Duration(milliseconds: 240), curve: Curves.easeOutCubic);
-              } else {
-                _sc.animateTo(desired, duration: const Duration(milliseconds: 240), curve: Curves.easeOutCubic);
-              }
-            } else {
-              if (_kFirstOnTop) {
-                _sc.animateTo(_sc.position.maxScrollExtent, duration: const Duration(milliseconds: 240), curve: Curves.easeOutCubic);
-              } else {
-                _sc.animateTo(0, duration: const Duration(milliseconds: 240), curve: Curves.easeOutCubic);
-              }
+            final ctx = _itemKeys[newSel]!.currentContext;
+            if (ctx != null) {
+              Scrollable.ensureVisible(
+                ctx,
+                duration: const Duration(milliseconds: 240),
+                curve: Curves.easeOutCubic,
+                alignment: 0.1,
+              );
             }
           });
         }
       },
       child: Transform.translate(
         offset: Offset(0, shiftY),
-        child: ClipRRect(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(_kCardBottomRadius)),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 280),
-            curve: Curves.easeOutCubic,
-            height: targetH,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(_kCardBottomRadius)),
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.vertical(bottom: Radius.circular(_kCardBottomRadius)),
-                boxShadow: selected
-                    ? [BoxShadow(color: Colors.black.withAlpha(50), blurRadius: 16, offset: const Offset(0, 6))]
-                    : null,
+        child: Stack(
+          children: [
+            if (nextColor != null)
+              Positioned.fill(
+                child: Transform.translate(
+                  offset: const Offset(0, _kOverlap),
+                  child: ClipRRect(
+                    borderRadius:
+                        BorderRadius.vertical(bottom: Radius.circular(_kCardBottomRadius)),
+                    child: Container(color: nextColor),
+                  ),
+                ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            ClipRRect(
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(_kCardBottomRadius)),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 280),
+                curve: Curves.easeOutCubic,
+                height: targetH,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(_kCardBottomRadius)),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(_kCardBottomRadius)),
+                    boxShadow: selected
+                        ? [BoxShadow(color: Colors.black.withAlpha(50), blurRadius: 16, offset: const Offset(0, 6))]
+                        : null,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: AnimatedSlide(
-                            duration: const Duration(milliseconds: 280),
-                            curve: Curves.easeOutCubic,
-                            offset: selected ? Offset.zero : const Offset(0, 0.02),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  p.brandName,
-                                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                        color: fg,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: AnimatedSlide(
+                                duration: const Duration(milliseconds: 280),
+                                curve: Curves.easeOutCubic,
+                                offset: selected ? Offset.zero : const Offset(0, 0.02),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      p.brandName,
+                                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                            color: fg,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      p.name,
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                            color: fg,
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  p.name,
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                        color: fg,
-                                        fontWeight: FontWeight.w800,
-                                      ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
+                            _OutlineSquareIconButton(
+                              icon: Icons.arrow_forward,
+                              color: fg,
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => PaintDetailScreen(paint: p)),
+                                );
+                              },
+                            ),
+                          ],
                         ),
-                        _OutlineSquareIconButton(
-                          icon: Icons.arrow_forward,
-                          color: fg,
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => PaintDetailScreen(paint: p)),
-                            );
-                          },
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 240),
+                          curve: Curves.easeOutCubic,
+                          child: selected
+                              ? Padding(
+                                  padding: const EdgeInsets.only(top: 10),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Wrap(
+                                        spacing: 8,
+                                        runSpacing: 8,
+                                        children: [
+                                          _similarInfoTag(context, fg,
+                                              '#${p.hex.replaceFirst('#', '').toUpperCase()}'),
+                                          if (p.code.isNotEmpty) _similarInfoTag(context, fg, p.code),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: OutlinedButton.icon(
+                                              style: OutlinedButton.styleFrom(
+                                                foregroundColor: fg,
+                                                side: BorderSide(color: fg.withAlpha(140)),
+                                              ),
+                                              onPressed: () {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: (_) => RollerScreen(initialPaints: [p]),
+                                                  ),
+                                                );
+                                              },
+                                              icon: const Icon(Icons.grid_goldenratio),
+                                              label: const Text('Add to Roller'),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            child: OutlinedButton.icon(
+                                              style: OutlinedButton.styleFrom(
+                                                foregroundColor: fg,
+                                                side: BorderSide(color: fg.withAlpha(140)),
+                                              ),
+                                              onPressed: () {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: (_) => const VisualizerScreen(),
+                                                  ),
+                                                );
+                                              },
+                                              icon: const Icon(Icons.visibility_outlined),
+                                              label: const Text('Add to Visualizer'),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
                         ),
                       ],
                     ),
-                    AnimatedSize(
-                      duration: const Duration(milliseconds: 240),
-                      curve: Curves.easeOutCubic,
-                      child: selected
-                          ? Padding(
-                              padding: const EdgeInsets.only(top: 10),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Wrap(
-                                    spacing: 8,
-                                    runSpacing: 8,
-                                    children: [
-                                      // use interpolation instead of string concatenation
-                                      _similarInfoTag(context, fg, '#${p.hex.replaceFirst('#','').toUpperCase()}'),
-                                      if (p.code.isNotEmpty) _similarInfoTag(context, fg, p.code),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: OutlinedButton.icon(
-                                          style: OutlinedButton.styleFrom(
-                                            foregroundColor: fg,
-                                            side: BorderSide(color: fg.withAlpha(140)),
-                                          ),
-                                          onPressed: () {
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: (_) => RollerScreen(initialPaints: [p]),
-                                              ),
-                                            );
-                                          },
-                                          icon: const Icon(Icons.grid_goldenratio),
-                                          label: const Text('Add to Roller'),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Expanded(
-                                        child: OutlinedButton.icon(
-                                          style: OutlinedButton.styleFrom(
-                                            foregroundColor: fg,
-                                            side: BorderSide(color: fg.withAlpha(140)),
-                                          ),
-                                          onPressed: () {
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: (_) => const VisualizerScreen(),
-                                              ),
-                                            );
-                                          },
-                                          icon: const Icon(Icons.visibility_outlined),
-                                          label: const Text('Add to Visualizer'),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            )
-                          : const SizedBox.shrink(),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
