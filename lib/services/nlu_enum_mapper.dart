@@ -1,6 +1,5 @@
 // lib/services/nlu_enum_mapper.dart
 import 'dart:math';
-import 'package:collection/collection.dart';
 import 'package:color_canvas/services/interview_engine.dart';
 
 /// Maps free-form utterances to schema enum values.
@@ -26,7 +25,7 @@ class EnumMapper {
     }
     if (bestVal == null) return null;
     if (best < 0.62) return null; // threshold tuned for safety
-    return (value: bestVal!, confidence: best);
+    return (value: bestVal, confidence: best);
   }
 
   /// Multi-select parser: splits on commas/and; maps each chunk.
@@ -55,7 +54,7 @@ class EnumMapper {
         }
       }
       if (bestVal != null && best >= 0.62 && !chosen.contains(bestVal)) {
-        chosen.add(bestVal!);
+        chosen.add(bestVal);
         if (prompt.maxItems != null && chosen.length >= prompt.maxItems!) break;
       }
     }

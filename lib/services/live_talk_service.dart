@@ -146,7 +146,7 @@ class LiveTalkService {
 class _GatewayAuth { final String token; _GatewayAuth({required this.token}); }
 
 class _WebSocketClient {
-  WebSocket _ws; void Function(String data)? onMessage;
+  final WebSocket _ws; void Function(String data)? onMessage;
   _WebSocketClient._(this._ws) { _ws.listen((d) { if (d is String) onMessage?.call(d); }); }
   static Future<_WebSocketClient> connect(Uri uri) async { final ws = await WebSocket.connect(uri.toString()); return _WebSocketClient._(ws); }
   void send(String s) => _ws.add(s);

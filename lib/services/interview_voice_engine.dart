@@ -1,14 +1,7 @@
 // lib/services/interview_voice_engine.dart
 import 'dart:async';
 import 'package:color_canvas/models/interview_turn.dart';
-
-<<<<<<< HEAD
 /// Shared InterviewEngine for both text and voice modes (singleton).
-=======
-import 'package:color_canvas/models/interview_turn.dart';
-
-/// Placeholder interview engine supporting both voice and text modes.
->>>>>>> 859f6973651f4ee5b5e16c8b96b395bb683839b6
 class InterviewEngine {
   InterviewEngine._internal();
   static final InterviewEngine _instance = InterviewEngine._internal();
@@ -36,23 +29,12 @@ class InterviewEngine {
     return _getNextPrompt();
   }
 
-<<<<<<< HEAD
   // Text mode
   void startTextMode() {
     _log('start_text_mode');
     _turns.clear();
     _turns.add(InterviewTurn(text: _getNextPrompt(), isUser: false));
   }
-=======
-  final List<String> _prompts = [
-    'Tell me about your space',
-    'What mood are you hoping to create?',
-    'Any colors you love or hate?'
-  ];
-
-  String currentPrompt = 'Tell me about your space';
-  int _promptIndex = 0;
->>>>>>> 859f6973651f4ee5b5e16c8b96b395bb683839b6
 
   Future<String> submitTextAnswer(String userText) async {
     await Future.delayed(const Duration(milliseconds: 400));
@@ -77,32 +59,6 @@ class InterviewEngine {
         .map((s) => s as String?)
         .listen((text) => _liveTranscript.add(text));
   }
-
-<<<<<<< HEAD
-=======
-  /// Initialize text interview mode.
-  void startTextMode() {
-    _promptIndex = 0;
-    currentPrompt = _prompts[_promptIndex];
-  }
-
-  /// Initial turns to seed the chat UI.
-  List<InterviewTurn> get initialTurns =>
-      [InterviewTurn(text: currentPrompt, isUser: false)];
-
-  /// Submit a user answer and receive Via's next prompt.
-  Future<String> submitTextAnswer(String answer) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    _promptIndex++;
-    if (_promptIndex < _prompts.length) {
-      currentPrompt = _prompts[_promptIndex];
-      return currentPrompt;
-    }
-    return 'Thanks for sharing!';
-  }
-
-  /// Pause voice capture.
->>>>>>> 859f6973651f4ee5b5e16c8b96b395bb683839b6
   void pause() {
     if (!_isListening) return;
     _log('pause');
