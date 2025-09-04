@@ -190,7 +190,7 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                         colors: [Color(0xFFFFFFFF), Colors.transparent],
                         stops: [0.0, 1.0],
                       ),
-                child: SafeArea(child: SafeArea(
+                child: SafeArea(
                   top: false,
                   left: false,
                   right: false,
@@ -218,7 +218,7 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                                   child: _GreetingAndChips(
                                     greeting: _msgs.isNotEmpty
                                         ? _msgs.last.text
-                                        : 'Hi — how can I help today?',
+                                        : 'Hi ï¿½ how can I help today?',
                                     suggestions: _suggestions(),
                                     onChip: (s) {
                                       AnalyticsService.instance.log(
@@ -636,6 +636,7 @@ class _OutlinedSquareIcon extends StatelessWidget {
     );
   }
 }
+
 
 
 
