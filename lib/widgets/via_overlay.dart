@@ -535,12 +535,18 @@ class _SolidSurface extends StatelessWidget {
     );
 
     if (topFadeStart != null) {
+      final double s = topFadeStart!.clamp(0.0, 1.0);
+      const double topAlpha = 0.88; // keep ~88% opacity at top for a subtle fade
       surface = ShaderMask(
-        shaderCallback: (Rect bounds) => const LinearGradient(
+        shaderCallback: (Rect bounds) => LinearGradient(
           begin: Alignment.bottomCenter,
           end: Alignment.topCenter,
-          colors: [Colors.black, Colors.black, Colors.transparent],
-          stops: [0.0, 0.5, 1.0],
+          colors: [
+            Colors.black,
+            Colors.black,
+            Colors.black.withOpacity(topAlpha),
+          ],
+          stops: [0.0, s, 1.0],
         ).createShader(bounds),
         blendMode: BlendMode.dstIn,
         child: surface,
