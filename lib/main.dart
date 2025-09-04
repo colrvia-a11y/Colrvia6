@@ -21,6 +21,7 @@ import 'package:color_canvas/screens/login_screen.dart';
 import 'package:color_canvas/screens/color_plan_detail_screen.dart';
 import 'package:color_canvas/screens/visualizer_screen.dart';
 import 'package:color_canvas/screens/color_plan_screen.dart';
+import 'package:color_canvas/screens/interview_home_screen.dart';
 import 'package:color_canvas/services/firebase_service.dart';
 import 'package:color_canvas/services/network_utils.dart';
 import 'package:color_canvas/utils/debug_logger.dart';
@@ -184,6 +185,7 @@ class MyApp extends StatelessWidget {
             '/auth': (context) => const AuthWrapper(),
             '/home': (context) => const HomeScreen(),
             '/login': (context) => const LoginScreen(),
+            '/interview/home': (context) => const InterviewHomeScreen(),
             '/colorPlan': (context) {
               final args =
                   ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
