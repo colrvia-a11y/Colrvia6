@@ -3,9 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
 import 'package:color_canvas/utils/color_utils.dart';
 import 'package:color_canvas/services/analytics_service.dart';
-import 'package:color_canvas/utils/color_math.dart';
 import 'package:color_canvas/services/firebase_service.dart';
-import 'dart:ui';
 import 'package:color_canvas/services/color_service.dart';
 import 'package:color_canvas/services/library_service.dart';
 import 'roller_screen.dart';
@@ -638,49 +636,7 @@ class _SimilarRowState extends State<_SimilarRow> {
 
 // _ActionBar removed; actions are handled contextually elsewhere.
 
-class _GlassyIconButton extends StatelessWidget {
-  final IconData icon;
-  final Color foreground;
-  final VoidCallback onPressed;
-  final bool busy;
-  const _GlassyIconButton({
-    required this.icon,
-    required this.foreground,
-    required this.onPressed,
-    this.busy = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(999),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Material(
-          color: Colors.white.withAlpha(36),
-          shape: const StadiumBorder(),
-          child: InkWell(
-            onTap: busy ? null : onPressed,
-            customBorder: const StadiumBorder(),
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: SizedBox(
-                width: 24,
-                height: 24,
-                child: busy
-                    ? CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(foreground),
-                      )
-                    : Icon(icon, color: foreground),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+// Removed unused _GlassyIconButton widget
 
 class _OutlineSquareIconButton extends StatelessWidget {
   final IconData icon;
@@ -688,7 +644,6 @@ class _OutlineSquareIconButton extends StatelessWidget {
   final VoidCallback onPressed;
   final bool busy;
   const _OutlineSquareIconButton({
-    super.key,
     required this.icon,
     required this.color,
     required this.onPressed,
@@ -729,7 +684,7 @@ class _OutlineSquareIconButton extends StatelessWidget {
 }
 
 class _HeroTabs extends StatelessWidget {
-  const _HeroTabs({super.key});
+  const _HeroTabs();
   @override
   Widget build(BuildContext context) {
     // Compute foreground based on the current header color brightness
@@ -978,6 +933,8 @@ class _SimilarTabState extends State<_SimilarTab> {
   static const double _kOverlap = _kCardBottomRadius - 6.0; // 22.0 when radius is 28
   // Optional: render first item on top in z-order by reversing paint order
   static const bool _kFirstOnTop = true;
+  // Nudge the second card down a bit more so its text isn't covered
+  static const double _kSecondExtraRoom = 14.0;
 
   @override
   void initState() {
@@ -1013,10 +970,24 @@ class _SimilarTabState extends State<_SimilarTab> {
           _similar = paints.take(10).toList();
           _loading = false;
         });
+        // Ensure we show the first result at the top on open.
+        _scrollToFirst();
       }
     } catch (_) {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  void _scrollToFirst() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_sc.hasClients) return;
+      if (_kFirstOnTop) {
+        // With reverse=true, maxScrollExtent corresponds to the list's start (first item)
+        _sc.jumpTo(_sc.position.maxScrollExtent);
+      } else {
+        _sc.jumpTo(0);
+      }
+    });
   }
 
   void _onScroll() {
@@ -1058,6 +1029,18 @@ class _SimilarTabState extends State<_SimilarTab> {
           itemCount: _similar.length,
           itemBuilder: (ctx, visualIdx) {
             final i = _kFirstOnTop ? (_similar.length - 1 - visualIdx) : visualIdx;
+            final displayTopIndex = _kFirstOnTop ? (_similar.length - 1) : 0;
+            final addSpacer = (_selected == i) && (i == displayTopIndex);
+            final spacer = addSpacer ? (expandedH - baseH + 12) : 0.0;
+            if (spacer > 0) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(height: spacer),
+                  _buildSimilarItem(ctx, i, baseH, expandedH),
+                ],
+              );
+            }
             return _buildSimilarItem(ctx, i, baseH, expandedH);
           },
         ),
@@ -1122,17 +1105,7 @@ class _SimilarTabState extends State<_SimilarTab> {
     );
   }
 
-  Widget _infoTag(BuildContext context, Color fg, String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: fg.withAlpha(140)),
-        color: Colors.white.withAlpha(20),
-      ),
-      child: Text(text, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: fg)),
-    );
-  }
+  // Removed unused _infoTag helper
 
   // Moved here from _PaintDetailScreenState so it can access _similar, _selected, and constants.
   Widget _buildSimilarItem(BuildContext context, int i, double baseH, double expandedH) {
@@ -1142,7 +1115,9 @@ class _SimilarTabState extends State<_SimilarTab> {
     final fg = onDark ? Colors.white : Colors.black;
     final selected = _selected == i;
     final targetH = selected ? expandedH : baseH;
-    final baseOverlap = i == 0 ? 0.0 : -_kOverlap;
+    var baseOverlap = i == 0 ? 0.0 : -_kOverlap;
+    // Give the second item a touch more room to avoid text being obscured
+    if (i == 1) baseOverlap += _kSecondExtraRoom;
     final rawShift = 0.0;
     final shiftY = (selected ? 0.0 : rawShift) + baseOverlap;
 
@@ -1151,6 +1126,26 @@ class _SimilarTabState extends State<_SimilarTab> {
         setState(() {
           _selected = selected ? null : i;
         });
+        if (i == 0) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!_sc.hasClients) return;
+            if (_selected == 0) {
+              final desired = (expandedH - baseH + 12).clamp(0.0, double.infinity);
+              if (_kFirstOnTop) {
+                final target = (_sc.position.maxScrollExtent - desired).clamp(0.0, _sc.position.maxScrollExtent);
+                _sc.animateTo(target, duration: const Duration(milliseconds: 240), curve: Curves.easeOutCubic);
+              } else {
+                _sc.animateTo(desired, duration: const Duration(milliseconds: 240), curve: Curves.easeOutCubic);
+              }
+            } else {
+              if (_kFirstOnTop) {
+                _sc.animateTo(_sc.position.maxScrollExtent, duration: const Duration(milliseconds: 240), curve: Curves.easeOutCubic);
+              } else {
+                _sc.animateTo(0, duration: const Duration(milliseconds: 240), curve: Curves.easeOutCubic);
+              }
+            }
+          });
+        }
       },
       child: Transform.translate(
         offset: Offset(0, shiftY),
