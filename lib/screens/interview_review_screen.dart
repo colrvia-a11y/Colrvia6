@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:color_canvas/services/journey/journey_service.dart';
 import 'package:color_canvas/services/interview_engine.dart';
+import 'package:color_canvas/services/interview_shared_engine.dart' as shared;
 import 'package:color_canvas/widgets/photo_picker_inline.dart';
 import 'package:color_canvas/services/palette_service.dart';
 import 'package:color_canvas/screens/palette_reveal_screen.dart';
@@ -52,6 +53,7 @@ class _InterviewReviewScreenState extends State<InterviewReviewScreen> {
     final answers = Map<String, dynamic>.from(_answers);
 
     setState(() {}); // optional: show loading state on button
+    await shared.InterviewEngine().saveSessionToFirestore();
     await PaletteService.instance.generateFromAnswers(answers);
 
     await JourneyService.instance.completeCurrentStep();
