@@ -2131,7 +2131,7 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
           '$shareTitle$contextInfo\n\n$excerpt';
 
       // Share the story
-      await Share.share(
+      await SharePlus.share(
         shareText,
         subject: shareTitle,
       );

@@ -308,13 +308,7 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
     );
   }
 
-  String _buildDescription() {
-    final tags = ColorUtils.undertoneTags(widget.paint.lab);
-    final lrv = ColorUtils.computeLrv(widget.paint.hex).toStringAsFixed(1);
-    final temp = widget.paint.temperature ?? '';
-    return '${widget.paint.brandName} ${widget.paint.code} — ${tags.isEmpty ? 'neutral undertone' : tags.join(', ')} • LRV $lrv • ${temp.isNotEmpty ? temp : 'balanced'}. '
-        'A versatile shade that plays well with natural light and pairs beautifully across finishes.';
-  }
+  
 
   void _showAddMenu() {
     showModalBottomSheet(
@@ -370,7 +364,7 @@ class _HeroTabs extends StatelessWidget {
     final sc = t.colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: sc.surface.withOpacity(0.24),
+        color: sc.surface.withAlpha(61),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Align(
