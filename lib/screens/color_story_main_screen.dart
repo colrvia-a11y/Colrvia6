@@ -6,7 +6,6 @@ import 'package:color_canvas/screens/immersive_story_player_screen.dart';
 import 'package:color_canvas/models/story_experience.dart';
 import 'package:color_canvas/models/immersive_story_context.dart';
 import 'package:color_canvas/services/immersive_narrative_engine.dart';
-import '../theme.dart';
 
 class ColorStoryMainScreen extends StatefulWidget {
   const ColorStoryMainScreen({super.key});
@@ -307,7 +306,7 @@ class _ColorStoryMainScreenState extends State<ColorStoryMainScreen> with Ticker
             width: double.infinity,
             height: 50,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
                 colors: [_brandPeach, _peachGradient],
