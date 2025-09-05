@@ -10,7 +10,6 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_performance/firebase_performance.dart';
 import 'package:color_canvas/screens/compare_screen.dart';
 // REGION: CODEX-ADD compare-colors-import
-import 'package:color_canvas/screens/compare_colors_screen.dart';
 // END REGION: CODEX-ADD compare-colors-import
 import 'package:color_canvas/widgets/more_menu_sheet.dart';
 import 'package:color_canvas/firebase_config.dart';

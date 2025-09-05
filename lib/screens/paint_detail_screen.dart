@@ -130,7 +130,9 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
             return [
               SliverAppBar(
                 pinned: true,
-                elevation: 0,
+                elevation: 12,
+                shadowColor: Colors.black.withAlpha(80),
+                forceElevated: true,
                 expandedHeight: topHeight,
                 backgroundColor: _display,
                 foregroundColor: fg,
@@ -225,13 +227,38 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  _buildDescription(),
-                                  maxLines: 12,
+                                  'A versatile shade that plays well with natural light and pairs beautifully across finishes.',
+                                  maxLines: 3,
                                   overflow: TextOverflow.ellipsis,
-                                  style:
-                                      Theme.of(context).textTheme.bodyMedium?.copyWith(color: fg.withAlpha(230)),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(color: fg.withAlpha(230)),
                                 ),
                               ],
+                            ),
+                          ),
+                        ),
+                        // Subtle bottom edge shadow to add depth over the content below
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          height: 36,
+                          child: IgnorePointer(
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.bottomCenter,
+                                  end: Alignment.topCenter,
+                                  colors: [
+                                    Colors.black.withAlpha(70),
+                                    Colors.black.withAlpha(30),
+                                    Colors.transparent,
+                                  ],
+                                  stops: const [0.0, 0.35, 1.0],
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -239,14 +266,17 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
                     ),
                   ),
                 ),
-                bottom: const PreferredSize(
-                  preferredSize: Size.fromHeight(64),
+                bottom: PreferredSize(
+                  preferredSize: Size.fromHeight(72),
                   child: SizedBox(
-                    height: 64,
+                    height: 72,
                     width: double.infinity,
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
-                      child: _HeroTabs(),
+                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
+                      child: Transform.translate(
+                        offset: Offset(0, -8),
+                        child: _HeroTabs(),
+                      ),
                     ),
                   ),
                 ),
@@ -332,22 +362,37 @@ class _HeroTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
+    final sc = t.colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: t.colorScheme.surface.withOpacity(0.18),
-        borderRadius: BorderRadius.circular(12),
+        color: sc.surface.withOpacity(0.24),
+        borderRadius: BorderRadius.circular(14),
       ),
-      child: TabBar(
-        isScrollable: true,
-        indicatorSize: TabBarIndicatorSize.tab,
-        dividerColor: Colors.transparent,
-        tabs: const [
-          Tab(text: 'Overview'),
-          Tab(text: 'Visuals'),
-          Tab(text: 'Pairings'),
-          Tab(text: 'Similar'),
-          Tab(text: 'Usage'),
-        ],
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: TabBar(
+          isScrollable: false, // equal-width tabs across the container
+          dividerColor: Colors.transparent,
+          padding: EdgeInsets.zero,
+          labelPadding: const EdgeInsets.symmetric(vertical: 10),
+          indicatorPadding: EdgeInsets.zero,
+          indicatorSize: TabBarIndicatorSize.tab, // indicator matches each tab's full width
+          indicator: ShapeDecoration(
+            color: sc.onSurface.withAlpha(72),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          labelColor: sc.onSurface,
+          unselectedLabelColor: sc.onSurface.withAlpha(170),
+          tabs: const [
+            Tab(text: 'Details'),
+            Tab(text: 'Visuals'),
+            Tab(text: 'Pairings'),
+            Tab(text: 'Similar'),
+            Tab(text: 'Usage'),
+          ],
+        ),
       ),
     );
   }
