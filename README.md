@@ -59,6 +59,11 @@ For detailed instructions, see [FIREBASE_PERMANENT_SETUP.md](FIREBASE_PERMANENT_
 - Cross-platform support (Android, iOS, Web)
 - Color visualization and editing
 
+## Docs
+
+- Docs Index: [docs/README.md](docs/README.md)
+- Paint Detail Screen: Integration Notes & Tweakable Constants: [docs/Paint%20Detail%20Screen%20Build%20Instructions-%20Integration%20Notes%20%26%20Tweakable%20Constants.md](docs/Paint%20Detail%20Screen%20Build%20Instructions-%20Integration%20Notes%20%26%20Tweakable%20Constants.md)
+
 ## AI Visualizer Workflow
 
 The Visualizer lets you upload a photo of a space and preview paint colors on detected surfaces with photorealistic results.
