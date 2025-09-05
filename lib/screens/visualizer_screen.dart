@@ -187,6 +187,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
                   _navigateToMode(VisualizerMode.welcome);
                 }
               },
+              semanticLabel: 'Back',
             )
           : null,
       centerTitle: true,
@@ -1767,6 +1768,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
                       icon: Icons.close,
                       color: Colors.white,
                       onPressed: () => Navigator.pop(context),
+                      semanticLabel: 'Close',
                     ),
                   ],
                 ),

@@ -310,21 +310,19 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         title: const m.Text('My Library'),
         actions: [
           if (_hasPermissionError)
-            Tooltip(
-              message: 'Permission Issues',
-              child: app.ColrViaIconButton(
-                icon: Icons.warning_amber_outlined,
-                color: Colors.orange,
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: m.Text(
-                          'Some data may not be available due to permission issues. Try signing out and back in.'),
-                      duration: Duration(seconds: 4),
-                    ),
-                  );
-                },
-              ),
+            app.ColrViaIconButton(
+              icon: Icons.warning_amber_outlined,
+              color: Colors.orange,
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: m.Text(
+                        'Some data may not be available due to permission issues. Try signing out and back in.'),
+                    duration: Duration(seconds: 4),
+                  ),
+                );
+              },
+              semanticLabel: 'Permission issues',
             ),
         ],
       ),
@@ -1075,6 +1073,7 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
                   icon: Icons.add,
                   color: Theme.of(context).colorScheme.onSurface,
                   onPressed: _addCustomTag,
+                  semanticLabel: 'Add tag',
                 ),
               ],
             ),

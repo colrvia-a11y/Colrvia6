@@ -468,6 +468,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         icon: Icons.arrow_back_ios_new,
         color: Colors.white,
         onPressed: () => Navigator.pop(context),
+        semanticLabel: 'Back',
       ),
     );
   }

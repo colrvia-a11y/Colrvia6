@@ -15,6 +15,7 @@ class ColrViaIconButton extends StatelessWidget {
   final double borderRadius;
   final double borderWidth;
   final ColrViaIconButtonStyle style;
+  final String? semanticLabel;
 
   const ColrViaIconButton({
     super.key,
@@ -28,6 +29,7 @@ class ColrViaIconButton extends StatelessWidget {
     this.borderRadius = 12,
     this.borderWidth = 1.2,
     this.style = ColrViaIconButtonStyle.outline,
+    this.semanticLabel,
   });
 
   @override
@@ -42,7 +44,7 @@ class ColrViaIconButton extends StatelessWidget {
                 : Colors.black)
             : color);
 
-    return Material(
+    Widget button = Material(
       color: bg,
       shape: RoundedRectangleBorder(
         borderRadius: r,
@@ -78,6 +80,19 @@ class ColrViaIconButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+
+    if (semanticLabel != null) {
+      button = Tooltip(
+        message: semanticLabel!,
+        child: button,
+      );
+    }
+
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      child: button,
     );
   }
 }

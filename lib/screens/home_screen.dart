@@ -521,10 +521,15 @@ class _ViaBubbleState extends State<ViaBubble> with SingleTickerProviderStateMix
       ),
     );
 
-    return Tooltip(
-      message: widget.tooltip ?? 'Ask Via',
-      preferBelow: false,
-      child: bubble,
+    final label = widget.tooltip ?? 'Ask Via';
+    return Semantics(
+      button: true,
+      label: label,
+      child: Tooltip(
+        message: label,
+        preferBelow: false,
+        child: bubble,
+      ),
     );
   }
 }

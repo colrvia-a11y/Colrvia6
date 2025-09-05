@@ -86,16 +86,15 @@ class _PhotoLibraryScreenState extends State<PhotoLibraryScreen> {
                 icon: Icons.arrow_back_ios_new,
                 color: creamWhite,
                 onPressed: () => Navigator.pop(context),
+                semanticLabel: 'Back',
               ),
               actions: [
                 if (_photos.isNotEmpty)
-                  Tooltip(
-                    message: 'Clear All Photos',
-                    child: ColrViaIconButton(
-                      icon: Icons.delete_sweep,
-                      color: creamWhite,
-                      onPressed: _showClearAllDialog,
-                    ),
+                  ColrViaIconButton(
+                    icon: Icons.delete_sweep,
+                    color: creamWhite,
+                    onPressed: _showClearAllDialog,
+                    semanticLabel: 'Clear all photos',
                   ),
               ],
             ),

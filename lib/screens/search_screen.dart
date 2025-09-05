@@ -735,6 +735,7 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                     });
                     _searchFocusNode.unfocus();
                   },
+                  semanticLabel: 'Clear search',
                 )
               : null,
         ),

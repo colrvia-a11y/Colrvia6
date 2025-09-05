@@ -315,15 +315,13 @@ class _AccountHeaderDelegate extends SliverPersistentHeaderDelegate {
                     color: creamWhite.withValues(alpha: 0.2),
                   ),
                 ),
-                child: Tooltip(
-                  message: 'Settings',
-                  child: ColrViaIconButton(
-                    icon: Icons.settings_rounded,
-                    color: creamWhite,
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                    ),
+                child: ColrViaIconButton(
+                  icon: Icons.settings_rounded,
+                  color: creamWhite,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
                   ),
+                  semanticLabel: 'Settings',
                 ),
               ),
             ],

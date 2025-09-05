@@ -41,13 +41,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
       appBar: AppBar(
         title: const Text('Explore Color Stories'),
         actions: [
-          Tooltip(
-            message: 'Toggle loading',
-            child: app.ColrViaIconButton(
-              icon: Icons.refresh,
-              color: Theme.of(context).colorScheme.onSurface,
-              onPressed: () => setState(() => _isLoading = !_isLoading),
-            ),
+          app.ColrViaIconButton(
+            icon: Icons.refresh,
+            color: Theme.of(context).colorScheme.onSurface,
+            onPressed: () => setState(() => _isLoading = !_isLoading),
+            semanticLabel: 'Toggle loading',
           )
         ],
       ),
@@ -69,6 +67,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           _searchController.clear();
                           _onSearchChanged('');
                         },
+                        semanticLabel: 'Clear search',
                       )
                     : null,
                 border:
@@ -471,6 +470,7 @@ class _CardSkeleton extends StatelessWidget {
                       icon: Icons.close,
                       color: Theme.of(context).colorScheme.onSurface,
                       onPressed: () => Navigator.pop(context),
+                      semanticLabel: 'Close',
                     ),
                   ],
                 ),
@@ -493,6 +493,7 @@ class _CardSkeleton extends StatelessWidget {
                               _searchController.clear();
                               _onSearchChanged('');
                             },
+                            semanticLabel: 'Clear search',
                           )
                         : null,
                     border: OutlineInputBorder(
