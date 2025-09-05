@@ -153,6 +153,7 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
                     icon: Icons.arrow_back,
                     color: fg,
                     onPressed: () => Navigator.of(context).maybePop(),
+                    semanticLabel: 'Back',
                   ),
                 ),
                 actions: [
@@ -162,6 +163,7 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
                       icon: Icons.add,
                       color: fg,
                       onPressed: _showAddMenu,
+                      semanticLabel: 'More options',
                     ),
                   ),
                   Padding(
@@ -171,6 +173,8 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
                       color: fg,
                       busy: _favBusy,
                       onPressed: _toggleFavorite,
+                      semanticLabel:
+                          _isFavorite ? 'Remove from favorites' : 'Save to favorites',
                     ),
                   ),
                 ],

@@ -70,6 +70,7 @@ class ProjectOverviewScreen extends StatelessWidget {
                         AnalyticsService.instance.ctaCompareClicked('project_overview');
                       }
                     : null,
+                semanticLabel: 'Compare colors',
               ),
             ]),
           ),

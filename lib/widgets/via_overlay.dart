@@ -313,6 +313,7 @@ class _OverlayHeader extends StatelessWidget {
           _HeaderSquareIcon(
             icon: isExpanded ? Icons.close_fullscreen_rounded : Icons.open_in_full_rounded,
             onTap: isExpanded ? onCollapse : onExpand,
+            semanticLabel: isExpanded ? 'Collapse' : 'Expand',
           ),
         ],
       ),
@@ -323,11 +324,12 @@ class _OverlayHeader extends StatelessWidget {
 class _HeaderSquareIcon extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
-  const _HeaderSquareIcon({required this.icon, required this.onTap});
+  final String? semanticLabel;
+  const _HeaderSquareIcon({required this.icon, required this.onTap, this.semanticLabel});
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    Widget btn = InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
       child: Container(
@@ -341,6 +343,13 @@ class _HeaderSquareIcon extends StatelessWidget {
         child: Icon(icon, size: 18, color: Colors.white),
       ),
     );
+    if (semanticLabel != null) {
+      btn = Tooltip(message: semanticLabel!, child: btn);
+      btn = Semantics(button: true, label: semanticLabel, child: btn);
+    } else {
+      btn = Semantics(button: true, child: btn);
+    }
+    return btn;
   }
 }
 
