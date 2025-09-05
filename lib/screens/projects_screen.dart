@@ -362,12 +362,12 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
 }
 
 // Project Card for the new filter system
-class _ProjectCard extends StatelessWidget {
+class _ProjectCard extends ConsumerWidget {
   const _ProjectCard(this.project);
   final ProjectDoc project;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final status = {
       FunnelStage.build: 'Building',
@@ -388,6 +388,40 @@ class _ProjectCard extends StatelessWidget {
           visualDensity: VisualDensity.compact));
     }
 
+    final palettesAsync = ref.watch(userPalettesProvider);
+    final paletteSwatches = palettesAsync.when(
+      data: (palettes) {
+        UserPalette? pal;
+        for (final p in palettes) {
+          if (p.id == project.activePaletteId) {
+            pal = p;
+            break;
+          }
+        }
+        if (pal == null) return const m.SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 4),
+          child: Row(
+            children: pal.colors.take(5).map((c) {
+              final color = ColorUtils.hexToColor(c.hex);
+              return m.Container(
+                width: 20,
+                height: 20,
+                margin: const EdgeInsets.only(right: 4),
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: Colors.black26),
+                ),
+              );
+            }).toList(),
+          ),
+        );
+      },
+      loading: () => const m.SizedBox.shrink(),
+      error: (_, __) => const m.SizedBox.shrink(),
+    );
+
     return m.Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: ListTile(
@@ -397,6 +431,7 @@ class _ProjectCard extends StatelessWidget {
                 ?.copyWith(fontWeight: FontWeight.w700)),
         subtitle:
             m.Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          paletteSwatches,
           m.Text(status),
           const m.SizedBox(height: 4),
           if (chips.isNotEmpty)

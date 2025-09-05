@@ -1,6 +1,11 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
 import 'package:color_canvas/services/firebase_service.dart';
@@ -28,6 +33,7 @@ class PaletteDetailScreen extends StatefulWidget {
 class _PaletteDetailScreenState extends State<PaletteDetailScreen> {
   late TextEditingController _nameController;
   late TextEditingController _notesController;
+  final GlobalKey _shareKey = GlobalKey();
 
   @override
   void initState() {
@@ -102,6 +108,31 @@ class _PaletteDetailScreenState extends State<PaletteDetailScreen> {
         subject: '${widget.palette.name} - Color Palette');
   }
 
+  Future<void> _sharePaletteImage() async {
+    try {
+      final boundary =
+          _shareKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) throw Exception('Preview not ready');
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      final pngBytes = byteData!.buffer.asUint8List();
+      final dir = await getTemporaryDirectory();
+      final file = await File('${dir.path}/palette_${widget.palette.id}.png')
+          .create();
+      await file.writeAsBytes(pngBytes);
+      await Share.shareXFiles([XFile(file.path)], text: widget.palette.name);
+      await AnalyticsService.instance.logEvent('palette_share_image', {
+        'palette_id': widget.palette.id,
+        'color_count': widget.palette.colors.length,
+      });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error sharing palette: $e')),
+      );
+    }
+  }
+
   void _openVisualizer() {
     final hexCodes = widget.palette.colors.map((c) => c.hex).toList();
     Navigator.of(context).push(
@@ -117,6 +148,11 @@ class _PaletteDetailScreenState extends State<PaletteDetailScreen> {
       appBar: AppBar(
         title: const Text('Palette Details'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: _sharePaletteImage,
+            tooltip: 'Share',
+          ),
           IconButton(
             icon: const Icon(Icons.auto_fix_high),
             onPressed: _openVisualizer,
@@ -301,6 +337,14 @@ class _PaletteDetailScreenState extends State<PaletteDetailScreen> {
               ),
             ),
 
+            Offstage(
+              offstage: true,
+              child: RepaintBoundary(
+                key: _shareKey,
+                child: _SharePalettePreview(palette: widget.palette),
+              ),
+            ),
+
             const SizedBox(height: 24),
 
             // Create Color Story button
@@ -473,6 +517,47 @@ class _PaletteDetailScreenState extends State<PaletteDetailScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => _RollerWithInitialColorsWrapper(initialPaints: paints),
+      ),
+    );
+  }
+}
+
+class _SharePalettePreview extends StatelessWidget {
+  final UserPalette palette;
+  const _SharePalettePreview({required this.palette});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        width: 300,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 150,
+              child: Row(
+                children: palette.colors.map((paletteColor) {
+                  final color = ColorUtils.hexToColor(paletteColor.hex);
+                  return Expanded(
+                    child: Container(color: color),
+                  );
+                }).toList(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              palette.name,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
