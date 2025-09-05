@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:color_canvas/widgets/app_icon_button.dart';
+import 'package:color_canvas/widgets/colr_via_icon_button.dart';
 import 'package:flutter/services.dart';
 import 'package:color_canvas/services/firebase_service.dart';
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
@@ -464,7 +464,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           centerTitle: true,
         ),
       ),
-      leading: AppOutlineIconButton(
+      leading: ColrViaIconButton(
         icon: Icons.arrow_back_ios_new,
         color: Colors.white,
         onPressed: () => Navigator.pop(context),

@@ -11,7 +11,7 @@ import '../services/journey/journey_service.dart';
 import '../services/analytics_service.dart';
 import '../firestore/firestore_data_schema.dart';
 import 'photo_library_screen.dart';
-import 'package:color_canvas/widgets/app_icon_button.dart';
+import 'package:color_canvas/widgets/colr_via_icon_button.dart';
 
 enum VisualizerMode { welcome, upload, analyze, selectSurfaces, generate, results, refine }
 
@@ -177,7 +177,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
       backgroundColor: Colors.transparent,
       elevation: 0,
       leading: _currentMode != VisualizerMode.welcome
-          ? AppOutlineIconButton(
+          ? ColrViaIconButton(
               icon: Icons.arrow_back_ios_new,
               color: Colors.white,
               onPressed: () {
@@ -1763,7 +1763,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
                         ),
                       ),
                     ),
-                    AppOutlineIconButton(
+                    ColrViaIconButton(
                       icon: Icons.close,
                       color: Colors.white,
                       onPressed: () => Navigator.pop(context),

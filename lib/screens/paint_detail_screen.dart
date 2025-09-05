@@ -12,7 +12,7 @@ import 'visualizer_screen.dart';
 
 import 'package:color_canvas/data/sample_paints.dart';
 import 'package:color_canvas/widgets/stacked_chip_card.dart';
-import 'package:color_canvas/widgets/app_icon_button.dart';
+import 'package:color_canvas/widgets/colr_via_icon_button.dart';
 import 'package:color_canvas/widgets/color_swatch_card.dart';
 
 // ===== Enums for view options (kept simple/optional) =====
@@ -149,7 +149,7 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
                 leadingWidth: 64,
                 leading: Padding(
                   padding: const EdgeInsets.only(left: 12, top: 8, bottom: 8),
-                  child: AppOutlineIconButton(
+                  child: ColrViaIconButton(
                     icon: Icons.arrow_back,
                     color: fg,
                     onPressed: () => Navigator.of(context).maybePop(),
@@ -158,7 +158,7 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
                 actions: [
                   Padding(
                     padding: const EdgeInsets.only(right: 8, top: 8, bottom: 8),
-                    child: AppOutlineIconButton(
+                    child: ColrViaIconButton(
                       icon: Icons.add,
                       color: fg,
                       onPressed: _showAddMenu,
@@ -166,7 +166,7 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(right: 12, top: 8, bottom: 8),
-                    child: AppOutlineIconButton(
+                    child: ColrViaIconButton(
                       icon: _isFavorite ? Icons.bookmark : Icons.bookmark_border,
                       color: fg,
                       busy: _favBusy,
@@ -354,7 +354,7 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
   }
 }
 
-// Replaced by AppOutlineIconButton (see lib/widgets/app_icon_button.dart)
+// Replaced by ColrViaIconButton (see lib/widgets/colr_via_icon_button.dart)
 
 // ===== Tabs row shown inside the hero =====
 class _HeroTabs extends StatelessWidget {

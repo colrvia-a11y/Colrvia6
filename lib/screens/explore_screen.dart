@@ -1,6 +1,6 @@
 ﻿import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:color_canvas/widgets/app_icon_button.dart' as app;
+import 'package:color_canvas/widgets/colr_via_icon_button.dart' as app;
 
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
@@ -43,7 +43,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         actions: [
           Tooltip(
             message: 'Toggle loading',
-            child: app.AppOutlineIconButton(
+            child: app.ColrViaIconButton(
               icon: Icons.refresh,
               color: Theme.of(context).colorScheme.onSurface,
               onPressed: () => setState(() => _isLoading = !_isLoading),
@@ -62,7 +62,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 hintText: 'Search stories, styles, or rooms…',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchQuery.isNotEmpty
-                    ? app.AppOutlineIconButton(
+                    ? app.ColrViaIconButton(
                         icon: Icons.clear,
                         color: Theme.of(context).colorScheme.onSurface,
                         onPressed: () {
@@ -467,7 +467,7 @@ class _CardSkeleton extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    AppOutlineIconButton(
+                    ColrViaIconButton(
                       icon: Icons.close,
                       color: Theme.of(context).colorScheme.onSurface,
                       onPressed: () => Navigator.pop(context),
@@ -486,7 +486,7 @@ class _CardSkeleton extends StatelessWidget {
                     hintText: 'Search stories or tagsâ€¦',
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: _searchQuery.isNotEmpty
-                        ? AppOutlineIconButton(
+                        ? ColrViaIconButton(
                             icon: Icons.clear,
                             color: Theme.of(context).colorScheme.onSurface,
                             onPressed: () {
@@ -2399,7 +2399,7 @@ class _FeaturePatternPainter extends CustomPainter {
   }
   
   @override
-import 'package:color_canvas/widgets/app_icon_button.dart';
+import 'package:color_canvas/widgets/colr_via_icon_button.dart';
   bool shouldRepaint(_FeaturePatternPainter oldDelegate) {
     return animationValue != oldDelegate.animationValue;
   }
