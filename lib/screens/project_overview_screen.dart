@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/project.dart';
-import 'roller_screen.dart';
-import 'color_plan_screen.dart';
-import 'visualizer_screen.dart';
+import 'roller_screen.dart' deferred as roller;
+import 'color_plan_screen.dart' deferred as plan;
+import 'visualizer_screen.dart' deferred as viz;
 import '../services/analytics_service.dart';
 import 'package:color_canvas/widgets/app_icon_button.dart' as app;
 
@@ -42,8 +42,10 @@ class ProjectOverviewScreen extends StatelessWidget {
               )),
               const SizedBox(width: 8),
               Expanded(child: OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/visualizer', arguments: {
+                onPressed: () async {
+                  await viz.loadLibrary();
+                  if (!context.mounted) return;
+                  Navigator.of(context).pushNamed('/visualizer', arguments: {
                     'projectId': project.id,
                     'paletteColorIds': paletteIds
                   });
@@ -57,8 +59,10 @@ class ProjectOverviewScreen extends StatelessWidget {
                 icon: Icons.compare,
                 color: Theme.of(context).colorScheme.onSurface,
                 onPressed: hasPalette
-                    ? () {
-                        Navigator.pushNamed(context, '/compareColors', arguments: {
+                    ? () async {
+                        await viz.loadLibrary();
+                        if (!context.mounted) return;
+                        Navigator.of(context).pushNamed('/compareColors', arguments: {
                           'projectId': project.id,
                           'paletteColorIds': paletteIds
                         });
@@ -76,29 +80,32 @@ class ProjectOverviewScreen extends StatelessWidget {
           ListTile(
             title: const Text('Palette'),
             subtitle: const Text('Edit in Roller'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => RollerScreen(projectId: project.id)),
+            onTap: () async {
+              await roller.loadLibrary();
+              if (!context.mounted) return;
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => roller.RollerScreen(projectId: project.id)),
               );
             },
           ),
           ListTile(
             title: const Text('Color Plan'),
-            onTap: () {
-              Navigator.push(
-                context,
+            onTap: () async {
+              await plan.loadLibrary();
+              if (!context.mounted) return;
+              Navigator.of(context).push(
                 MaterialPageRoute(
-                    builder: (_) => ColorPlanScreen(projectId: project.id)),
+                    builder: (_) => plan.ColorPlanScreen(projectId: project.id)),
               );
             },
           ),
           ListTile(
             title: const Text('Visualizer'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const VisualizerScreen()),
+            onTap: () async {
+              await viz.loadLibrary();
+              if (!context.mounted) return;
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => viz.VisualizerScreen()),
               );
             },
           ),

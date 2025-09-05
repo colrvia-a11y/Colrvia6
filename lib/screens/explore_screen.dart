@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:color_canvas/widgets/app_icon_button.dart' as app;
 
@@ -152,12 +152,12 @@ class _CardSkeleton extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Beautiful Color Story',
+                    const Text('Beautiful Color Story',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(fontWeight: FontWeight.w600)),
-                    SizedBox(height: 6),
-                    Text('AI Generated',
+                    const SizedBox(height: 6),
+                    const Text('AI Generated',
                         style: TextStyle(fontSize: 12, color: Colors.grey)),
                   ],
                 ),
@@ -483,7 +483,7 @@ class _CardSkeleton extends StatelessWidget {
                   controller: _searchController,
                   onChanged: _onSearchChanged,
                   decoration: InputDecoration(
-                    hintText: 'Search stories or tags…',
+                    hintText: 'Search stories or tagsâ€¦',
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: _searchQuery.isNotEmpty
                         ? AppOutlineIconButton(

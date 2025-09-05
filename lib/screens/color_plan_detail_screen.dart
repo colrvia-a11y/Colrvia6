@@ -1706,13 +1706,19 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: variant.heroImageUrl?.isNotEmpty == true
-                    ? CachedNetworkImage(
-                        imageUrl: variant.heroImageUrl!,
-                        fit: BoxFit.cover,
-                        placeholder: (_, __) => _buildGradientFallback(variant),
-                        errorWidget: (_, __, ___) =>
-                            _buildGradientFallback(variant),
-                      )
+                    ? Builder(builder: (context) {
+                        final dpr = MediaQuery.of(context).devicePixelRatio;
+                        // Approximate the displayed size using container width
+                        // If you know exact dimensions, pass them instead.
+                        final int? memW = (MediaQuery.of(context).size.width * dpr).round();
+                        return CachedNetworkImage(
+                          imageUrl: variant.heroImageUrl!,
+                          fit: BoxFit.cover,
+                          memCacheWidth: memW,
+                          placeholder: (_, __) => _buildGradientFallback(variant),
+                          errorWidget: (_, __, ___) => _buildGradientFallback(variant),
+                        );
+                      })
                     : _buildGradientFallback(variant),
               ),
             ),

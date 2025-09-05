@@ -1,4 +1,4 @@
-// lib/screens/search_screen.dart
+﻿// lib/screens/search_screen.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,7 +20,7 @@ import '../data/explore_rails_config.dart';
 import 'package:color_canvas/widgets/app_icon_button.dart';
 
 // Shared tile geometry (keep cards consistent across tabs)
-const double kTileAspect = 0.72;      // width / height (≈ All tab’s look)
+const double kTileAspect = 0.72;      // width / height (â‰ˆ All tabâ€™s look)
 const double kTileSpacing = 12.0;     // gap between tiles
 const double kScreenPaddingH = 16.0;  // page horizontal padding
 
@@ -77,7 +77,7 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
     _searchController.addListener(_onSearchChanged);
     _scrollController.addListener(_onScroll);
     _gridController.addListener(_onGridScroll);
-    // 🔆 glow hook: rebuild when focus changes
+    // ðŸ”† glow hook: rebuild when focus changes
     _searchFocusNode.addListener(() => setState(() {}));
   }
 
@@ -216,15 +216,15 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                   child: NotificationListener<ScrollUpdateNotification>(
                     onNotification: (n) {
                       final dy = n.scrollDelta ?? 0.0;
-                      // small deadzone so tiny jitters don’t flip the header
+                      // small deadzone so tiny jitters donâ€™t flip the header
                       const threshold = 6.0;
 
                       if (dy > threshold && !_hideSearch) {
-                        setState(() => _hideSearch = true);   // scrolling down → hide search
+                        setState(() => _hideSearch = true);   // scrolling down â†’ hide search
                       } else if (dy < -threshold && _hideSearch) {
-                        setState(() => _hideSearch = false);  // scrolling up → show search
+                        setState(() => _hideSearch = false);  // scrolling up â†’ show search
                       }
-                      return false; // don’t stop the notification
+                      return false; // donâ€™t stop the notification
                     },
                     child: _showSearchResults
                         ? _buildSearchResults()
@@ -482,8 +482,8 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
         itemBuilder: (_) => const [
           PopupMenuItem(value: PaintSort.relevance, child: Text('Sort: Relevance')),
           PopupMenuItem(value: PaintSort.hue, child: Text('Sort: Hue')),
-          PopupMenuItem(value: PaintSort.lrvAsc, child: Text('Sort: LRV ↑')),
-          PopupMenuItem(value: PaintSort.lrvDesc, child: Text('Sort: LRV ↓')),
+          PopupMenuItem(value: PaintSort.lrvAsc, child: Text('Sort: LRV â†‘')),
+          PopupMenuItem(value: PaintSort.lrvDesc, child: Text('Sort: LRV â†“')),
         ],
         child: OutlinedButton.icon(
           onPressed: null,
@@ -509,8 +509,8 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
   String _sortLabel(PaintSort s) {
     switch (s) {
       case PaintSort.hue: return 'Hue';
-      case PaintSort.lrvAsc: return 'LRV ↑';
-      case PaintSort.lrvDesc: return 'LRV ↓';
+      case PaintSort.lrvAsc: return 'LRV â†‘';
+      case PaintSort.lrvDesc: return 'LRV â†“';
       case PaintSort.newest: return 'Newest';
       case PaintSort.mostSaved: return 'Most saved';
       default: return 'Relevance';
@@ -548,9 +548,9 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
             Wrap(
               spacing: 12, runSpacing: 12,
               children: [
-                _miniPalette('• $a'),
-                _miniPalette('• $b'),
-                _miniPalette('• $c'),
+                _miniPalette('â€¢ $a'),
+                _miniPalette('â€¢ $b'),
+                _miniPalette('â€¢ $c'),
               ],
             ),
             const SizedBox(height: 8),
@@ -615,7 +615,7 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
     if (_isSearching) {
       return const Center(child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [CircularProgressIndicator(), SizedBox(height: 10), Text('Searching…')],
+        children: [CircularProgressIndicator(), SizedBox(height: 10), Text('Searchingâ€¦')],
       ));
     }
     if (_visible.isEmpty) {
@@ -742,7 +742,7 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
   }
 
   Widget _minimalTabs(ThemeData theme) {
-    // “Explore  All  Rooms  Brands” — one line, compact, no scroll.
+    // â€œExplore  All  Rooms  Brandsâ€ â€” one line, compact, no scroll.
     final labels = const ['Explore', 'All', 'Rooms', 'Brands'];
     final sel = _tabIndex;
 

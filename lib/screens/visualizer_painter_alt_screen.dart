@@ -201,12 +201,20 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
             minScale: 0.5, maxScale: 4.0,
             child: Stack(children: [
               Positioned.fill(
-                child: CachedNetworkImage(
-                  imageUrl: imageUrl,
-                  fit: BoxFit.contain,
-                  placeholder: (_, __) => const Center(child: CircularProgressIndicator()),
-                  errorWidget: (_, __, ___) => const Center(child: Icon(Icons.broken_image_outlined)),
-                ),
+                child: Builder(builder: (context) {
+                  final dpr = MediaQuery.of(context).devicePixelRatio;
+                  final size = MediaQuery.of(context).size;
+                  final memW = (size.width * dpr).round();
+                  final memH = (size.height * dpr).round();
+                  return CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    fit: BoxFit.contain,
+                    memCacheWidth: memW,
+                    memCacheHeight: memH,
+                    placeholder: (_, __) => const Center(child: CircularProgressIndicator()),
+                    errorWidget: (_, __, ___) => const Center(child: Icon(Icons.broken_image_outlined)),
+                  );
+                }),
               ),
               Positioned.fill(
                 child: GestureDetector(

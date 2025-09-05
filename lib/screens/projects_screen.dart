@@ -8,11 +8,11 @@ import 'package:color_canvas/services/firebase_service.dart';
 import 'package:color_canvas/services/project_service.dart';
 import 'package:color_canvas/models/project.dart';
 import 'package:color_canvas/screens/palette_detail_screen.dart';
-import 'package:color_canvas/screens/roller_screen.dart';
+import 'package:color_canvas/screens/roller_screen.dart' deferred as roller;
 import 'package:color_canvas/screens/search_screen.dart';
 import 'package:color_canvas/screens/explore_screen.dart';
-import 'color_plan_screen.dart';
-import 'package:color_canvas/screens/visualizer_screen.dart';
+import 'color_plan_screen.dart' deferred as plan;
+import 'package:color_canvas/screens/visualizer_screen.dart' deferred as viz;
 import 'package:color_canvas/utils/color_utils.dart';
 import 'package:color_canvas/main.dart' show isFirebaseInitialized;
 import 'package:color_canvas/widgets/app_icon_button.dart' as app;
@@ -259,25 +259,30 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     );
   }
 
-  void _handleResume() {
+  Future<void> _handleResume() async {
     final pid = _lastProjectId;
     final screen = _lastScreen;
     if (pid == null || screen == null) return;
     AnalyticsService.instance.resumeLastClicked(pid, screen);
-    Widget? page;
+    final nav = Navigator.of(context);
     switch (screen) {
       case 'roller':
-        page = RollerScreen(projectId: pid);
+        await roller.loadLibrary();
+        if (!mounted || !nav.mounted) return;
+        nav.push(MaterialPageRoute(
+            builder: (_) => roller.RollerScreen(projectId: pid)));
         break;
       case 'plan':
-        page = ColorPlanScreen(projectId: pid);
+        await plan.loadLibrary();
+        if (!mounted || !nav.mounted) return;
+        nav.push(MaterialPageRoute(
+            builder: (_) => plan.ColorPlanScreen(projectId: pid)));
         break;
       case 'visualizer':
-        page = VisualizerScreen();
+        await viz.loadLibrary();
+        if (!mounted || !nav.mounted) return;
+        nav.push(MaterialPageRoute(builder: (_) => viz.VisualizerScreen()));
         break;
-    }
-    if (page != null) {
-      Navigator.push(context, MaterialPageRoute(builder: (_) => page!));
     }
   }
   // END REGION: CODEX-ADD resume-banner
@@ -451,20 +456,26 @@ class _ProjectCard extends StatelessWidget {
     return '${d.inDays}d ago';
   }
 
-  static void _openStage(BuildContext context, ProjectDoc project) {
+  static Future<void> _openStage(BuildContext context, ProjectDoc project) async {
     switch (project.funnelStage) {
       case FunnelStage.build:
+        await roller.loadLibrary();
+        // ignore: use_build_context_synchronously
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => RollerScreen(projectId: project.id)));
+            builder: (_) => roller.RollerScreen(projectId: project.id)));
         break;
       case FunnelStage.story:
+        await plan.loadLibrary();
+        // ignore: use_build_context_synchronously
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => ColorPlanScreen(projectId: project.id)));
+            builder: (_) => plan.ColorPlanScreen(projectId: project.id)));
         break;
       case FunnelStage.visualize:
       case FunnelStage.share:
+        await viz.loadLibrary();
+        // ignore: use_build_context_synchronously
         Navigator.of(context)
-            .push(MaterialPageRoute(builder: (_) => VisualizerScreen()));
+            .push(MaterialPageRoute(builder: (_) => viz.VisualizerScreen()));
         break;
     }
   }
@@ -555,13 +566,14 @@ class _PalettesSection extends StatelessWidget {
     );
   }
 
-  void _openPaletteInRoller(BuildContext context, UserPalette palette) {
-    Navigator.of(context)
-        .popUntil((route) => route.settings.name == '/' || route.isFirst);
-    Navigator.pushReplacement(
-      context,
+  Future<void> _openPaletteInRoller(BuildContext context, UserPalette palette) async {
+    final nav = Navigator.of(context);
+    await roller.loadLibrary();
+    if (!(nav.mounted)) return;
+    nav.popUntil((route) => route.settings.name == '/' || route.isFirst);
+    nav.pushReplacement(
       MaterialPageRoute(
-        builder: (_) => RollerScreen(seedPaletteId: palette.id),
+        builder: (_) => roller.RollerScreen(seedPaletteId: palette.id),
       ),
     );
   }
@@ -1241,7 +1253,20 @@ class _HomeScreenWithRollerInitialColorsState
     extends State<_HomeScreenWithRollerInitialColors> {
   int _currentIndex = 0; // Start with roller tab
   late final List<Widget> _screens = [
-    RollerScreen(initialPaintIds: widget.initialPaintIds),
+    // Defer Roller module and show loader until available
+    Builder(
+      builder: (context) {
+        return FutureBuilder<void>(
+          future: roller.loadLibrary(),
+          builder: (context, snap) {
+            if (snap.connectionState != ConnectionState.done) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            return roller.RollerScreen(initialPaintIds: widget.initialPaintIds);
+          },
+        );
+      },
+    ),
     const SearchScreen(),
     const ExploreScreen(),
   ];

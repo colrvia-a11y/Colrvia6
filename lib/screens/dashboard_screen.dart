@@ -32,10 +32,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     Debug.info('DashboardScreen', 'initState', 'Component initializing');
-    // Track dashboard opened
-    AnalyticsService.instance.logDashboardOpened();
-    // Load photo count
-    _loadPhotoCount();
+    // Defer non-UI work to after first frame to speed first paint
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Track dashboard opened
+      AnalyticsService.instance.logDashboardOpened();
+      // Load photo count
+      _loadPhotoCount();
+    });
   }
 
   @override

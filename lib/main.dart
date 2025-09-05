@@ -19,8 +19,9 @@ import 'package:color_canvas/screens/auth_wrapper.dart';
 import 'package:color_canvas/screens/home_screen.dart';
 import 'package:color_canvas/screens/login_screen.dart';
 import 'package:color_canvas/screens/color_plan_detail_screen.dart';
-import 'package:color_canvas/screens/visualizer_screen.dart';
-import 'package:color_canvas/screens/color_plan_screen.dart';
+import 'package:color_canvas/screens/visualizer_screen.dart' deferred as viz;
+import 'package:color_canvas/screens/color_plan_screen.dart' deferred as plan;
+import 'package:color_canvas/screens/compare_colors_screen.dart' deferred as cmpc;
 import 'package:color_canvas/screens/interview_home_screen.dart';
 import 'package:color_canvas/screens/interview_voice_setup_screen.dart';
 import 'package:color_canvas/screens/interview_voice_screen.dart';
@@ -42,91 +43,51 @@ import 'services/notifications_service.dart';
 bool isFirebaseInitialized = false;
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  runZonedGuarded(() async {
+    // (Optional in dev) make zone errors fatal before binding init
+    // BindingBase.debugZoneErrorsAreFatal = true;
 
-  await runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+
     Debug.info('App', 'main', 'Flutter bindings initialized');
-
-    // Initialize Firebase with platform-specific options
-    try {
     Debug.info('App', 'main', 'Starting Firebase initialization');
-    
-    // Check if Firebase is already initialized
+
     if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp(
-        options: FirebaseConfig.options,
-      );
-      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+      await Firebase.initializeApp(options: FirebaseConfig.options);
       Debug.info('App', 'main', 'Firebase app initialized');
     } else {
-      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
       Debug.info('App', 'main', 'Firebase app already initialized');
     }
-    Debug.info('App', 'main', 'Firebase project: \'${Firebase.app().options.projectId}\'');
-    
-    // REGION: app-check-setup
-    const bool enableAppCheck =
-        bool.fromEnvironment('ENABLE_APPCHECK', defaultValue: true);
-    if (enableAppCheck) {
-      // Production reCAPTCHA site key for ColorCanvas app
-      const String recaptchaSiteKey =
-          '6LfLm7grAAAAALy7wXUidR9yilxtIggw4SJNfci4'; // PRODUCTION KEY
 
-      await FirebaseAppCheck.instance.activate(
-        // For web: Using production reCAPTCHA v3 site key
-        webProvider: ReCaptchaV3Provider(recaptchaSiteKey),
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    Debug.info('App', 'main', "Firebase project: '${Firebase.app().options.projectId}'");
 
-        // For Android: Use debug provider for development, Play Integrity for production
-        androidProvider:
-            kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
-
-        // For iOS: Use debug provider for development, DeviceCheck for production
-        appleProvider:
-            kDebugMode ? AppleProvider.debug : AppleProvider.deviceCheck,
-      );
-
-      Debug.info('App', 'main',
-          'Firebase App Check activated with PRODUCTION reCAPTCHA key');
-    }
-    // END REGION: app-check-setup
-    
-    // Initialize the Gemini Developer API backend service
-    // Create a `GenerativeModel` instance with a model that supports your use case
-    FirebaseAI.googleAI().generativeModel(model: 'gemini-2.5-flash');
-    Debug.info('App', 'main', 'Firebase AI GenerativeModel initialized with gemini-2.5-flash');
-    
-    await FirebaseService.enableOfflineSupport();
     isFirebaseInitialized = true;
-    Debug.info('App', 'main', 'Firebase initialized successfully');
-
-    // Initialize NetworkGuard and clear session overrides
-    NetworkGuard.clearSessionOverrides();
-    Debug.info('App', 'main', 'NetworkGuard initialized');
-
-    await FeatureFlags.instance.init();
-
-    Connectivity().onConnectivityChanged.listen((status) {
-      if (!status.contains(ConnectivityResult.none)) {
-        SyncQueueService.instance.replay();
-      }
-    });
-
-    await NotificationsService.instance.init();
-
-    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
-    FirebasePerformance.instance; // warm up
 
     Debug.info('App', 'main', 'Running app');
-    runApp(const MyApp());
-  } catch (e, stack) {
-    // Handle Firebase initialization errors
-    isFirebaseInitialized = false;
-    Debug.error('App', 'main', 'Firebase initialization error: $e');
-    FirebaseCrashlytics.instance.recordError(e, stack, fatal: true);
-  }
-}, (error, stack) {
-  FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-});
+    runApp(const MyApp()); // <- same zone as ensureInitialized()
+
+    // Non-critical setup after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        const bool enableAppCheck =
+            bool.fromEnvironment('ENABLE_APPCHECK', defaultValue: true);
+        if (enableAppCheck) {
+          const String recaptchaSiteKey = '6LfLm7grAAAAALy7wXUidR9yilxtIggw4SJNfci4';
+          await FirebaseAppCheck.instance.activate(
+            webProvider: ReCaptchaV3Provider(recaptchaSiteKey),
+            androidProvider: kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
+            appleProvider: kDebugMode ? AppleProvider.debug : AppleProvider.deviceCheck,
+          );
+          Debug.info('App', 'main', 'Firebase App Check activated with PRODUCTION reCAPTCHA key');
+        }
+      } catch (e, st) {
+        FirebaseCrashlytics.instance.recordError(e, st, fatal: false);
+      }
+    });
+  }, (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -195,18 +156,54 @@ class MyApp extends StatelessWidget {
             '/interview/voice': (context) => const InterviewVoiceScreen(),
             '/interview/text': (context) => const InterviewTextScreen(),
             '/colorPlan': (context) {
-              final args =
-                  ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-              return ColorPlanScreen(
-                projectId: args['projectId'] as String,
-                paletteColorIds:
-                    (args['paletteColorIds'] as List<dynamic>?)?.cast<String>(),
+              final args = ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>;
+              return FutureBuilder<void>(
+                future: plan.loadLibrary(),
+                builder: (context, snap) {
+                  if (snap.connectionState != ConnectionState.done) {
+                    return const Scaffold(
+                        body: Center(child: CircularProgressIndicator()));
+                  }
+                  return plan.ColorPlanScreen(
+                    projectId: args['projectId'] as String,
+                    paletteColorIds: (args['paletteColorIds'] as List<dynamic>?)
+                        ?.cast<String>(),
+                  );
+                },
               );
             },
             '/visualize': (context) {
-              final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
-              return VisualizerScreen(
-                storyId: args?['storyId'] as String?
+              final args = ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>?;
+              return FutureBuilder<void>(
+                future: viz.loadLibrary(),
+                builder: (context, snap) {
+                  if (snap.connectionState != ConnectionState.done) {
+                    return const Scaffold(
+                        body: Center(child: CircularProgressIndicator()));
+                  }
+                  return viz.VisualizerScreen(
+                    storyId: args?['storyId'] as String?,
+                  );
+                },
+              );
+            },
+            // Back-compat alias used elsewhere in the app
+            '/visualizer': (context) {
+              final args = ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>?;
+              return FutureBuilder<void>(
+                future: viz.loadLibrary(),
+                builder: (context, snap) {
+                  if (snap.connectionState != ConnectionState.done) {
+                    return const Scaffold(
+                        body: Center(child: CircularProgressIndicator()));
+                  }
+                  return viz.VisualizerScreen(
+                    storyId: args?['storyId'] as String?,
+                  );
+                },
               );
             },
             '/compare': (context) {
@@ -217,11 +214,20 @@ class MyApp extends StatelessWidget {
             },
             // REGION: CODEX-ADD compare-colors-route
             '/compareColors': (context) {
-              final args =
-                  ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-              final ids =
-                  (args['paletteColorIds'] as List<dynamic>? ?? []).cast<String>();
-              return CompareColorsScreen(paletteColorIds: ids);
+              final args = ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>;
+              final ids = (args['paletteColorIds'] as List<dynamic>? ?? [])
+                  .cast<String>();
+              return FutureBuilder<void>(
+                future: cmpc.loadLibrary(),
+                builder: (context, snap) {
+                  if (snap.connectionState != ConnectionState.done) {
+                    return const Scaffold(
+                        body: Center(child: CircularProgressIndicator()));
+                  }
+                  return cmpc.CompareColorsScreen(paletteColorIds: ids);
+                },
+              );
             },
             // END REGION: CODEX-ADD compare-colors-route
             '/colorPlanDetail': (context) {

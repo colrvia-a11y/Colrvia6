@@ -189,11 +189,17 @@ class _NetworkAwareImageState extends State<NetworkAwareImage> {
       return _buildTapToLoadOverlay();
     }
 
+    final dpr = MediaQuery.of(context).devicePixelRatio;
+    final int? memW = widget.width != null ? (widget.width! * dpr).round() : null;
+    final int? memH = widget.height != null ? (widget.height! * dpr).round() : null;
+
     Widget imageWidget = CachedNetworkImage(
       imageUrl: widget.imageUrl,
       width: widget.width,
       height: widget.height,
       fit: widget.fit,
+      memCacheWidth: memW,
+      memCacheHeight: memH,
       placeholder: (context, url) =>
           widget.placeholder ??
           Container(
