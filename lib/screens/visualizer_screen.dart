@@ -120,7 +120,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
 
     _accentGlow = ColorTween(
       begin: const Color(0xFF404934), // Brand forest green
-      end: const Color(0xFFF2B897), // Brand warm peach
+      end: Theme.of(context).colorScheme.secondary, // Brand warm peach
     ).animate(
         CurvedAnimation(parent: _breathingController, curve: Curves.easeInOut));
 
@@ -317,7 +317,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
           onTap: () => _navigateToMode(VisualizerMode.upload),
           gradient: const LinearGradient(
             colors: [
-              Color(0xFFF2B897),
+              Theme.of(context).colorScheme.secondary,
               Color(0xFFE5A177)
             ], // Warm peach gradient
           ),
@@ -451,7 +451,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
                 child: Row(
                   children: [
                     Icon(feature['icon'] as IconData,
-                        color: const Color(0xFFF2B897),
+                        color: Theme.of(context).colorScheme.secondary,
                         size: 20), // Brand peach
                     const SizedBox(width: 12),
                     Expanded(
@@ -544,7 +544,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
                     child: const Icon(
                       Icons.add_photo_alternate,
                       size: 60,
-                      color: Color(0xFFF2B897), // Brand peach
+                      color: Theme.of(context).colorScheme.secondary, // Brand peach
                     ),
                   ),
                 );
@@ -1290,7 +1290,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
               child: const Icon(
                 Icons.psychology,
                 size: 80,
-                color: Color(0xFFF2B897), // Brand peach
+                color: Theme.of(context).colorScheme.secondary, // Brand peach
               ),
             ),
           ),
@@ -1332,7 +1332,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
               key: ValueKey(_currentDescriptiveAction),
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: const Color(0xFFF2B897).withValues(alpha: 0.8), // Brand peach
+                color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.8), // Brand peach
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -1367,7 +1367,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [
-                          Color(0xFFF2B897),
+                          Theme.of(context).colorScheme.secondary,
                           Color(0xFFE5A177)
                         ], // Brand peach gradient
                       ),
@@ -1508,7 +1508,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [
-                        Color(0xFFF2B897),
+                        Theme.of(context).colorScheme.secondary,
                         Color(0xFF404934),
                         Color(0xFFE5A177)
                       ], // Brand gradient
@@ -1597,7 +1597,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: isActive
-            ? const Color(0xFFF2B897)
+            ? Theme.of(context).colorScheme.secondary
             : Colors.transparent, // Brand peach when active
         borderRadius: BorderRadius.circular(8),
       ),
@@ -1646,13 +1646,13 @@ class _VisualizerScreenState extends State<VisualizerScreen>
           borderRadius: BorderRadius.circular(16),
           border: isSelected
               ? Border.all(
-                  color: const Color(0xFFF2B897),
+                  color: Theme.of(context).colorScheme.secondary,
                   width: 3) // Brand peach border
               : Border.all(color: Colors.white.withValues(alpha: 0.2)),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFFF2B897)
+                    color: Theme.of(context).colorScheme.secondary
                         .withValues(alpha: 0.3), // Brand peach glow
                     blurRadius: 15,
                     offset: const Offset(0, 8),
@@ -1796,7 +1796,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
                         icon: const Icon(Icons.save_alt),
                         label: const Text('Save to Library'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFF2B897),
+                          backgroundColor: Theme.of(context).colorScheme.secondary,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
@@ -1858,7 +1858,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
             backgroundColor: const Color(0xFF404934),
             action: SnackBarAction(
               label: 'View Library',
-              textColor: const Color(0xFFF2B897),
+              textColor: Theme.of(context).colorScheme.secondary,
               onPressed: () {
                 // Navigate to photo library page
                 Navigator.push(
@@ -1911,7 +1911,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
               title: 'Try More Colors',
               subtitle: 'Generate new variations',
               icon: Icons.refresh,
-              color: const Color(0xFFF2B897), // Brand peach
+              color: Theme.of(context).colorScheme.secondary, // Brand peach
               onTap: _tryMoreColors,
             ),
           ),

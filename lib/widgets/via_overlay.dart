@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../services/via_service.dart';
 import '../services/analytics_service.dart';
+import '../theme.dart';
 
 class ViaOverlay extends StatefulWidget {
   final String contextLabel;
@@ -33,10 +34,9 @@ class ViaOverlay extends StatefulWidget {
 enum _OverlayStage { peek, expanded }
 
 class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
-  static const _brandPeach = Color(0xFFF2B897);
   static const double _kBottomNavGuard = 86;
-  static const double _kSideGutter = 14;
-  static const double _kPanelRadius = 28;
+  static const double _kSideGutter = AppDims.gap * 2;
+  static const double _kPanelRadius = AppDims.radiusLarge;
   static const double _kBackdropOpacity = 0.48;
 
   _OverlayStage _stage = _OverlayStage.peek;
@@ -180,7 +180,10 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                 blurSigma: 12,
                 color: isExpanded
                     ? const Color(0xF5FFFFFF)
-                    : _ViaOverlayState._brandPeach.withValues(alpha: 0.95),
+                    : Theme.of(context)
+                        .colorScheme
+                        .secondary
+                        .withValues(alpha: 0.95),
                 topFadeStart: (isExpanded ? null : 0.5),
                 child: SafeArea(
                   top: false,
@@ -253,7 +256,8 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                         if (isExpanded) ...[
                           Expanded(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: AppDims.gap * 2),
                               child: _ChatList(messages: _msgs, controller: _list),
                             ),
                           ),
@@ -301,7 +305,8 @@ class _OverlayHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(14, 12, 10, 6),
       child: Row(
         children: [
-          const Icon(Icons.flash_on_rounded, size: 22, color: _ViaOverlayState._brandPeach),
+          Icon(Icons.flash_on_rounded,
+              size: 22, color: Theme.of(context).colorScheme.secondary),
           const SizedBox(width: 8),
           const Text('Assistant', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           const Spacer(),
@@ -585,15 +590,25 @@ class _SolidSurface extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(AppDims.radiusMedium),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding:
+            const EdgeInsets.symmetric(horizontal: AppDims.gap * 2, vertical: AppDims.gap),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: _ViaOverlayState._brandPeach.withValues(alpha: 115 / 255.0), width: 1),
+          borderRadius: BorderRadius.circular(AppDims.radiusMedium),
+          border: Border.all(
+              color: Theme.of(context)
+                  .colorScheme
+                  .secondary
+                  .withValues(alpha: 115 / 255.0),
+              width: 1),
         ),
-        child: Text(label, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500)),
+        child: Text(label,
+            style: Theme.of(context)
+                .textTheme
+                .labelMedium
+                ?.copyWith(fontWeight: FontWeight.w500)),
       ),
     );
   }
@@ -608,7 +623,7 @@ class _GhostIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkResponse(
       onTap: onTap,
-      radius: 24,
+      radius: AppDims.radiusLarge,
       child: Container(
         width: 40,
         height: 40,
@@ -643,14 +658,14 @@ class _OutlinedSquareIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppDims.radiusMedium),
       onTap: onTap,
       child: Container(
         width: 44,
         height: 44,
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppDims.radiusMedium),
           border: Border.all(color: Colors.white.withValues(alpha: 0.35), width: 1),
         ),
         child: Icon(icon, size: 20, color: Colors.white),

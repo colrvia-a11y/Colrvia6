@@ -2,6 +2,7 @@
 // Award-winning color selection interface for the AI Visualizer
 
 import 'package:flutter/material.dart';
+import '../theme.dart';
 
 class LuxeColorPicker extends StatefulWidget {
   final String initialColor;
@@ -339,19 +340,21 @@ class _LuxeColorPickerState extends State<LuxeColorPicker>
       onTap: () => setState(() => _showCustomPicker = !_showCustomPicker),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppDims.gap * 2),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             colors: [
-              Color(0xFFF2B897),
-              Color(0xFFE5A177)
-            ], // Brand peach gradient
+              Theme.of(context).colorScheme.secondary,
+              Theme.of(context).colorScheme.secondaryContainer
+            ],
           ),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppDims.radiusMedium),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFF2B897)
-                  .withValues(alpha: 0.3), // Brand peach glow
+              color: Theme.of(context)
+                  .colorScheme
+                  .secondary
+                  .withValues(alpha: 0.3),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),

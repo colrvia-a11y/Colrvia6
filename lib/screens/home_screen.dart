@@ -13,12 +13,11 @@ import 'dashboard_screen.dart';
 import 'roller_screen.dart';
 import 'visualizer_screen.dart';
 import 'package:color_canvas/widgets/via_overlay.dart';
+import '../theme.dart';
 
 /// Index in the bottom nav where the Via bubble lives (center slot).
 const int kViaNavIndex = 2;
 
-/// Brand peach highlight.
-const Color kPeach = Color(0xFFF2B897);
 
 /// Home scaffold with bottom tabs: Create, Projects, (Via), Search, Account.
 /// Floating glass dock, adaptive labels on long-press, Via radial quick actions,
@@ -278,8 +277,9 @@ class _NavSquareButton extends StatelessWidget {
   Widget build(BuildContext context) {
     const double size = 56;
     final Color bgColor = Colors.black.withValues(alpha: (0.20 * 255));
-    final Color iconColor = selected ? kPeach : Colors.white.withValues(alpha: (0.90 * 255));
-    final Color borderColor = selected ? kPeach : Colors.transparent;
+    final colorScheme = Theme.of(context).colorScheme;
+    final Color iconColor = selected ? colorScheme.secondary : Colors.white.withValues(alpha: (0.90 * 255));
+    final Color borderColor = selected ? colorScheme.secondary : Colors.transparent;
 
     final button = SizedBox(
       width: size,
@@ -292,13 +292,13 @@ class _NavSquareButton extends StatelessWidget {
           type: MaterialType.transparency,
           child: InkWell(
             onTap: onPressed,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppDims.radiusMedium),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 180),
               curve: Curves.easeOut,
               decoration: BoxDecoration(
                 color: bgColor,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(AppDims.radiusMedium),
                 border: Border.all(color: borderColor, width: 2),
                 boxShadow: [
                   BoxShadow(
@@ -315,7 +315,7 @@ class _NavSquareButton extends StatelessWidget {
                   if (selected && progress > 0)
                     Positioned.fill(
                       child: CustomPaint(
-                        painter: _TopTickPainter(progress: progress, color: kPeach),
+                        painter: _TopTickPainter(progress: progress, color: colorScheme.secondary),
                       ),
                     ),
                 ],
@@ -463,7 +463,8 @@ class _ViaBubbleState extends State<ViaBubble> with SingleTickerProviderStateMix
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: kPeach.withValues(alpha: 0.32 + t * 0.10),
+                          color: Theme.of(context).colorScheme.secondary
+                              .withValues(alpha: 0.32 + t * 0.10),
                           blurRadius: 28 + t * 10,
                           spreadRadius: 1,
                         ),
@@ -506,7 +507,12 @@ class _ViaBubbleState extends State<ViaBubble> with SingleTickerProviderStateMix
               Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                border: Border.all(color: kPeach.withValues(alpha: 0.55), width: 1),
+                border: Border.all(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .secondary
+                        .withValues(alpha: 0.55),
+                    width: 1),
                 ),
               ),
             ],
@@ -602,7 +608,7 @@ class _FrostedChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(AppDims.radiusMedium),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Material(
@@ -610,7 +616,8 @@ class _FrostedChip extends StatelessWidget {
           child: InkWell(
             onTap: onTap,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppDims.gap * 2, vertical: AppDims.gap),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -618,7 +625,10 @@ class _FrostedChip extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     label,
-                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelSmall
+                        ?.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),

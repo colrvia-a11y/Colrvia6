@@ -6,6 +6,7 @@ import 'package:color_canvas/services/interview_shared_engine.dart' as shared;
 import 'package:color_canvas/widgets/photo_picker_inline.dart';
 import 'package:color_canvas/services/palette_service.dart';
 import 'package:color_canvas/screens/palette_reveal_screen.dart';
+import '../theme.dart';
 
 class InterviewReviewScreen extends StatefulWidget {
   final InterviewEngine engine; // already loaded & seeded
@@ -100,7 +101,7 @@ class _InterviewReviewScreenState extends State<InterviewReviewScreen> {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(AppDims.gap * 2),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -230,7 +231,7 @@ class _InterviewReviewScreenState extends State<InterviewReviewScreen> {
               Card(
                 color: Theme.of(context).colorScheme.errorContainer,
                 child: Padding(
-                  padding: const EdgeInsets.all(12.0),
+                  padding: const EdgeInsets.all(AppDims.gap * 2),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -276,7 +277,7 @@ class _InterviewReviewScreenState extends State<InterviewReviewScreen> {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(AppDims.gap * 2),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

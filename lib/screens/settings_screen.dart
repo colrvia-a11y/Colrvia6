@@ -9,6 +9,7 @@ import 'package:color_canvas/screens/simple_firebase_test.dart';
 import 'package:color_canvas/services/accessibility_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'diagnostics_screen.dart';
+import '../theme.dart';
 
 
 class SettingsScreen extends StatefulWidget {
@@ -22,9 +23,10 @@ class _SettingsScreenState extends State<SettingsScreen>
     with TickerProviderStateMixin {
   // Brand colors for immersive experience
   static const Color _forestGreen = Color(0xFF404934);
-  static const Color _warmPeach = Color(0xFFF2B897);
   static const Color _creamWhite = Color(0xFFFFFDF8);
   static const Color _forestGreen80 = Color.fromRGBO(64, 73, 52, 0.8);
+
+  Color get _brandPeach => Theme.of(context).colorScheme.secondary;
 
   // Animation controllers for micro-interactions
   late AnimationController _fadeController;
@@ -357,7 +359,7 @@ class _SettingsScreenState extends State<SettingsScreen>
             colors: [
               _creamWhite,
               _creamWhite.withValues(alpha: 0.8),
-              _warmPeach.withValues(alpha: 0.1),
+              _brandPeach.withValues(alpha: 0.1),
             ],
           ),
         ),
@@ -438,7 +440,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                     end: Alignment.centerRight,
                     colors: [
                       _creamWhite,
-                      _warmPeach.withValues(alpha: 0.8),
+                      _brandPeach.withValues(alpha: 0.8),
                       _creamWhite,
                     ],
                     stops: [
@@ -482,7 +484,7 @@ class _SettingsScreenState extends State<SettingsScreen>
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
-                colors: [_forestGreen, _warmPeach],
+                colors: [_forestGreen, _brandPeach],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -520,7 +522,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           end: Alignment.bottomRight,
           colors: [
             _forestGreen.withValues(alpha: 0.05),
-            _warmPeach.withValues(alpha: 0.1),
+            _brandPeach.withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(24),
@@ -548,8 +550,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                   height: 64,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: const LinearGradient(
-                      colors: [_forestGreen, _warmPeach],
+                    gradient: LinearGradient(
+                      colors: [_forestGreen, _brandPeach],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -600,7 +602,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                             decoration: BoxDecoration(
                               color: _userProfile!.plan == 'free'
                                   ? _forestGreen.withValues(alpha: 0.1)
-                                  : _warmPeach.withValues(alpha: 0.3),
+                                  : _brandPeach.withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -715,7 +717,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                     ? Colors.red.shade400
                     : isSecondary
                         ? _creamWhite
-                        : _warmPeach.withValues(alpha: 0.1),
+                        : _brandPeach.withValues(alpha: 0.1),
             foregroundColor: isPrimary
                 ? _creamWhite
                 : isDestructive
@@ -747,7 +749,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           end: Alignment.bottomRight,
           colors: [
             _forestGreen.withValues(alpha: 0.03),
-            _warmPeach.withValues(alpha: 0.08),
+            _brandPeach.withValues(alpha: 0.08),
           ],
         ),
         borderRadius: BorderRadius.circular(24),
@@ -773,8 +775,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [_forestGreen, _warmPeach],
+                    gradient: LinearGradient(
+                      colors: [_forestGreen, _brandPeach],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -931,18 +933,18 @@ class _SettingsScreenState extends State<SettingsScreen>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            _warmPeach.withValues(alpha: 0.05),
+            _brandPeach.withValues(alpha: 0.05),
             _forestGreen.withValues(alpha: 0.03),
           ],
         ),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: _warmPeach.withValues(alpha: 0.2),
+          color: _brandPeach.withValues(alpha: 0.2),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: _warmPeach.withValues(alpha: 0.1),
+            color: _brandPeach.withValues(alpha: 0.1),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -958,8 +960,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [_warmPeach, _forestGreen],
+                    gradient: LinearGradient(
+                      colors: [_brandPeach, _forestGreen],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -1148,7 +1150,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           end: Alignment.bottomRight,
           colors: [
             _forestGreen.withValues(alpha: 0.08),
-            _warmPeach.withValues(alpha: 0.05),
+            _brandPeach.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(24),
@@ -1174,8 +1176,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [_forestGreen, _warmPeach],
+                    gradient: LinearGradient(
+                      colors: [_forestGreen, _brandPeach],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -1313,8 +1315,8 @@ class _SettingsScreenState extends State<SettingsScreen>
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [_forestGreen, _warmPeach],
+            gradient: LinearGradient(
+              colors: [_forestGreen, _brandPeach],
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),
@@ -1340,18 +1342,18 @@ class _SettingsScreenState extends State<SettingsScreen>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            _warmPeach.withValues(alpha: 0.08),
+            _brandPeach.withValues(alpha: 0.08),
             _forestGreen.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: _warmPeach.withValues(alpha: 0.2),
+          color: _brandPeach.withValues(alpha: 0.2),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: _warmPeach.withValues(alpha: 0.1),
+            color: _brandPeach.withValues(alpha: 0.1),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -1367,8 +1369,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [_warmPeach, _forestGreen],
+                    gradient: LinearGradient(
+                      colors: [_brandPeach, _forestGreen],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),

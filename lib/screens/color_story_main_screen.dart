@@ -6,6 +6,7 @@ import 'package:color_canvas/screens/immersive_story_player_screen.dart';
 import 'package:color_canvas/models/story_experience.dart';
 import 'package:color_canvas/models/immersive_story_context.dart';
 import 'package:color_canvas/services/immersive_narrative_engine.dart';
+import '../theme.dart';
 
 class ColorStoryMainScreen extends StatefulWidget {
   const ColorStoryMainScreen({super.key});
@@ -17,8 +18,8 @@ class ColorStoryMainScreen extends StatefulWidget {
 class _ColorStoryMainScreenState extends State<ColorStoryMainScreen> with TickerProviderStateMixin {
   // Brand colors matching visualizer and theme
   static const Color _forestGreen = Color(0xFF404934);      // Primary brand green
-  static const Color _warmPeach = Color(0xFFF2B897);        // Primary brand peach
   static const Color _peachGradient = Color(0xFFE5A177);    // Deeper peach for gradients
+  Color get _brandPeach => Theme.of(context).colorScheme.secondary;
   static const Color _deepForest = Color(0xFF2F3728);       // Deeper forest green
   static const Color _warmWhite = Color(0xFFFAFAFA);        // Brand white/cream
   static const Color _warmWhite90 = Color.fromRGBO(250, 250, 250, 0.9);
@@ -132,7 +133,7 @@ class _ColorStoryMainScreenState extends State<ColorStoryMainScreen> with Ticker
             colors: [
               _warmWhite,
               _forestGreen.withValues(alpha: 0.03),
-              _warmPeach.withValues(alpha: 0.05),
+              _brandPeach.withValues(alpha: 0.05),
             ],
           ),
         ),
@@ -309,12 +310,12 @@ class _ColorStoryMainScreenState extends State<ColorStoryMainScreen> with Ticker
               gradient: const LinearGradient(
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
-                colors: [_warmPeach, _peachGradient],
+                colors: [_brandPeach, _peachGradient],
               ),
               borderRadius: BorderRadius.circular(25),
               boxShadow: [
                 BoxShadow(
-                  color: _warmPeach.withValues(alpha: 0.3),
+                  color: _brandPeach.withValues(alpha: 0.3),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 ),
@@ -375,7 +376,7 @@ class _ColorStoryMainScreenState extends State<ColorStoryMainScreen> with Ticker
                 icon: Icons.library_books,
                 title: 'My Stories',
                 subtitle: 'Browse collection',
-                color: _warmPeach,
+                color: _brandPeach,
                 onTap: _viewMyStories,
               ),
             ),
@@ -786,8 +787,8 @@ class _ColorStoryMainScreenState extends State<ColorStoryMainScreen> with Ticker
       // Create sample palette for demo
       final samplePalette = [
         const Color(0xFF4A90E2), // Calming blue
-        const Color(0xFF50C878), // Emerald green  
-        const Color(0xFFF2B897), // Warm peach
+        const Color(0xFF50C878), // Emerald green
+        Theme.of(context).colorScheme.secondary, // Warm peach
         const Color(0xFF6B73FF), // Soft purple
       ];
 

@@ -4,6 +4,7 @@ import 'package:color_canvas/services/contrast_utils.dart';
 import 'package:color_canvas/services/palette_suggestions_service.dart';
 import 'package:color_canvas/services/journey/journey_service.dart';
 import 'package:color_canvas/screens/visualizer_painter_alt_screen.dart';
+import '../theme.dart';
 
 class PaletteRevealScreen extends StatefulWidget {
   final Map<String, dynamic>? paletteJson; // optional direct payload
@@ -172,7 +173,7 @@ class _PaletteRevealScreenState extends State<PaletteRevealScreen> {
     final a = _parseColor(aHex), b = _parseColor(bHex);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(AppDims.gap * 2),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -200,7 +201,7 @@ class _PaletteRevealScreenState extends State<PaletteRevealScreen> {
     if (r.isEmpty) return const SizedBox.shrink();
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(AppDims.gap * 2),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -218,7 +219,7 @@ class _PaletteRevealScreenState extends State<PaletteRevealScreen> {
   Widget _swapAccentSection(BuildContext context, Palette pal, PaintColor current) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(AppDims.gap * 2),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

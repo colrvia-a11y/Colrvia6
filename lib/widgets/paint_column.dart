@@ -5,6 +5,7 @@ import 'package:color_canvas/widgets/paint_action_sheet.dart';
 import 'package:color_canvas/widgets/color_strip_action_menu.dart';
 import 'package:color_canvas/utils/color_utils.dart';
 import 'package:color_canvas/utils/debug_logger.dart';
+import '../theme.dart';
 
 // Enhanced styling configuration for roller strips
 class _RollerEnhancements {
@@ -18,11 +19,8 @@ class _RollerEnhancements {
   static bool get enableEnhancedShadows => enableAllEnhancements && true;
   static bool get enableSubtleBorders => enableAllEnhancements && true;
 
-  // Brand colors matching your design system
-  static const Color warmPeach = Color(0xFFF2B897);
-
   // Enhanced styling constants
-  static const double stripBorderRadius = 16.0; // Matching your CTA buttons
+  static const double stripBorderRadius = AppDims.radiusMedium; // Matching your CTA buttons
   static const double enhancedElevation = 4.0;
   static const double dragElevation = 8.0;
   static const double lockIndicatorRadius = 8.0;
@@ -724,7 +722,9 @@ class _AnimatedPaintStripeState extends State<AnimatedPaintStripe>
                                             _RollerEnhancements
                                                 .stripBorderRadius),
                                         border: Border.all(
-                                          color: _RollerEnhancements.warmPeach,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondary,
                                           width: 3,
                                         ),
                                       )

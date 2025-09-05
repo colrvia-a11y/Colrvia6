@@ -4,6 +4,7 @@ import '../services/paint_query_service.dart';
 import '../widgets/fancy_paint_tile.dart';
 import '../widgets/staggered_entrance.dart';
 import '../firestore/firestore_data_schema.dart';
+import '../theme.dart';
 
 class ExploreRail extends StatefulWidget {
   final String title;
@@ -38,7 +39,7 @@ class ExploreRail extends StatefulWidget {
     this.onSeeAll,
     this.tileAspect = 0.72,        // same as All
     this.horizontalPadding = 16.0, // same as page padding
-    this.tileSpacing = 12.0,       // same as grid spacing
+    this.tileSpacing = AppDims.gap * 2,       // same as grid spacing
   });
 
   @override
@@ -164,7 +165,7 @@ class _ExploreRailState extends State<ExploreRail> {
                   width: tileW,
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(AppDims.radiusMedium),
                   ),
                 ),
               ),

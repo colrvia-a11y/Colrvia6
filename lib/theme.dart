@@ -59,6 +59,13 @@ class FontSizes {
   static const double bodySmall = 12.0;
 }
 
+class AppDims {
+  static const double gap = 8.0;
+  static const double radiusSmall = 4.0;
+  static const double radiusMedium = 12.0;
+  static const double radiusLarge = 24.0;
+}
+
 ThemeData get lightTheme => ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.light(
