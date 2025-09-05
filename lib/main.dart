@@ -8,6 +8,7 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_performance/firebase_performance.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:color_canvas/screens/compare_screen.dart';
 // REGION: CODEX-ADD compare-colors-import
 // END REGION: CODEX-ADD compare-colors-import
@@ -64,7 +65,7 @@ Future<void> main() async {
     isFirebaseInitialized = true;
 
     Debug.info('App', 'main', 'Running app');
-    runApp(const MyApp()); // <- same zone as ensureInitialized()
+    runApp(const ProviderScope(child: MyApp())); // <- same zone as ensureInitialized()
 
     // Non-critical setup after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) async {
