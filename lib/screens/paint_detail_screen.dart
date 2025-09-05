@@ -13,6 +13,7 @@ import 'visualizer_screen.dart';
 import 'package:color_canvas/data/sample_paints.dart';
 import 'package:color_canvas/widgets/stacked_chip_card.dart';
 import 'package:color_canvas/widgets/app_icon_button.dart';
+import 'package:color_canvas/widgets/color_swatch_card.dart';
 
 // ===== Enums for view options (kept simple/optional) =====
 enum LightingMode { d65, incandescent, north }
@@ -516,19 +517,76 @@ class _VisualsTab extends StatelessWidget {
 }
 
 // ===== Pairings Tab (simple pairing scaffold) =====
-class _PairingsTab extends StatelessWidget {
+class _PairingsTab extends StatefulWidget {
   final Paint paint;
   const _PairingsTab({required this.paint});
 
   @override
+  State<_PairingsTab> createState() => _PairingsTabState();
+}
+
+class _PairingsTabState extends State<_PairingsTab> {
+  List<Paint> _pairings = const [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPairings();
+  }
+
+  Future<void> _loadPairings() async {
+    try {
+      final ids = widget.paint.companionIds ?? const <String>[];
+      List<Paint> paints;
+      if (ids.isNotEmpty) {
+        paints = await FirebaseService.getPaintsByIds(ids);
+      } else {
+        final all = await SamplePaints.getAllPaints();
+        paints = all
+            .where((p) => p.name.toLowerCase().contains('white'))
+            .take(3)
+            .toList();
+      }
+      if (!mounted) return;
+      setState(() {
+        _pairings = paints;
+        _loading = false;
+      });
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Placeholder struct—hook into your pairing logic as desired
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-      children: const [
-        _SectionTitle('Suggested pairings'),
-        SizedBox(height: 8),
-        Text('Pair complementary whites, trims, and accents here.'),
+      children: [
+        const _SectionTitle('Suggested pairings'),
+        const SizedBox(height: 8),
+        if (_pairings.isEmpty)
+          const Text('No pairings available.'),
+        if (_pairings.isNotEmpty)
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: _pairings
+                .map((p) => ColorSwatchCard(
+                      paint: p,
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => PaintDetailScreen(paint: p)),
+                        );
+                      },
+                    ))
+                .toList(),
+          ),
       ],
     );
   }
