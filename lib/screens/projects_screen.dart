@@ -509,7 +509,7 @@ class _PalettesSection extends ConsumerWidget {
           ),
         ),
       ),
-    )
+    );
   }
 
     final palettesAsync = ref.watch(userPalettesProvider);
