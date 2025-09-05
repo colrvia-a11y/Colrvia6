@@ -10,7 +10,7 @@ void main() {
       id: 'p1',
       userId: 'u1',
       name: 'Test Palette',
-      colors: const [
+      colors: [
         PaletteColor(
           paintId: 'c1',
           locked: false,
@@ -30,7 +30,7 @@ void main() {
           hex: '#00FF00',
         ),
       ],
-      tags: const [],
+      tags: [],
       notes: '',
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),

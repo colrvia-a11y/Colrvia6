@@ -198,7 +198,8 @@ class _PaintStripeState extends State<PaintStripe> {
                   ],
                 ),
               ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -687,7 +688,8 @@ class _AnimatedPaintStripeState extends State<AnimatedPaintStripe>
                       ),
                     ),
                   ),
-                );
+                ),
+              );
 
                 // Wrap with drag functionality if enabled and preserving long-press
                 if (_RollerEnhancements.enableDragReordering &&
