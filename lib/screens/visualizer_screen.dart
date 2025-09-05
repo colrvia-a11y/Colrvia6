@@ -9,14 +9,13 @@ import '../services/surface_detection_service.dart';
 import '../services/photo_library_service.dart';
 import '../services/journey/journey_service.dart';
 import '../services/analytics_service.dart';
-import '../firestore/firestore_data_schema.dart';
 import 'photo_library_screen.dart';
 import 'package:color_canvas/widgets/colr_via_icon_button.dart';
 
 enum VisualizerMode { welcome, upload, analyze, selectSurfaces, generate, results, refine }
 
 class VisualizerScreen extends StatefulWidget {
-  final UserPalette? initialPalette;
+  final List<String>? initialPalette;
   final String? storyId;
   const VisualizerScreen({super.key, this.initialPalette, this.storyId});
 
@@ -50,7 +49,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
 
   // 🎨 COLOR & SURFACE STATE
   final Map<SurfaceType, String> _selectedColors = {};
-  UserPalette? _activePalette;
+  List<String>? _activePalette;
   List<String> _recentColors = [];
 
   // 🔧 PROCESSING STATE
@@ -130,6 +129,12 @@ class _VisualizerScreenState extends State<VisualizerScreen>
   Future<void> _loadInitialData() async {
     _activePalette = widget.initialPalette;
     await _loadRecentColors();
+    if (_activePalette != null && _activePalette!.isNotEmpty) {
+      _recentColors = [
+        ..._activePalette!,
+        ..._recentColors.where((c) => !_activePalette!.contains(c)),
+      ];
+    }
   }
 
   Future<void> _loadRecentColors() async {
@@ -2072,8 +2077,8 @@ class _VisualizerScreenState extends State<VisualizerScreen>
   }
 
   String _getDefaultColor() {
-    if (_activePalette != null && _activePalette!.colors.isNotEmpty) {
-      return _activePalette!.colors.first.hex;
+    if (_activePalette != null && _activePalette!.isNotEmpty) {
+      return _activePalette!.first;
     }
     return _recentColors.isNotEmpty ? _recentColors.first : '#F5F5F5';
   }

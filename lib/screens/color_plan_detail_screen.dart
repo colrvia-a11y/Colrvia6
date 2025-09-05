@@ -420,6 +420,7 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
       MaterialPageRoute(
         builder: (_) => VisualizerScreen(
           storyId: story.id,
+          initialPalette: story.palette.map((p) => p.hex).toList(),
         ),
         settings: RouteSettings(
           name: '/visualizer',
@@ -678,7 +679,7 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
                       const SizedBox(height: 20),
                       FilledButton.tonal(
                         onPressed: () => _applyPlanToVisualizer(plan),
-                        child: const Text('Apply to Visualizer (preview)'),
+                        child: const Text('Visualize Palette (preview)'),
                       ),
                     ],
                   ),
@@ -1499,7 +1500,7 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
                           child: FilledButton.icon(
                             onPressed: () => _applyStoryToVisualizer(story),
                             icon: const Icon(Icons.auto_fix_high),
-                            label: const Text('Apply to Visualizer'),
+                            label: const Text('Visualize Palette'),
                             style: FilledButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 16),
                             ),
@@ -1552,6 +1553,8 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
                               MaterialPageRoute(
                                 builder: (_) => VisualizerScreen(
                                   storyId: widget.storyId,
+                                  initialPalette:
+                                      story.palette.map((p) => p.hex).toList(),
                                 ),
                               ),
                             );
