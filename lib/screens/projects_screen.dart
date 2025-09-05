@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 // Add a prefixed import for core widgets to avoid any local shadowing
 import 'package:flutter/material.dart' as m
     show Text, Column, SizedBox, Container, Positioned;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
 import 'package:color_canvas/services/firebase_service.dart';
+import 'package:color_canvas/providers.dart';
 import 'package:color_canvas/services/project_service.dart';
 import 'package:color_canvas/models/project.dart';
 import 'package:color_canvas/screens/palette_detail_screen.dart';
@@ -23,15 +25,15 @@ import 'package:color_canvas/services/analytics_service.dart';
 
 enum LibraryFilter { all, palettes, stories }
 
-class ProjectsScreen extends StatefulWidget {
+class ProjectsScreen extends ConsumerStatefulWidget {
   const ProjectsScreen({super.key, this.initialFilter = LibraryFilter.all});
   final LibraryFilter initialFilter;
 
   @override
-  State<ProjectsScreen> createState() => _ProjectsScreenState();
+  ConsumerState<ProjectsScreen> createState() => _ProjectsScreenState();
 }
 
-class _ProjectsScreenState extends State<ProjectsScreen> {
+class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
   static final _logger = Logger('ProjectsScreen');
 
   bool _isLoading = true;
@@ -73,43 +75,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
       final firebaseStatus = await FirebaseService.getFirebaseStatus();
       _logger.info('Firebase Status in library: $firebaseStatus');
       _logger.info('User ID: ${user.uid}, Email: ${user.email}');
-      List<UserPalette> palettes = [];
-      List<Paint> savedColors = [];
       List<ProjectDoc> colorStories = [];
-      try {
-        palettes = await FirebaseService.getUserPalettes(user.uid);
-        _logger.info('Successfully loaded ${palettes.length} palettes');
-      } catch (paletteError) {
-        _logger.warning('Error loading palettes: $paletteError');
-        if (paletteError.toString().contains('permission-denied')) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: m.Text(
-                    'Access denied. Please check your account permissions.'),
-                backgroundColor: Colors.orange,
-              ),
-            );
-          }
-        }
-      }
-      try {
-        savedColors = await FirebaseService.getUserFavoriteColors(user.uid);
-        _logger.info('Successfully loaded ${savedColors.length} favorite colors');
-      } catch (colorsError) {
-        _logger.warning('Error loading favorite colors: $colorsError');
-        if (colorsError.toString().contains('permission-denied')) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: m.Text(
-                    'Access denied for saved colors. Please try signing out and back in.'),
-                backgroundColor: Colors.orange,
-              ),
-            );
-          }
-        }
-      }
       try {
         final allProjects =
             await ProjectService.myProjectsStream(limit: 50).first;
@@ -121,8 +87,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
       }
       setState(() {
         _isLoading = false;
-        _hasPermissionError =
-            palettes.isEmpty && savedColors.isEmpty && colorStories.isEmpty;
+        _hasPermissionError = colorStories.isEmpty;
       });
     } catch (e) {
       _logger.severe('General error loading library data: $e');
@@ -480,11 +445,11 @@ class _ProjectCard extends StatelessWidget {
 }
 
 // Palettes Section for the new filter system
-class _PalettesSection extends StatelessWidget {
+class _PalettesSection extends ConsumerWidget {
   const _PalettesSection();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final user = FirebaseService.currentUser;
     if (user == null) {
       return const Center(
@@ -502,14 +467,17 @@ class _PalettesSection extends StatelessWidget {
       );
     }
 
-    return FutureBuilder<List<UserPalette>>(
-      future: FirebaseService.getUserPalettes(user.uid),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    final palettesAsync = ref.watch(userPalettesProvider);
 
-        final palettes = snapshot.data ?? [];
+    return palettesAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: m.Text('Failed to load palettes'),
+        ),
+      ),
+      data: (palettes) {
         if (palettes.isEmpty) {
           return const Center(
             child: Padding(
