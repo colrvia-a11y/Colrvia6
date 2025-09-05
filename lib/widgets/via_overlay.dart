@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../services/via_service.dart';
 import '../services/analytics_service.dart';
 import '../theme.dart';
+import 'colr_via_icon_button.dart';
 
 class ViaOverlay extends StatefulWidget {
   final String contextLabel;
@@ -51,6 +52,7 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
     super.initState();
     _stage = widget.startOpen ? _OverlayStage.expanded : _OverlayStage.peek;
     _seedGreeting();
+    AnalyticsService.instance.viaOpened(widget.contextLabel);
 
     if (_stage == _OverlayStage.expanded) {
       Future.delayed(const Duration(milliseconds: 80), _focus.requestFocus);
@@ -137,11 +139,28 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
     _scrollToBottomSoon();
   }
 
-  List<_Suggestion> _suggestions() => [
-        _Suggestion('Name my palette', 'Can you suggest names for this palette?'),
-        _Suggestion('Lighting advice', 'How will these colors look at night?'),
-        _Suggestion('Next steps', 'What should I do next?'),
-      ];
+  List<_Suggestion> _suggestions() {
+    switch (widget.contextLabel) {
+      case 'paint_detail':
+        return [
+          const _Suggestion('Similar shades', 'Show me similar shades'),
+          const _Suggestion('Save color', 'How can I save this color?'),
+          const _Suggestion('Next steps', 'What should I do next?'),
+        ];
+      case 'roller':
+        return [
+          const _Suggestion('Palette ideas', 'Suggest a palette for me'),
+          const _Suggestion('Color meaning', 'What does this color represent?'),
+          const _Suggestion('Next steps', 'What should I do next?'),
+        ];
+      default:
+        return [
+          const _Suggestion('Name my palette', 'Can you suggest names for this palette?'),
+          const _Suggestion('Lighting advice', 'How will these colors look at night?'),
+          const _Suggestion('Next steps', 'What should I do next?'),
+        ];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -179,11 +198,14 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
               child: _SolidSurface(
                 blurSigma: 12,
                 color: isExpanded
-                    ? const Color(0xF5FFFFFF)
+                    ? Theme.of(context)
+                        .colorScheme
+                        .surface
+                        .withOpacity(0.96)
                     : Theme.of(context)
                         .colorScheme
-                        .secondary
-                        .withValues(alpha: 0.95),
+                        .secondaryContainer
+                        .withOpacity(0.95),
                 topFadeStart: (isExpanded ? null : 0.5),
                 child: SafeArea(
                   top: false,
@@ -193,7 +215,7 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                   child: AnimatedPadding(
                     duration: const Duration(milliseconds: 160),
                     curve: Curves.easeOutCubic,
-                    padding: EdgeInsets.only(bottom: insets + 8),
+                    padding: EdgeInsets.only(bottom: insets + AppDims.gap),
                     child: Column(
                       children: [
                         _OverlayHeader(
@@ -202,7 +224,7 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                           onCollapse: _collapse,
                           isExpanded: isExpanded,
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: AppDims.gap),
                         if (!isExpanded)
                           Expanded(
                             child: LayoutBuilder(
@@ -272,7 +294,7 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                             onAttachDoc: () => AnalyticsService.instance
                                 .log('via_attach_doc', {'context': widget.contextLabel}),
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: AppDims.gap),
                         ],
                       ],
                     ),
@@ -301,55 +323,40 @@ class _OverlayHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final iconColor = Theme.of(context).colorScheme.primary;
+    final textStyle = Theme.of(context)
+        .textTheme
+        .titleMedium
+        ?.copyWith(fontWeight: FontWeight.w600);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 12, 10, 6),
+      padding: const EdgeInsets.fromLTRB(16, 12, 12, 8),
       child: Row(
         children: [
           Icon(Icons.flash_on_rounded,
               size: 22, color: Theme.of(context).colorScheme.secondary),
-          const SizedBox(width: 8),
-          const Text('Assistant', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          const SizedBox(width: AppDims.gap),
+          Text('Assistant', style: textStyle),
           const Spacer(),
-          _HeaderSquareIcon(
-            icon: isExpanded ? Icons.close_fullscreen_rounded : Icons.open_in_full_rounded,
-            onTap: isExpanded ? onCollapse : onExpand,
+          ColrViaIconButton(
+            icon: Icons.close_rounded,
+            color: iconColor,
+            semanticLabel: 'Close assistant',
+            onPressed: onClose,
+            size: 40,
+          ),
+          const SizedBox(width: AppDims.gap),
+          ColrViaIconButton(
+            icon: isExpanded
+                ? Icons.close_fullscreen_rounded
+                : Icons.open_in_full_rounded,
+            color: iconColor,
+            onPressed: isExpanded ? onCollapse : onExpand,
             semanticLabel: isExpanded ? 'Collapse' : 'Expand',
+            size: 40,
           ),
         ],
       ),
     );
-  }
-}
-
-class _HeaderSquareIcon extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-  final String? semanticLabel;
-  const _HeaderSquareIcon({required this.icon, required this.onTap, this.semanticLabel});
-
-  @override
-  Widget build(BuildContext context) {
-    Widget btn = InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.25), width: 1),
-        ),
-        child: Icon(icon, size: 18, color: Colors.white),
-      ),
-    );
-    if (semanticLabel != null) {
-      btn = Tooltip(message: semanticLabel!, child: btn);
-      btn = Semantics(button: true, label: semanticLabel, child: btn);
-    } else {
-      btn = Semantics(button: true, child: btn);
-    }
-    return btn;
   }
 }
 
@@ -366,8 +373,14 @@ class _GreetingAndChips extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(greeting, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 10),
+          Text(
+            greeting,
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: AppDims.gap),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -392,21 +405,24 @@ class _ChatList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return ListView.builder(
       reverse: true,
       controller: controller,
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: AppDims.gap),
       itemCount: messages.length,
       itemBuilder: (context, i) {
         final m = messages[i];
         final align = m.fromUser ? Alignment.centerRight : Alignment.centerLeft;
-        final bg = m.fromUser ? const Color(0xFFEFE8E1) : Colors.white;
+        final bg = m.fromUser ? scheme.secondaryContainer : scheme.surface;
+        final fg = m.fromUser ? scheme.onSecondaryContainer : scheme.onSurface;
         return Align(
           alignment: align,
           child: Container(
             constraints: const BoxConstraints(maxWidth: 320),
-            margin: const EdgeInsets.symmetric(vertical: 6),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            margin: const EdgeInsets.symmetric(vertical: AppDims.gap),
+            padding: EdgeInsets.symmetric(
+                horizontal: AppDims.gap * 1.5, vertical: AppDims.gap * 1.25),
             decoration: BoxDecoration(
               color: bg,
               borderRadius: BorderRadius.circular(16),
@@ -414,7 +430,7 @@ class _ChatList extends StatelessWidget {
                 BoxShadow(color: Color(0x0F000000), blurRadius: 14, offset: Offset(0, 6)),
               ],
             ),
-            child: Text(m.text, style: const TextStyle(color: Colors.black87, height: 1.35)),
+            child: Text(m.text, style: TextStyle(color: fg, height: 1.35)),
           ),
         );
       },
@@ -474,14 +490,15 @@ class _ComposerBarState extends State<_ComposerBar> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+      padding: EdgeInsets.fromLTRB(
+          AppDims.gap * 1.5, AppDims.gap, AppDims.gap * 1.5, AppDims.gap * 1.5),
       child: Row(
         children: [
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(22),
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(AppDims.radiusLarge),
                 boxShadow: const [BoxShadow(color: Color(0x0F000000), blurRadius: 10, offset: Offset(0, 2))],
               ),
               child: TextField(
@@ -495,7 +512,8 @@ class _ComposerBarState extends State<_ComposerBar> {
                   hintText: 'Type your message…',
                   isDense: true,
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: AppDims.gap * 1.25, vertical: AppDims.gap * 1.25),
                   prefixIcon: Builder(
                     builder: (ctx) => IconButton(
                       tooltip: 'Attach',
@@ -604,13 +622,13 @@ class _SolidSurface extends StatelessWidget {
         padding:
             const EdgeInsets.symmetric(horizontal: AppDims.gap * 2, vertical: AppDims.gap),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(AppDims.radiusMedium),
           border: Border.all(
               color: Theme.of(context)
                   .colorScheme
                   .secondary
-                  .withValues(alpha: 115 / 255.0),
+                  .withOpacity(115 / 255.0),
               width: 1),
         ),
         child: Text(label,
