@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:color_canvas/firestore/firestore_data_schema.dart' show Paint;
 import 'package:color_canvas/utils/color_utils.dart';
+import '../theme.dart';
 
 class FancyPaintTile extends StatefulWidget {
   final Paint paint;
@@ -113,7 +114,7 @@ class _FancyPaintTileState extends State<FancyPaintTile> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final base = ColorUtils.getPaintColor(widget.paint.hex);
-    final radius = widget.dense ? 14.0 : 18.0;
+    final radius = widget.dense ? AppDims.radiusMedium : AppDims.radiusLarge;
 
     final borderGradA = _tint(base, 0.16);
     final borderGradB = _shade(base, 0.18);

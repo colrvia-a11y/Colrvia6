@@ -1,6 +1,7 @@
 // lib/screens/create_screen.dart
 import 'package:color_canvas/services/journey/journey_models.dart';
 import 'package:flutter/material.dart';
+import '../theme.dart';
 import 'package:flutter/services.dart';
 
 import 'package:color_canvas/services/journey/journey_service.dart';
@@ -63,7 +64,7 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    final peach = const Color(0xFFF2B897);
+    final peach = Theme.of(context).colorScheme.secondary;
     final title = "Create Hub";
     final subtitle = "Design · Learn · Visualize";
 

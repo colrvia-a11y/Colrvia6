@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'dart:ui' as ui;
 import '../models/story_experience.dart';
 import '../models/immersive_story_context.dart';
+import '../theme.dart';
 
 /// Beautiful shareable story cards for social media
 class StoryCardGenerator {
@@ -81,8 +82,8 @@ class StoryCardGenerator {
                       Container(
                         width: 40,
                         height: 40,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFF2B897),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.secondary,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -226,8 +227,8 @@ class StoryCardGenerator {
                       Container(
                         width: 80,
                         height: 80,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFF2B897),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.secondary,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -678,7 +679,7 @@ class ShareStoryDialog extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: const Color(0xFFF2B897),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
         duration: const Duration(seconds: 2),
       ),
     );

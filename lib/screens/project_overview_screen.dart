@@ -5,6 +5,7 @@ import 'color_plan_screen.dart' deferred as plan;
 import 'visualizer_screen.dart' deferred as viz;
 import '../services/analytics_service.dart';
 import 'package:color_canvas/widgets/app_icon_button.dart' as app;
+import '../theme.dart';
 
 /// Basic overview of a project with quick links to core tools.
 class ProjectOverviewScreen extends StatelessWidget {
@@ -25,7 +26,7 @@ class ProjectOverviewScreen extends StatelessWidget {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(72),
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(AppDims.gap * 2),
             child: Row(children: [
               Expanded(child: ElevatedButton.icon(
                 onPressed: hasPalette

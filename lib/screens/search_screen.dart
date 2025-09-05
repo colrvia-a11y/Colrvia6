@@ -18,10 +18,11 @@ import '../widgets/staggered_entrance.dart';
 import '../widgets/shimmer.dart';
 import '../data/explore_rails_config.dart';
 import 'package:color_canvas/widgets/app_icon_button.dart';
+import '../theme.dart';
 
 // Shared tile geometry (keep cards consistent across tabs)
 const double kTileAspect = 0.72;      // width / height (â‰ˆ All tabâ€™s look)
-const double kTileSpacing = 12.0;     // gap between tiles
+const double kTileSpacing = AppDims.gap * 2;     // gap between tiles
 const double kScreenPaddingH = 16.0;  // page horizontal padding
 
 class SearchScreen extends StatefulWidget {

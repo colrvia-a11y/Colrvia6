@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
 import 'package:color_canvas/screens/roller_screen.dart';
 import 'package:color_canvas/screens/visualizer_screen.dart';
+import '../theme.dart';
 
 class StackedChipCard extends StatelessWidget {
   // Tweakables
-  static const double cardBottomRadius = 28.0;
-  static const double overlap = cardBottomRadius - 6.0; // 22px
-  static const double secondExtraRoom = 14.0;
+  static const double cardBottomRadius = AppDims.radiusLarge;
+  static const double overlap = cardBottomRadius - 6.0; // 18px
+  static const double secondExtraRoom = AppDims.gap * 2;
   static const double _parallaxBase = 0.06;
   static const double _parallaxIncrement = 0.015;
   static const double _parallaxMaxShift = 40.0;
@@ -132,11 +133,11 @@ class StackedChipCard extends StatelessWidget {
                           Material(
                             color: Colors.transparent,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(AppDims.radiusMedium),
                               side: BorderSide(color: fg.withAlpha(140), width: 1.2),
                             ),
                             child: InkWell(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(AppDims.radiusMedium),
                               splashColor: fg.withAlpha(60),
                               highlightColor: fg.withAlpha(24),
                               hoverColor: fg.withAlpha(12),
@@ -156,7 +157,8 @@ class StackedChipCard extends StatelessWidget {
                         curve: Curves.easeOutCubic,
                         child: isSelected
                             ? Padding(
-                                padding: const EdgeInsets.only(top: 10),
+                                padding:
+                                    const EdgeInsets.only(top: AppDims.gap),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -173,7 +175,7 @@ class StackedChipCard extends StatelessWidget {
                                           _infoTag(context, fg, paint.code),
                                       ],
                                     ),
-                                    const SizedBox(height: 10),
+                                    const SizedBox(height: AppDims.gap),
                                     Row(
                                       children: [
                                         Expanded(
@@ -194,7 +196,7 @@ class StackedChipCard extends StatelessWidget {
                                             label: const Text('Add to Roller'),
                                           ),
                                         ),
-                                        const SizedBox(width: 10),
+                                        const SizedBox(width: AppDims.gap),
                                         Expanded(
                                           child: OutlinedButton.icon(
                                             style: OutlinedButton.styleFrom(

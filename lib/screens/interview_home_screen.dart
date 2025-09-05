@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme.dart';
 
 /// Interview entry screen that lets users choose between
 /// a voice or text based interview experience.
@@ -17,9 +18,12 @@ class InterviewHomeScreen extends StatelessWidget {
         children: [
           // Background gradient with optional grain texture.
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFFF2B897), Color(0xFFFFF8F2)],
+                colors: [
+                  Theme.of(context).colorScheme.secondary,
+                  const Color(0xFFFFF8F2)
+                ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
@@ -38,7 +42,7 @@ class InterviewHomeScreen extends StatelessWidget {
                           fontWeight: FontWeight.w800,
                         ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppDims.gap * 2),
                   Text(
                     "Answer a few questions — Via turns your style, lighting, and space into a color story you’ll love.",
                     style: Theme.of(context).textTheme.bodyLarge,
@@ -52,15 +56,16 @@ class InterviewHomeScreen extends StatelessWidget {
                     },
                     style: FilledButton.styleFrom(
                       minimumSize: const Size.fromHeight(56),
-                      backgroundColor: const Color(0xFFF2B897),
+                      backgroundColor:
+                          Theme.of(context).colorScheme.secondary,
                       foregroundColor: Colors.black,
-                      textStyle: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      textStyle: Theme.of(context)
+                          .textTheme
+                          .labelLarge
+                          ?.copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppDims.gap * 2),
                   OutlinedButton(
                     onPressed: () {
                       Navigator.pushNamed(context, '/interview/text');
@@ -92,7 +97,7 @@ class InterviewHomeScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppDims.gap * 2),
                   Center(
                     child: Text(
                       "~6–8 min • You can pause anytime • Switch modes later",

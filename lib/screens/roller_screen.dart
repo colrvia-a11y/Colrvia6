@@ -20,6 +20,7 @@ import 'package:color_canvas/services/analytics_service.dart';
 // REGION: CODEX-ADD user-prefs-import
 import 'package:color_canvas/services/user_prefs_service.dart';
 // END REGION: CODEX-ADD user-prefs-import
+import '../theme.dart';
 import 'package:color_canvas/utils/palette_transforms.dart' as transforms;
 import 'package:color_canvas/utils/lab.dart';
 import 'package:color_canvas/services/project_service.dart';
@@ -1371,8 +1372,8 @@ class _ToolsDockState extends State<ToolsDock> with TickerProviderStateMixin {
           builder: (context, child) {
             final size = MediaQuery.of(context).size;
 
-            const double rightMargin = 12.0;
-            const double gapBetween = 12.0;
+            const double rightMargin = AppDims.gap * 2;
+            const double gapBetween = AppDims.gap * 2;
             final double available = size.width - rightMargin - gapBetween - _dockWidthPx;
             final double targetWidth = available <= 0 ? 0 : available.clamp(0.0, 320.0);
             final double panelWidth = _panelProgress.value * targetWidth;
