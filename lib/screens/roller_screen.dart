@@ -92,15 +92,15 @@ class _RollerScreenState extends RollerScreenStatePublic {
   final PageController _pageCtrl = PageController();
   final List<List<Paint>> _pages = <List<Paint>>[];
   int _visiblePage = 0;
-  
+
   // Memory management (how many pages to keep in RAM at any time)
-  static const int _retainWindow = 80; // tune 60–120 after profiling
-  
+  static const int _retainWindow = 50; // tune 40–60 after profiling
+
   // Concurrency guard for page generation
   final Set<int> _generatingPages = <int>{};
-  
+
   // First-time swipe hint
-  bool _showSwipeHint = true;
+  bool _showSwipeHint = false;
   
   static const int _minPaletteSize = 1;
   
@@ -194,11 +194,40 @@ class _RollerScreenState extends RollerScreenStatePublic {
         }
       });
     }
+
+    _maybeShowHint();
   }
   
 
   void _onStepChanged(int step, int total) {
     CreateFlowProgress.instance.set('roller', step / total);
+  }
+
+  void _maybeShowHint() {
+    UserPrefsService.fetch().then((prefs) {
+      if (mounted && !prefs.rollerHintShown) {
+        _safeSetState(() => _showSwipeHint = true, details: 'show hint');
+        WidgetsBinding.instance
+            .addPostFrameCallback((_) => _showHintDialog());
+      }
+    });
+  }
+
+  void _showHintDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Palette Roller'),
+        content: const Text(
+            'Swipe up to generate a new palette.\nTap a color to lock it for the next palette.\nUse the filters to refine results.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Got it'),
+          ),
+        ],
+      ),
+    ).then((_) => UserPrefsService.markRollerHintShown());
   }
 
   @override

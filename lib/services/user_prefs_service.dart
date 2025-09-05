@@ -6,11 +6,13 @@ class UserPrefs {
   final bool firstRunCompleted;
   final String? lastOpenedProjectId;
   final String? lastVisitedScreen;
+  final bool rollerHintShown;
 
   UserPrefs({
     required this.firstRunCompleted,
     this.lastOpenedProjectId,
     this.lastVisitedScreen,
+    this.rollerHintShown = false,
   });
 
   factory UserPrefs.fromMap(Map<String, dynamic>? data) {
@@ -18,6 +20,7 @@ class UserPrefs {
       firstRunCompleted: data?['firstRunCompleted'] == true,
       lastOpenedProjectId: data?['lastOpenedProjectId'] as String?,
       lastVisitedScreen: data?['lastVisitedScreen'] as String?,
+      rollerHintShown: data?['rollerHintShown'] == true,
     );
   }
 }
@@ -58,6 +61,14 @@ class UserPrefsService {
     final doc = _doc;
     if (doc != null) {
       await doc.set({'firstRunCompleted': true}, SetOptions(merge: true));
+    }
+  }
+
+  /// Mark the Roller hint as shown so it won't appear again.
+  static Future<void> markRollerHintShown() async {
+    final doc = _doc;
+    if (doc != null) {
+      await doc.set({'rollerHintShown': true}, SetOptions(merge: true));
     }
   }
 }
