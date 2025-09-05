@@ -646,16 +646,13 @@ class _ChatBubble {
   final bool fromUser;
   final DateTime timestamp;
   final bool isSystem;
-<<<<<<< HEAD
-  _ChatBubble({required this.text, required this.fromUser, required this.timestamp});
-=======
+
   _ChatBubble({
     required this.text,
     required this.fromUser,
     required this.timestamp,
     this.isSystem = false,
   });
->>>>>>> d629ae8dcd51064cc9565a06b45bfcbd8ca4a027
 }
 
 class _Suggestion {
