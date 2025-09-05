@@ -135,16 +135,25 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
                   .surfaceContainerHighest
                   .withValues(alpha: 0.6),
         );
+
+    Semantics filterChip(
+            LibraryFilter f, String label, String semanticsLabel) =>
+        Semantics(
+          label: semanticsLabel,
+          button: true,
+          selected: _filter == f,
+          child: InkWell(
+            onTap: () => setState(() => _filter = f),
+            child: chip(f, label),
+          ),
+        );
+
     return Wrap(spacing: 8, children: [
-      InkWell(
-          onTap: () => setState(() => _filter = LibraryFilter.all),
-          child: chip(LibraryFilter.all, 'All')),
-      InkWell(
-          onTap: () => setState(() => _filter = LibraryFilter.palettes),
-          child: chip(LibraryFilter.palettes, 'Palettes')),
-      InkWell(
-          onTap: () => setState(() => _filter = LibraryFilter.stories),
-          child: chip(LibraryFilter.stories, 'Color Stories')),
+      filterChip(LibraryFilter.all, 'All', 'Show all items'),
+      filterChip(
+          LibraryFilter.palettes, 'Palettes', 'Show palettes only'),
+      filterChip(
+          LibraryFilter.stories, 'Color Stories', 'Show color stories only'),
     ]);
   }
 
@@ -679,15 +688,19 @@ class EnhancedPaletteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: m.Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+    return Semantics(
+      label: palette.name,
+      button: true,
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: ExcludeSemantics(
+            child: m.Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
             // Large color preview (top half)
             Expanded(
               flex: 3,

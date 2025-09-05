@@ -163,7 +163,7 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
                       icon: Icons.add,
                       color: fg,
                       onPressed: _showAddMenu,
-                      semanticLabel: 'More options',
+                      semanticLabel: 'Add to tools',
                     ),
                   ),
                   Padding(

@@ -63,50 +63,59 @@ class _PaintStripeState extends State<PaintStripe> {
     final textColor =
         brightness == Brightness.dark ? Colors.white : Colors.black;
 
-    return GestureDetector(
+    return Semantics(
+      button: true,
+      toggled: widget.isLocked,
+      label: widget.paint != null
+          ? (widget.isLocked
+              ? 'Unlock color ${widget.paint!.name}'
+              : 'Lock color ${widget.paint!.name}')
+          : 'Empty color slot',
       onTap: widget.onTap,
-      onLongPress: widget.paint != null
-          ? () => _showActionSheet(context)
-          : widget.onLongPress,
-      onHorizontalDragStart: (details) {
-        _dragStartX = details.localPosition.dx;
-        _dragDistance = 0;
-      },
-      onHorizontalDragUpdate: (details) {
-        _dragDistance = details.localPosition.dx - _dragStartX;
-      },
-      onHorizontalDragEnd: (details) {
-        final velocity = details.velocity.pixelsPerSecond.dx;
-        const minDistance = 24.0;
-        const minVelocity = 300.0;
+      child: GestureDetector(
+        onTap: widget.onTap,
+        onLongPress: widget.paint != null
+            ? () => _showActionSheet(context)
+            : widget.onLongPress,
+        onHorizontalDragStart: (details) {
+          _dragStartX = details.localPosition.dx;
+          _dragDistance = 0;
+        },
+        onHorizontalDragUpdate: (details) {
+          _dragDistance = details.localPosition.dx - _dragStartX;
+        },
+        onHorizontalDragEnd: (details) {
+          final velocity = details.velocity.pixelsPerSecond.dx;
+          const minDistance = 24.0;
+          const minVelocity = 300.0;
 
-        // Right swipe: positive distance and velocity
-        if (_dragDistance > minDistance &&
-            velocity > minVelocity &&
-            widget.onSwipeRight != null) {
-          widget.onSwipeRight!();
-        }
-        // Left swipe: negative distance and velocity
-        else if (_dragDistance < -minDistance &&
-            velocity < -minVelocity &&
-            widget.onSwipeLeft != null) {
-          widget.onSwipeLeft!();
-        }
+          // Right swipe: positive distance and velocity
+          if (_dragDistance > minDistance &&
+              velocity > minVelocity &&
+              widget.onSwipeRight != null) {
+            widget.onSwipeRight!();
+          }
+          // Left swipe: negative distance and velocity
+          else if (_dragDistance < -minDistance &&
+              velocity < -minVelocity &&
+              widget.onSwipeLeft != null) {
+            widget.onSwipeLeft!();
+          }
 
-        // Reset drag state
-        _dragStartX = 0;
-        _dragDistance = 0;
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: color,
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.3),
-            width: 0.5,
+          // Reset drag state
+          _dragStartX = 0;
+          _dragDistance = 0;
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: color,
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.3),
+              width: 0.5,
+            ),
           ),
-        ),
-        child: Stack(
-          children: [
+          child: Stack(
+            children: [
             // Lock indicator
             if (widget.isLocked)
               Positioned(
@@ -498,65 +507,74 @@ class _AnimatedPaintStripeState extends State<AnimatedPaintStripe>
                     brightness == Brightness.dark ? Colors.white : Colors.black;
 
                 // Key by effective color identity so Flutter rebuilds properly
-                Widget stripContent = Container(
-                  margin: _RollerEnhancements.enableRoundedStrips
-                      ? const EdgeInsets.symmetric(horizontal: 8, vertical: 2)
-                      : EdgeInsets.zero,
-                  decoration: _RollerEnhancements.enableGradientBackdrops
-                      ? BoxDecoration(
-                          gradient: _createBackdropGradient(color),
+                Widget stripContent = Semantics(
+                  button: true,
+                  toggled: widget.isLocked,
+                  label: widget.paint != null
+                      ? (widget.isLocked
+                          ? 'Unlock color ${widget.paint!.name}'
+                          : 'Lock color ${widget.paint!.name}')
+                      : 'Empty color slot',
+                  onTap: widget.onTap,
+                  child: Container(
+                    margin: _RollerEnhancements.enableRoundedStrips
+                        ? const EdgeInsets.symmetric(horizontal: 8, vertical: 2)
+                        : EdgeInsets.zero,
+                    decoration: _RollerEnhancements.enableGradientBackdrops
+                        ? BoxDecoration(
+                            gradient: _createBackdropGradient(color),
+                            borderRadius: _RollerEnhancements.enableRoundedStrips
+                                ? BorderRadius.circular(
+                                    _RollerEnhancements.stripBorderRadius)
+                                : null,
+                            boxShadow: _createEnhancedShadows(color),
+                          )
+                        : null,
+                    child: GestureDetector(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        widget.onTap();
+                      },
+                      onLongPress: widget.paint != null
+                          ? () => _showEnhancedActionMenu(context)
+                          : widget.onLongPress,
+                      onHorizontalDragStart: (_) => _dragDx = 0.0,
+                      onHorizontalDragUpdate: (details) =>
+                          _dragDx += details.delta.dx,
+                      onHorizontalDragEnd: (details) {
+                        final v = details.velocity.pixelsPerSecond.dx;
+                        // NEW: Both left and right swipes now navigate through color variations
+                        if ((_dragDx > 24) || (v > 500)) {
+                          // Right swipe: next color variation
+                          if (widget.onSwipeRight != null) {
+                            HapticFeedback.lightImpact();
+                            widget.onSwipeRight!();
+                          }
+                        } else if ((_dragDx < -24) || (v < -500)) {
+                          // Left swipe: previous color variation (or next if no history)
+                          if (widget.onSwipeLeft != null) {
+                            HapticFeedback.lightImpact();
+                            widget.onSwipeLeft!();
+                          }
+                        }
+                        _dragDx = 0.0;
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: color,
                           borderRadius: _RollerEnhancements.enableRoundedStrips
                               ? BorderRadius.circular(
-                                  _RollerEnhancements.stripBorderRadius)
+                                  _RollerEnhancements.stripBorderRadius - 2)
                               : null,
-                          boxShadow: _createEnhancedShadows(color),
-                        )
-                      : null,
-                  child: GestureDetector(
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      widget.onTap();
-                    },
-                    onLongPress: widget.paint != null
-                        ? () => _showEnhancedActionMenu(context)
-                        : widget.onLongPress,
-                    onHorizontalDragStart: (_) => _dragDx = 0.0,
-                    onHorizontalDragUpdate: (details) =>
-                        _dragDx += details.delta.dx,
-                    onHorizontalDragEnd: (details) {
-                      final v = details.velocity.pixelsPerSecond.dx;
-                      // NEW: Both left and right swipes now navigate through color variations
-                      if ((_dragDx > 24) || (v > 500)) {
-                        // Right swipe: next color variation
-                        if (widget.onSwipeRight != null) {
-                          HapticFeedback.lightImpact();
-                          widget.onSwipeRight!();
-                        }
-                      } else if ((_dragDx < -24) || (v < -500)) {
-                        // Left swipe: previous color variation (or next if no history)
-                        if (widget.onSwipeLeft != null) {
-                          HapticFeedback.lightImpact();
-                          widget.onSwipeLeft!();
-                        }
-                      }
-                      _dragDx = 0.0;
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: color,
-                        borderRadius: _RollerEnhancements.enableRoundedStrips
-                            ? BorderRadius.circular(
-                                _RollerEnhancements.stripBorderRadius - 2)
-                            : null,
-                        border: _RollerEnhancements.enableSubtleBorders
-                            ? Border.all(
-                                color: Colors.white.withValues(alpha: 0.3),
-                                width: 0.5,
-                              )
-                            : null,
-                      ),
-                      child: Stack(
-                        children: [
+                          border: _RollerEnhancements.enableSubtleBorders
+                              ? Border.all(
+                                  color: Colors.white.withValues(alpha: 0.3),
+                                  width: 0.5,
+                                )
+                              : null,
+                        ),
+                        child: Stack(
+                          children: [
                           // Subtle gradient overlay for depth
                           if (_RollerEnhancements.enableRoundedStrips)
                             Container(
