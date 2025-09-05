@@ -711,7 +711,7 @@ class PaletteGenerator {
       if (beams.isEmpty) break;
     }
 
-    List<Paint> _ensureHueSpan(List<Paint> cur, Map<int, Paint> locked) {
+    List<Paint> ensureHueSpan(List<Paint> cur, Map<int, Paint> locked) {
       if (cur.length < 2) return cur;
       double minH = 360.0, maxH = 0.0;
       for (final p in cur) {
@@ -736,9 +736,13 @@ class PaletteGenerator {
       final res = [...cur];
       // Replace at first and last non-locked indices
       int left = 0;
-      while (left < res.length && locked.containsKey(left)) left++;
+      while (left < res.length && locked.containsKey(left)) {
+        left++;
+      }
       int right = res.length - 1;
-      while (right >= 0 && locked.containsKey(right)) right--;
+      while (right >= 0 && locked.containsKey(right)) {
+        right--;
+      }
       if (left < res.length) res[left] = pMin;
       if (right >= 0) res[right] = pMax;
       return res;
@@ -771,7 +775,7 @@ class PaletteGenerator {
           }
         }
       }
-      final adjusted = _ensureHueSpan(out.take(size).toList(), locked);
+      final adjusted = ensureHueSpan(out.take(size).toList(), locked);
       return adjusted;
     }
     final best = List<Paint>.from(beams.first['seq'] as List<Paint>);
@@ -792,7 +796,7 @@ class PaletteGenerator {
         }
       }
     }
-    out = _ensureHueSpan(out, locked);
+    out = ensureHueSpan(out, locked);
     return out;
   }
 

@@ -682,7 +682,7 @@ class _SimilarTabState extends State<_SimilarTab> {
     int tries = 0;
     void attempt() {
       final c = _sc ?? PrimaryScrollController.of(context);
-      if (c == null || !c.hasClients) {
+      if (!c.hasClients) {
         if (tries++ < 6) {
           WidgetsBinding.instance.addPostFrameCallback((_) => attempt());
         }
@@ -740,7 +740,7 @@ class _SimilarTabState extends State<_SimilarTab> {
     // Hero/base color under top card (so no white shows)
     Color baseColor = Colors.grey.shade200;
     final baseHex = widget.paint.hex;
-    if (baseHex != null && baseHex.isNotEmpty) {
+    if (baseHex.isNotEmpty) {
       final h = baseHex.startsWith('#') ? baseHex : '#$baseHex';
       if (h.toUpperCase() != '#000000') {
         baseColor = ColorUtils.getPaintColor(h);

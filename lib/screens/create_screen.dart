@@ -1,7 +1,6 @@
 // lib/screens/create_screen.dart
 import 'package:color_canvas/services/journey/journey_models.dart';
 import 'package:flutter/material.dart';
-import '../theme.dart';
 import 'package:flutter/services.dart';
 
 import 'package:color_canvas/services/journey/journey_service.dart';

@@ -3,11 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:color_canvas/screens/compare_screen.dart';
 // REGION: CODEX-ADD compare-colors-import
@@ -29,14 +26,9 @@ import 'package:color_canvas/screens/interview_text_screen.dart';
 // import 'package:color_canvas/screens/paint_detail_screen.dart';
 // import 'package:color_canvas/firestore/firestore_data_schema.dart' as schema;
 import 'package:color_canvas/services/firebase_service.dart';
-import 'package:color_canvas/services/network_utils.dart';
 import 'package:color_canvas/utils/debug_logger.dart';
 import 'package:color_canvas/models/user_palette.dart';
-import 'services/feature_flags.dart';
 import 'package:color_canvas/services/analytics_service.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'services/sync_queue_service.dart';
-import 'services/notifications_service.dart';
 
 
 // Global Firebase state

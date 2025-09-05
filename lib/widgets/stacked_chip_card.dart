@@ -25,7 +25,7 @@ class StackedChipCard extends StatelessWidget {
   final ValueChanged<Paint> onOpenDetail;
 
   const StackedChipCard({
-    Key? key,
+    super.key,
     required this.paint,
     required this.color,
     required this.nextColor,
@@ -36,7 +36,7 @@ class StackedChipCard extends StatelessWidget {
     required this.scrollOffset,
     required this.onTap,
     required this.onOpenDetail,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

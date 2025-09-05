@@ -118,7 +118,7 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
 
     AnalyticsService.instance.log('via_send', {'context': widget.contextLabel, 'chars': trimmed.length});
 
-    Future<String> _ask(String q) async {
+    Future<String> ask(String q) async {
       if (widget.onAsk != null) {
         return widget.onAsk!(q, contextLabel: widget.contextLabel, state: widget.state);
       }
@@ -130,7 +130,7 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
       }
     }
 
-    final reply = await _ask(trimmed);
+    final reply = await ask(trimmed);
     if (!mounted) return;
     setState(() {
       _msgs.insert(0, _ChatBubble(text: reply, fromUser: false, timestamp: DateTime.now()));
@@ -667,7 +667,7 @@ class _ChatBubble {
   final bool fromUser;
   final DateTime timestamp;
   final bool isSystem;
-  _ChatBubble({required this.text, required this.fromUser, required this.timestamp, this.isSystem = false});
+  _ChatBubble({required this.text, required this.fromUser, required this.timestamp});
 }
 
 class _Suggestion {

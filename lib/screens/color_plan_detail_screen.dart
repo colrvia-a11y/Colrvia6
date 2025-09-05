@@ -1789,7 +1789,7 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
                         final dpr = MediaQuery.of(context).devicePixelRatio;
                         // Approximate the displayed size using container width
                         // If you know exact dimensions, pass them instead.
-                        final int? memW = (MediaQuery.of(context).size.width * dpr).round();
+                        final int memW = (MediaQuery.of(context).size.width * dpr).round();
                         return CachedNetworkImage(
                           imageUrl: variant.heroImageUrl!,
                           fit: BoxFit.cover,
