@@ -116,6 +116,9 @@ class AnalyticsService {
   Future<void> viaActionClicked(String action) =>
       log('via_action_clicked', {'action': action});
 
+  Future<void> viaOpened(String context) =>
+      log('via_open', {'context': context});
+
   Future<void> lightingProfileSelected(String profile) =>
       log('lighting_profile_selected', {'profile': profile});
 
