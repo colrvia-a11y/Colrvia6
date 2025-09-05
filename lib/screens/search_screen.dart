@@ -744,55 +744,27 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
   }
 
   Widget _minimalTabs(ThemeData theme) {
-    // Match hero-style tabs: equal width, rounded-rect highlight, compact spacing
-    final labels = const ['Explore', 'All', 'Rooms', 'Brands'];
-    final sel = _tabIndex;
-    final sc = theme.colorScheme;
-
-    return Container(
-      height: 44,
-      decoration: BoxDecoration(
-        color: sc.surface.withOpacity(0.24),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Row(
-        children: List.generate(labels.length, (i) {
-          final isSel = i == sel;
-          final left = i == 0 ? 0.0 : 4.0;
-          final right = i == labels.length - 1 ? 0.0 : 4.0;
-          return Expanded(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(left, 4, right, 4),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: () => setState(() {
-                  _tabIndex = i;
-                  _hideSearch = false;
-                }),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 140),
-                  curve: Curves.easeOut,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: isSel ? sc.onSurface.withAlpha(72) : Colors.transparent,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    labels[i],
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      fontSize: 12.0,
-                      fontWeight: isSel ? FontWeight.w700 : FontWeight.w600,
-                      color: sc.onSurface.withAlpha(isSel ? 255 : 170),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        }),
+    return SizedBox(
+      height: 40,
+      width: double.infinity,
+      child: SegmentedButton<int>(
+        segments: const <ButtonSegment<int>>[
+          ButtonSegment(value: 0, label: Text('Explore')),
+          ButtonSegment(value: 1, label: Text('All')),
+          ButtonSegment(value: 2, label: Text('Rooms')),
+          ButtonSegment(value: 3, label: Text('Brands')),
+        ],
+        selected: {_tabIndex},
+        showSelectedIcon: false,
+        onSelectionChanged: (newSelection) {
+          setState(() {
+            _tabIndex = newSelection.first;
+            _hideSearch = false;
+          });
+        },
+        style: ButtonStyle(
+          visualDensity: VisualDensity.compact,
+        ),
       ),
     );
   }
