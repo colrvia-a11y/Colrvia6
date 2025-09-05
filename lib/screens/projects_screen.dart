@@ -341,9 +341,9 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
               'This might be because:',
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
-            m.Text('• You need to verify your email address'),
-            m.Text('• Your account is still being set up'),
-            m.Text('• There\'s a temporary server issue'),
+            m.Text('â€¢ You need to verify your email address'),
+            m.Text('â€¢ Your account is still being set up'),
+            m.Text('â€¢ There\'s a temporary server issue'),
             m.SizedBox(height: 12),
             m.Text(
               'Try signing out and signing back in, or contact support if the issue persists.',
@@ -820,12 +820,11 @@ class EnhancedPaletteCard extends StatelessWidget {
 
                     // Metadata
                     m.Text(
-                      '${palette.colors.length} colors • ${_formatDate(palette.createdAt)}',
+                      '${palette.colors.length} colors - ${_formatDate(palette.createdAt)}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Colors.grey[600],
                           ),
                     ),
-
                     if (palette.tags.isNotEmpty) ...[
                       const m.SizedBox(height: 4),
                       Wrap(
