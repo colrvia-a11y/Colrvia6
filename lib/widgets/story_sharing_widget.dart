@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'dart:ui' as ui;
 import '../models/story_experience.dart';
 import '../models/immersive_story_context.dart';
-import '../theme.dart';
 
 /// Beautiful shareable story cards for social media
 class StoryCardGenerator {
@@ -15,7 +14,8 @@ class StoryCardGenerator {
   /// Generate a beautiful story card widget for sharing
   Widget buildStoryCard({
     required StoryExperience story,
-    ColorStoryContext? context,
+    required BuildContext context,
+    ColorStoryContext? storyContext,
     StoryCardStyle style = StoryCardStyle.gradient,
   }) {
     return RepaintBoundary(
@@ -23,11 +23,11 @@ class StoryCardGenerator {
       child: Container(
         width: 400,
         height: 600,
-        decoration: _buildCardDecoration(story, context, style),
+        decoration: _buildCardDecoration(story, storyContext, style),
         child: Stack(
           children: [
             // Background pattern
-            _buildBackgroundPattern(context),
+            _buildBackgroundPattern(storyContext),
 
             // Content overlay
             Container(
@@ -46,7 +46,8 @@ class StoryCardGenerator {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Color palette display
-                  if (context != null) _buildPaletteDisplay(context.palette),
+                  if (storyContext != null)
+                    _buildPaletteDisplay(storyContext.palette),
 
                   const Spacer(),
 
@@ -127,7 +128,8 @@ class StoryCardGenerator {
   /// Create a beautiful story card for Instagram/social sharing
   Widget buildInstagramStoryCard({
     required StoryExperience story,
-    ColorStoryContext? context,
+    required BuildContext context,
+    ColorStoryContext? storyContext,
   }) {
     return RepaintBoundary(
       key: GlobalKey(),
@@ -135,14 +137,14 @@ class StoryCardGenerator {
         width: 1080,
         height: 1920,
         decoration: BoxDecoration(
-          gradient: context != null && context.palette.isNotEmpty
+          gradient: storyContext != null && storyContext.palette.isNotEmpty
               ? RadialGradient(
                   center: Alignment.topRight,
                   radius: 1.5,
                   colors: [
-                    context.palette.first.withValues(alpha: 0.2),
-                    context.palette.length > 1
-                        ? context.palette[1].withValues(alpha: 0.2)
+                    storyContext.palette.first.withValues(alpha: 0.2),
+                    storyContext.palette.length > 1
+                        ? storyContext.palette[1].withValues(alpha: 0.2)
                         : Colors.black.withValues(alpha: 0.2),
                     Colors.black,
                   ],
@@ -154,7 +156,8 @@ class StoryCardGenerator {
         child: Stack(
           children: [
             // Animated background particles
-            if (context != null) _buildFloatingParticles(context.palette),
+            if (storyContext != null)
+              _buildFloatingParticles(storyContext.palette),
 
             // Main content
             Padding(
@@ -164,8 +167,8 @@ class StoryCardGenerator {
                 children: [
                   const SizedBox(height: 200),
                   // Large color palette
-                  if (context != null)
-                    _buildLargePaletteDisplay(context.palette),
+                  if (storyContext != null)
+                    _buildLargePaletteDisplay(storyContext.palette),
                   const SizedBox(height: 100),
                   // Story title with dramatic typography
                   Text(
@@ -628,7 +631,8 @@ class ShareStoryDialog extends StatelessWidget {
     final generator = StoryCardGenerator();
     final storyCard = generator.buildStoryCard(
       story: story,
-      context: this.context,
+      context: context,
+      storyContext: this.context,
     );
 
     final imageData = await generator.exportStoryCard(storyCard: storyCard);
@@ -647,7 +651,8 @@ class ShareStoryDialog extends StatelessWidget {
     final generator = StoryCardGenerator();
     final instagramCard = generator.buildInstagramStoryCard(
       story: story,
-      context: this.context,
+      context: context,
+      storyContext: this.context,
     );
 
     final imageData = await generator.exportStoryCard(storyCard: instagramCard);

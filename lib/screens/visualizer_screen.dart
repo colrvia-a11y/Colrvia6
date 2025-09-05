@@ -244,7 +244,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
                       colors: [
                         _accentGlow.value ?? const Color(0xFF404934),
                         _accentGlow.value?.withValues(alpha: 0.3) ??
-                            const Color(0xFF404934).withValues(alpha: 0.3),
+                            Color(0xFF404934).withValues(alpha: 0.3),
                         Colors.transparent,
                       ],
                     ),
@@ -316,7 +316,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
           title: 'Upload Your Photo',
           subtitle: 'Transform your real space',
           onTap: () => _navigateToMode(VisualizerMode.upload),
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             colors: [
               Theme.of(context).colorScheme.secondary,
               Color(0xFFE5A177)
@@ -330,7 +330,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
           title: 'Create AI Mockup',
           subtitle: 'Generate your dream space',
           onTap: () => _generateMockup(),
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             colors: [
               Color(0xFF404934),
               Color(0xFF5A6348)
@@ -537,12 +537,12 @@ class _VisualizerScreenState extends State<VisualizerScreen>
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          const Color(0xFF6C5CE7).withValues(alpha: 0.2),
+                          Color(0xFF6C5CE7).withValues(alpha: 0.2),
                           Colors.transparent,
                         ],
                       ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.add_photo_alternate,
                       size: 60,
                       color: Theme.of(context).colorScheme.secondary, // Brand peach
@@ -1274,8 +1274,8 @@ class _VisualizerScreenState extends State<VisualizerScreen>
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  const Color(0xFF6C5CE7).withValues(alpha: 0.2),
-                  const Color(0xFF6C5CE7).withValues(alpha: 0.2),
+                  Color(0xFF6C5CE7).withValues(alpha: 0.2),
+                  Color(0xFF6C5CE7).withValues(alpha: 0.2),
                   Colors.transparent,
                 ],
               ),
@@ -1288,7 +1288,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
                 border: Border.all(
                     color: Colors.white.withValues(alpha: 0.3), width: 2),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.psychology,
                 size: 80,
                 color: Theme.of(context).colorScheme.secondary, // Brand peach
@@ -1366,7 +1366,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
                   widthFactor: _progressAnim.value,
                   child: Container(
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
+                      gradient: LinearGradient(
                         colors: [
                           Theme.of(context).colorScheme.secondary,
                           Color(0xFFE5A177)
@@ -1507,7 +1507,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
                 widthFactor: _progressAnim.value,
                 child: Container(
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                       colors: [
                         Theme.of(context).colorScheme.secondary,
                         Color(0xFF404934),

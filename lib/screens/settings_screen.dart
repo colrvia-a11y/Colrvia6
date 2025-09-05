@@ -9,7 +9,6 @@ import 'package:color_canvas/screens/simple_firebase_test.dart';
 import 'package:color_canvas/services/accessibility_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'diagnostics_screen.dart';
-import '../theme.dart';
 
 
 class SettingsScreen extends StatefulWidget {
@@ -482,7 +481,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           Container(
             width: 60,
             height: 60,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
                 colors: [_forestGreen, _brandPeach],
