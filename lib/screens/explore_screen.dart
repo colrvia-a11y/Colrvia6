@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:flutter/material.dart' as m;
 import 'package:flutter/material.dart';
+import 'package:color_canvas/widgets/app_icon_button.dart' as app;
 
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
@@ -37,15 +37,17 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Explore Color Stories'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => setState(() => _isLoading = !_isLoading),
-            tooltip: 'Toggle loading',
+          Tooltip(
+            message: 'Toggle loading',
+            child: app.AppOutlineIconButton(
+              icon: Icons.refresh,
+              color: Theme.of(context).colorScheme.onSurface,
+              onPressed: () => setState(() => _isLoading = !_isLoading),
+            ),
           )
         ],
       ),
@@ -60,13 +62,13 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 hintText: 'Search stories, styles, or rooms…',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
+                    ? app.AppOutlineIconButton(
+                        icon: Icons.clear,
+                        color: Theme.of(context).colorScheme.onSurface,
                         onPressed: () {
                           _searchController.clear();
                           _onSearchChanged('');
                         },
-                        icon: const Icon(Icons.clear),
-                        tooltip: 'Clear',
                       )
                     : null,
                 border:
@@ -78,7 +80,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : _buildPlaceholderGrid(theme),
+                : _buildPlaceholderGrid(),
           ),
         ],
       ),
@@ -90,7 +92,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
     );
   }
 
-  Widget _buildPlaceholderGrid(ThemeData theme) {
+  Widget _buildPlaceholderGrid() {
     final bottomPadding = 24 + kBottomNavigationBarHeight + MediaQuery.of(context).padding.bottom;
     return GridView.builder(
       controller: _scrollController,
@@ -143,7 +145,7 @@ class _CardSkeleton extends StatelessWidget {
                 ),
               ),
             ),
-            const Expanded(
+            Expanded(
               flex: 2,
               child: Padding(
                 padding: EdgeInsets.all(12),
@@ -154,7 +156,7 @@ class _CardSkeleton extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(fontWeight: FontWeight.w600)),
-                    m.SizedBox(height: 6),
+                    SizedBox(height: 6),
                     Text('AI Generated',
                         style: TextStyle(fontSize: 12, color: Colors.grey)),
                   ],
@@ -465,9 +467,10 @@ class _CardSkeleton extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    IconButton(
+                    AppOutlineIconButton(
+                      icon: Icons.close,
+                      color: Theme.of(context).colorScheme.onSurface,
                       onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close),
                     ),
                   ],
                 ),
@@ -483,8 +486,9 @@ class _CardSkeleton extends StatelessWidget {
                     hintText: 'Search stories or tags…',
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: _searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear),
+                        ? AppOutlineIconButton(
+                            icon: Icons.clear,
+                            color: Theme.of(context).colorScheme.onSurface,
                             onPressed: () {
                               _searchController.clear();
                               _onSearchChanged('');
@@ -2395,6 +2399,7 @@ class _FeaturePatternPainter extends CustomPainter {
   }
   
   @override
+import 'package:color_canvas/widgets/app_icon_button.dart';
   bool shouldRepaint(_FeaturePatternPainter oldDelegate) {
     return animationValue != oldDelegate.animationValue;
   }

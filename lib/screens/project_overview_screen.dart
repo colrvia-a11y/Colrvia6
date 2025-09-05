@@ -4,6 +4,7 @@ import 'roller_screen.dart';
 import 'color_plan_screen.dart';
 import 'visualizer_screen.dart';
 import '../services/analytics_service.dart';
+import 'package:color_canvas/widgets/app_icon_button.dart' as app;
 
 /// Basic overview of a project with quick links to core tools.
 class ProjectOverviewScreen extends StatelessWidget {
@@ -52,7 +53,9 @@ class ProjectOverviewScreen extends StatelessWidget {
                 label: const Text('Visualize'),
               )),
               const SizedBox(width: 8),
-              IconButton(
+              app.AppOutlineIconButton(
+                icon: Icons.compare,
+                color: Theme.of(context).colorScheme.onSurface,
                 onPressed: hasPalette
                     ? () {
                         Navigator.pushNamed(context, '/compareColors', arguments: {
@@ -62,7 +65,6 @@ class ProjectOverviewScreen extends StatelessWidget {
                         AnalyticsService.instance.ctaCompareClicked('project_overview');
                       }
                     : null,
-                icon: const Icon(Icons.compare)
               ),
             ]),
           ),

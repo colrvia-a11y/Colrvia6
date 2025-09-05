@@ -15,6 +15,7 @@ import 'color_plan_screen.dart';
 import 'package:color_canvas/screens/visualizer_screen.dart';
 import 'package:color_canvas/utils/color_utils.dart';
 import 'package:color_canvas/main.dart' show isFirebaseInitialized;
+import 'package:color_canvas/widgets/app_icon_button.dart' as app;
 // REGION: CODEX-ADD user-prefs-import
 import 'package:color_canvas/services/user_prefs_service.dart';
 import 'package:color_canvas/services/analytics_service.dart';
@@ -304,19 +305,21 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         title: const m.Text('My Library'),
         actions: [
           if (_hasPermissionError)
-            IconButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: m.Text(
-                        'Some data may not be available due to permission issues. Try signing out and back in.'),
-                    duration: Duration(seconds: 4),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.warning_amber_outlined,
-                  color: Colors.orange),
-              tooltip: 'Permission Issues',
+            Tooltip(
+              message: 'Permission Issues',
+              child: app.AppOutlineIconButton(
+                icon: Icons.warning_amber_outlined,
+                color: Colors.orange,
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: m.Text(
+                          'Some data may not be available due to permission issues. Try signing out and back in.'),
+                      duration: Duration(seconds: 4),
+                    ),
+                  );
+                },
+              ),
             ),
         ],
       ),
@@ -1056,9 +1059,10 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
                   ),
                 ),
                 const m.SizedBox(width: 8),
-                IconButton(
+                app.AppOutlineIconButton(
+                  icon: Icons.add,
+                  color: Theme.of(context).colorScheme.onSurface,
                   onPressed: _addCustomTag,
-                  icon: const Icon(Icons.add),
                 ),
               ],
             ),

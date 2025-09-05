@@ -17,6 +17,7 @@ import '../widgets/staggered_entrance.dart';
 
 import '../widgets/shimmer.dart';
 import '../data/explore_rails_config.dart';
+import 'package:color_canvas/widgets/app_icon_button.dart';
 
 // Shared tile geometry (keep cards consistent across tabs)
 const double kTileAspect = 0.72;      // width / height (≈ All tab’s look)
@@ -721,8 +722,9 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
             borderSide: BorderSide.none,
           ),
           suffixIcon: _showClearButton
-              ? IconButton(
-                  icon: const Icon(Icons.close, size: 18),
+              ? AppOutlineIconButton(
+                  icon: Icons.close,
+                  color: theme.colorScheme.onSurface,
                   onPressed: () {
                     _searchController.clear();
                     setState(() {
