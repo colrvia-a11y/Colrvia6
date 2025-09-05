@@ -651,7 +651,6 @@ class _ChatBubble {
     required this.text,
     required this.fromUser,
     required this.timestamp,
-    this.isSystem = false,
   });
 }
 
