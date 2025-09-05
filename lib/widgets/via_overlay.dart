@@ -201,11 +201,11 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                     ? Theme.of(context)
                         .colorScheme
                         .surface
-                        .withOpacity(0.96)
+                        .withValues(alpha: 0.96)
                     : Theme.of(context)
                         .colorScheme
                         .secondaryContainer
-                        .withOpacity(0.95),
+                        .withValues(alpha: 0.95),
                 topFadeStart: (isExpanded ? null : 0.5),
                 child: SafeArea(
                   top: false,
@@ -628,7 +628,7 @@ class _SolidSurface extends StatelessWidget {
               color: Theme.of(context)
                   .colorScheme
                   .secondary
-                  .withOpacity(115 / 255.0),
+                  .withValues(alpha: 115 / 255.0),
               width: 1),
         ),
         child: Text(label,
@@ -641,33 +641,21 @@ class _SolidSurface extends StatelessWidget {
   }
 }
 
-class _GhostIconButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-  const _GhostIconButton({required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkResponse(
-      onTap: onTap,
-      radius: AppDims.radiusLarge,
-      child: Container(
-        width: 40,
-        height: 40,
-        alignment: Alignment.center,
-        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-        child: Icon(icon, size: 20, color: Colors.black87),
-      ),
-    );
-  }
-}
-
 class _ChatBubble {
   final String text;
   final bool fromUser;
   final DateTime timestamp;
   final bool isSystem;
+<<<<<<< HEAD
   _ChatBubble({required this.text, required this.fromUser, required this.timestamp});
+=======
+  _ChatBubble({
+    required this.text,
+    required this.fromUser,
+    required this.timestamp,
+    this.isSystem = false,
+  });
+>>>>>>> d629ae8dcd51064cc9565a06b45bfcbd8ca4a027
 }
 
 class _Suggestion {

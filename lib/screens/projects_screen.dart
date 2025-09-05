@@ -230,8 +230,9 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Future<void> _handleResume() async {
     final pid = _lastProjectId;
@@ -277,8 +278,9 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
             ],
           ),
         ),
-      );
-    }
+      ),
+    );
+  }
     return Scaffold(
       appBar: AppBar(
         title: const m.Text('My Library'),
@@ -508,8 +510,9 @@ class _PalettesSection extends ConsumerWidget {
             ],
           ),
         ),
-      );
-    }
+      ),
+    );
+  }
 
     final palettesAsync = ref.watch(userPalettesProvider);
 
@@ -863,7 +866,9 @@ class EnhancedPaletteCard extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 
   // No longer needed - using stored color info directly
