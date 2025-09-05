@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:collection/collection.dart';
 import 'package:printing/printing.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/color_story.dart';
@@ -255,7 +256,7 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
   Future<void> _savePalette(ColorStory story) async {
     final user = FirebaseService.currentUser;
     if (user == null) {
-      await AuthGuard.requireLogin(context);
+      await AuthGuard.ensureSignedIn(context);
       return;
     }
     if (_paletteSaved) return;
@@ -2130,11 +2131,9 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
           '$shareTitle$contextInfo\n\n$excerpt';
 
       // Share the story
-      await SharePlus.instance.share(
-        ShareParams(
-          text: shareText,
-          subject: shareTitle,
-        ),
+      await Share.share(
+        shareText,
+        subject: shareTitle,
       );
 
       // Update project funnel stage to share
