@@ -1,6 +1,6 @@
 // lib/screens/photo_library_screen.dart
 import 'package:flutter/material.dart';
-import 'package:color_canvas/widgets/app_icon_button.dart';
+import 'package:color_canvas/widgets/colr_via_icon_button.dart';
 import 'package:share_plus/share_plus.dart';
 import '../services/photo_library_service.dart';
 import '../models/saved_photo.dart';
@@ -82,7 +82,7 @@ class _PhotoLibraryScreenState extends State<PhotoLibraryScreen> {
               floating: true,
               snap: true,
               elevation: 0,
-              leading: AppOutlineIconButton(
+              leading: ColrViaIconButton(
                 icon: Icons.arrow_back_ios_new,
                 color: creamWhite,
                 onPressed: () => Navigator.pop(context),
@@ -91,7 +91,7 @@ class _PhotoLibraryScreenState extends State<PhotoLibraryScreen> {
                 if (_photos.isNotEmpty)
                   Tooltip(
                     message: 'Clear All Photos',
-                    child: AppOutlineIconButton(
+                    child: ColrViaIconButton(
                       icon: Icons.delete_sweep,
                       color: creamWhite,
                       onPressed: _showClearAllDialog,

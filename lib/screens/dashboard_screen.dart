@@ -14,7 +14,7 @@ import 'settings_screen.dart';
 import 'projects_screen.dart';
 import 'photo_library_screen.dart';
 import 'package:color_canvas/utils/debug_logger.dart';
-import 'package:color_canvas/widgets/app_icon_button.dart';
+import 'package:color_canvas/widgets/colr_via_icon_button.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -317,7 +317,7 @@ class _AccountHeaderDelegate extends SliverPersistentHeaderDelegate {
                 ),
                 child: Tooltip(
                   message: 'Settings',
-                  child: AppOutlineIconButton(
+                  child: ColrViaIconButton(
                     icon: Icons.settings_rounded,
                     color: creamWhite,
                     onPressed: () => Navigator.of(context).push(

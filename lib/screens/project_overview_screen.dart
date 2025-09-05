@@ -4,7 +4,7 @@ import 'roller_screen.dart' deferred as roller;
 import 'color_plan_screen.dart' deferred as plan;
 import 'visualizer_screen.dart' deferred as viz;
 import '../services/analytics_service.dart';
-import 'package:color_canvas/widgets/app_icon_button.dart' as app;
+import 'package:color_canvas/widgets/colr_via_icon_button.dart' as app;
 import '../theme.dart';
 
 /// Basic overview of a project with quick links to core tools.
@@ -56,7 +56,7 @@ class ProjectOverviewScreen extends StatelessWidget {
                 label: const Text('Visualize'),
               )),
               const SizedBox(width: 8),
-              app.AppOutlineIconButton(
+              app.ColrViaIconButton(
                 icon: Icons.compare,
                 color: Theme.of(context).colorScheme.onSurface,
                 onPressed: hasPalette
