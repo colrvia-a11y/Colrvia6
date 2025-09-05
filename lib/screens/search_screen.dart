@@ -1,4 +1,4 @@
-﻿// lib/screens/search_screen.dart
+// lib/screens/search_screen.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -742,56 +742,58 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
   }
 
   Widget _minimalTabs(ThemeData theme) {
-    // â€œExplore  All  Rooms  Brandsâ€ â€” one line, compact, no scroll.
+    // Match hero-style tabs: equal width, rounded-rect highlight, compact spacing
     final labels = const ['Explore', 'All', 'Rooms', 'Brands'];
     final sel = _tabIndex;
+    final sc = theme.colorScheme;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween, // tighter horizontally
-      children: List.generate(labels.length, (i) {
-        final isSel = i == sel;
-        return Expanded(
-          child: InkWell(
-            borderRadius: BorderRadius.circular(999),
-            onTap: () => setState(() {
-              _tabIndex = i;
-              _hideSearch = false; // reveal when switching tabs
-            }),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 140),
-              curve: Curves.easeOut,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8), // smaller padding
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                // unselected: no border/fill
-                // selected: tasteful oval outline
-                border: isSel
-                    ? Border.all(
-                        color: theme.colorScheme.primary.withAlpha(45),
-                        width: 1.1,
-                      )
-                    : null,
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Text(
-                labels[i],
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                // smaller, closer typography
-                style: theme.textTheme.labelMedium?.copyWith( // smaller than labelLarge
-                  fontSize: 12.0,
-                  fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
-                  letterSpacing: 0.15,
-                  color: isSel
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.onSurface.withAlpha(78),
+    return Container(
+      height: 44,
+      decoration: BoxDecoration(
+        color: sc.surface.withOpacity(0.24),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Row(
+        children: List.generate(labels.length, (i) {
+          final isSel = i == sel;
+          final left = i == 0 ? 0.0 : 4.0;
+          final right = i == labels.length - 1 ? 0.0 : 4.0;
+          return Expanded(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(left, 4, right, 4),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () => setState(() {
+                  _tabIndex = i;
+                  _hideSearch = false;
+                }),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 140),
+                  curve: Curves.easeOut,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isSel ? sc.onSurface.withAlpha(72) : Colors.transparent,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    labels[i],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      fontSize: 12.0,
+                      fontWeight: isSel ? FontWeight.w700 : FontWeight.w600,
+                      color: sc.onSurface.withAlpha(isSel ? 255 : 170),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      }),
+          );
+        }),
+      ),
     );
   }
 }
+
 
