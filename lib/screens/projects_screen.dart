@@ -516,6 +516,7 @@ class _PalettesSection extends ConsumerWidget {
               onDelete: () => _deletePalette(context, palette),
               onEdit: () => _editPaletteTags(context, palette),
               onOpenInRoller: () => _openPaletteInRoller(context, palette),
+              onVisualize: () => _openPaletteInVisualizer(context, palette),
             );
           },
         );
@@ -540,6 +541,20 @@ class _PalettesSection extends ConsumerWidget {
     nav.pushReplacement(
       MaterialPageRoute(
         builder: (_) => roller.RollerScreen(seedPaletteId: palette.id),
+      ),
+    );
+  }
+
+  Future<void> _openPaletteInVisualizer(
+      BuildContext context, UserPalette palette) async {
+    final nav = Navigator.of(context);
+    await viz.loadLibrary();
+    if (!nav.mounted) return;
+    nav.push(
+      MaterialPageRoute(
+        builder: (_) => viz.VisualizerScreen(
+          initialPalette: palette.colors.map((c) => c.hex).toList(),
+        ),
       ),
     );
   }
@@ -615,6 +630,7 @@ class EnhancedPaletteCard extends StatelessWidget {
   final VoidCallback onDelete;
   final VoidCallback onEdit;
   final VoidCallback onOpenInRoller;
+  final VoidCallback onVisualize;
 
   const EnhancedPaletteCard({
     super.key,
@@ -623,6 +639,7 @@ class EnhancedPaletteCard extends StatelessWidget {
     required this.onDelete,
     required this.onEdit,
     required this.onOpenInRoller,
+    required this.onVisualize,
   });
 
   @override
@@ -692,6 +709,9 @@ class EnhancedPaletteCard extends StatelessWidget {
                               case 'roller':
                                 onOpenInRoller();
                                 break;
+                              case 'visualize':
+                                onVisualize();
+                                break;
                               case 'edit':
                                 onEdit();
                                 break;
@@ -708,6 +728,16 @@ class EnhancedPaletteCard extends StatelessWidget {
                                   Icon(Icons.casino, size: 16),
                                   m.SizedBox(width: 8),
                                   m.Text('Open in Roller'),
+                                ],
+                              ),
+                            ),
+                            const PopupMenuItem(
+                              value: 'visualize',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.auto_fix_high, size: 16),
+                                  m.SizedBox(width: 8),
+                                  m.Text('Visualize'),
                                 ],
                               ),
                             ),

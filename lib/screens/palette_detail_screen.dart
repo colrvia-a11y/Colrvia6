@@ -14,6 +14,7 @@ import 'package:color_canvas/services/analytics_service.dart';
 import 'package:color_canvas/services/project_service.dart';
 import 'package:color_canvas/services/auth_guard.dart';
 import 'package:color_canvas/widgets/paint_action_sheet.dart';
+import 'visualizer_screen.dart';
 
 class PaletteDetailScreen extends StatefulWidget {
   final UserPalette palette;
@@ -101,12 +102,26 @@ class _PaletteDetailScreenState extends State<PaletteDetailScreen> {
         subject: '${widget.palette.name} - Color Palette');
   }
 
+  void _openVisualizer() {
+    final hexCodes = widget.palette.colors.map((c) => c.hex).toList();
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => VisualizerScreen(initialPalette: hexCodes),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Palette Details'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.auto_fix_high),
+            onPressed: _openVisualizer,
+            tooltip: 'Visualize',
+          ),
           PopupMenuButton(
             onSelected: (value) async {
               switch (value) {
@@ -124,6 +139,9 @@ class _PaletteDetailScreenState extends State<PaletteDetailScreen> {
                       widget.palette.colors.map((c) => c.paintId).toList();
                   if (!mounted) return;
                   _openInRoller(ids);
+                  break;
+                case 'visualize':
+                  _openVisualizer();
                   break;
                 case 'delete':
                   final confirmed = await showDialog<bool>(
@@ -209,6 +227,16 @@ class _PaletteDetailScreenState extends State<PaletteDetailScreen> {
                     Icon(Icons.casino, size: 16),
                     SizedBox(width: 8),
                     Text('Open in Roller')
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'visualize',
+                child: Row(
+                  children: [
+                    Icon(Icons.auto_fix_high, size: 16),
+                    SizedBox(width: 8),
+                    Text('Visualize'),
                   ],
                 ),
               ),
