@@ -59,7 +59,10 @@ Future<void> main() async {
       Debug.info('App', 'main', 'Firebase app already initialized');
     }
 
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    FlutterError.onError = (FlutterErrorDetails details) {
+      FlutterError.presentError(details);
+      FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+    };
     Debug.info('App', 'main', "Firebase project: '${Firebase.app().options.projectId}'");
 
     isFirebaseInitialized = true;

@@ -1,7 +1,7 @@
 name: color_canvas
 description: "Unleash your inner interior designer with \"Paint Roller,\" the mobile-first app that transforms how you discover and visualize paint palettes, featuring real colors from leading brands like Sherwin-Williams, Benjamin Moore, and Behr."
 publish_to: "none"
-version: 1.0.0
+version: 1.0.0+1
 
 environment:
   sdk: ^3.6.0

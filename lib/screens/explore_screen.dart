@@ -1,5 +1,6 @@
 ﻿import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:color_canvas/widgets/colr_via_icon_button.dart' as app;
 
 class ExploreScreen extends StatefulWidget {
@@ -41,12 +42,13 @@ class _ExploreScreenState extends State<ExploreScreen> {
       appBar: AppBar(
         title: const Text('Explore Color Stories'),
         actions: [
-          app.ColrViaIconButton(
-            icon: Icons.refresh,
-            color: Theme.of(context).colorScheme.onSurface,
-            onPressed: () => setState(() => _isLoading = !_isLoading),
-            semanticLabel: 'Toggle loading',
-          )
+          if (kDebugMode)
+            app.ColrViaIconButton(
+              icon: Icons.refresh,
+              color: Theme.of(context).colorScheme.onSurface,
+              onPressed: () => setState(() => _isLoading = !_isLoading),
+              semanticLabel: 'Toggle loading',
+            )
         ],
       ),
       body: Column(
