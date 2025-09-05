@@ -79,6 +79,8 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
   // REGION: CODEX-ADD color-plan-detail-screen-state
   ColorPlan? _plan;
   // END REGION: CODEX-ADD color-plan-detail-screen-state
+  bool _paletteSaved = false;
+  bool _savingPalette = false;
   List<String> _flowWarnings = [];
 
   // Ambient audio
@@ -247,6 +249,37 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
       } catch (e) {
         // Fail silently
       }
+    }
+  }
+
+  Future<void> _savePalette(ColorStory story) async {
+    final user = FirebaseService.currentUser;
+    if (user == null) {
+      await AuthGuard.requireLogin(context);
+      return;
+    }
+    if (_paletteSaved) return;
+    setState(() => _savingPalette = true);
+    try {
+      await FirebaseService.savePalette(
+        userId: user.uid,
+        name: story.title.isNotEmpty ? story.title : 'Palette',
+        colors: story.palette.map((c) => c.hex).toList(),
+      );
+      if (mounted) {
+        setState(() => _paletteSaved = true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Palette saved!')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saving palette: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _savingPalette = false);
     }
   }
 
@@ -796,6 +829,33 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
                       const BoxConstraints(minWidth: 44, minHeight: 44),
                   onPressed: _isLikeLoading ? null : _handleLike,
                 ),
+                IconButton(
+                  tooltip: _paletteSaved ? 'Palette saved' : 'Save palette',
+                  icon: _savingPalette
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2))
+                      : Icon(_paletteSaved
+                          ? Icons.bookmark
+                          : Icons.bookmark_border),
+                  constraints:
+                      const BoxConstraints(minWidth: 44, minHeight: 44),
+                  onPressed: _savingPalette || _paletteSaved
+                      ? null
+                      : () => _savePalette(story),
+                ),
+                IconButton(
+                  tooltip: 'Share palette',
+                  icon: const Icon(Icons.share),
+                  constraints:
+                      const BoxConstraints(minWidth: 44, minHeight: 44),
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Share coming soon')),
+                    );
+                  },
+                ),
                 PopupMenuButton<String>(
                   icon: const Icon(Icons.more_vert),
                   onSelected: (value) {
@@ -1136,20 +1196,35 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
                                             fontWeight: FontWeight.w600,
                                           ),
                                     ),
-                                    if ((story.room.isNotEmpty == true) ||
-                                        (story.style.isNotEmpty == true))
-                                      Text(
-                                        '${story.room.isNotEmpty == true ? story.room : ''} ${story.style.isNotEmpty == true ? '• ${story.style}' : ''}',
+                                    Builder(builder: (context) {
+                                      final hasStyle =
+                                          story.style.isNotEmpty == true;
+                                      final hasRoom =
+                                          story.room.isNotEmpty == true;
+                                      String subtitle;
+                                      if (hasStyle && hasRoom) {
+                                        subtitle =
+                                            'Palette based on ${story.style} style for ${story.room}.';
+                                      } else if (hasStyle) {
+                                        subtitle =
+                                            'Palette based on ${story.style} style preferences.';
+                                      } else if (hasRoom) {
+                                        subtitle =
+                                            'Palette tailored for your ${story.room}.';
+                                      } else {
+                                        subtitle =
+                                            'This palette is tailored to your style preferences.';
+                                      }
+                                      return Text(
+                                        subtitle,
                                         style: Theme.of(context)
                                             .textTheme
-                                            .labelLarge
+                                            .bodyMedium
                                             ?.copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
-                                              fontWeight: FontWeight.w500,
+                                              fontStyle: FontStyle.italic,
                                             ),
-                                      ),
+                                      );
+                                    }),
                                   ],
                                 ),
                               ),
