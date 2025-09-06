@@ -117,13 +117,18 @@ class _VisualizerScreenState extends State<VisualizerScreen>
       CurvedAnimation(parent: _progressController, curve: Curves.easeInOut),
     );
 
+    _masterController.forward();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Safe to use Theme.of(context) here
     _accentGlow = ColorTween(
-      begin: const Color(0xFF404934), // Brand forest green
-      end: Theme.of(context).colorScheme.secondary, // Brand warm peach
+      begin: const Color(0xFF404934),
+      end: Theme.of(context).colorScheme.secondary,
     ).animate(
         CurvedAnimation(parent: _breathingController, curve: Curves.easeInOut));
-
-    _masterController.forward();
   }
 
   Future<void> _loadInitialData() async {

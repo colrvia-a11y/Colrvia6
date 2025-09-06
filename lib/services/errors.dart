@@ -39,7 +39,6 @@ class LiveTalkErrorMessages {
       case LiveTalkErrorCode.notSignedIn:
         return 'Please sign in to continue';
       case LiveTalkErrorCode.unknown:
-      default:
         return 'Something went wrong';
     }
   }
@@ -63,7 +62,6 @@ class LiveTalkErrorMessages {
       case LiveTalkErrorCode.notSignedIn:
         return 'Sign in again, then retry starting the call.';
       case LiveTalkErrorCode.unknown:
-      default:
         return 'Please retry. If this keeps happening, try again later.';
     }
   }

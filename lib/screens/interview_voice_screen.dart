@@ -93,8 +93,8 @@ class _InterviewVoiceScreenState extends State<InterviewVoiceScreen>
           base = 'Error';
           break;
         case lt.LiveTalkConnectionState.disconnected:
-        default:
           base = 'Disconnected';
+          break;
       }
     }
     if (mode == 'ws-fallback') {
@@ -108,7 +108,7 @@ class _InterviewVoiceScreenState extends State<InterviewVoiceScreen>
   Widget build(BuildContext context) {
     return PopScope(
       canPop: true,
-      onPopInvoked: (didPop) async {
+      onPopInvokedWithResult: (didPop, result) async {
         final rec = _recorder;
         try { await _talk.disconnect(); } catch (_) {}
         if (rec != null) {
