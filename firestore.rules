@@ -2,46 +2,59 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function signedIn()       { return request.auth != null; }
-    function isProjectOwner() { return signedIn() && resource.data.ownerId == request.auth.uid; }
-    function canCreateProject() { return signedIn() && request.resource.data.ownerId == request.auth.uid; }
-    function isPaletteOwner() { return signedIn() && resource.data.userId == request.auth.uid; }
-    function canCreatePalette() { return signedIn() && request.resource.data.userId == request.auth.uid; }
+    function signedIn() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
+    function isUserOwner(doc) { return signedIn() && doc.userId == uid(); }
+    function isProjectOwner(doc) { return signedIn() && doc.ownerId == uid(); }
 
-    // palettes owned by userId
+    // 🔐 Interview sessions (top-level collection)
+    match /interviewSessions/{docId} {
+      // Read/query: only owner
+      allow read: if isUserOwner(resource.data);
+
+      // Create: must set own userId; startedAt must be timestamp
+      allow create: if signedIn()
+                    && request.resource.data.userId == uid()
+                    && request.resource.data.startedAt is timestamp;
+
+      // Update/Delete: only owner
+      allow update, delete: if isUserOwner(resource.data);
+    }
+
+    // 🎨 Palettes (owned by userId)
     match /palettes/{paletteId} {
-      allow read, update, delete: if isPaletteOwner();
-      allow create: if canCreatePalette();
+      allow read, update, delete: if isUserOwner(resource.data);
+      allow create: if signedIn() && request.resource.data.userId == uid();
     }
 
-    // projects owned by ownerId
+    // 🗂 Projects (owned by ownerId)
     match /projects/{projectId} {
-      allow read, update, delete: if isProjectOwner();
-      allow create: if canCreateProject();
+      allow read, update, delete: if isProjectOwner(resource.data);
+      allow create: if signedIn() && request.resource.data.ownerId == uid();
     }
 
-    // Public reference data: paints (read-only)
-    // These are non-user documents used for lookups and rendering.
+    // 🎨 Reference data (public read-only)
     match /paints/{paintId} {
-      allow read: if true;   // public read
-      allow write: if false; // no client writes
+      allow read: if true;
+      allow write: if false;
     }
-    // Optional: brands metadata (read-only)
     match /brands/{brandId} {
       allow read: if true;
       allow write: if false;
     }
 
+    // 👤 User subtree (be sure you want this breadth)
     match /users/{userId} {
-      allow read, write: if request.auth.uid == userId;
-
-      // Allow read/write to all subcollections and documents under a user's path
+      allow read, write: if signedIn() && userId == uid();
       match /{documents=**} {
-        allow read, write: if request.auth.uid == userId;
+        allow read, write: if signedIn() && userId == uid();
       }
     }
 
-    // Default deny for everything else not explicitly matched above
-    match /{document=**} { allow read, write: if false; }
+    // 🚫 Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
   }
 }
+

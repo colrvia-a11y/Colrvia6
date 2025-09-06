@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:color_canvas/models/interview_turn.dart';
 import 'package:color_canvas/models/interview_session.dart';
+import 'package:color_canvas/services/transcript_recorder.dart';
 
 /// Shared Interview voice/text engine (singleton).
 class InterviewEngine {
@@ -39,7 +40,9 @@ class InterviewEngine {
     _log('start_text_mode');
     _turns.clear();
     _startedAt = DateTime.now();
-    _turns.add(InterviewTurn(text: _getNextPrompt(), isUser: false));
+    final prompt = _getNextPrompt();
+    _turns.add(InterviewTurn(text: prompt, isUser: false));
+    TranscriptRecorder.instance.addAssistant(prompt);
   }
 
   Future<String> submitTextAnswer(String userText) async {
@@ -50,6 +53,9 @@ class InterviewEngine {
       InterviewTurn(text: response, isUser: false),
     ]);
     _log('submit_text_answer', {'chars': userText.length});
+    TranscriptRecorder.instance
+      ..addUser(userText)
+      ..addAssistant(response);
     return response;
   }
 
@@ -58,13 +64,20 @@ class InterviewEngine {
     _log('start_voice_mode');
     _turns.clear();
     _startedAt = DateTime.now();
-    _turns.add(InterviewTurn(text: _getNextPrompt(), isUser: false));
+    final prompt = _getNextPrompt();
+    _turns.add(InterviewTurn(text: prompt, isUser: false));
+    TranscriptRecorder.instance.addAssistant(prompt);
     _isListening = true;
     _sub?.cancel();
     _sub = Stream.periodic(const Duration(milliseconds: 300), (i) => 'Partial response $i')
         .take(5)
         .map((s) => s as String?)
-        .listen((text) => _liveTranscript.add(text));
+        .listen((text) {
+          _liveTranscript.add(text);
+          if (text != null && text.isNotEmpty) {
+            TranscriptRecorder.instance.addPartial(text);
+          }
+        });
   }
   void pause() {
     if (!_isListening) return;
@@ -106,6 +119,60 @@ class InterviewEngine {
         .collection('interviewSessions')
         .doc(session.id)
         .set(session.toJson());
+  }
+
+  /// Save a realtime voice session with meta and write each turn
+  /// to a subcollection interviewSessions/{id}/turns/{autoId}.
+  /// If [uploadJson] is true, also uploads a JSON transcript via TranscriptRecorder.
+  static Future<String> saveVoiceSession({
+    required String model,
+    required String voice,
+    required DateTime startedAt,
+    required DateTime endedAt,
+    required List<Map<String, dynamic>> turns, // { role, text, ts: DateTime }
+    bool uploadJson = true,
+  }) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid ?? 'anonymous';
+    final docRef = FirebaseFirestore.instance.collection('interviewSessions').doc();
+    final dur = endedAt.difference(startedAt).inSeconds;
+    await docRef.set({
+      'userId': uid,
+      'startedAt': Timestamp.fromDate(startedAt),
+      'endedAt': Timestamp.fromDate(endedAt),
+      'durationSec': dur,
+      'model': model,
+      'voice': voice,
+      'createdAt': FieldValue.serverTimestamp(),
+      'mode': 'realtime',
+    });
+
+    final batch = FirebaseFirestore.instance.batch();
+    final col = docRef.collection('turns');
+    for (final t in turns) {
+      final role = (t['role'] as String?) ?? 'assistant';
+      final text = (t['text'] as String?) ?? '';
+      final ts = (t['ts'] is DateTime)
+          ? Timestamp.fromDate(t['ts'] as DateTime)
+          : (t['ts'] is Timestamp ? t['ts'] as Timestamp : Timestamp.now());
+      final doc = col.doc();
+      batch.set(doc, {
+        'role': role,
+        'text': text,
+        'ts': ts,
+      });
+    }
+    await batch.commit();
+
+    if (uploadJson) {
+      try {
+        // Reuse TranscriptRecorder if available; otherwise no-op
+        // Import is at top of file in earlier patch
+        // ignore: unnecessary_cast
+        await TranscriptRecorder.instance.uploadJson(sessionId: docRef.id);
+      } catch (_) {}
+    }
+
+    return docRef.id;
   }
 
   void dispose() {

@@ -29,6 +29,7 @@ import 'package:color_canvas/services/firebase_service.dart';
 import 'package:color_canvas/utils/debug_logger.dart';
 import 'package:color_canvas/models/user_palette.dart';
 import 'package:color_canvas/services/analytics_service.dart';
+import 'platform/audio_session.dart';
 
 
 // Global Firebase state
@@ -60,6 +61,8 @@ Future<void> main() async {
     isFirebaseInitialized = true;
 
     Debug.info('App', 'main', 'Running app');
+    // Configure iOS audio session for live voice chat (no-op on other platforms)
+    await configureAudioSessionForVoiceChat();
     runApp(const ProviderScope(child: MyApp())); // <- same zone as ensureInitialized()
 
     // Non-critical setup after first frame

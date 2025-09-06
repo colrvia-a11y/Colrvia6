@@ -9,6 +9,7 @@ import 'package:color_canvas/widgets/journey_timeline.dart';
 import 'package:color_canvas/services/project_service.dart';
 import 'package:color_canvas/services/user_prefs_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:color_canvas/services/feature_flags.dart';
 
 import 'roller_screen.dart';
 import 'visualizer_screen.dart';
@@ -157,6 +158,8 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
           _SectionHeader(title: "Design a Palette"),
           _ToolRow(items: [
             _ToolItem(label: "Interview", onTap: () => Navigator.of(context).pushNamed('/interview/home')),
+            if (FeatureFlags.instance.isEnabled(FeatureFlags.voiceInterview))
+              _ToolItem(label: "Talk to Via", onTap: () => Navigator.of(context).pushNamed('/interview/voice-setup')),
             _ToolItem(label: "Roller", onTap: () => _open(context, const RollerScreen())),
           ]),
           _SectionHeader(title: "Refine your Palette"),
@@ -181,6 +184,8 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
           _SectionHeader(title: "Design a Palette"),
           _ToolRow(items: [
             _ToolItem(label: "Interview", onTap: () => Navigator.of(context).pushNamed('/interview/home')),
+            if (FeatureFlags.instance.isEnabled(FeatureFlags.voiceInterview))
+              _ToolItem(label: "Talk to Via", onTap: () => Navigator.of(context).pushNamed('/interview/voice-setup')),
             _ToolItem(label: "Roller", onTap: () => _open(context, const RollerScreen())),
           ]),
           _SectionHeader(title: "Refine your Palette"),

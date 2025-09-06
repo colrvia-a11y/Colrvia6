@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:color_canvas/services/live_talk_service.dart';
+import 'package:color_canvas/utils/voice_token_endpoint.dart';
 import 'package:color_canvas/services/journey/journey_service.dart';
 import 'package:color_canvas/services/interview_engine.dart';
 import 'package:color_canvas/services/schema_interview_compiler.dart';
@@ -14,7 +15,7 @@ class LiveTalkCallScreen extends StatefulWidget {
 }
 
 class _LiveTalkCallScreenState extends State<LiveTalkCallScreen> {
-  final _renderer = RTCVideoRenderer();
+  // Token minting Function URL (derived from Firebase project configuration).
   bool _connecting = true;
   double _progress = 0;
   String _question = 'Connecting…';
@@ -23,10 +24,9 @@ class _LiveTalkCallScreenState extends State<LiveTalkCallScreen> {
   @override
   void initState() { super.initState(); _init(); }
   @override
-  void dispose() { _renderer.dispose(); LiveTalkService.instance.hangup(); super.dispose(); }
+  void dispose() { LiveTalkService.instance.disconnect(); super.dispose(); }
 
   Future<void> _init() async {
-    await _renderer.initialize();
     // Listen to session doc
     FirebaseFirestore.instance.doc('talkSessions/${widget.sessionId}').snapshots().listen((doc) {
       final d = doc.data(); if (d == null) return;
@@ -38,10 +38,12 @@ class _LiveTalkCallScreenState extends State<LiveTalkCallScreen> {
       if (d['status'] == 'ended') _onEnded();
     });
 
-    final gateway = Uri.parse('wss://voice.colrvia.com/rtc'); // TODO: set real gateway
-    await LiveTalkService.instance.connect(sessionId: widget.sessionId, gatewayWss: gateway);
-    // Attach remote audio to renderer (audio-only). For audio, we don't display; attaching keeps lifecycle consistent.
-    _renderer.srcObject = LiveTalkService.instance.remoteStream;
+    // Connect using the ephemeral session minted by your token endpoint.
+    await LiveTalkService.instance.connect(
+      tokenEndpoint: VoiceTokenEndpoint.issueVoiceGatewayToken(),
+      sessionId: widget.sessionId,
+      // model/voice can be left as defaults or pulled from prefs
+    );
     setState(() => _connecting = false);
   }
 
@@ -80,6 +82,9 @@ class _LiveTalkCallScreenState extends State<LiveTalkCallScreen> {
           Text(_question, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 6),
           AnimatedOpacity(duration: const Duration(milliseconds: 200), opacity: _partial.isEmpty ? 0.5 : 1, child: Text(_partial, style: Theme.of(context).textTheme.bodyMedium)),
+          // Hidden video view used to play remote audio (attached in service)
+          const SizedBox(height: 2),
+          SizedBox(height: 1, width: 1, child: RTCVideoView(LiveTalkService.instance.remoteRenderer)),
           const Spacer(),
           Row(children: [
             OutlinedButton.icon(onPressed: _connecting ? null : _hangup, icon: const Icon(Icons.call_end, color: Colors.red), label: const Text('Hang up')),
@@ -91,6 +96,6 @@ class _LiveTalkCallScreenState extends State<LiveTalkCallScreen> {
     );
   }
 
-  Future<void> _hangup() async { await LiveTalkService.instance.hangup(); if (mounted) Navigator.of(context).maybePop(); }
+  Future<void> _hangup() async { await LiveTalkService.instance.disconnect(); if (mounted) Navigator.of(context).maybePop(); }
   void _switchToText() { /* Pop back to InterviewScreen; engine already has current answers via gateway updates */ Navigator.of(context).maybePop(); }
 }

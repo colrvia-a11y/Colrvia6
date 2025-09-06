@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:color_canvas/services/auth_service.dart';
 import 'package:color_canvas/services/journey/journey_service.dart';
+import 'package:color_canvas/models/interview_turn.dart';
 
 class TranscriptEvent {
   final String type; // 'question'|'partial'|'user'|'answer'|'note'
@@ -21,9 +22,23 @@ class TranscriptEvent {
 }
 
 class TranscriptRecorder {
+  TranscriptRecorder._();
+  static final TranscriptRecorder instance = TranscriptRecorder._();
+  factory TranscriptRecorder() => instance;
+
   final List<TranscriptEvent> _events = [];
   void add(TranscriptEvent e) => _events.add(e);
   List<TranscriptEvent> get events => List.unmodifiable(_events);
+
+  void clear() => _events.clear();
+
+  // Convenience helpers used by live voice/text flows
+  void addAssistant(String text, {String? promptId}) =>
+      add(TranscriptEvent(type: 'assistant', text: text, promptId: promptId));
+  void addUser(String text, {String? promptId}) =>
+      add(TranscriptEvent(type: 'user', text: text, promptId: promptId));
+  void addPartial(String text, {String? promptId}) =>
+      add(TranscriptEvent(type: 'partial', text: text, promptId: promptId));
 
   String toSrt() {
     final b = StringBuffer();
@@ -53,5 +68,23 @@ class TranscriptRecorder {
         format: PutStringFormat.raw,
         metadata: SettableMetadata(contentType: 'application/json'));
     return ref.getDownloadURL();
+  }
+
+  /// Convert recorded events to canonical InterviewTurns (assistant/user only),
+  /// filtering out partials and notes. Consecutive partials are ignored.
+  List<InterviewTurn> toInterviewTurns() {
+    final out = <InterviewTurn>[];
+    for (final e in _events) {
+      if (e.type == 'assistant' || e.type == 'question' || e.type == 'answer') {
+        if (e.text.trim().isEmpty) continue;
+        out.add(InterviewTurn(text: e.text.trim(), isUser: false));
+      } else if (e.type == 'user') {
+        if (e.text.trim().isEmpty) continue;
+        out.add(InterviewTurn(text: e.text.trim(), isUser: true));
+      } else {
+        // ignore 'partial' and other types for final transcript
+      }
+    }
+    return out;
   }
 }

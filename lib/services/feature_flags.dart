@@ -8,6 +8,7 @@ class FeatureFlags {
   static final FeatureFlags instance = FeatureFlags._();
 
   static const viaMvp = 'via_mvp';
+  static const voiceInterview = 'voiceInterview';
   static const lightingProfiles = 'lighting_profiles';
   static const fixedElementAssist = 'fixed_element_assist';
   static const maskAssist = 'mask_assist';
@@ -23,6 +24,7 @@ class FeatureFlags {
       ));
       await _rc.setDefaults({
         viaMvp: kDebugMode,
+        voiceInterview: kDebugMode, // default true on dev, can be disabled in prod
         lightingProfiles: kDebugMode,
         fixedElementAssist: kDebugMode,
         maskAssist: kDebugMode,
@@ -45,7 +47,7 @@ class FeatureFlags {
   Map<String, bool> get flagStates => Map.unmodifiable(_cache);
 
   void _updateCache() {
-    for (final key in [viaMvp, lightingProfiles, fixedElementAssist, maskAssist]) {
+    for (final key in [viaMvp, voiceInterview, lightingProfiles, fixedElementAssist, maskAssist]) {
       _cache[key] = _rc.getBool(key);
     }
   }

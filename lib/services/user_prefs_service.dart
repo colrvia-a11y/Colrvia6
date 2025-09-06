@@ -7,12 +7,21 @@ class UserPrefs {
   final String? lastOpenedProjectId;
   final String? lastVisitedScreen;
   final bool rollerHintShown;
+  // Voice & labs
+  final String voiceModel; // e.g., gpt-realtime-nano
+  final String voiceVoice; // e.g., alloy
+  final int voiceDailyCapMinutes; // e.g., 60
+  final bool featureVoiceInterview; // user toggle to show/hide voice UI
 
   UserPrefs({
     required this.firstRunCompleted,
     this.lastOpenedProjectId,
     this.lastVisitedScreen,
     this.rollerHintShown = false,
+    this.voiceModel = 'gpt-realtime-nano',
+    this.voiceVoice = 'alloy',
+    this.voiceDailyCapMinutes = 60,
+    this.featureVoiceInterview = true,
   });
 
   factory UserPrefs.fromMap(Map<String, dynamic>? data) {
@@ -21,6 +30,10 @@ class UserPrefs {
       lastOpenedProjectId: data?['lastOpenedProjectId'] as String?,
       lastVisitedScreen: data?['lastVisitedScreen'] as String?,
       rollerHintShown: data?['rollerHintShown'] == true,
+      voiceModel: (data?['voice']?['model'] as String?) ?? 'gpt-realtime-nano',
+      voiceVoice: (data?['voice']?['voice'] as String?) ?? 'alloy',
+      voiceDailyCapMinutes: (data?['voice']?['dailyCapMinutes'] as int?) ?? 60,
+      featureVoiceInterview: (data?['features']?['voiceInterview'] as bool?) ?? true,
     );
   }
 }
@@ -69,6 +82,53 @@ class UserPrefsService {
     final doc = _doc;
     if (doc != null) {
       await doc.set({'rollerHintShown': true}, SetOptions(merge: true));
+    }
+  }
+
+  // Convenience static mutators used by Labs UI (and elsewhere)
+  static Future<void> setVoicePrefs({String? model, String? voice, int? dailyCapMinutes}) async {
+    final doc = _doc;
+    if (doc != null) {
+      await doc.set({
+        'voice': {
+          if (model != null) 'model': model,
+          if (voice != null) 'voice': voice,
+          if (dailyCapMinutes != null) 'dailyCapMinutes': dailyCapMinutes,
+        }
+      }, SetOptions(merge: true));
+    }
+  }
+
+  static Future<void> setFeatureVoiceInterview(bool enabled) async {
+    final doc = _doc;
+    if (doc != null) {
+      await doc.set({
+        'features': {'voiceInterview': enabled}
+      }, SetOptions(merge: true));
+    }
+  }
+}
+
+extension UserPrefsMutators on UserPrefsService {
+  static Future<void> setVoicePrefs({String? model, String? voice, int? dailyCapMinutes}) async {
+    final doc = UserPrefsService._doc;
+    if (doc != null) {
+      await doc.set({
+        'voice': {
+          if (model != null) 'model': model,
+          if (voice != null) 'voice': voice,
+          if (dailyCapMinutes != null) 'dailyCapMinutes': dailyCapMinutes,
+        }
+      }, SetOptions(merge: true));
+    }
+  }
+
+  static Future<void> setFeatureVoiceInterview(bool enabled) async {
+    final doc = UserPrefsService._doc;
+    if (doc != null) {
+      await doc.set({
+        'features': {'voiceInterview': enabled}
+      }, SetOptions(merge: true));
     }
   }
 }

@@ -3,7 +3,11 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../services/via_service.dart';
+import '../services/live_talk_service.dart';
+import '../services/feature_flags.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 import '../services/analytics_service.dart';
+import 'package:color_canvas/utils/voice_token_endpoint.dart';
 import '../theme.dart';
 import 'colr_via_icon_button.dart';
 
@@ -46,6 +50,14 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
   final ScrollController _list = ScrollController();
   bool _sending = false;
   final List<_ChatBubble> _msgs = <_ChatBubble>[];
+  // Mini voice session state
+  bool _voiceActive = false;
+  String _voicePartial = '';
+  StreamSubscription<String>? _voicePartialSub;
+  StreamSubscription<String>? _voiceFinalSub;
+  // Token minting Function URL (derived from Firebase project configuration).
+  // See README > "Live Talk (Via) Quickstart" and docs/voice_testing.md
+  // for setup and QA steps.
 
   @override
   void initState() {
@@ -64,6 +76,8 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    _voicePartialSub?.cancel();
+    _voiceFinalSub?.cancel();
     _composer.dispose();
     _focus.dispose();
     _list.dispose();
@@ -104,6 +118,52 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
     if (_stage == _OverlayStage.peek) return;
     setState(() => _stage = _OverlayStage.peek);
     FocusScope.of(context).unfocus();
+  }
+
+  Future<void> _startMiniVoice() async {
+    // Respect feature flags; if not enabled, ignore.
+    final enabled = FeatureFlags.instance.isEnabled('voiceInterview') ||
+        FeatureFlags.instance.isEnabled(FeatureFlags.viaMvp);
+    if (!enabled) return;
+    if (_voiceActive) return;
+    try {
+      await LiveTalkService.instance.connect(
+        tokenEndpoint: VoiceTokenEndpoint.issueVoiceGatewayToken(),
+        persona:
+            'You are Via, a concise, friendly helper. Keep it short. One question at a time.',
+      );
+      setState(() {
+        _voiceActive = true;
+        _voicePartial = '';
+      });
+      _voicePartialSub = LiveTalkService.instance.partialText.stream.listen((t) {
+        setState(() => _voicePartial = t);
+      });
+      _voiceFinalSub = LiveTalkService.instance.finalText.stream.listen((t) {
+        final text = t.trim();
+        if (text.isEmpty) return;
+        setState(() {
+          _msgs.add(_ChatBubble(text: text, fromUser: false, timestamp: DateTime.now()));
+          _voicePartial = '';
+        });
+      });
+    } catch (_) {
+      // swallow errors for overlay mini-session
+    }
+  }
+
+  Future<void> _stopMiniVoice() async {
+    _voicePartialSub?.cancel();
+    _voiceFinalSub?.cancel();
+    _voicePartialSub = null;
+    _voiceFinalSub = null;
+    setState(() {
+      _voiceActive = false;
+      _voicePartial = '';
+    });
+    try {
+      await LiveTalkService.instance.disconnect();
+    } catch (_) {}
   }
 
   Future<void> _send(String text) async {
@@ -288,13 +348,56 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                             focusNode: _focus,
                             sending: _sending,
                             onSend: _send,
-                            onMic: () => AnalyticsService.instance.log('via_mic', {'context': widget.contextLabel}),
+                            onMic: () {
+                              AnalyticsService.instance.log('via_mic', {'context': widget.contextLabel});
+                              if (_voiceActive) {
+                                _stopMiniVoice();
+                              } else {
+                                _startMiniVoice();
+                              }
+                            },
                             onAttachImage: () => AnalyticsService.instance
                                 .log('via_attach_image', {'context': widget.contextLabel}),
                             onAttachDoc: () => AnalyticsService.instance
                                 .log('via_attach_doc', {'context': widget.contextLabel}),
                           ),
                           const SizedBox(height: AppDims.gap),
+                          if (_voiceActive) ...[
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: AppDims.gap * 2),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  if (_voicePartial.isNotEmpty)
+                                    Text(_voicePartial,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(color: Colors.grey[700], fontStyle: FontStyle.italic)),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('Voice',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelMedium
+                                              ?.copyWith(fontWeight: FontWeight.w600)),
+                                      TextButton.icon(
+                                        icon: const Icon(Icons.stop, color: Colors.red),
+                                        label: const Text('Stop'),
+                                        onPressed: _stopMiniVoice,
+                                      ),
+                                    ],
+                                  ),
+                                  // 1x1 video to play audio
+                                  const SizedBox(height: 2),
+                                  SizedBox(height: 1, width: 1, child: RTCVideoView(LiveTalkService.instance.remoteRenderer)),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: AppDims.gap),
+                          ],
                         ],
                       ],
                     ),
@@ -684,9 +787,6 @@ class _OutlinedSquareIcon extends StatelessWidget {
     );
   }
 }
-
-
-
 
 
 

@@ -1,0 +1,252 @@
+﻿import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:uuid/uuid.dart';
+
+import 'package:color_canvas/utils/permissions.dart';
+
+enum LiveTalkConnectionState { disconnected, connecting, connected, error }
+
+/// LiveTalkService connects to OpenAI Realtime over WebRTC using an ephemeral key
+/// minted by your token endpoint so the client never sees OPENAI_API_KEY.
+class LiveTalkService {
+  LiveTalkService._();
+  static final LiveTalkService instance = LiveTalkService._();
+
+  final ValueNotifier<String> mode = ValueNotifier<String>('webrtc');
+  final ValueNotifier<LiveTalkConnectionState> connectionState =
+      ValueNotifier<LiveTalkConnectionState>(LiveTalkConnectionState.disconnected);
+  final ValueNotifier<bool> assistantSpeaking = ValueNotifier<bool>(false);
+  final StreamController<String> partialText = StreamController<String>.broadcast();
+  final StreamController<String> finalText = StreamController<String>.broadcast();
+  final StreamController<String> userUtterance = StreamController<String>.broadcast();
+
+  RTCPeerConnection? _pc;
+  MediaStream? _mic;
+  RTCDataChannel? _dc;
+  String _accumulator = '';
+  String? _ephemeralKey;
+  String? _model;
+  String? _voice;
+  DateTime? _startedAt;
+
+  // Audio output renderer for remote audio track
+  final RTCVideoRenderer remoteRenderer = RTCVideoRenderer();
+  bool _rendererInit = false;
+
+  Future<void> _ensureRenderer() async {
+    if (!_rendererInit) {
+      await remoteRenderer.initialize();
+      _rendererInit = true;
+    }
+  }
+
+  /// Connect to OpenAI Realtime using an ephemeral session from [tokenEndpoint].
+  /// tokenEndpoint should point to your callable/gateway that returns the JSON
+  /// from POST https://api.openai.com/v1/realtime/sessions (containing client_secret.value).
+  Future<void> connect({
+    required Uri tokenEndpoint,
+    String model = 'gpt-realtime-nano',
+    String voice = 'alloy',
+    String? persona,
+    Map<String, dynamic>? context,
+  }) async {
+    connectionState.value = LiveTalkConnectionState.connecting;
+    try {
+      _model = model;
+      _voice = voice;
+      _startedAt = DateTime.now();
+      // 1) Mic permission and capture
+      final ok = await ensureMicPermission();
+      if (!ok) throw Exception('Microphone permission denied');
+      final mediaConstraints = {
+        'audio': {
+          'echoCancellation': true,
+          'noiseSuppression': true,
+          'autoGainControl': true,
+        },
+        'video': false,
+      };
+      _mic = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+      await _ensureRenderer();
+
+      // 2) Get ephemeral session from token endpoint (callable/HTTPS)
+      final idToken = await FirebaseAuth.instance.currentUser?.getIdToken();
+      if (idToken == null) throw Exception('Not signed in');
+      final sessionId = const Uuid().v4();
+      final resp = await http.post(
+        tokenEndpoint,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $idToken',
+        },
+        body: jsonEncode({
+          'sessionId': sessionId,
+          'model': model,
+          'voice': voice,
+        }),
+      );
+      if (resp.statusCode < 200 || resp.statusCode >= 300) {
+        throw Exception('Token endpoint error: ${resp.statusCode} ${resp.body}');
+      }
+      final tok = jsonDecode(resp.body) as Map<String, dynamic>;
+      _ephemeralKey = (tok['client_secret']?['value']) as String?;
+      if (_ephemeralKey == null || _ephemeralKey!.isEmpty) {
+        throw Exception('Invalid token response: missing client_secret.value');
+      }
+
+      // 3) Create RTCPeerConnection
+      final pcConfig = <String, dynamic>{
+        'sdpSemantics': 'unified-plan',
+        'iceServers': [
+          {'urls': 'stun:stun.l.google.com:19302'},
+        ],
+      };
+      _pc = await createPeerConnection(pcConfig);
+
+      if (_mic != null) {
+        for (final t in _mic!.getTracks()) {
+          await _pc!.addTrack(t, _mic!);
+        }
+      }
+
+      _pc!.onTrack = (RTCTrackEvent ev) async {
+        if (ev.track.kind == 'audio' && ev.streams.isNotEmpty) {
+          remoteRenderer.srcObject = ev.streams.first;
+        }
+      };
+
+      // Data channel for events
+      _dc = await _pc!.createDataChannel('oai-events', RTCDataChannelInit()..ordered = true);
+      _dc!.onMessage = _onEventMessage;
+
+      final offer = await _pc!.createOffer({});
+      await _pc!.setLocalDescription(offer);
+
+      final answerResp = await http.post(
+        Uri.parse('https://api.openai.com/v1/realtime?model=$model'),
+        headers: {
+          'Authorization': 'Bearer $_ephemeralKey',
+          'Content-Type': 'application/sdp',
+        },
+        body: offer.sdp,
+      );
+      if (answerResp.statusCode < 200 || answerResp.statusCode >= 300) {
+        throw Exception('OpenAI answer error: ${answerResp.statusCode} ${answerResp.body}');
+      }
+      await _pc!.setRemoteDescription(RTCSessionDescription(answerResp.body, 'answer'));
+
+      // Send session.update to set persona/instructions + server VAD
+      final instructions = _buildInstructions(persona: persona, context: context);
+      final sessionUpdate = {
+        'type': 'session.update',
+        'session': {
+          'instructions': instructions,
+          'turn_detection': {'type': 'server_vad'},
+        }
+      };
+      _dc!.send(RTCDataChannelMessage(jsonEncode(sessionUpdate)));
+
+      connectionState.value = LiveTalkConnectionState.connected;
+    } catch (e, st) {
+      debugPrint('LiveTalkService WebRTC connect failed, attempting WS fallback: $e\n$st');
+      // Fallback to WS implementation
+      try {
+        final ws = _LiveTalkServiceWsBridge(this);
+        await ws.connect(
+          tokenEndpoint: tokenEndpoint,
+          model: model,
+          voice: voice,
+          persona: persona,
+          context: context,
+        );
+        mode.value = 'ws-fallback';
+        connectionState.value = LiveTalkConnectionState.connected;
+      } catch (e2, st2) {
+        debugPrint('WS fallback failed: $e2\n$st2');
+        connectionState.value = LiveTalkConnectionState.error;
+        rethrow;
+      }
+    }
+  }
+
+  void _onEventMessage(RTCDataChannelMessage msg) {
+    try {
+      final m = jsonDecode(msg.text) as Map<String, dynamic>;
+      final type = m['type'] as String?;
+      if (type == null) return;
+
+      if (type == 'response.delta') {
+        assistantSpeaking.value = true;
+        final delta = m['delta'] as Map<String, dynamic>?;
+        final text = (delta?['text'] ?? delta?['output_text'] ?? delta?['content'] ?? '') as String?;
+        if (text != null && text.isNotEmpty) {
+          _accumulator += text;
+          partialText.add(_accumulator);
+        }
+      } else if (type == 'response.completed') {
+        if (_accumulator.isNotEmpty) finalText.add(_accumulator);
+        _accumulator = '';
+        partialText.add('');
+        assistantSpeaking.value = false;
+      }
+    } catch (_) {}
+  }
+
+  String _buildInstructions({String? persona, Map<String, dynamic>? context}) {
+    final base = 'You are Via, a warm, concise paint consultant. '
+        'Ask one question at a time. Keep replies < 8 seconds. '
+        'If user goes off-topic, gently steer back.';
+    final buf = StringBuffer(base);
+    if (persona != null && persona.trim().isNotEmpty) {
+      buf.writeln('\nPersona: ${persona.trim()}');
+    }
+    if (context != null && context.isNotEmpty) {
+      buf.writeln('\nContext:');
+      var i = 0;
+      for (final entry in context.entries) {
+        if (i++ >= 6) break;
+        buf.writeln('- ${entry.key}: ${entry.value}');
+      }
+    }
+    return buf.toString();
+  }
+
+  // Legacy signature preserved for API stability; recommend using connect(tokenEndpoint: ...)
+  Future<void> connectLegacy({required String sessionId, required Uri gatewayWss}) async {
+    throw UnimplementedError('Use connect(tokenEndpoint: ..., model: ...)');
+  }
+
+  Future<void> disconnect() async {
+    try { await _dc?.close(); } catch (_) {}
+    try { await _pc?.close(); } catch (_) {}
+    try {
+      final tracks = _mic?.getTracks() ?? const <MediaStreamTrack>[];
+      for (final t in tracks) { try { await t.stop(); } catch (_) {} }
+    } catch (_) {}
+    try { await _mic?.dispose(); } catch (_) {}
+    _dc = null; _pc = null; _mic = null; _accumulator = ''; _ephemeralKey = null;
+    assistantSpeaking.value = false;
+    connectionState.value = LiveTalkConnectionState.disconnected;
+  }
+
+  /// Ask the model to produce a response immediately (yields the floor).
+  void requestAssistantTurn() {
+    try {
+      _dc?.send(RTCDataChannelMessage(jsonEncode({'type': 'response.create'})));
+    } catch (_) {}
+  }
+
+  /// Optional hook for when you detect end of a user utterance via VAD.
+  void emitUserUtterance(String text) {
+    if (text.trim().isEmpty) return;
+    userUtterance.add(text.trim());
+  }
+
+  String? get selectedModel => _model;
+  String? get selectedVoice => _voice;
+  DateTime? get sessionStartedAt => _startedAt;
+}

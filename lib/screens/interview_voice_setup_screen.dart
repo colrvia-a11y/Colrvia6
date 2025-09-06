@@ -2,8 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:color_canvas/services/audio_service.dart';
+import 'package:color_canvas/services/live_talk_service.dart';
+import 'package:color_canvas/utils/permissions.dart';
+import 'package:color_canvas/services/user_prefs_service.dart';
+import 'package:color_canvas/services/analytics_service.dart';
+import 'package:color_canvas/utils/voice_token_endpoint.dart';
 
 class InterviewVoiceSetupScreen extends StatefulWidget {
   const InterviewVoiceSetupScreen({super.key});
@@ -13,6 +20,8 @@ class InterviewVoiceSetupScreen extends StatefulWidget {
 }
 
 class _InterviewVoiceSetupScreenState extends State<InterviewVoiceSetupScreen> {
+  // Token minting Function URL (derived from Firebase project configuration).
+  // See README > "Live Talk (Via) Quickstart" and docs/voice_testing.md for setup and QA steps.
   bool micGranted = false;
   double micLevel = 0.0;
   String micStatusText = 'Mic permission required.';
@@ -52,6 +61,43 @@ class _InterviewVoiceSetupScreenState extends State<InterviewVoiceSetupScreen> {
     super.dispose();
   }
 
+  // Build a concise persona/context using recent interview answers if available.
+  // For now this returns a minimal placeholder; can be extended to pull from
+  // InterviewEngine/Journey state or Firestore.
+  Future<(String, Map<String, dynamic>)> _buildPersonaAndContext() async {
+    final persona = 'Friendly, practical color coach with great follow-up questions.';
+    final ctx = <String, dynamic>{
+      // TODO: populate from recent answers (roomType, style, constraints, last 2 answers)
+    };
+    return (persona, ctx);
+  }
+
+  Future<bool> _checkDailyCap() async {
+    try {
+      final prefs = await UserPrefsService.fetch();
+      final capMin = prefs.voiceDailyCapMinutes;
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+      if (uid == null) return true;
+      final now = DateTime.now();
+      final startOfDay = DateTime(now.year, now.month, now.day);
+      final q = await FirebaseFirestore.instance
+          .collection('interviewSessions')
+          .where('userId', isEqualTo: uid)
+          .where('startedAt', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+          .get();
+      int totalSec = 0;
+      for (final d in q.docs) {
+        final m = d.data();
+        final sec = (m['durationSec'] as int?) ?? 0;
+        totalSec += sec;
+      }
+      final usedMin = (totalSec / 60).floor();
+      return usedMin < capMin;
+    } catch (_) {
+      return true; // fail-open
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,8 +128,53 @@ class _InterviewVoiceSetupScreenState extends State<InterviewVoiceSetupScreen> {
               icon: const Icon(Icons.mic),
               label: const Text('Continue with Voice'),
               onPressed: micGranted
-                  ? () {
-                      Navigator.pushNamed(context, '/interview/voice');
+                  ? () async {
+                      // Ensure permission again and start realtime connect
+                      final ok = await ensureMicPermission();
+                      if (!ok) {
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Microphone permission is required')),
+                        );
+                        return;
+                      }
+
+                      final personaAndCtx = await _buildPersonaAndContext();
+                      // Soft cap check
+                      final okMinutes = await _checkDailyCap();
+                      if (!okMinutes) {
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Daily Live Talk limit reached. Please try again tomorrow.')),
+                        );
+                        return;
+                      }
+
+                      final prefs = await UserPrefsService.fetch();
+                      try {
+                        await LiveTalkService.instance.connect(
+                          tokenEndpoint: VoiceTokenEndpoint.issueVoiceGatewayToken(),
+                          persona: personaAndCtx.$1,
+                          context: personaAndCtx.$2,
+                          voice: prefs.voiceVoice,
+                          model: prefs.voiceModel,
+                        );
+                        final uid = FirebaseAuth.instance.currentUser?.uid ?? 'anon';
+                        final path = LiveTalkService.instance.mode.value;
+                        await AnalyticsService.instance.voiceSessionStart(
+                          uid: uid,
+                          model: prefs.voiceModel,
+                          voice: prefs.voiceVoice,
+                          path: path,
+                        );
+                        if (!mounted) return;
+                        Navigator.pushNamed(context, '/interview/voice');
+                      } catch (e) {
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Failed to start voice session: $e')),
+                        );
+                      }
                     }
                   : null,
             ),

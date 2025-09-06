@@ -63,6 +63,7 @@ For detailed instructions, see [FIREBASE_PERMANENT_SETUP.md](FIREBASE_PERMANENT_
 
 - Docs Index: [docs/README.md](docs/README.md)
 - Paint Detail Screen: Integration Notes & Tweakable Constants: [docs/Paint%20Detail%20Screen%20Build%20Instructions-%20Integration%20Notes%20%26%20Tweakable%20Constants.md](docs/Paint%20Detail%20Screen%20Build%20Instructions-%20Integration%20Notes%20%26%20Tweakable%20Constants.md)
+- Live Talk QA: [docs/voice_testing.md](docs/voice_testing.md)
 
 ## AI Visualizer Workflow
 
@@ -171,3 +172,42 @@ Switching providers (Developer API ↔ Vertex)
 Run requirements
 - Enable Firebase AI Logic in Firebase Console and select your provider (Developer API recommended initially).
 - No `--dart-define` for a Gemini key is needed when using Firebase AI Logic.
+
+## Live Talk (Via) Quickstart
+
+Live Talk lets Via interview users by voice using OpenAI Realtime (WebRTC with WS fallback). The app calls a Firebase Function to mint ephemeral session tokens so your OpenAI API key is never shipped to clients.
+
+Prerequisites
+- Firebase project set up (Auth + Firestore + Storage)
+- Flutter environment
+- OpenAI API key with access to Realtime
+
+1) Deploy the token minting Function
+- Set an environment variable for the function: `OPENAI_API_KEY`
+  - Recommended: add it as an environment variable on the deployed Cloud Run service (Functions 2nd gen) via Google Cloud Console, or with `gcloud`.
+- Deploy just the callable:
+  - `firebase deploy --only functions:issueVoiceGatewayToken`
+- The HTTPS URL will be:
+  - `https://us-central1-<your-project>.cloudfunctions.net/issueVoiceGatewayToken`
+
+2) Point the app at your Function URL
+- Update the placeholder `REPLACE_ME` project id in:
+  - `lib/screens/interview_voice_setup_screen.dart` → `kIssueTokenUrl`
+  - `lib/widgets/via_overlay.dart` → `_kIssueTokenUrl`
+
+3) Enable the feature flag (surface the UI)
+- Firebase Remote Config: set `voiceInterview = true` and publish.
+- Optional per-user Labs toggle: set `users/{uid}/meta/prefs.features.voiceInterview = true` in Firestore to enable for a specific user.
+
+4) Run and test
+- From Home → Create, you’ll see the Interview entry when the flag is on.
+- Choose “Start with Via (Voice)”, accept mic permission, then tap “Continue with Voice”.
+- Status pill shows “Connecting” → “Listening”. If WebRTC is blocked, it will read “… • Fallback WS”.
+- Use “Interrupt” to cut off the assistant mid‑reply. Tap/hold the mic to try press‑to‑talk (short‑press toggles mute; long‑press talks while held).
+- On stop, a transcript is saved to Firestore under `interviewSessions/{id}` with `turns`, and a JSON transcript may upload to Storage `users/{uid}/transcripts/{id}.json`.
+
+Troubleshooting
+- Mic blocked → grant permission in system settings; the error banner has an “Open Settings” button and Retry.
+- 401/unauthenticated → ensure you are signed in; the client includes a Firebase ID token in the Authorization header.
+- Token errors → verify the function URL and that `OPENAI_API_KEY` is set.
+- No audio output → check device volume and ensure the hidden 1×1 `RTCVideoView` exists in the voice screen.

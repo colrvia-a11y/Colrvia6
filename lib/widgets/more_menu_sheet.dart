@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:color_canvas/screens/projects_screen.dart';
 import 'package:color_canvas/services/firebase_service.dart';
+import 'package:color_canvas/services/user_prefs_service.dart';
 import 'dart:ui';
 
 class MoreMenuSheet extends StatefulWidget {
@@ -26,6 +27,8 @@ class _MoreMenuSheetState extends State<MoreMenuSheet>
 
   final TextEditingController _searchController = TextEditingController();
   String _appVersion = '';
+  bool _labsVoiceEnabled = true;
+  String _labsVoice = 'alloy';
 
   @override
   void initState() {
@@ -56,6 +59,7 @@ class _MoreMenuSheetState extends State<MoreMenuSheet>
 
     _scaleController.forward();
     _loadAppVersion();
+    _loadPrefs();
   }
 
   @override
@@ -69,6 +73,17 @@ class _MoreMenuSheetState extends State<MoreMenuSheet>
     setState(() {
       _appVersion = '1.0.0'; // Static version for now
     });
+  }
+
+  Future<void> _loadPrefs() async {
+    try {
+      final p = await UserPrefsService.fetch();
+      if (!mounted) return;
+      setState(() {
+        _labsVoiceEnabled = p.featureVoiceInterview;
+        _labsVoice = p.voiceVoice;
+      });
+    } catch (_) {}
   }
 
 // ...existing code...
@@ -268,6 +283,42 @@ class _MoreMenuSheetState extends State<MoreMenuSheet>
                                       icon: Icons.support_agent,
                                       title: 'Support',
                                       onTap: () => _showComingSoon('Support'),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                                      child: Text(
+                                        'LABS',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black.withValues(alpha: 0.7),
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ),
+                                    SwitchListTile(
+                                      title: const Text('Live Talk (Via)'),
+                                      value: _labsVoiceEnabled,
+                                      onChanged: (v) async {
+                                        setState(() => _labsVoiceEnabled = v);
+                                        await UserPrefsService.setFeatureVoiceInterview(v);
+                                      },
+                                    ),
+                                    ListTile(
+                                      title: const Text('Voice'),
+                                      trailing: DropdownButton<String>(
+                                        value: _labsVoice,
+                                        items: const [
+                                          DropdownMenuItem(value: 'alloy', child: Text('alloy')),
+                                          DropdownMenuItem(value: 'verse', child: Text('verse')),
+                                          DropdownMenuItem(value: 'aria', child: Text('aria')),
+                                        ],
+                                        onChanged: (v) async {
+                                          if (v == null) return;
+                                          setState(() => _labsVoice = v);
+                                          await UserPrefsService.setVoicePrefs(voice: v);
+                                        },
+                                      ),
                                     ),
                                     _buildMenuItem(
                                       icon: Icons.gavel_outlined,

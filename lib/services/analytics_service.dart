@@ -82,6 +82,35 @@ class AnalyticsService {
   Future<void> talkStart() => _logEvent('talk_start', {});
   Future<void> talkEnd() => _logEvent('talk_end', {});
 
+  // Voice session analytics
+  Future<void> voiceSessionStart({
+    required String uid,
+    required String model,
+    required String voice,
+    required String path, // 'webrtc' | 'ws-fallback'
+  }) async {
+    await _logEvent('voice_session_start', {
+      'uid': uid,
+      'model': model,
+      'voice': voice,
+      'path': path,
+    });
+  }
+
+  Future<void> voiceSessionEnd({
+    required String uid,
+    required int durationSec,
+    required int turns,
+    required String path,
+  }) async {
+    await _logEvent('voice_session_end', {
+      'uid': uid,
+      'durationSec': durationSec,
+      'turns': turns,
+      'path': path,
+    });
+  }
+
   List<Map<String, dynamic>> get recentEvents =>
       List.unmodifiable(_recentEvents);
 
