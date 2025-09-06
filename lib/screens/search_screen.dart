@@ -59,6 +59,7 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
 
   // Tabs
   int _tabIndex = 0; // 0 Explore, 1 All Colors, 2 Rooms&Combos, 3 Brands
+  TabController? _topTabController;
 
   // Dense grid
   bool _denseGrid = false;
@@ -83,6 +84,22 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_topTabController == null) {
+      _topTabController = TabController(length: 4, vsync: this, initialIndex: _tabIndex);
+      _topTabController!.addListener(() {
+        if (!_topTabController!.indexIsChanging) {
+          setState(() {
+            _tabIndex = _topTabController!.index;
+            _hideSearch = false;
+          });
+        }
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _debounceTimer?.cancel();
     _searchController.removeListener(_onSearchChanged);
@@ -90,8 +107,9 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
     _searchFocusNode.dispose();
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
-    _gridController.removeListener(_onGridScroll);
-    _gridController.dispose();
+  _gridController.removeListener(_onGridScroll);
+  _gridController.dispose();
+  _topTabController?.dispose();
     super.dispose();
   }
 
@@ -744,26 +762,41 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
   }
 
   Widget _minimalTabs(ThemeData theme) {
+    final sc = theme.colorScheme;
     return SizedBox(
       height: 40,
       width: double.infinity,
-      child: SegmentedButton<int>(
-        segments: const <ButtonSegment<int>>[
-          ButtonSegment(value: 0, label: Text('Explore')),
-          ButtonSegment(value: 1, label: Text('All')),
-          ButtonSegment(value: 2, label: Text('Rooms')),
-          ButtonSegment(value: 3, label: Text('Brands')),
-        ],
-        selected: {_tabIndex},
-        showSelectedIcon: false,
-        onSelectionChanged: (newSelection) {
-          setState(() {
-            _tabIndex = newSelection.first;
-            _hideSearch = false;
-          });
-        },
-        style: ButtonStyle(
-          visualDensity: VisualDensity.compact,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Container(
+          decoration: BoxDecoration(
+            color: sc.surface.withAlpha(61),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: TabBar(
+              controller: _topTabController,
+              isScrollable: false,
+              dividerColor: Colors.transparent,
+              padding: EdgeInsets.zero,
+              labelPadding: const EdgeInsets.symmetric(vertical: 6),
+              indicatorPadding: EdgeInsets.zero,
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicator: ShapeDecoration(
+                color: sc.onSurface.withAlpha(72),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              labelColor: sc.onSurface,
+              unselectedLabelColor: sc.onSurface.withAlpha(170),
+              tabs: const [
+                Tab(text: 'Explore'),
+                Tab(text: 'All'),
+                Tab(text: 'Rooms'),
+                Tab(text: 'Brands'),
+              ],
+            ),
+          ),
         ),
       ),
     );
