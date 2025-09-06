@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 // Add a prefixed import for core widgets to avoid any local shadowing
 import 'package:flutter/material.dart' as m
     show Text, Column, SizedBox, Container, Positioned;
@@ -33,7 +34,7 @@ class ProjectsScreen extends ConsumerStatefulWidget {
   ConsumerState<ProjectsScreen> createState() => _ProjectsScreenState();
 }
 
-class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
+class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProviderStateMixin {
   static final _logger = Logger('ProjectsScreen');
 
   bool _isLoading = true;
@@ -44,10 +45,34 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
   bool _bannerVisible = false;
   bool _bannerLogged = false;
 
+  // Hero + tabs (Create-style)
+  late final TabController _tab;
+  final ScrollController _scrollController = ScrollController();
+  double _heroHeight = 0;
+  static const double _heroMaxHeightFraction = 0.36;
+  static const double _heroMinHeight = 74; // enough to show tab bar when expanded
+
   @override
   void initState() {
     super.initState();
     _filter = widget.initialFilter;
+  // Initialize tabs to mirror filter
+  _tab = TabController(length: 3, vsync: this);
+  _tab.index = _filter == LibraryFilter.all
+    ? 0
+    : _filter == LibraryFilter.palettes
+      ? 1
+      : 2;
+  _tab.addListener(() {
+    if (_tab.indexIsChanging) return;
+    final next = _tab.index == 0
+      ? LibraryFilter.all
+      : _tab.index == 1
+        ? LibraryFilter.palettes
+        : LibraryFilter.stories;
+    if (next != _filter) setState(() => _filter = next);
+  });
+  _scrollController.addListener(_onScroll);
     _loadData();
     _loadPrefs();
   }
@@ -125,37 +150,135 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
     }
   }
 
-  Widget _buildFilterChips(BuildContext context) {
-    Chip chip(LibraryFilter f, String label) => Chip(
-          label: m.Text(label),
-          backgroundColor: _filter == f
-              ? Theme.of(context).colorScheme.primaryContainer
-              : Theme.of(context)
-                  .colorScheme
-                  .surfaceContainerHighest
-                  .withValues(alpha: 0.6),
-        );
-
-    Semantics filterChip(
-            LibraryFilter f, String label, String semanticsLabel) =>
-        Semantics(
-          label: semanticsLabel,
-          button: true,
-          selected: _filter == f,
-          child: InkWell(
-            onTap: () => setState(() => _filter = f),
-            child: chip(f, label),
-          ),
-        );
-
-    return Wrap(spacing: 8, children: [
-      filterChip(LibraryFilter.all, 'All', 'Show all items'),
-      filterChip(
-          LibraryFilter.palettes, 'Palettes', 'Show palettes only'),
-      filterChip(
-          LibraryFilter.stories, 'Color Stories', 'Show color stories only'),
-    ]);
+  void _onScroll() {
+    final maxHeight = (MediaQuery.of(context).size.height * _heroMaxHeightFraction)
+        .clamp(220.0, MediaQuery.of(context).size.height);
+    final minHeight = _heroMinHeight;
+    final offset = _scrollController.hasClients ? _scrollController.offset : 0.0;
+    double newHeight = (maxHeight - offset).clamp(minHeight, maxHeight);
+    if ((newHeight - _heroHeight).abs() > 1) {
+      setState(() => _heroHeight = newHeight);
+    }
   }
+
+  Widget _buildTabBar() {
+    final theme = Theme.of(context);
+    return TabBar(
+      controller: _tab,
+      isScrollable: false,
+      dividerColor: Colors.transparent,
+      padding: EdgeInsets.zero,
+      labelPadding: const EdgeInsets.symmetric(vertical: 10),
+      indicatorPadding: EdgeInsets.zero,
+      indicatorSize: TabBarIndicatorSize.tab,
+      indicator: ShapeDecoration(
+        color: theme.colorScheme.onSurface.withAlpha(72),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      labelColor: theme.colorScheme.onSurface,
+      unselectedLabelColor: theme.colorScheme.onSurface.withAlpha(170),
+      tabs: const [
+        Tab(text: 'All'),
+        Tab(text: 'Palettes'),
+        Tab(text: 'Color Stories'),
+      ],
+    );
+  }
+
+  Widget _topHero({required String title, required String subtitle, required double textOpacity, required bool collapsed}) {
+    final theme = Theme.of(context);
+    const bgImage =
+        'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1200&q=80';
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Background image
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              image: DecorationImage(image: NetworkImage(bgImage), fit: BoxFit.cover),
+            ),
+          ),
+          // Overlay gradient for readability
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  theme.colorScheme.surface.withOpacity(0.18),
+                  Colors.transparent,
+                  Colors.black.withOpacity(0.22),
+                ],
+                stops: const [0, 0.5, 1],
+              ),
+            ),
+          ),
+          // Centered title/subtitle (hide when collapsed)
+          if (!collapsed)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 720),
+                  child: AnimatedOpacity(
+                    opacity: textOpacity,
+                    duration: const Duration(milliseconds: 120),
+                    curve: Curves.easeOut,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          title,
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                    color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800) ??
+                                const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          subtitle,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500) ??
+                                const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          // Tab container near bottom (inside hero when expanded)
+          if (!collapsed)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 12,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
+                child: Transform.translate(
+                  offset: const Offset(0, -18),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface.withAlpha(61),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Align(alignment: Alignment.centerLeft, child: _buildTabBar()),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // Note: filter chips removed; tabs now control the filter state
 
   Widget _buildFilteredContent() {
     final showPalettes =
@@ -279,42 +402,104 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
         ),
       );
     }
-    return Scaffold(
-      appBar: AppBar(
-        title: const m.Text('My Library'),
-        actions: [
-          if (_hasPermissionError)
-            app.ColrViaIconButton(
-              icon: Icons.warning_amber_outlined,
-              color: Colors.orange,
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: m.Text(
-                        'Some data may not be available due to permission issues. Try signing out and back in.'),
-                    duration: Duration(seconds: 4),
-                  ),
-                );
-              },
-              semanticLabel: 'Permission issues',
-            ),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SafeArea(
-              child: CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(child: _resumeBanner()),
-                  SliverToBoxAdapter(
-                      child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                    child: _buildFilterChips(context),
-                  )),
-                  _buildFilteredContent(),
-                ],
+    final title = 'My Library';
+    final subtitle = 'All · Palettes · Color Stories';
+    final maxHeroHeight =
+        (MediaQuery.of(context).size.height * _heroMaxHeightFraction)
+            .clamp(220.0, MediaQuery.of(context).size.height);
+    if (_heroHeight == 0) _heroHeight = maxHeroHeight;
+    final double collapseProgress =
+        ((maxHeroHeight - _heroHeight) / (maxHeroHeight - _heroMinHeight))
+            .clamp(0.0, 1.0)
+            .toDouble();
+    const double fadeEndAt = 0.4;
+    final double fadePhase = (collapseProgress / fadeEndAt).clamp(0.0, 1.0);
+    final double heroTextOpacity = 1.0 - Curves.easeOutQuint.transform(fadePhase);
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : SafeArea(
+                top: false,
+                left: false,
+                right: false,
+                bottom: true,
+                child: Column(
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 220),
+                      curve: Curves.easeOutCubic,
+                      height: _heroHeight,
+                      child: _topHero(
+                        title: title,
+                        subtitle: subtitle,
+                        textOpacity: heroTextOpacity,
+                        collapsed: _heroHeight <= _heroMinHeight + 2,
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          // Sticky tab bar when collapsed
+                          if (_heroHeight <= _heroMinHeight + 2)
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.surface.withAlpha(61),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: _buildTabBar(),
+                              ),
+                            ),
+                          Expanded(
+                            child: NotificationListener<ScrollNotification>(
+                              onNotification: (n) {
+                                if (n is ScrollUpdateNotification) _onScroll();
+                                return false;
+                              },
+                              child: CustomScrollView(
+                                controller: _scrollController,
+                                slivers: [
+                                  SliverToBoxAdapter(child: _resumeBanner()),
+                                  if (_hasPermissionError)
+                                    SliverToBoxAdapter(
+                                      child: Container(
+                                        margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: Colors.orange.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                                        ),
+                                        child: const Row(
+                                          children: [
+                                            Icon(Icons.warning_amber_outlined, color: Colors.orange),
+                                            SizedBox(width: 8),
+                                            Expanded(
+                                              child: m.Text(
+                                                'Some data may not be available due to permission issues.',
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  _buildFilteredContent(),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+      ),
     );
   }
 

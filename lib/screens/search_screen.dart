@@ -6,7 +6,6 @@ import 'package:color_canvas/services/analytics_service.dart';
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
 import 'paint_detail_screen.dart';
 import 'package:color_canvas/screens/compare_colors_screen.dart';
-import 'package:color_canvas/screens/home_screen.dart';
 import '../models/color_filters.dart';
 import '../services/paint_query_service.dart';
 import '../widgets/filter_sheet.dart';
@@ -14,16 +13,15 @@ import '../widgets/fancy_paint_tile.dart';
 import '../widgets/explore_rail.dart';
 import '../widgets/compare_tray.dart';
 import '../widgets/staggered_entrance.dart';
-
 import '../widgets/shimmer.dart';
 import '../data/explore_rails_config.dart';
 import 'package:color_canvas/widgets/colr_via_icon_button.dart';
 import '../theme.dart';
 
 // Shared tile geometry (keep cards consistent across tabs)
-const double kTileAspect = 0.72;      // width / height (â‰ˆ All tabâ€™s look)
-const double kTileSpacing = AppDims.gap * 2;     // gap between tiles
-const double kScreenPaddingH = 16.0;  // page horizontal padding
+const double kTileAspect = 0.72; // width / height (approx All tab look)
+const double kTileSpacing = AppDims.gap * 2; // gap between tiles
+const double kScreenPaddingH = 16.0; // page horizontal padding
 
 class SearchScreen extends StatefulWidget {
   final Function(Paint)? onPaintSelectedForRoller;
@@ -34,324 +32,271 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMixin {
+  // Controllers
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
   final ScrollController _gridController = ScrollController();
 
+  // State
   Timer? _debounceTimer;
   bool _showClearButton = false;
-  bool _showSearchResults = false;
-  bool _isSearching = false;
   bool _showToTop = false;
-  int _page = 0;
-  static const int _pageSize = 40;
-  List<Paint> _cached = [];
-  List<Paint> _visible = [];
-
-  // Compare selection
-  final Set<String> _selectedForCompare = {};
-  final Map<String, Paint> _byId = {};
-
-  bool get _compareTrayVisible => _selectedForCompare.isNotEmpty;
-  List<Paint> get _selectedPaintsList =>
-      _selectedForCompare.map((id) => _byId[id]).whereType<Paint>().toList();
-
-  // Tabs
-  int _tabIndex = 0; // 0 Explore, 1 All Colors, 2 Rooms&Combos, 3 Brands
+  int _tabIndex = 0; // 0 Explore, 1 All, 2 Rooms, 3 Brands
   TabController? _topTabController;
 
-  // Dense grid
-  bool _denseGrid = false;
+  // Data
+  // Paging reserved for future use (removed unused fields to satisfy lints)
+  final List<Paint> _cached = [];
+  final List<Paint> _visible = [];
+  final Set<String> _selectedForCompare = <String>{};
+  final Map<String, Paint> _byId = <String, Paint>{};
 
-  // Filters (for All Colors)
+  // Filters (All Colors)
   ColorFilters filters = ColorFilters();
   PaintSort sort = PaintSort.relevance;
+  bool _denseGrid = false;
 
-  // Collapsing search (tabs stay visible)
-  bool _hideSearch = false;
+  // Collapsing hero
+  double _heroHeight = 0;
+  static const double _heroMaxHeightFraction = 0.36;
+  static const double _heroMinHeight = 74;
+  final Map<int, double> _lastPixelsByTab = <int, double>{};
 
-  // Suggestions
+  bool get _compareTrayVisible => _selectedForCompare.isNotEmpty;
+  List<Paint> get _selectedPaintsList => _selectedForCompare
+      .map((id) => _byId[id])
+      .whereType<Paint>()
+      .toList();
 
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(_onSearchChanged);
-    _scrollController.addListener(_onScroll);
-    _gridController.addListener(_onGridScroll);
-    // ðŸ”† glow hook: rebuild when focus changes
-    _searchFocusNode.addListener(() => setState(() {}));
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_topTabController == null) {
-      _topTabController = TabController(length: 4, vsync: this, initialIndex: _tabIndex);
-      _topTabController!.addListener(() {
-        if (!_topTabController!.indexIsChanging) {
+    _topTabController = TabController(length: 4, vsync: this, initialIndex: _tabIndex)
+      ..addListener(() {
+        if (_tabIndex != _topTabController!.index) {
           setState(() {
             _tabIndex = _topTabController!.index;
-            _hideSearch = false;
           });
         }
       });
-    }
+
+    _scrollController.addListener(_updateToTopVisibility);
+    _gridController.addListener(_updateToTopVisibility);
+
+    // Initialize hero height after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final maxH = MediaQuery.of(context).size.height * _heroMaxHeightFraction;
+      setState(() => _heroHeight = maxH);
+    });
+  }
+
+  void _updateToTopVisibility() {
+    final activeOffset = _tabIndex == 1 ? _gridController.offset : _scrollController.offset;
+    final show = activeOffset > 600;
+    if (show != _showToTop) setState(() => _showToTop = show);
   }
 
   @override
   void dispose() {
     _debounceTimer?.cancel();
-    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     _searchFocusNode.dispose();
-    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
-  _gridController.removeListener(_onGridScroll);
-  _gridController.dispose();
-  _topTabController?.dispose();
+    _gridController.dispose();
+    _topTabController?.dispose();
     super.dispose();
   }
 
-  void _onSearchChanged() {
-    setState(() => _showClearButton = _searchController.text.isNotEmpty);
-  }
-
-
-
-  void _onScroll() {
-    if (_scrollController.position.pixels >
-        _scrollController.position.maxScrollExtent - 200) {
-      _loadMore();
-    }
-    final f = FocusManager.instance.primaryFocus;
-    f?.unfocus();
-  }
-
-  void _onGridScroll() {
-    if (_gridController.offset > 800 && !_showToTop) {
-      setState(() => _showToTop = true);
-    }
-    if (_gridController.offset <= 800 && _showToTop) {
-      setState(() => _showToTop = false);
-    }
-    FocusManager.instance.primaryFocus?.unfocus();
-  }
-
-
-
-  void _loadMore() {
-    if ((_page + 1) * _pageSize >= _cached.length) {
-      return;
-    }
-    setState(() {
-      _page++;
-      _visible.addAll(_cached.skip(_page * _pageSize).take(_pageSize));
-    });
-  }
-
+  // Search
   Future<void> _performSearch(String query) async {
-    if (!mounted) {
-      return;
-    }
-    if (query.trim().isEmpty) {
-      setState(() {
-        _isSearching = false;
-        _showSearchResults = false;
-        _visible = [];
-        _cached = [];
-        _page = 0;
-      });
-      return;
-    }
-    setState(() {
-      _isSearching = true;
-      _showSearchResults = true;
-    });
+    final q = query.trim();
+  setState(() => _showClearButton = q.isNotEmpty);
+    if (q.isEmpty) return;
     try {
-      final results = await PaintQueryService.instance.textSearch(query, limit: 200);
-      _cached = results;
-      _page = 0;
-      _visible = _cached.take(_pageSize).toList();
-      setState(() => _isSearching = false);
-      AnalyticsService.instance.logEvent('search_performed', {'q': query, 'count': results.length});
-    } catch (e) {
-      if (!mounted) {
-        return;
-      }
-      setState(() => _isSearching = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Search error: $e')));
+      final results = await PaintQueryService.instance.textSearch(q, limit: 160);
+      if (!mounted) return;
+      setState(() {
+        _cached
+          ..clear()
+          ..addAll(results);
+        _visible
+          ..clear()
+          ..addAll(results);
+      });
+    } catch (_) {
+      if (!mounted) return;
+  // swallow
     }
   }
 
   void _openDetails(Paint p) {
-    if (!mounted) {
-      return;
-    }
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => PaintDetailScreen(paint: p)),
     );
   }
 
-
   void _toggleCompare(Paint p) {
     setState(() {
       if (_selectedForCompare.contains(p.id)) {
         _selectedForCompare.remove(p.id);
-      } else if (_selectedForCompare.length < 4) {
+      } else {
         _selectedForCompare.add(p.id);
-        _byId[p.id] = p;
       }
     });
   }
 
   void _loadIntoRoller(Paint p) {
-    if (widget.onPaintSelectedForRoller != null) {
-      widget.onPaintSelectedForRoller!(p);
-      return;
-    }
-    final home = context.findAncestorStateOfType<HomeScreenState>();
-    if (home != null) {
-      home.onPaintSelectedFromSearch(p);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not load ${p.name} into Roller.')),
-      );
-    }
+    widget.onPaintSelectedForRoller?.call(p);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Loaded ${p.name} into Roller')),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      body: SafeArea(
-        child: Stack(
-          children: [
-            // main column
-            Column(
-              children: [
-                _topBar(theme),
-                Expanded(
-                  child: NotificationListener<ScrollUpdateNotification>(
-                    onNotification: (n) {
-                      final dy = n.scrollDelta ?? 0.0;
-                      // small deadzone so tiny jitters donâ€™t flip the header
-                      const threshold = 6.0;
+    final media = MediaQuery.of(context);
+    final maxHeroHeight = media.size.height * _heroMaxHeightFraction;
+    final h = _heroHeight == 0 ? maxHeroHeight : _heroHeight;
+    final collapse = ((maxHeroHeight - h) / (maxHeroHeight - _heroMinHeight)).clamp(0.0, 1.0);
+    // Make search fade early and finish fast (~40% collapse)
+    final fadeEnd = 0.4;
+    final normalized = (collapse / fadeEnd).clamp(0.0, 1.0);
+    final searchOpacity = 1.0 - Curves.easeOutQuint.transform(normalized);
+    final collapsed = h <= _heroMinHeight + 0.1;
 
-                      if (dy > threshold && !_hideSearch) {
-                        setState(() => _hideSearch = true);   // scrolling down â†’ hide search
-                      } else if (dy < -threshold && _hideSearch) {
-                        setState(() => _hideSearch = false);  // scrolling up â†’ show search
-                      }
-                      return false; // donâ€™t stop the notification
-                    },
-                    child: _showSearchResults
-                        ? _buildSearchResults()
-                        : _buildBodyForTab(),
+    return Scaffold(
+      // Full-bleed: no outer SafeArea so hero can run under status bar
+      body: Stack(
+        children: [
+          NotificationListener<ScrollNotification>(
+            onNotification: (n) {
+              if (n is ScrollUpdateNotification && n.metrics.axis == Axis.vertical) {
+                final delta = n.scrollDelta ?? 0.0;
+                if (delta == 0) return false;
+                setState(() {
+                  _heroHeight = (_heroHeight - delta).clamp(_heroMinHeight, maxHeroHeight);
+                });
+              }
+              if (n is ScrollEndNotification) {
+                // Remember last pixels by tab to keep hero consistent per tab
+                _lastPixelsByTab[_tabIndex] = n.metrics.pixels;
+              }
+              return false;
+            },
+            child: Column(
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 120),
+                  curve: Curves.easeOutCubic,
+                  height: h,
+                  width: double.infinity,
+                  child: _topHero(theme: theme, searchOpacity: searchOpacity, collapsed: collapsed),
+                ),
+                if (collapsed)
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surface,
+                      border: Border(
+                        bottom: BorderSide(color: theme.colorScheme.outline.withAlpha(18)),
+                      ),
+                    ),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: _buildTopTabs(theme),
+                    ),
+                  ),
+                Expanded(
+                  child: TabBarView(
+                    controller: _topTabController,
+                    physics: const BouncingScrollPhysics(),
+                    children: [
+                      _buildExplore(),
+                      _buildAllColors(),
+                      _buildRoomsCombos(),
+                      _buildBrands(),
+                    ],
                   ),
                 ),
               ],
             ),
+          ),
 
-            
-            // compare tray
+          // Compare tray overlay
+          if (_compareTrayVisible)
             Positioned(
               left: 0,
               right: 0,
               bottom: 0,
-              child: SizedBox(
-                height: CompareTray.height,
-                child: ClipRect(
-                  child: AnimatedAlign(
-                    alignment: _compareTrayVisible
-                        ? Alignment.bottomCenter
-                        : const Alignment(0, 2.0), // push just below the viewport
-                    duration: const Duration(milliseconds: 220),
-                    curve: Curves.easeOutCubic,
-                    child: IgnorePointer(
-                      ignoring: !_compareTrayVisible,
-                      child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 180),
-                        opacity: _compareTrayVisible ? 1 : 0,
-                        child: CompareTray(
-                          items: _selectedPaintsList,
-                          onRemoveOne: (p) => setState(() {
-                            _selectedForCompare.remove(p.id);
-                          }),
-                          onClear: () => setState(() {
-                            _selectedForCompare.clear();
-                          }),
-                          onCompare: () {
-                            AnalyticsService.instance
-                                .logEvent('compare_opened', {
-                              'count': _selectedForCompare.length
-                            });
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => CompareColorsScreen(
-                                  paletteColorIds:
-                                      _selectedForCompare.toList(),
-                                ),
-                              ),
-                            );
-                          },
-                          onTapPaint: _openDetails,
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 12, right: 12, bottom: 8),
+                  child: CompareTray(
+                    items: _selectedPaintsList,
+                    onRemoveOne: (p) => setState(() => _selectedForCompare.remove(p.id)),
+                    onClear: () => setState(() => _selectedForCompare.clear()),
+                    onCompare: () {
+                      AnalyticsService.instance.logEvent('compare_opened', {
+                        'count': _selectedForCompare.length,
+                      });
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => CompareColorsScreen(
+                            paletteColorIds: _selectedForCompare.toList(),
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
+                    onTapPaint: _openDetails,
                   ),
                 ),
               ),
             ),
-// back-to-top pill: conditionally render (no transforms, no ignore)
-            if (_showToTop)
-              Positioned(
-                right: 16,
-                bottom: (_compareTrayVisible ? CompareTray.height + 24 : 24) + 12,
-                child: SizedBox(
-                  width: 56,
-                  height: 56,
-                  child: FloatingActionButton(
-                    heroTag: 'toTop',
-                    onPressed: () {
-                      HapticFeedback.selectionClick();
-                      if (_tabIndex == 1) {
-                        _gridController.animateTo(0,
-                            duration: const Duration(milliseconds: 400),
-                            curve: Curves.easeOutCubic);
-                      } else {
-                        _scrollController.animateTo(0,
-                            duration: const Duration(milliseconds: 400),
-                            curve: Curves.easeOutCubic);
-                      }
-                    },
-                    elevation: 3,
-                    child: const Icon(Icons.arrow_upward_rounded),
-                  ),
+
+          // Back-to-top FAB
+          if (_showToTop)
+            Positioned(
+              right: 16,
+              bottom: (_compareTrayVisible ? CompareTray.height + 24 : 24) + 12,
+              child: SizedBox(
+                width: 56,
+                height: 56,
+                child: FloatingActionButton(
+                  heroTag: 'toTop',
+                  onPressed: () {
+                    HapticFeedback.selectionClick();
+                    if (_tabIndex == 1) {
+                      _gridController.animateTo(0,
+                          duration: const Duration(milliseconds: 400),
+                          curve: Curves.easeOutCubic);
+                    } else {
+                      _scrollController.animateTo(0,
+                          duration: const Duration(milliseconds: 400),
+                          curve: Curves.easeOutCubic);
+                    }
+                  },
+                  elevation: 3,
+                  child: const Icon(Icons.arrow_upward_rounded),
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
 
-  Widget _buildBodyForTab() {
-    switch (_tabIndex) {
-      case 0: return _buildExplore();
-      case 1: return _buildAllColors();
-      case 2: return _buildRoomsCombos();
-      case 3: return _buildBrands();
-      default: return const SizedBox.shrink();
-    }
-  }
-
-  // ---------- Explore ----------
   Widget _buildExplore() {
     final bottomInset = MediaQuery.of(context).padding.bottom;
     return ListView(
       physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      padding: EdgeInsets.only(bottom: 24 + kBottomNavigationBarHeight + (_compareTrayVisible ? CompareTray.height + 12 : 0) + bottomInset),
+      controller: _scrollController,
+      padding: EdgeInsets.only(
+        bottom: 24 + kBottomNavigationBarHeight + (_compareTrayVisible ? CompareTray.height + 12 : 0) + bottomInset,
+      ),
       children: [
         const SizedBox(height: 6),
         ...kDefaultExploreRails.map((c) {
@@ -365,11 +310,20 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
             onLongPress: _toggleCompare,
             onSeeAll: ({colorFamily, undertone, temperature, lrvRange}) {
               setState(() {
-                if (colorFamily != null) { filters = filters.copyWith(colorFamily: colorFamily); }
-                if (undertone  != null) { filters = filters.copyWith(undertone: undertone); }
-                if (temperature != null) { filters = filters.copyWith(temperature: temperature); }
-                if (lrvRange   != null) { filters = filters.copyWith(lrvRange: lrvRange); }
+                if (colorFamily != null) {
+                  filters = filters.copyWith(colorFamily: colorFamily);
+                }
+                if (undertone != null) {
+                  filters = filters.copyWith(undertone: undertone);
+                }
+                if (temperature != null) {
+                  filters = filters.copyWith(temperature: temperature);
+                }
+                if (lrvRange != null) {
+                  filters = filters.copyWith(lrvRange: lrvRange);
+                }
                 _tabIndex = 1; // jump to All Colors
+                _topTabController?.index = 1;
               });
             },
             tileAspect: kTileAspect,
@@ -382,22 +336,23 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
     );
   }
 
-  // ---------- All Colors (grid + filters) ----------
   Widget _buildAllColors() {
     final bottomInset = MediaQuery.of(context).padding.bottom;
     return FutureBuilder<List<Paint>>(
       future: PaintQueryService.instance.getAllPaints(hardLimit: 1600),
       builder: (context, snapshot) {
-      if (!snapshot.hasData) {
-        return ShimmerGrid(
-          crossAxisCount: 2,
-          mainAxisExtent: MediaQuery.textScalerOf(context).scale(1.0) > 1.1 ? 232 : 220,
-          padding: EdgeInsets.fromLTRB(
-            16, 8, 16,
-            24 + (_compareTrayVisible ? CompareTray.height + 12 : 0) + bottomInset,
-          ),
-        );
-      }
+        if (!snapshot.hasData) {
+          return ShimmerGrid(
+            crossAxisCount: 2,
+            mainAxisExtent: MediaQuery.textScalerOf(context).scale(1.0) > 1.1 ? 232 : 220,
+            padding: EdgeInsets.fromLTRB(
+              16,
+              8,
+              16,
+              24 + (_compareTrayVisible ? CompareTray.height + 12 : 0) + bottomInset,
+            ),
+          );
+        }
         var list = snapshot.data!;
         list = PaintQueryService.instance.applyFilters(
           list,
@@ -426,14 +381,16 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                       physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                       controller: _gridController,
                       padding: EdgeInsets.fromLTRB(
-                        kScreenPaddingH, 8, kScreenPaddingH,
+                        kScreenPaddingH,
+                        8,
+                        kScreenPaddingH,
                         24 + kBottomNavigationBarHeight + (_compareTrayVisible ? CompareTray.height + 12 : 0) + bottomInset,
                       ),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: cols,
                         crossAxisSpacing: kTileSpacing,
                         mainAxisSpacing: kTileSpacing,
-                        mainAxisExtent: tileH, // height from shared aspect
+                        mainAxisExtent: tileH, // consistent height
                       ),
                       itemCount: list.length,
                       itemBuilder: (_, i) {
@@ -444,7 +401,7 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                           delay: Duration(milliseconds: 40 + (i ~/ cols) * 70 + (i % cols) * 50),
                           child: FancyPaintTile(
                             paint: p,
-                            dense: false, // set dense=false so Explore and All look identical
+                            dense: false,
                             selected: selected,
                             onOpen: () => _openDetails(p),
                             onLongPress: () => _toggleCompare(p),
@@ -452,13 +409,13 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                           ),
                         );
                       },
-                     ),
-                   );
-                 },
-               ),
-             ),
-           ],
-         );
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        );
       },
     );
   }
@@ -468,7 +425,9 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outline.withAlpha(12))),
+        border: Border(
+          bottom: BorderSide(color: Theme.of(context).colorScheme.outline.withAlpha(12)),
+        ),
       ),
       child: Row(
         children: [
@@ -496,29 +455,29 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
             label: const Text('Filters'),
           ),
           const SizedBox(width: 8),
-      PopupMenuButton<PaintSort>(
-        onSelected: (s) => setState(() => sort = s),
-        itemBuilder: (_) => const [
-          PopupMenuItem(value: PaintSort.relevance, child: Text('Sort: Relevance')),
-          PopupMenuItem(value: PaintSort.hue, child: Text('Sort: Hue')),
-          PopupMenuItem(value: PaintSort.lrvAsc, child: Text('Sort: LRV â†‘')),
-          PopupMenuItem(value: PaintSort.lrvDesc, child: Text('Sort: LRV â†“')),
-        ],
-        child: OutlinedButton.icon(
-          onPressed: null,
-          icon: const Icon(Icons.sort),
-          label: Text(_sortLabel(sort)),
-        ),
-      ),
-      const SizedBox(width: 8),
-      Tooltip(
-        message: _denseGrid ? 'Comfort grid' : 'Dense grid',
-        child: IconButton.filledTonal(
-          onPressed: () => setState(() => _denseGrid = !_denseGrid),
-          icon: Icon(_denseGrid ? Icons.grid_view_rounded : Icons.grid_on_rounded),
-        ),
-      ),
-      const Spacer(),
+          PopupMenuButton<PaintSort>(
+            onSelected: (s) => setState(() => sort = s),
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: PaintSort.relevance, child: Text('Sort: Relevance')),
+              PopupMenuItem(value: PaintSort.hue, child: Text('Sort: Hue')),
+              PopupMenuItem(value: PaintSort.lrvAsc, child: Text('Sort: LRV ↑')),
+              PopupMenuItem(value: PaintSort.lrvDesc, child: Text('Sort: LRV ↓')),
+            ],
+            child: OutlinedButton.icon(
+              onPressed: null,
+              icon: const Icon(Icons.sort),
+              label: Text(_sortLabel(sort)),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Tooltip(
+            message: _denseGrid ? 'Comfort grid' : 'Dense grid',
+            child: IconButton.filledTonal(
+              onPressed: () => setState(() => _denseGrid = !_denseGrid),
+              icon: Icon(_denseGrid ? Icons.grid_view_rounded : Icons.grid_on_rounded),
+            ),
+          ),
+          const Spacer(),
           if (_selectedForCompare.isNotEmpty) Text('${_selectedForCompare.length} selected'),
         ],
       ),
@@ -527,16 +486,21 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
 
   String _sortLabel(PaintSort s) {
     switch (s) {
-      case PaintSort.hue: return 'Hue';
-      case PaintSort.lrvAsc: return 'LRV â†‘';
-      case PaintSort.lrvDesc: return 'LRV â†“';
-      case PaintSort.newest: return 'Newest';
-      case PaintSort.mostSaved: return 'Most saved';
-      default: return 'Relevance';
+      case PaintSort.hue:
+        return 'Hue';
+      case PaintSort.lrvAsc:
+        return 'LRV ↑';
+      case PaintSort.lrvDesc:
+        return 'LRV ↓';
+      case PaintSort.newest:
+        return 'Newest';
+      case PaintSort.mostSaved:
+        return 'Most saved';
+      default:
+        return 'Relevance';
     }
   }
 
-  // ---------- Rooms & Combos (placeholder v1) ----------
   Widget _buildRoomsCombos() {
     final bottomInset = MediaQuery.of(context).padding.bottom;
     final cards = [
@@ -545,8 +509,11 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
       _roomCard('Exterior Winners', Icons.house, 'Light + Charcoal Trim', 'Moody Modern', 'Warm Cream + Slate'),
     ];
     return ListView.separated(
+      controller: _scrollController,
       padding: EdgeInsets.fromLTRB(
-        16, 12, 16,
+        16,
+        12,
+        16,
         24 + (_compareTrayVisible ? CompareTray.height + 12 : 0) + bottomInset,
       ),
       itemBuilder: (_, i) => cards[i],
@@ -565,17 +532,26 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
             Row(children: [Icon(icon), const SizedBox(width: 8), Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700))]),
             const SizedBox(height: 8),
             Wrap(
-              spacing: 12, runSpacing: 12,
+              spacing: 12,
+              runSpacing: 12,
               children: [
-                _miniPalette('â€¢ $a'),
-                _miniPalette('â€¢ $b'),
-                _miniPalette('â€¢ $c'),
+                _miniPalette('• $a'),
+                _miniPalette('• $b'),
+                _miniPalette('• $c'),
               ],
             ),
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerRight,
-              child: TextButton.icon(onPressed: () { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Coming soon: curated combos'))); }, icon: const Icon(Icons.chevron_right), label: const Text('Explore')),
+              child: TextButton.icon(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Coming soon: curated combos')),
+                  );
+                },
+                icon: const Icon(Icons.chevron_right),
+                label: const Text('Explore'),
+              ),
             ),
           ],
         ),
@@ -604,15 +580,17 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
   }
 
   Widget _toneBox(Color c) => Container(
-    width: 20, height: 20, margin: const EdgeInsets.only(right: 4),
-    decoration: BoxDecoration(color: c, borderRadius: BorderRadius.circular(4)),
-  );
+        width: 20,
+        height: 20,
+        margin: const EdgeInsets.only(right: 4),
+        decoration: BoxDecoration(color: c, borderRadius: BorderRadius.circular(4)),
+      );
 
-  // ---------- Brands (placeholder) ----------
   Widget _buildBrands() {
     final bottomInset = MediaQuery.of(context).padding.bottom;
-    final brands = ['Sherwin-Williams','Benjamin Moore','Behr'];
+    final brands = ['Sherwin-Williams', 'Benjamin Moore', 'Behr'];
     return ListView.builder(
+      controller: _scrollController,
       padding: EdgeInsets.only(
         bottom: 24 + (_compareTrayVisible ? CompareTray.height + 12 : 0) + bottomInset,
       ),
@@ -622,136 +600,70 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
         title: Text(brands[i]),
         trailing: const Icon(Icons.chevron_right),
         onTap: () {
-          setState(() { filters = filters.copyWith(brandName: brands[i]); _tabIndex = 1; });
+          setState(() {
+            filters = filters.copyWith(brandName: brands[i]);
+            _tabIndex = 1;
+            _topTabController?.index = 1;
+          });
         },
       ),
     );
   }
 
-  // ---------- Search Results ----------
-  Widget _buildSearchResults() {
-    final bottomInset = MediaQuery.of(context).padding.bottom;
-    if (_isSearching) {
-      return const Center(child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [CircularProgressIndicator(), SizedBox(height: 10), Text('Searchingâ€¦')],
-      ));
-    }
-    if (_visible.isEmpty) {
-      return Center(child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.search_off, size: 64, color: Theme.of(context).colorScheme.onSurface.withAlpha(45)),
-          const SizedBox(height: 8),
-          Text('No results', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 4),
-          Text('Try different keywords', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface.withAlpha(65))),
-        ],
-      ));
-    }
-    return Scrollbar(
-      thumbVisibility: true,
-      controller: _scrollController,
-      child: ListView.builder(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        controller: _scrollController,
-        padding: EdgeInsets.fromLTRB(
-          16, 12, 16,
-          24 + kBottomNavigationBarHeight + (_compareTrayVisible ? CompareTray.height + 12 : 0) + bottomInset,
-        ),
-        itemCount: _visible.length,
-        itemBuilder: (_, i) {
-          final p = _visible[i];
-          _byId[p.id] = p;
-          final selected = _selectedForCompare.contains(p.id);
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: StaggeredEntrance(
-              delay: Duration(milliseconds: 30 + i * 45),
-              child: AspectRatio(
-                aspectRatio: kTileAspect,
-                child: FancyPaintTile(
-                  paint: p,
-                  dense: false,
-                  selected: selected,
-                  onOpen: () => _openDetails(p),
-                  onLongPress: () => _toggleCompare(p),
-                  onQuickRoller: () => _loadIntoRoller(p),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
+  // (Search results list integrated into All tab for now; no separate body)
 
-  Widget _topBar(ThemeData theme) {
-    final size = MediaQuery.of(context).size;
-    final topHeight = (size.height * 0.36).clamp(220.0, size.height);
-
-    // placeholder images for each tab (Explore, All, Rooms, Brands)
-    // Use stable interior design shots from Pexels CDN to avoid 404s
+  // Top hero and tabs
+  Widget _topHero({required ThemeData theme, required double searchOpacity, required bool collapsed}) {
     final images = [
       'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1200&q=80',
       'https://images.pexels.com/photos/1571172/pexels-photo-1571172.jpeg?auto=compress&cs=tinysrgb&w=1200&q=80',
       'https://images.pexels.com/photos/271743/pexels-photo-271743.jpeg?auto=compress&cs=tinysrgb&w=1200&q=80',
       'https://images.pexels.com/photos/1080721/pexels-photo-1080721.jpeg?auto=compress&cs=tinysrgb&w=1200&q=80',
     ];
-
     final bgImage = images[_tabIndex % images.length];
 
-    return SizedBox(
-      height: topHeight,
-      child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Background image
-            DecoratedBox(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: NetworkImage(bgImage),
-                  fit: BoxFit.cover,
-                ),
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(
+              image: DecorationImage(image: NetworkImage(bgImage), fit: BoxFit.cover),
+            ),
+          ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  theme.colorScheme.surface.withOpacity(0.18),
+                  Colors.transparent,
+                  Colors.black.withOpacity(0.22),
+                ],
+                stops: const [0, 0.5, 1],
               ),
             ),
-            // Overlay gradient for readability
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    theme.colorScheme.surface.withOpacity(0.18),
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.22),
-                  ],
-                  stops: const [0, 0.5, 1],
-                ),
-              ),
-            ),
-            // Centered search
+          ),
+          if (!collapsed)
             SafeArea(
               child: Center(
-                child: AnimatedSize(
-                  duration: const Duration(milliseconds: 180),
-                  curve: Curves.easeOutCubic,
-                  child: Offstage(
-                    offstage: _hideSearch,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 720),
-                        child: _miniSearch(theme),
-                      ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 720),
+                    child: AnimatedOpacity(
+                      opacity: searchOpacity,
+                      duration: const Duration(milliseconds: 120),
+                      curve: Curves.easeOut,
+                      child: _miniSearch(theme),
                     ),
                   ),
                 ),
               ),
             ),
-            // Tab container near bottom (styled like paint detail)
+          if (!collapsed)
             Positioned(
               left: 0,
               right: 0,
@@ -769,44 +681,45 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                       ),
                       child: Align(
                         alignment: Alignment.centerLeft,
-                        child: TabBar(
-                          controller: _topTabController,
-                          isScrollable: false,
-                          dividerColor: Colors.transparent,
-                          padding: EdgeInsets.zero,
-                          labelPadding: const EdgeInsets.symmetric(vertical: 10),
-                          indicatorPadding: EdgeInsets.zero,
-                          indicatorSize: TabBarIndicatorSize.tab,
-                          indicator: ShapeDecoration(
-                            color: theme.colorScheme.onSurface.withAlpha(72),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                          ),
-                          labelColor: theme.colorScheme.onSurface,
-                          unselectedLabelColor:
-                              theme.colorScheme.onSurface.withAlpha(170),
-                          tabs: const [
-                            Tab(text: 'Explore'),
-                            Tab(text: 'All'),
-                            Tab(text: 'Rooms'),
-                            Tab(text: 'Brands'),
-                          ],
-                        ),
+                        child: _buildTopTabs(theme),
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildTopTabs(ThemeData theme) {
+    return TabBar(
+      controller: _topTabController,
+      isScrollable: false,
+      dividerColor: Colors.transparent,
+      padding: EdgeInsets.zero,
+      labelPadding: const EdgeInsets.symmetric(vertical: 10),
+      indicatorPadding: EdgeInsets.zero,
+      indicatorSize: TabBarIndicatorSize.tab,
+      indicator: ShapeDecoration(
+        color: theme.colorScheme.onSurface.withAlpha(72),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      labelColor: theme.colorScheme.onSurface,
+      unselectedLabelColor: theme.colorScheme.onSurface.withAlpha(170),
+      tabs: const [
+        Tab(text: 'Explore'),
+        Tab(text: 'All'),
+        Tab(text: 'Rooms'),
+        Tab(text: 'Brands'),
+      ],
     );
   }
 
   Widget _miniSearch(ThemeData theme) {
     return SizedBox(
-      height: 40, // smaller height to save vertical space
+      height: 40,
       child: TextField(
         controller: _searchController,
         focusNode: _searchFocusNode,
@@ -833,7 +746,6 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                   onPressed: () {
                     _searchController.clear();
                     setState(() {
-                      _showSearchResults = false;
                       _visible.clear();
                       _cached.clear();
                     });
@@ -846,8 +758,6 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
       ),
     );
   }
-
-  // _minimalTabs no longer used; top bar renders the styled tab bar directly.
 }
 
 
