@@ -32,12 +32,37 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
   final JourneyService _journey = JourneyService.instance;
   bool _loaded = false;
   bool _hasProjects = true;
+  final ScrollController _scrollController = ScrollController();
+  double _heroHeight = 0;
+  static const double _heroMaxHeightFraction = 0.36;
+  static const double _heroMinHeight = 74; // just enough for tab bar
 
   @override
   void initState() {
     super.initState();
     _tab = TabController(length: 2, vsync: this);
     _bootstrap();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _tab.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    final maxHeight = (MediaQuery.of(context).size.height * _heroMaxHeightFraction).clamp(220.0, MediaQuery.of(context).size.height);
+    final minHeight = _heroMinHeight;
+    final offset = _scrollController.hasClients ? _scrollController.offset : 0.0;
+  // final collapseRange = maxHeight - minHeight; // unused
+    double newHeight = (maxHeight - offset).clamp(minHeight, maxHeight);
+    if ((newHeight - _heroHeight).abs() > 1) {
+      setState(() {
+        _heroHeight = newHeight;
+      });
+    }
   }
 
   Future<void> _bootstrap() async {
@@ -64,48 +89,195 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    final peach = Theme.of(context).colorScheme.secondary;
     final title = "Create Hub";
     final subtitle = "Design · Learn · Visualize";
 
+    final maxHeroHeight = (MediaQuery.of(context).size.height * _heroMaxHeightFraction).clamp(220.0, MediaQuery.of(context).size.height);
+    if (_heroHeight == 0) _heroHeight = maxHeroHeight;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: const Color(0xFF0E0F12),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          top: false,
+          left: false,
+          right: false,
+          bottom: true,
+          child: Column(
             children: [
-              Text(title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 2),
-              Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.white)),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                height: _heroHeight,
+                child: _topHero(title: title, subtitle: subtitle, collapsed: _heroHeight <= _heroMinHeight + 2),
+              ),
+              Expanded(
+                child: Column(
+                  children: [
+                    // When collapsed, show a sticky copy of the tab bar above the content
+                    if (_heroHeight <= _heroMinHeight + 2)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surface.withAlpha(61),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: _buildTabBar(),
+                        ),
+                      ),
+                    Expanded(
+                      child: !_loaded
+                          ? const Center(child: CircularProgressIndicator())
+                          : NotificationListener<ScrollNotification>(
+                              onNotification: (n) {
+                                if (n is ScrollUpdateNotification) _onScroll();
+                                return false;
+                              },
+                              child: TabBarView(
+                                controller: _tab,
+                                children: [
+                                  _buildGuided(context, controller: _scrollController),
+                                  _buildTools(context, controller: _scrollController),
+                                ],
+                              ),
+                            ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
-          bottom: TabBar(
-            controller: _tab,
-            tabs: const [Tab(text: "AI Guided"), Tab(text: "Design Tools")],
-            labelColor: peach,
-            unselectedLabelColor: Colors.white70,
-            indicatorColor: peach,
-          ),
         ),
-        body: !_loaded
-            ? const Center(child: CircularProgressIndicator())
-            : TabBarView(
-                controller: _tab,
-                children: [
-                  _buildGuided(context),
-                  _buildTools(context),
-                ],
-              ),
       ),
     );
   }
 
-  Widget _buildGuided(BuildContext context) {
-    final journey = _journey;
+  /// Top hero header with curved bottom and integrated TabBar (matches Search UI)
+  Widget _topHero({required String title, required String subtitle, bool collapsed = false}) {
+    final theme = Theme.of(context);
+  // final size = MediaQuery.of(context).size; // unused
+    final bgImage = widget.heroImageUrl ??
+        'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1200&q=80';
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Background image
+          DecoratedBox(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: NetworkImage(bgImage),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          // Overlay gradient for readability
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  theme.colorScheme.surface.withOpacity(0.18),
+                  Colors.transparent,
+                  Colors.black.withOpacity(0.22),
+                ],
+                stops: const [0, 0.5, 1],
+              ),
+            ),
+          ),
+          // Centered title/subtitle (hide when collapsed)
+          if (!collapsed)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 720),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        title,
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w800,
+                            ) ?? const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        subtitle,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ) ?? const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          // Tab container near bottom (inside hero when expanded)
+          if (!collapsed)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 12,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
+                child: Transform.translate(
+                  offset: const Offset(0, -18),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface.withAlpha(61),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: _buildTabBar(),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabBar() {
+    final theme = Theme.of(context);
+    return TabBar(
+      controller: _tab,
+      isScrollable: false,
+      dividerColor: Colors.transparent,
+      padding: EdgeInsets.zero,
+      labelPadding: const EdgeInsets.symmetric(vertical: 10),
+      indicatorPadding: EdgeInsets.zero,
+      indicatorSize: TabBarIndicatorSize.tab,
+      indicator: ShapeDecoration(
+        color: theme.colorScheme.onSurface.withAlpha(72),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      labelColor: theme.colorScheme.onSurface,
+      unselectedLabelColor: theme.colorScheme.onSurface.withAlpha(170),
+      tabs: const [Tab(text: 'AI Guided'), Tab(text: 'Design Tools')],
+    );
+  }
+
+  Widget _buildGuided(BuildContext context, {ScrollController? controller}) {
+  final journey = _journey;
+  final theme = Theme.of(context);
     if (!_hasProjects) {
       return Center(
         child: Semantics(
@@ -130,6 +302,7 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
       );
     }
     return SingleChildScrollView(
+      controller: controller,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,14 +310,23 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
           // Progress + timeline
           Card(
             elevation: 0,
-            color: Colors.white.withValues(alpha: 0.04),
+            color: theme.colorScheme.surfaceContainerHighest,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Your Color Story", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.white)),
+                  Text(
+                    "Your Color Story",
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                  ),
                   const SizedBox(height: 8),
                   JourneyTimeline(journey: journey),
                   const SizedBox(height: 12),
@@ -175,8 +357,9 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
     );
   }
 
-  Widget _buildTools(BuildContext context) {
+  Widget _buildTools(BuildContext context, {ScrollController? controller}) {
     return SingleChildScrollView(
+      controller: controller,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,7 +435,15 @@ class _NextBestAction extends StatelessWidget {
         final label = step?.title ?? 'Start your Color Story';
         return Row(
           children: [
-            Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white))),
+            Expanded(
+              child: Text(
+                label,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(fontWeight: FontWeight.w600),
+              ),
+            ),
             ElevatedButton(onPressed: onGo, child: const Text('Go')),
           ],
         );
@@ -268,7 +459,13 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 18, 4, 8),
-      child: Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+  child: Text(
+    title,
+    style: Theme.of(context)
+    .textTheme
+    .titleSmall
+    ?.copyWith(fontSize: 15, fontWeight: FontWeight.w700),
+  ),
     );
   }
 }
@@ -278,6 +475,7 @@ class _ToolRow extends StatelessWidget {
   const _ToolRow({required this.items});
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Wrap(
       spacing: 12,
       runSpacing: 12,
@@ -288,14 +486,20 @@ class _ToolRow extends StatelessWidget {
                   width: 160,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.04),
+                    color: theme.colorScheme.surfaceContainerHigh,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white10),
+                    border: Border.all(color: theme.colorScheme.outline.withAlpha(26)),
                   ),
                   padding: const EdgeInsets.all(12),
                   child: Align(
                     alignment: Alignment.bottomLeft,
-                    child: Text(it.label, style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
+                    child: Text(
+                      it.label,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ),
               ))

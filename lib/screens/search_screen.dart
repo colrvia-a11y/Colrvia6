@@ -687,33 +687,119 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
   }
 
   Widget _topBar(ThemeData theme) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 6), // tighter overall
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        border: Border(
-          bottom: BorderSide(
-            color: theme.colorScheme.outline.withAlpha(10),
-          ),
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Collapsible search only
-          AnimatedSize(
-            duration: const Duration(milliseconds: 180),
-            curve: Curves.easeOutCubic,
-            alignment: Alignment.topCenter,
-            clipBehavior: Clip.hardEdge,
-            child: Offstage(
-              offstage: _hideSearch,
-              child: _miniSearch(theme),
+    final size = MediaQuery.of(context).size;
+    final topHeight = (size.height * 0.36).clamp(220.0, size.height);
+
+    // placeholder images for each tab (Explore, All, Rooms, Brands)
+    // Use stable interior design shots from Pexels CDN to avoid 404s
+    final images = [
+      'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1200&q=80',
+      'https://images.pexels.com/photos/1571172/pexels-photo-1571172.jpeg?auto=compress&cs=tinysrgb&w=1200&q=80',
+      'https://images.pexels.com/photos/271743/pexels-photo-271743.jpeg?auto=compress&cs=tinysrgb&w=1200&q=80',
+      'https://images.pexels.com/photos/1080721/pexels-photo-1080721.jpeg?auto=compress&cs=tinysrgb&w=1200&q=80',
+    ];
+
+    final bgImage = images[_tabIndex % images.length];
+
+    return SizedBox(
+      height: topHeight,
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Background image
+            DecoratedBox(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(bgImage),
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
-          ),
-          if (!_hideSearch) const SizedBox(height: 6), // tighter gap under search
-          _minimalTabs(theme),
-        ],
+            // Overlay gradient for readability
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    theme.colorScheme.surface.withOpacity(0.18),
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.22),
+                  ],
+                  stops: const [0, 0.5, 1],
+                ),
+              ),
+            ),
+            // Centered search
+            SafeArea(
+              child: Center(
+                child: AnimatedSize(
+                  duration: const Duration(milliseconds: 180),
+                  curve: Curves.easeOutCubic,
+                  child: Offstage(
+                    offstage: _hideSearch,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 720),
+                        child: _miniSearch(theme),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            // Tab container near bottom (styled like paint detail)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 12,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
+                child: Transform.translate(
+                  offset: const Offset(0, -18),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface.withAlpha(61),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: TabBar(
+                          controller: _topTabController,
+                          isScrollable: false,
+                          dividerColor: Colors.transparent,
+                          padding: EdgeInsets.zero,
+                          labelPadding: const EdgeInsets.symmetric(vertical: 10),
+                          indicatorPadding: EdgeInsets.zero,
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          indicator: ShapeDecoration(
+                            color: theme.colorScheme.onSurface.withAlpha(72),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                          ),
+                          labelColor: theme.colorScheme.onSurface,
+                          unselectedLabelColor:
+                              theme.colorScheme.onSurface.withAlpha(170),
+                          tabs: const [
+                            Tab(text: 'Explore'),
+                            Tab(text: 'All'),
+                            Tab(text: 'Rooms'),
+                            Tab(text: 'Brands'),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -761,46 +847,7 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
     );
   }
 
-  Widget _minimalTabs(ThemeData theme) {
-    final sc = theme.colorScheme;
-    return SizedBox(
-      height: 40,
-      width: double.infinity,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Container(
-          decoration: BoxDecoration(
-            color: sc.surface.withAlpha(61),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: TabBar(
-              controller: _topTabController,
-              isScrollable: false,
-              dividerColor: Colors.transparent,
-              padding: EdgeInsets.zero,
-              labelPadding: const EdgeInsets.symmetric(vertical: 6),
-              indicatorPadding: EdgeInsets.zero,
-              indicatorSize: TabBarIndicatorSize.tab,
-              indicator: ShapeDecoration(
-                color: sc.onSurface.withAlpha(72),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              labelColor: sc.onSurface,
-              unselectedLabelColor: sc.onSurface.withAlpha(170),
-              tabs: const [
-                Tab(text: 'Explore'),
-                Tab(text: 'All'),
-                Tab(text: 'Rooms'),
-                Tab(text: 'Brands'),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  // _minimalTabs no longer used; top bar renders the styled tab bar directly.
 }
 
 
