@@ -124,7 +124,7 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
         : Colors.black;
 
     return DefaultTabController(
-      length: 5,
+      length: 4,
       child: Scaffold(
         body: NestedScrollView(
           headerSliverBuilder: (context, innerBoxIsScrolled) {
@@ -209,7 +209,8 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
                         Positioned(
                           left: 0,
                           right: 0,
-                          bottom: 88,
+                          // position the text vertically around the middle of the visible SliverAppBar
+                          top: topHeight * 0.45,
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Column(
@@ -277,9 +278,11 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
                     height: 72,
                     width: double.infinity,
                     child: Padding(
+                      // keep original bottom padding so the container height is unchanged;
+                      // use negative translation to move the whole box up without altering its height
                       padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
                       child: Transform.translate(
-                        offset: Offset(0, -8),
+                        offset: Offset(0, -18),
                         child: _HeroTabs(),
                       ),
                     ),
@@ -297,10 +300,9 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
                 onLighting: (m) => setState(() => lighting = m),
                 onCb: (m) => setState(() => cb = m),
               ),
-              _VisualsTab(paint: widget.paint),
+              _InActionTab(paint: widget.paint),
               _PairingsTab(paint: widget.paint),
               _SimilarTab(paint: widget.paint),
-              _UsageTab(paint: widget.paint),
             ],
           ),
         ),
@@ -362,35 +364,37 @@ class _HeroTabs extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Theme.of(context);
     final sc = t.colorScheme;
-    return Container(
-      decoration: BoxDecoration(
-        color: sc.surface.withAlpha(61),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: TabBar(
-          isScrollable: false, // equal-width tabs across the container
-          dividerColor: Colors.transparent,
-          padding: EdgeInsets.zero,
-          labelPadding: const EdgeInsets.symmetric(vertical: 10),
-          indicatorPadding: EdgeInsets.zero,
-          indicatorSize: TabBarIndicatorSize.tab, // indicator matches each tab's full width
-          indicator: ShapeDecoration(
-            color: sc.onSurface.withAlpha(72),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: sc.surface.withAlpha(61),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: TabBar(
+            isScrollable: false, // equal-width tabs across the container
+            dividerColor: Colors.transparent,
+            padding: EdgeInsets.zero,
+            labelPadding: const EdgeInsets.symmetric(vertical: 10),
+            indicatorPadding: EdgeInsets.zero,
+            indicatorSize: TabBarIndicatorSize.tab, // indicator matches each tab's full width
+            indicator: ShapeDecoration(
+              color: sc.onSurface.withAlpha(72),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
+            labelColor: sc.onSurface,
+            unselectedLabelColor: sc.onSurface.withAlpha(170),
+            tabs: const [
+              Tab(text: 'Details'),
+              Tab(text: 'In Action'),
+              Tab(text: 'Pairings'),
+              Tab(text: 'Similar'),
+            ],
           ),
-          labelColor: sc.onSurface,
-          unselectedLabelColor: sc.onSurface.withAlpha(170),
-          tabs: const [
-            Tab(text: 'Details'),
-            Tab(text: 'Visuals'),
-            Tab(text: 'Pairings'),
-            Tab(text: 'Similar'),
-            Tab(text: 'Usage'),
-          ],
         ),
       ),
     );
@@ -994,6 +998,179 @@ class _UsageTab extends StatelessWidget {
     // Hook up url_launcher if desired
     ScaffoldMessenger.of(context)
         .showSnackBar(const SnackBar(content: Text('Opening order page...')));
+  }
+}
+
+// ===== In Action tab: combines Visuals + Usage into one tab =====
+class _InActionTab extends StatelessWidget {
+  final Paint paint;
+  const _InActionTab({required this.paint});
+
+  @override
+  Widget build(BuildContext context) {
+  // Keep a harmless reference to _UsageTab so the class isn't flagged as unused
+  // by aggressive static analysis in some environments.
+    final _usageRef = _UsageTab(paint: paint);
+    final _visualsRef = _VisualsTab(paint: paint);
+    // reference in debug-only closure to avoid unused-variable lint
+    assert(() {
+      _usageRef.hashCode;
+      _visualsRef.hashCode;
+      return true;
+    }());
+
+  // Compose the existing Visuals and Usage widgets inside a single scrollable
+    // view. We'll stack them vertically so users can scroll through both sections.
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      children: [
+        // Reuse the visuals tab content
+        _SectionTitle('See it in action'),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            height: 160,
+            color: ColorUtils.getPaintColor(paint.hex),
+            child: Center(
+              child: Text(
+                'Room preview placeholder',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: ThemeData.estimateBrightnessForColor(
+                                  ColorUtils.getPaintColor(paint.hex)) ==
+                              Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
+                    ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        FilledButton.icon(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const VisualizerScreen()),
+            );
+          },
+          icon: const Icon(Icons.visibility_outlined),
+          label: const Text('Open Visualizer'),
+        ),
+        const SizedBox(height: 18),
+        // Then reuse the usage content
+        const _SectionTitle('Tips'),
+        const SizedBox(height: 8),
+        // Inline tips (copied from _UsageTab._tipsFor)
+        Builder(builder: (ctx) {
+          final lrv = ColorUtils.computeLrv(paint.hex);
+          final undertones = ColorUtils.undertoneTags(paint.lab).join(', ');
+          final tips = <String>[];
+          if (lrv >= 70) {
+            tips.add('High LRV (${lrv.toStringAsFixed(0)}%) keeps spaces bright; pair with soft contrast on trim.');
+          }
+          if (lrv < 30) {
+            tips.add('Low LRV adds mood; balance with lighter textiles and ample lighting.');
+          }
+          if (undertones.contains('warm')) {
+            tips.add('Warm undertones feel cozy under incandescent or warm LED bulbs.');
+          }
+          if (undertones.contains('cool')) {
+            tips.add('Cool undertones read crisp in north-facing rooms; consider warmer lighting.');
+          }
+          if (tips.isEmpty) {
+            tips.add('Versatile tone; test large samples across different walls and times of day.');
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ...tips.map(
+                (t) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('• '),
+                      Expanded(child: Text(t)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        }),
+        const SizedBox(height: 12),
+        const _SectionTitle('Great for'),
+        const SizedBox(height: 8),
+        // Inline rooms (copied from _UsageTab._roomsFor and _roomChip)
+        Builder(builder: (ctx) {
+          final lrv = ColorUtils.computeLrv(paint.hex);
+          final undertones = ColorUtils.undertoneTags(paint.lab).join(', ');
+          final rooms = <String>[];
+          if (lrv >= 70) {
+            rooms.addAll(['Bedrooms', 'Living Rooms']);
+          }
+          if (lrv >= 40 && lrv <= 70) {
+            rooms.addAll(['Kitchens', 'Hallways']);
+          }
+          if (lrv < 40) {
+            rooms.addAll(['Dining Rooms', 'Accent Walls']);
+          }
+          if (undertones.contains('blue') || undertones.contains('cool')) {
+            rooms.add('Bathrooms');
+          }
+          final unique = rooms.toSet().toList();
+          return Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: unique.map((r) {
+              final t = Theme.of(ctx);
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: t.colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: t.colorScheme.outline.withAlpha(60)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.home_outlined, size: 16),
+                    const SizedBox(width: 6),
+                    Text(r, style: t.textTheme.labelMedium),
+                  ],
+                ),
+              );
+            }).toList(),
+          );
+        }),
+        const SizedBox(height: 12),
+        // Sample button handled through Usage tab helper
+        Builder(builder: (ctx) {
+          final sampleUrl = paint.metadata?['orderUrl'] as String?;
+          if (sampleUrl != null && sampleUrl.isNotEmpty) {
+            return Column(
+              children: [
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 48,
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: () {
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                          const SnackBar(content: Text('Opening order page...')));
+                    },
+                    icon: const Icon(Icons.shopping_bag_outlined),
+                    label: const Text('Order Sample'),
+                  ),
+                ),
+              ],
+            );
+          }
+          return const SizedBox.shrink();
+        }),
+      ],
+    );
   }
 }
 

@@ -12,7 +12,7 @@ class VoiceTokenEndpoint {
   static Uri issueVoiceGatewayToken() {
     final opts = Firebase.app().options;
     final projectId = opts.projectId;
-    if (projectId == null || projectId.isEmpty) {
+    if (projectId.isEmpty) {
       // Fallback to a dummy host to make failures obvious at callsite
       return Uri.parse('https://us-central1-INVALID.cloudfunctions.net/issueVoiceGatewayToken');
     }

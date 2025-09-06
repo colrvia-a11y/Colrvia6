@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:color_canvas/services/live_talk_service.dart';
 import 'package:color_canvas/services/transcript_recorder.dart';
 import 'package:color_canvas/services/interview_shared_engine.dart' as shared;

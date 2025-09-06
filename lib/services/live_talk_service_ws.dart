@@ -171,7 +171,7 @@ class LiveTalkServiceWs {
       }).timeout(const Duration(seconds: 12));
       final data = resp.data;
       if (data is Map) {
-        return Map<String, dynamic>.from(data as Map);
+        return Map<String, dynamic>.from(data);
       }
       throw Exception('Invalid token response payload');
     }
