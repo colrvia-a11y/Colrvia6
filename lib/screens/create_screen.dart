@@ -94,6 +94,16 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
 
     final maxHeroHeight = (MediaQuery.of(context).size.height * _heroMaxHeightFraction).clamp(220.0, MediaQuery.of(context).size.height);
     if (_heroHeight == 0) _heroHeight = maxHeroHeight;
+  // Compute hero text opacity: fade out faster and complete before full collapse.
+  // collapseProgress: 0.0 at fully expanded, 1.0 at fully collapsed
+  final double collapseProgress = ((maxHeroHeight - _heroHeight) / (maxHeroHeight - _heroMinHeight))
+    .clamp(0.0, 1.0)
+    .toDouble();
+  // Finish fade by ~40% collapsed so text is gone before the tab bar overlaps it
+  const double fadeEndAt = 0.4; // more aggressive early fade
+  final double fadePhase = (collapseProgress / fadeEndAt).clamp(0.0, 1.0);
+  // Use easeOut so opacity drops quickly at the start of scroll
+  final double _heroTextOpacity = 1.0 - Curves.easeOutQuint.transform(fadePhase);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
@@ -109,7 +119,12 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeOutCubic,
                 height: _heroHeight,
-                child: _topHero(title: title, subtitle: subtitle, collapsed: _heroHeight <= _heroMinHeight + 2),
+                child: _topHero(
+                  title: title,
+                  subtitle: subtitle,
+                  collapsed: _heroHeight <= _heroMinHeight + 2,
+                  textOpacity: _heroTextOpacity,
+                ),
               ),
               Expanded(
                 child: Column(
@@ -154,7 +169,7 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
   }
 
   /// Top hero header with curved bottom and integrated TabBar (matches Search UI)
-  Widget _topHero({required String title, required String subtitle, bool collapsed = false}) {
+  Widget _topHero({required String title, required String subtitle, bool collapsed = false, double textOpacity = 1.0}) {
     final theme = Theme.of(context);
   // final size = MediaQuery.of(context).size; // unused
     final bgImage = widget.heroImageUrl ??
@@ -195,29 +210,34 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 720),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        title,
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.w800,
-                            ) ?? const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        subtitle,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                            ) ?? const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                  child: AnimatedOpacity(
+                    opacity: textOpacity,
+                    duration: const Duration(milliseconds: 120),
+                    curve: Curves.easeOut,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          title,
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w800,
+                              ) ?? const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          subtitle,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ) ?? const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
