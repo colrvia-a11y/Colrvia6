@@ -2130,10 +2130,12 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
       final shareText =
           '$shareTitle$contextInfo\n\n$excerpt';
 
-      // Share the story
-      await SharePlus.share(
-        shareText,
-        subject: shareTitle,
+      // Share the story (share_plus ^11 uses SharePlus.instance with ShareParams)
+      await SharePlus.instance.share(
+        ShareParams(
+          text: shareText,
+          subject: shareTitle,
+        ),
       );
 
       // Update project funnel stage to share

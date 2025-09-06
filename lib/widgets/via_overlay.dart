@@ -651,7 +651,7 @@ class _ChatBubble {
     required this.text,
     required this.fromUser,
     required this.timestamp,
-  });
+  }) : isSystem = false;
 }
 
 class _Suggestion {
@@ -684,8 +684,6 @@ class _OutlinedSquareIcon extends StatelessWidget {
     );
   }
 }
-
-
 
 
 

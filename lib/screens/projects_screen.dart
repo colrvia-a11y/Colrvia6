@@ -508,9 +508,9 @@ class _PalettesSection extends ConsumerWidget {
             ],
           ),
         ),
-      ),
-    )
-  }
+      );
+    }
+
 
     final palettesAsync = ref.watch(userPalettesProvider);
 
@@ -864,7 +864,9 @@ class EnhancedPaletteCard extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 
   // No longer needed - using stored color info directly
