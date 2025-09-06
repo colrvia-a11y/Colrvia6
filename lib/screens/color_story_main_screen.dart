@@ -179,7 +179,7 @@ class _ColorStoryMainScreenState extends State<ColorStoryMainScreen> with Ticker
       elevation: 0,
       backgroundColor: Colors.transparent,
       flexibleSpace: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -219,7 +219,7 @@ class _ColorStoryMainScreenState extends State<ColorStoryMainScreen> with Ticker
           ),
           centerTitle: true,
           background: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,

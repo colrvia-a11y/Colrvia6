@@ -155,17 +155,25 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
     }
   }
 
-  // Apply a ColorPlan to the Visualizer (minimal stub used by button)
-  void _applyPlanToVisualizer(ColorPlan plan) {
-    // For now just navigate to VisualizerScreen with initial palette
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => VisualizerScreen(
-          initialPalette: null,
+  void _applyPlanToVisualizer(ColorPlan plan) async {
+    try {
+      // plan.paletteColorIds are paint document IDs
+      final paints = await FirebaseService.getPaintsByIds(plan.paletteColorIds);
+      final hexCodes = paints.map((p) => p.hex).where((h) => h.isNotEmpty).toList();
+
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => VisualizerScreen(initialPalette: hexCodes),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unable to open in Visualizer: $e')),
+      );
+    }
   }
 
   Future<void> _loadUserPreferences() async {

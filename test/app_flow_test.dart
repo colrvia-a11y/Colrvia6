@@ -48,5 +48,15 @@ void main() {
 
     expect(find.byType(VisualizerScreen), findsOneWidget);
   });
+
+  testWidgets(
+    'ColorPlan opens Visualizer with initial palette',
+    (WidgetTester tester) async {
+      // Arrange a ColorPlan with some paletteColorIds and mock FirebaseService.getPaintsByIds
+      // This test requires mocking a static method; keep as a placeholder for now.
+      // Expect: pushing VisualizerScreen receives non-empty initialPalette
+    },
+    skip: true, // Needs mocking of FirebaseService.getPaintsByIds static call
+  );
 }
 
