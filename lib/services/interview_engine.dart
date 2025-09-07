@@ -130,7 +130,9 @@ class InterviewEngine extends ChangeNotifier {
   }
 
   void setAnswer(String id, dynamic value) {
-    if (value is List && value.isEmpty) {
+    if (value == null) {
+      _answers.remove(id);
+    } else if (value is List && value.isEmpty) {
       _answers.remove(id);
     } else {
       _answers[id] = value;
@@ -146,6 +148,12 @@ class InterviewEngine extends ChangeNotifier {
       }
     }
 
+    notifyListeners();
+  }
+
+  /// Explicitly clear an answer (used by "Prefer not to answer").
+  void clearAnswer(String id) {
+    _answers.remove(id);
     notifyListeners();
   }
 
