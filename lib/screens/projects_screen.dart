@@ -1,10 +1,11 @@
+import 'images_section.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter/services.dart';
 // Add a prefixed import for core widgets to avoid any local shadowing
 import 'package:flutter/material.dart' as m
     show Text, Column, SizedBox, Container, Positioned;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logging/logging.dart';
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
 import 'package:color_canvas/services/firebase_service.dart';
 import 'package:color_canvas/providers.dart';
@@ -17,14 +18,14 @@ import 'package:color_canvas/screens/explore_screen.dart';
 import 'color_plan_screen.dart' deferred as plan;
 import 'package:color_canvas/screens/visualizer_screen.dart' deferred as viz;
 import 'package:color_canvas/utils/color_utils.dart';
-import 'package:color_canvas/main.dart' show isFirebaseInitialized;
 import 'package:color_canvas/widgets/colr_via_icon_button.dart' as app;
 // REGION: CODEX-ADD user-prefs-import
-import 'package:color_canvas/services/user_prefs_service.dart';
+
+
 import 'package:color_canvas/services/analytics_service.dart';
 // END REGION: CODEX-ADD user-prefs-import
 
-enum LibraryFilter { all, palettes, stories }
+enum LibraryFilter { all, palettes, stories, colors, images }
 
 class ProjectsScreen extends ConsumerStatefulWidget {
   const ProjectsScreen({super.key, this.initialFilter = LibraryFilter.all});
@@ -35,120 +36,45 @@ class ProjectsScreen extends ConsumerStatefulWidget {
 }
 
 class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProviderStateMixin {
-  static final _logger = Logger('ProjectsScreen');
+  // Hero and tab state
+  static const double _heroMaxHeightFraction = 0.32;
+  static const double _heroMinHeight = 72.0;
+  double _heroHeight = 0;
+  late final ScrollController _scrollController;
+  late final TabController _tab;
 
-  bool _isLoading = true;
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _tab = TabController(length: 4, vsync: this);
+    _filter = widget.initialFilter;
+    _tab.addListener(() {
+      setState(() {
+        _filter = LibraryFilter.values[_tab.index + 1];
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _tab.dispose();
+    super.dispose();
+  }
+
+  // Removed unused _isLoading; rely on provider/stream loading states
   bool _hasPermissionError = false;
   late LibraryFilter _filter;
   String? _lastProjectId;
   String? _lastScreen;
   bool _bannerVisible = false;
-  bool _bannerLogged = false;
 
-  // Hero + tabs (Create-style)
-  late final TabController _tab;
-  final ScrollController _scrollController = ScrollController();
-  double _heroHeight = 0;
-  static const double _heroMaxHeightFraction = 0.36;
-  static const double _heroMinHeight = 74; // enough to show tab bar when expanded
 
-  @override
-  void initState() {
-    super.initState();
-    _filter = widget.initialFilter;
-  // Initialize tabs to mirror filter
-  _tab = TabController(length: 3, vsync: this);
-  _tab.index = _filter == LibraryFilter.all
-    ? 0
-    : _filter == LibraryFilter.palettes
-      ? 1
-      : 2;
-  _tab.addListener(() {
-    if (_tab.indexIsChanging) return;
-    final next = _tab.index == 0
-      ? LibraryFilter.all
-      : _tab.index == 1
-        ? LibraryFilter.palettes
-        : LibraryFilter.stories;
-    if (next != _filter) setState(() => _filter = next);
-  });
-  _scrollController.addListener(_onScroll);
-    _loadData();
-    _loadPrefs();
-  }
 
-  Future<void> _loadData() async {
-    if (!isFirebaseInitialized) {
-      setState(() => _isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: m.Text(
-                'Firebase not configured. Items may not sync across devices.'),
-            backgroundColor: Colors.orange,
-          ),
-        );
-      }
-      return;
-    }
-    final user = FirebaseService.currentUser;
-    if (user == null) {
-      setState(() => _isLoading = false);
-      return;
-    }
-    try {
-      final firebaseStatus = await FirebaseService.getFirebaseStatus();
-      _logger.info('Firebase Status in library: $firebaseStatus');
-      _logger.info('User ID: ${user.uid}, Email: ${user.email}');
-      List<ProjectDoc> colorStories = [];
-      try {
-        final allProjects =
-            await ProjectService.myProjectsStream(limit: 50).first;
-        colorStories =
-            allProjects.where((p) => p.colorStoryId != null).toList();
-        _logger.info('Successfully loaded ${colorStories.length} color stories');
-      } catch (storiesError) {
-        _logger.warning('Error loading color stories: $storiesError');
-      }
-      setState(() {
-        _isLoading = false;
-        _hasPermissionError = colorStories.isEmpty;
-      });
-    } catch (e) {
-      _logger.severe('General error loading library data: $e');
-      setState(() => _isLoading = false);
-      if (e.toString().contains('permission-denied')) {
-        if (mounted) {
-          _showPermissionDeniedDialog();
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: m.Text(
-                  'Error loading data: ${e.toString().split(':').first}'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    }
-  }
+// --- Place this at the very end of the file ---
 
-  Future<void> _loadPrefs() async {
-    final prefs = await UserPrefsService.fetch();
-    if (!mounted) return;
-    setState(() {
-      _lastProjectId = prefs.lastOpenedProjectId;
-      _lastScreen = prefs.lastVisitedScreen;
-      _bannerVisible =
-          _lastProjectId != null && _lastScreen != null && _lastProjectId!.isNotEmpty;
-    });
-    if (_bannerVisible && !_bannerLogged) {
-      await AnalyticsService.instance.resumeLastShown(_lastProjectId!);
-      _bannerLogged = true;
-    }
-  }
+
 
   void _onScroll() {
     final maxHeight = (MediaQuery.of(context).size.height * _heroMaxHeightFraction)
@@ -178,19 +104,20 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
       labelColor: theme.colorScheme.onSurface,
       unselectedLabelColor: theme.colorScheme.onSurface.withAlpha(170),
       tabs: const [
-        Tab(text: 'All'),
-        Tab(text: 'Palettes'),
         Tab(text: 'Color Stories'),
+        Tab(text: 'Palettes'),
+        Tab(text: 'Colors'),
+        Tab(text: 'Images'),
       ],
     );
   }
 
   Widget _topHero({required String title, required String subtitle, required double textOpacity, required bool collapsed}) {
-    final theme = Theme.of(context);
-    const bgImage =
-        'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1200&q=80';
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
+  final theme = Theme.of(context);
+  const bgImage =
+    'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1200&q=80';
+  return ClipRRect(
+    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -281,24 +208,24 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
   // Note: filter chips removed; tabs now control the filter state
 
   Widget _buildFilteredContent() {
-    final showPalettes =
-        _filter == LibraryFilter.all || _filter == LibraryFilter.palettes;
-    final showStories =
-        _filter == LibraryFilter.all || _filter == LibraryFilter.stories;
     final projectsStream = ProjectService.myProjectsStream();
     final children = <Widget>[];
-    if (showStories) {
+    if (_filter == LibraryFilter.stories) {
+      children.add(Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        child: m.Text('Palettes', style: Theme.of(context).textTheme.titleLarge),
+      ));
+      children.add(_PalettesSection());
+    } else if (_filter == LibraryFilter.palettes) {
       children.add(Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: m.Text('Color Stories',
-            style: Theme.of(context).textTheme.titleLarge),
+        child: m.Text('Color Stories', style: Theme.of(context).textTheme.titleLarge),
       ));
       children.add(StreamBuilder<List<ProjectDoc>>(
         stream: projectsStream,
         builder: (context, snap) {
           final list = (snap.data ?? <ProjectDoc>[])
-              .where(
-                  (p) => p.colorStoryId != null && p.colorStoryId!.isNotEmpty)
+              .where((p) => p.colorStoryId != null && p.colorStoryId!.isNotEmpty)
               .toList();
           if (list.isEmpty) {
             return const m.SizedBox.shrink();
@@ -308,14 +235,59 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
           );
         },
       ));
-    }
-    if (showPalettes) {
+    } else if (_filter == LibraryFilter.colors) {
       children.add(Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-        child:
-            m.Text('Palettes', style: Theme.of(context).textTheme.titleLarge),
+        child: m.Text('Saved Colors', style: Theme.of(context).textTheme.titleLarge),
       ));
-      children.add(_PalettesSection());
+      children.add(
+        Consumer(
+          builder: (context, ref, _) {
+            final asyncColors = ref.watch(favoriteColorsProvider);
+            return asyncColors.when(
+              data: (paints) {
+                if (paints.isEmpty) {
+                  return const Padding(
+                    padding: EdgeInsets.all(32),
+                    child: Center(child: m.Text('No saved colors yet.')),
+                  );
+                }
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    childAspectRatio: 0.7,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                  ),
+                  itemCount: paints.length,
+                  itemBuilder: (context, i) {
+                    final paint = paints[i];
+                    return SavedColorCard(
+                      paint: paint,
+                      onTap: () {},
+                      onRemove: () async {
+                        await FirebaseService.removeFavoritePaint(paint.id);
+                        ref.invalidate(favoriteColorsProvider);
+                      },
+                    );
+                  },
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(child: m.Text('Error loading colors: $e')),
+            );
+          },
+        ),
+      );
+    } else if (_filter == LibraryFilter.images) {
+      children.add(Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        child: m.Text('Saved Images', style: Theme.of(context).textTheme.titleLarge),
+      ));
+  children.add(const ImagesSection());
     }
     if (children.isEmpty) {
       return const SliverToBoxAdapter(child: m.SizedBox.shrink());
@@ -324,6 +296,7 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
       delegate: SliverChildListDelegate(children),
     );
   }
+
 
   // REGION: CODEX-ADD resume-banner
   Widget _resumeBanner() {
@@ -420,139 +393,87 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : SafeArea(
-                top: false,
-                left: false,
-                right: false,
-                bottom: true,
+        body: SafeArea(
+          top: false,
+          left: false,
+          right: false,
+          bottom: true,
+          child: Column(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                height: _heroHeight,
+                child: _topHero(
+                  title: title,
+                  subtitle: subtitle,
+                  textOpacity: heroTextOpacity,
+                  collapsed: _heroHeight <= _heroMinHeight + 2,
+                ),
+              ),
+              Expanded(
                 child: Column(
                   children: [
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 220),
-                      curve: Curves.easeOutCubic,
-                      height: _heroHeight,
-                      child: _topHero(
-                        title: title,
-                        subtitle: subtitle,
-                        textOpacity: heroTextOpacity,
-                        collapsed: _heroHeight <= _heroMinHeight + 2,
+                    // Sticky tab bar when collapsed
+                    if (_heroHeight <= _heroMinHeight + 2)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surface.withAlpha(61),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: _buildTabBar(),
+                        ),
                       ),
-                    ),
                     Expanded(
-                      child: Column(
-                        children: [
-                          // Sticky tab bar when collapsed
-                          if (_heroHeight <= _heroMinHeight + 2)
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surface.withAlpha(61),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: _buildTabBar(),
-                              ),
-                            ),
-                          Expanded(
-                            child: NotificationListener<ScrollNotification>(
-                              onNotification: (n) {
-                                if (n is ScrollUpdateNotification) _onScroll();
-                                return false;
-                              },
-                              child: CustomScrollView(
-                                controller: _scrollController,
-                                slivers: [
-                                  SliverToBoxAdapter(child: _resumeBanner()),
-                                  if (_hasPermissionError)
-                                    SliverToBoxAdapter(
-                                      child: Container(
-                                        margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: Colors.orange.withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(12),
-                                          border: Border.all(color: Colors.orange.withOpacity(0.3)),
-                                        ),
-                                        child: const Row(
-                                          children: [
-                                            Icon(Icons.warning_amber_outlined, color: Colors.orange),
-                                            SizedBox(width: 8),
-                                            Expanded(
-                                              child: m.Text(
-                                                'Some data may not be available due to permission issues.',
-                                              ),
-                                            ),
-                                          ],
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: (n) {
+                          if (n is ScrollUpdateNotification) _onScroll();
+                          return false;
+                        },
+                        child: CustomScrollView(
+                          controller: _scrollController,
+                          slivers: [
+                            SliverToBoxAdapter(child: _resumeBanner()),
+                            if (_hasPermissionError)
+                              SliverToBoxAdapter(
+                                child: Container(
+                                  margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                                  ),
+                                  child: const Row(
+                                    children: [
+                                      Icon(Icons.warning_amber_outlined, color: Colors.orange),
+                                      SizedBox(width: 8),
+                                      Expanded(
+                                        child: m.Text(
+                                          'Some data may not be available due to permission issues.',
                                         ),
                                       ),
-                                    ),
-                                  _buildFilteredContent(),
-                                ],
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        ],
+                            _buildFilteredContent(),
+                          ],
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  void _showPermissionDeniedDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.warning_amber_outlined, color: Colors.orange),
-            m.SizedBox(width: 8),
-            m.Text('Access Denied'),
-          ],
-        ),
-        content: const m.Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            m.Text(
-              'Your account doesn\'t have permission to access saved palettes and colors.',
-            ),
-            m.SizedBox(height: 12),
-            m.Text(
-              'This might be because:',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            m.Text('â€¢ You need to verify your email address'),
-            m.Text('â€¢ Your account is still being set up'),
-            m.Text('â€¢ There\'s a temporary server issue'),
-            m.SizedBox(height: 12),
-            m.Text(
-              'Try signing out and signing back in, or contact support if the issue persists.',
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.of(context).pop();
-              Navigator.of(context)
-                  .pushNamedAndRemoveUntil('/home', (route) => false);
-            },
-            child: const m.Text('Go to Settings'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const m.Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 // Project Card for the new filter system

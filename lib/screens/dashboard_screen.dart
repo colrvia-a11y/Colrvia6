@@ -10,7 +10,6 @@ import 'package:color_canvas/services/photo_library_service.dart';
 import 'package:color_canvas/models/project.dart';
 
 import 'package:color_canvas/screens/roller_screen.dart';
-import 'package:color_canvas/screens/explore_screen.dart';
 import 'package:color_canvas/screens/color_plan_screen.dart';
 import 'package:color_canvas/screens/visualizer_screen.dart';
 import 'package:color_canvas/screens/settings_screen.dart';
@@ -103,9 +102,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  theme.colorScheme.surface.withOpacity(0.18),
+                  theme.colorScheme.surface.withValues(alpha: 0.18),
                   Colors.transparent,
-                  Colors.black.withOpacity(0.22),
+                  Colors.black.withValues(alpha: 0.22),
                 ],
                 stops: const [0, 0.5, 1],
               ),
@@ -371,14 +370,14 @@ class _WelcomeCard extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [
             Colors.white,
-            Colors.white.withOpacity(0.9),
-            const Color(0xFFf2b897).withOpacity(0.12),
+            Colors.white.withValues(alpha: 0.9),
+            const Color(0xFFf2b897).withValues(alpha: 0.12),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -389,7 +388,7 @@ class _WelcomeCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFF404934).withOpacity(0.1),
+              color: const Color(0xFF404934).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.palette_rounded, color: Color(0xFF404934)),
@@ -416,116 +415,11 @@ class _WelcomeCard extends StatelessWidget {
 class _QuickActionsGridCompact extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      childAspectRatio: 1.3,
-      children: [
-        _ActionCard(
-          colorA: const Color(0xFF404934),
-          colorB: const Color(0xFF404934),
-          icon: Icons.palette_outlined,
-          title: 'Color Picker',
-          subtitle: 'Build palettes',
-          onTap: () => Navigator.of(context)
-              .push(MaterialPageRoute(builder: (_) => const RollerScreen())),
-        ),
-        _ActionCard(
-          colorA: const Color(0xFFf2b897),
-          colorB: const Color(0xFFf2b897),
-          icon: Icons.explore_outlined,
-          title: 'Explore',
-          subtitle: 'Find inspiration',
-          onTap: () => Navigator.of(context)
-              .push(MaterialPageRoute(builder: (_) => const ExploreScreen())),
-        ),
-        _ActionCard(
-          colorA: const Color(0xFF404934),
-          colorB: const Color(0xFFf2b897),
-          icon: Icons.chair_outlined,
-          title: 'Visualizer',
-          subtitle: 'See in space',
-          onTap: () => Navigator.of(context)
-              .push(MaterialPageRoute(builder: (_) => const VisualizerScreen())),
-        ),
-        _ActionCard(
-          colorA: const Color(0xFFf2b897),
-          colorB: const Color(0xFF404934),
-          icon: Icons.collections_bookmark_outlined,
-          title: 'Library',
-          subtitle: 'Your collection',
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const ProjectsScreen(initialFilter: LibraryFilter.all),
-            ),
-          ),
-        ),
-      ],
-    );
+    // All quick action links removed as requested.
+    return const SizedBox.shrink();
   }
 }
 
-class _ActionCard extends StatelessWidget {
-  final Color colorA;
-  final Color colorB;
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-  const _ActionCard({
-    required this.colorA,
-    required this.colorB,
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [colorA.withOpacity(0.9), colorB],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              )
-            ],
-          ),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(icon, color: Colors.white),
-              const Spacer(),
-              Text(title,
-                  style: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15)),
-              const SizedBox(height: 4),
-              Text(subtitle,
-                  style:
-                      TextStyle(color: Colors.white.withOpacity(0.85), fontSize: 12)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class _RowHeader extends StatelessWidget {
   final String title;
@@ -537,7 +431,7 @@ class _RowHeader extends StatelessWidget {
       Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color(0xFF404934).withOpacity(0.1),
+          color: const Color(0xFF404934).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, color: const Color(0xFF404934), size: 20),
@@ -558,9 +452,9 @@ class _SignInCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF404934).withOpacity(0.05),
+  color: const Color(0xFF404934).withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF404934).withOpacity(0.15)),
+  border: Border.all(color: const Color(0xFF404934).withValues(alpha: 0.15)),
       ),
       child: Column(children: [
         const Icon(Icons.account_circle_rounded, color: Color(0xFF404934), size: 32),
@@ -595,7 +489,7 @@ class _ProjectsSkeleton extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 12),
           height: 64,
           decoration: BoxDecoration(
-            color: const Color(0xFF404934).withOpacity(0.06),
+            color: const Color(0xFF404934).withValues(alpha: 0.06),
             borderRadius: BorderRadius.circular(12),
           ),
         ),
@@ -611,7 +505,7 @@ class _EmptyProjects extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF404934).withOpacity(0.04),
+  color: const Color(0xFF404934).withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -642,7 +536,7 @@ class _ProjectListTile extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       tileColor: const Color(0xFFFFFBF7),
       leading: CircleAvatar(
-        backgroundColor: const Color(0xFFf2b897).withOpacity(0.25),
+  backgroundColor: const Color(0xFFf2b897).withValues(alpha: 0.25),
         child: Icon(_iconForStage(p.funnelStage), color: const Color(0xFF404934)),
       ),
       title: Text(p.title, style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -783,10 +677,10 @@ class _LibraryButton extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [color.withOpacity(0.15), color.withOpacity(0.08)],
+              colors: [color.withValues(alpha: 0.15), color.withValues(alpha: 0.08)],
             ),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color.withOpacity(0.2)),
+            border: Border.all(color: color.withValues(alpha: 0.2)),
           ),
           child: Row(children: [
             Icon(icon, color: color),
@@ -805,7 +699,7 @@ class _LibraryButton extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
+                color: color.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(count, style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -876,7 +770,7 @@ class _SupportItem extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color(0xFF404934).withOpacity(0.1),
+          color: const Color(0xFF404934).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, color: const Color(0xFF404934), size: 20),
@@ -901,10 +795,10 @@ class _UserPanel extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(colors: [
             Colors.white,
-            const Color(0xFFf2b897).withOpacity(0.08),
+            const Color(0xFFf2b897).withValues(alpha: 0.08),
           ]),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFF404934).withOpacity(0.12)),
+          border: Border.all(color: const Color(0xFF404934).withValues(alpha: 0.12)),
         ),
         child: Column(
           children: [
@@ -959,9 +853,9 @@ class _UserPanel extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF404934).withOpacity(0.05),
+          color: const Color(0xFF404934).withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFF404934).withOpacity(0.12)),
+          border: Border.all(color: const Color(0xFF404934).withValues(alpha: 0.12)),
         ),
         child: Row(children: [
           const Icon(Icons.person_outline_rounded, color: Color(0xFF404934)),
@@ -992,10 +886,10 @@ class _SettingsTab extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(colors: [
               Colors.white,
-              const Color(0xFF404934).withOpacity(0.03),
+              const Color(0xFF404934).withValues(alpha: 0.03),
             ]),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF404934).withOpacity(0.12)),
+            border: Border.all(color: const Color(0xFF404934).withValues(alpha: 0.12)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

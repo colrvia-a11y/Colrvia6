@@ -1,11 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/project.dart';
-import 'roller_screen.dart' deferred as roller;
-import 'color_plan_screen.dart' deferred as plan;
-import 'visualizer_screen.dart' deferred as viz;
-import '../services/analytics_service.dart';
-import 'package:color_canvas/widgets/colr_via_icon_button.dart' as app;
-import '../theme.dart';
 
 /// Basic overview of a project with quick links to core tools.
 class ProjectOverviewScreen extends StatelessWidget {
@@ -14,104 +8,28 @@ class ProjectOverviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get palette IDs from project
-  // Use the project's stored palette ids. If a ColorStory object is needed
-  // later, it should be fetched separately; ProjectDoc only stores a colorStoryId.
-  final List<String> paletteIds = project.paletteIds;
-  final bool hasPalette = paletteIds.isNotEmpty;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(project.title),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(72),
-          child: Padding(
-            padding: const EdgeInsets.all(AppDims.gap * 2),
-            child: Row(children: [
-              Expanded(child: ElevatedButton.icon(
-                onPressed: hasPalette
-                    ? () {
-                        Navigator.pushNamed(context, '/colorPlan', arguments: {
-                          'projectId': project.id,
-                          'paletteColorIds': paletteIds
-                        });
-                        AnalyticsService.instance.ctaPlanClicked('project_overview');
-                      }
-                    : null,
-                icon: const Icon(Icons.auto_awesome),
-                label: const Text('Make a Color Plan'),
-              )),
-              const SizedBox(width: 8),
-              Expanded(child: OutlinedButton.icon(
-                onPressed: () async {
-                  await viz.loadLibrary();
-                  if (!context.mounted) return;
-                  Navigator.of(context).pushNamed('/visualizer', arguments: {
-                    'projectId': project.id,
-                    'paletteColorIds': paletteIds
-                  });
-                  AnalyticsService.instance.ctaVisualizeClicked('project_overview');
-                },
-                icon: const Icon(Icons.image),
-                label: const Text('Visualize'),
-              )),
-              const SizedBox(width: 8),
-              app.ColrViaIconButton(
-                icon: Icons.compare,
-                color: Theme.of(context).colorScheme.onSurface,
-                onPressed: hasPalette
-                    ? () async {
-                        await viz.loadLibrary();
-                        if (!context.mounted) return;
-                        Navigator.of(context).pushNamed('/compareColors', arguments: {
-                          'projectId': project.id,
-                          'paletteColorIds': paletteIds
-                        });
-                        AnalyticsService.instance.ctaCompareClicked('project_overview');
-                      }
-                    : null,
-                semanticLabel: 'Compare colors',
-              ),
-            ]),
+    return DefaultTabController(
+      length: 4,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(project.title),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'Color Stories'),
+              Tab(text: 'Palettes'),
+              Tab(text: 'Colors'),
+              Tab(text: 'Images'),
+            ],
           ),
         ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          ListTile(
-            title: const Text('Palette'),
-            subtitle: const Text('Edit in Roller'),
-            onTap: () async {
-              await roller.loadLibrary();
-              if (!context.mounted) return;
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => roller.RollerScreen(projectId: project.id)),
-              );
-            },
-          ),
-          ListTile(
-            title: const Text('Color Plan'),
-            onTap: () async {
-              await plan.loadLibrary();
-              if (!context.mounted) return;
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                    builder: (_) => plan.ColorPlanScreen(projectId: project.id)),
-              );
-            },
-          ),
-          ListTile(
-            title: const Text('Visualizer'),
-            onTap: () async {
-              await viz.loadLibrary();
-              if (!context.mounted) return;
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => viz.VisualizerScreen()),
-              );
-            },
-          ),
-        ],
+        body: const TabBarView(
+          children: [
+            Center(child: Text('Color Stories tab')), // TODO: Replace with actual content
+            Center(child: Text('Palettes tab')),     // TODO: Replace with actual content
+            Center(child: Text('Colors tab')),       // TODO: Replace with actual content
+            Center(child: Text('Images tab')),       // TODO: Replace with actual content
+          ],
+        ),
       ),
     );
   }

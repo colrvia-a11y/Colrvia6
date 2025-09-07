@@ -13,94 +13,144 @@ class ProjectOverviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(project.title),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(72),
-          child: Padding(
-            padding: const EdgeInsets.all(AppDims.gap * 2),
-            child: Row(children: [
-              Expanded(child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/colorPlan', arguments: {
-                    'projectId': project.id,
-                    'paletteColorIds': project.paletteIds,
-                  });
-                  AnalyticsService.instance.logEvent(
-                    'cta_plan_clicked',
-                    {'source': 'project_overview', 'project_id': project.id},
-                  );
-                },
-                icon: const Icon(Icons.auto_awesome), 
-                label: const Text('Make a Color Plan'),
-              )),
-              const SizedBox(width: 8),
-              Expanded(child: OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/visualizer', arguments: {
-                    'projectId': project.id,
-                    'paletteColorIds': project.paletteIds,
-                  });
-                  AnalyticsService.instance.logEvent(
-                    'cta_visualize_clicked',
-                    {'source': 'project_overview', 'project_id': project.id},
-                  );
-                },
-                icon: const Icon(Icons.image), 
-                label: const Text('Visualize'),
-              )),
-              const SizedBox(width: 8),
-              IconButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/compareColors', arguments: {
-                    'paletteColorIds': project.paletteIds,
-                  });
-                  AnalyticsService.instance.logEvent(
-                    'cta_compare_clicked',
-                    {'source': 'project_overview', 'project_id': project.id},
-                  );
-                },
-                icon: const Icon(Icons.compare),
-                tooltip: 'Compare Colors',
-              ),
-            ]),
+    return DefaultTabController(
+      length: 4,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(project.title),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'color stories'),
+              Tab(text: 'palettes'),
+              Tab(text: 'colors'),
+              Tab(text: 'images'),
+            ],
           ),
         ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          ListTile(
-            title: const Text('Palette'),
-            subtitle: const Text('Edit in Roller'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => RollerScreen(projectId: project.id)),
-              );
-            },
-          ),
-          ListTile(
-            title: const Text('Color Plan'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => ColorPlanScreen(projectId: project.id)),
-              );
-            },
-          ),
-          ListTile(
-            title: const Text('Visualizer'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const VisualizerScreen()),
-              );
-            },
-          ),
-        ],
+        body: TabBarView(
+          children: [
+            // Color Stories Tab
+            project.colorStoryId == null
+                ? const Center(child: Text('No color story for this project.'))
+                : FutureBuilder(
+                    future: FirebaseService.getColorStory(project.colorStoryId!),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (!snapshot.hasData || snapshot.data == null) {
+                        return const Center(child: Text('No color story found.'));
+                      }
+                      final story = snapshot.data;
+                      return ListView(
+                        padding: const EdgeInsets.all(16),
+                        children: [
+                          Text(story.title, style: Theme.of(context).textTheme.headline6),
+                          if (story.heroImageUrl != null)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              child: Image.network(story.heroImageUrl!),
+                            ),
+                          Text(story.narration),
+                        ],
+                      );
+                    },
+                  ),
+
+            // Palettes Tab
+            FutureBuilder(
+              future: FirebaseService.getUserPalettes(project.ownerId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData || (snapshot.data as List).isEmpty) {
+                  return const Center(child: Text('No palettes found.'));
+                }
+                final palettes = snapshot.data as List;
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: palettes.length,
+                  itemBuilder: (context, i) {
+                    final p = palettes[i];
+                    return ListTile(
+                      title: Text(p.name ?? 'Untitled Palette'),
+                      subtitle: Row(
+                        children: p.colors.map<Widget>((c) => Container(
+                          width: 24, height: 24, margin: const EdgeInsets.only(right: 4),
+                          decoration: BoxDecoration(
+                            color: c,
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: Colors.black12),
+                          ),
+                        )).toList(),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+
+            // Colors Tab
+            FutureBuilder(
+              future: FirebaseService.getColorStory(project.colorStoryId ?? ''),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData || snapshot.data == null) {
+                  return const Center(child: Text('No colors found.'));
+                }
+                final story = snapshot.data;
+                if (story.palette.isEmpty) {
+                  return const Center(child: Text('No colors in this story.'));
+                }
+                return ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: story.palette.map<Widget>((color) => ListTile(
+                    leading: Container(
+                      width: 32, height: 32,
+                      decoration: BoxDecoration(
+                        color: Color(int.parse(color.hex.replaceFirst('#', '0xff'))),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: Colors.black12),
+                      ),
+                    ),
+                    title: Text(color.name ?? color.hex),
+                    subtitle: Text(color.role),
+                  )).toList(),
+                );
+              },
+            ),
+
+            // Images Tab
+            FutureBuilder(
+              future: PhotoLibraryService.getUserPhotos(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData || (snapshot.data as List).isEmpty) {
+                  return const Center(child: Text('No images found.'));
+                }
+                final images = snapshot.data as List;
+                return GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                  ),
+                  itemCount: images.length,
+                  itemBuilder: (context, i) {
+                    final img = images[i];
+                    return Image.memory(img.imageData, fit: BoxFit.cover);
+                  },
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

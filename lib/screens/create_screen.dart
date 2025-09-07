@@ -9,7 +9,7 @@ import 'package:color_canvas/widgets/journey_timeline.dart';
 import 'package:color_canvas/services/project_service.dart';
 import 'package:color_canvas/services/user_prefs_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:color_canvas/services/feature_flags.dart';
+
 
 import 'roller_screen.dart';
 import 'visualizer_screen.dart';
@@ -103,7 +103,7 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
   const double fadeEndAt = 0.4; // more aggressive early fade
   final double fadePhase = (collapseProgress / fadeEndAt).clamp(0.0, 1.0);
   // Use easeOut so opacity drops quickly at the start of scroll
-  final double _heroTextOpacity = 1.0 - Curves.easeOutQuint.transform(fadePhase);
+  final double heroTextOpacity = 1.0 - Curves.easeOutQuint.transform(fadePhase);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
@@ -123,7 +123,7 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
                   title: title,
                   subtitle: subtitle,
                   collapsed: _heroHeight <= _heroMinHeight + 2,
-                  textOpacity: _heroTextOpacity,
+                  textOpacity: heroTextOpacity,
                 ),
               ),
               Expanded(
@@ -195,9 +195,9 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  theme.colorScheme.surface.withOpacity(0.18),
+                  theme.colorScheme.surface.withValues(alpha: 0.18),
                   Colors.transparent,
-                  Colors.black.withOpacity(0.22),
+                  Colors.black.withValues(alpha: 0.22),
                 ],
                 stops: const [0, 0.5, 1],
               ),
@@ -360,8 +360,6 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
           _SectionHeader(title: "Design a Palette"),
           _ToolRow(items: [
             _ToolItem(label: "Interview", onTap: () => Navigator.of(context).pushNamed('/interview/home')),
-            if (FeatureFlags.instance.isEnabled(FeatureFlags.voiceInterview))
-              _ToolItem(label: "Talk to Via", onTap: () => Navigator.of(context).pushNamed('/interview/voice-setup')),
             _ToolItem(label: "Roller", onTap: () => _open(context, const RollerScreen())),
           ]),
           _SectionHeader(title: "Refine your Palette"),
@@ -387,8 +385,6 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
           _SectionHeader(title: "Design a Palette"),
           _ToolRow(items: [
             _ToolItem(label: "Interview", onTap: () => Navigator.of(context).pushNamed('/interview/home')),
-            if (FeatureFlags.instance.isEnabled(FeatureFlags.voiceInterview))
-              _ToolItem(label: "Talk to Via", onTap: () => Navigator.of(context).pushNamed('/interview/voice-setup')),
             _ToolItem(label: "Roller", onTap: () => _open(context, const RollerScreen())),
           ]),
           _SectionHeader(title: "Refine your Palette"),
