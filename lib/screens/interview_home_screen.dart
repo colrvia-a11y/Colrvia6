@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import 'package:color_canvas/widgets/colr_via_icon_button.dart';
 
 /// Interview entry screen that lets users choose between
 /// a voice or text based interview experience.
@@ -35,7 +36,18 @@ class InterviewHomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 8),
+                  // Back button matching the paint detail style
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: ColrViaIconButton(
+                      icon: Icons.arrow_back,
+                      color: Colors.black,
+                      onPressed: () => Navigator.of(context).maybePop(),
+                      semanticLabel: 'Back',
+                    ),
+                  ),
+                  const SizedBox(height: 24),
                   Text(
                     "Let’s design your perfect palette.",
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(

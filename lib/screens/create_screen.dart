@@ -28,11 +28,30 @@ class CreateHubScreen extends StatefulWidget {
 }
 
 class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderStateMixin {
-  late final TabController _tab;
+  /// New Design tab content
+  Widget _buildDesign(BuildContext context, {ScrollController? controller}) {
+    return SingleChildScrollView(
+      controller: controller,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _SectionHeader(title: "Build a Palette"),
+          _ToolRow(items: [
+            _ToolItem(label: "Let AI Build Your Palette", onTap: () => Navigator.of(context).pushNamed('/interview/home')),
+            _ToolItem(label: "Try Our Roller Designer", onTap: () => _open(context, const RollerScreen())),
+          ]),
+        ],
+      ),
+    );
+  }
+  late TabController _tab;
+  static const int _tabCount = 3;
   final JourneyService _journey = JourneyService.instance;
   bool _loaded = false;
   bool _hasProjects = true;
-  final ScrollController _scrollController = ScrollController();
+  // One ScrollController per tab to avoid attaching a single controller to multiple scroll views
+  late final List<ScrollController> _scrollControllers;
   double _heroHeight = 0;
   static const double _heroMaxHeightFraction = 0.36;
   static const double _heroMinHeight = 74; // just enough for tab bar
@@ -40,23 +59,28 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
   @override
   void initState() {
     super.initState();
-    _tab = TabController(length: 2, vsync: this);
+  _tab = TabController(length: _tabCount, vsync: this, initialIndex: 0);
+    // create per-tab scroll controllers
+    _scrollControllers = List.generate(_tabCount, (i) => ScrollController());
     _bootstrap();
-    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    for (final c in _scrollControllers) {
+      c.dispose();
+    }
     _tab.dispose();
     super.dispose();
   }
 
   void _onScroll() {
+    // Use the active tab's scroll controller to compute hero collapse
+    final activeIndex = (_tab.index).clamp(0, _tabCount - 1);
+    final controller = _scrollControllers[activeIndex];
     final maxHeight = (MediaQuery.of(context).size.height * _heroMaxHeightFraction).clamp(220.0, MediaQuery.of(context).size.height);
     final minHeight = _heroMinHeight;
-    final offset = _scrollController.hasClients ? _scrollController.offset : 0.0;
-  // final collapseRange = maxHeight - minHeight; // unused
+    final offset = controller.hasClients ? controller.offset : 0.0;
     double newHeight = (maxHeight - offset).clamp(minHeight, maxHeight);
     if ((newHeight - _heroHeight).abs() > 1) {
       setState(() {
@@ -152,8 +176,9 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
                               child: TabBarView(
                                 controller: _tab,
                                 children: [
-                                  _buildGuided(context, controller: _scrollController),
-                                  _buildTools(context, controller: _scrollController),
+                                  _buildDesign(context, controller: _scrollControllers[0]),
+                                  _buildGuided(context, controller: _scrollControllers[1]),
+                                  _buildTools(context, controller: _scrollControllers[2]),
                                 ],
                               ),
                             ),
@@ -291,7 +316,11 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
       ),
       labelColor: theme.colorScheme.onSurface,
       unselectedLabelColor: theme.colorScheme.onSurface.withAlpha(170),
-      tabs: const [Tab(text: 'AI Guided'), Tab(text: 'Design Tools')],
+      tabs: const [
+        Tab(text: 'Design'),
+        Tab(text: 'AI Guided'),
+        Tab(text: 'Design Tools'),
+      ],
     );
   }
 
