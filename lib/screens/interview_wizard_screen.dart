@@ -4,7 +4,6 @@ import 'package:color_canvas/services/interview_engine.dart';
 import 'package:color_canvas/services/schema_interview_compiler.dart';
 import 'package:color_canvas/services/journey/journey_service.dart';
 import 'package:color_canvas/screens/interview_review_screen.dart';
-import '../theme.dart';
 
 /// One-question-per-screen onboarding wizard backed by InterviewEngine.
 class InterviewWizardScreen extends StatefulWidget {
@@ -29,7 +28,7 @@ class _InterviewWizardScreenState extends State<InterviewWizardScreen> {
     try {
       final compiler = await SchemaInterviewCompiler
           .loadFromAsset('assets/schemas/single-room-color-intake.json');
-      final prompts = compiler.buildPrompts();
+      final prompts = compiler.compile();
       _engine = InterviewEngine.fromPrompts(prompts);
       final seed = JourneyService.instance.state.value?.artifacts['answers']
           as Map<String, dynamic>?;
@@ -97,7 +96,7 @@ class _InterviewWizardScreenState extends State<InterviewWizardScreen> {
 
   void _prev() {
     if (_engine.index > 0) {
-      _engine.prev();
+      _engine.back();
       _syncTextToPrompt();
       setState(() {});
     } else {
@@ -359,7 +358,7 @@ class _ChoiceCard extends StatelessWidget {
             width: selected ? 2 : 1,
           ),
           boxShadow: selected
-              ? [BoxShadow(color: theme.primary.withOpacity(.25), blurRadius: 10)]
+              ? [BoxShadow(color: theme.primary.withValues(alpha: .25), blurRadius: 10)]
               : const [],
         ),
         child: Text(
