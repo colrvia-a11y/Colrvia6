@@ -14,6 +14,7 @@ import 'package:color_canvas/firebase_config.dart';
 import 'package:color_canvas/theme.dart';
 import 'package:color_canvas/screens/auth_wrapper.dart';
 import 'package:color_canvas/screens/home_screen.dart';
+import 'package:color_canvas/screens/interview_wizard_screen.dart';
 import 'package:color_canvas/screens/login_screen.dart';
 import 'package:color_canvas/screens/color_plan_detail_screen.dart';
 import 'package:color_canvas/screens/visualizer_screen.dart' deferred as viz;
@@ -153,6 +154,7 @@ class MyApp extends StatelessWidget {
             '/interview/voice-setup': (context) => const InterviewVoiceSetupScreen(),
             '/interview/voice': (context) => const InterviewVoiceScreen(),
             '/interview/text': (context) => const InterviewTextScreen(),
+            '/interview/wizard': (context) => const InterviewWizardScreen(),
             '/colorPlan': (context) {
               final args = ModalRoute.of(context)!.settings.arguments
                   as Map<String, dynamic>;

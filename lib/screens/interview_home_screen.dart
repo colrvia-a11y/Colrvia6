@@ -77,6 +77,17 @@ class InterviewHomeScreen extends StatelessWidget {
                           ?.copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
+                  const SizedBox(height: 12),
+                  FilledButton.icon(
+                    icon: const Icon(Icons.edit),
+                    label: const Text("Start Questionnaire"),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/interview/wizard');
+                    },
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(56),
+                    ),
+                  ),
                   const SizedBox(height: AppDims.gap * 2),
                   OutlinedButton(
                     onPressed: () {
