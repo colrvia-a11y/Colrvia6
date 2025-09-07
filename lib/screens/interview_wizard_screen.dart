@@ -174,21 +174,13 @@ class _InterviewWizardScreenState extends State<InterviewWizardScreen> {
     }
     if (_error != null) {
       return Scaffold(
-        appBar: AppBar(),
         body: Center(child: Text(_error!)),
       );
     }
 
     final p = _engine.current;
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: _prev,
-        ),
-        title: const SizedBox.shrink(),
-        centerTitle: true,
-      ),
+      // AppBar removed to eliminate header and back arrow
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
