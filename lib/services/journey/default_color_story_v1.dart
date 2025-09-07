@@ -8,7 +8,7 @@ final defaultJourneySteps = <JourneyStep>[
     id: 'interview.basic',
     title: 'Tell us about your space',
     type: StepType.questionnaire,
-    screenRoute: null, // We navigate to InterviewScreen widget directly
+    screenRoute: '/interview/wizard', // Navigate directly into the new wizard
     requires: [],
     next: [TransitionRule(condition: 'true', toStepId: 'roller.build')],
   ),
