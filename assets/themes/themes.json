@@ -1,65 +1,187 @@
 {
   "themes": [
     {
-      "id": "modern_farmhouse",
-      "label": "Modern Farmhouse",
-      "aliases": ["farmhouse","transitional farmhouse"],
+      "id": "modern",
+      "label": "Modern",
+      "aliases": ["contemporary", "modern minimal"],
+      "neutrals": { "L": [70, 95], "C": [0, 10] },
+      "accents":  { "L": [20, 70], "C": [6, 18], "H": [[15,35],[190,230],[340,360],[0,10]] },
+      "roleTargets": {
+        "anchor":    { "L": [72, 92], "C": [0, 8] },
+        "secondary": { "L": [65, 85], "C": [0, 10] },
+        "accent":    { "L": [30, 60], "C": [8, 16] }
+      },
+      "forbiddenHues": [[50, 70]], 
+      "harmonyBias": ["monochrome","neutral-plus-accent","analogous"],
+      "weights": { "neutralShare": 0.35, "saturationDiscipline": 0.25, "accentContrast": 0.15, "harmonyMatch": 0.15, "forbiddenHuePenalty": 0.10 }
+    },
+
+    {
+      "id": "scandinavian_japandi",
+      "label": "Scandinavian / Japandi",
+      "aliases": ["scandinavian", "japandi", "nordic"],
+      "neutrals": { "L": [78, 96], "C": [0, 8], "H": [30, 90] },
+      "accents":  { "L": [25, 55], "C": [6, 14], "H": [[15,35],[100,150],[340,360],[0,10]] },
+      "roleTargets": {
+        "anchor":    { "L": [82, 95], "C": [0, 8] },
+        "secondary": { "L": [74, 90], "C": [0, 10] },
+        "accent":    { "L": [30, 50], "C": [6, 12] }
+      },
+      "forbiddenHues": [[200, 260]], 
+      "harmonyBias": ["neutral-plus-accent","monochrome","analogous"],
+      "weights": { "neutralShare": 0.40, "saturationDiscipline": 0.25, "harmonyMatch": 0.15, "warmBias": 0.10, "forbiddenHuePenalty": 0.10 }
+    },
+
+    {
+      "id": "mid_century_modern",
+      "label": "Mid-Century Modern",
+      "aliases": ["mcm", "midcentury"],
+      "neutrals": { "L": [60, 90], "C": [0, 12] },
+      "accents":  { "L": [45, 75], "C": [12, 26], "H": [[25,45],[160,190],[5,20],[200,220]] },
+      "roleTargets": {
+        "anchor":    { "L": [65, 85], "C": [0, 10] },
+        "accent":    { "L": [50, 70], "C": [14, 24] }
+      },
+      "forbiddenHues": [[300, 345]],
+      "harmonyBias": ["complementary","triad","neutral-plus-accent"],
+      "weights": { "harmonyMatch": 0.25, "accentContrast": 0.20, "saturationDiscipline": 0.15, "neutralShare": 0.10, "forbiddenHuePenalty": 0.15, "brandDiversity": 0.15 }
+    },
+
+    {
+      "id": "transitional",
+      "label": "Transitional",
+      "aliases": ["updated traditional", "new traditional"],
+      "neutrals": { "L": [68, 92], "C": [0, 12] },
+      "accents":  { "L": [45, 80], "C": [8, 18], "H": [[20,70],[180,210]] },
+      "roleTargets": {
+        "anchor":    { "L": [70, 88], "C": [0, 10] },
+        "secondary": { "L": [64, 84], "C": [0, 12] },
+        "accent":    { "L": [50, 75], "C": [8, 16] }
+      },
+      "forbiddenHues": [[0,10],[330,360]],
+      "harmonyBias": ["neutral-plus-accent","analogous","monochrome"],
+      "weights": { "neutralShare": 0.30, "saturationDiscipline": 0.25, "harmonyMatch": 0.20, "accentContrast": 0.10, "forbiddenHuePenalty": 0.15 }
+    },
+
+    {
+      "id": "traditional",
+      "label": "Traditional",
+      "aliases": ["classic", "heritage"],
+      "neutrals": { "L": [62, 90], "C": [0, 12], "H": [30, 90] },
+      "accents":  { "L": [25, 60], "C": [10, 22], "H": [[350,360],[0,20],[200,240],[110,150]] },
+      "roleTargets": {
+        "anchor":    { "L": [65, 85], "C": [0, 10] },
+        "accent":    { "L": [30, 55], "C": [10, 20] }
+      },
+      "forbiddenHues": [[60, 90]], 
+      "harmonyBias": ["complementary","neutral-plus-accent","analogous"],
+      "weights": { "neutralShare": 0.20, "saturationDiscipline": 0.20, "accentContrast": 0.20, "harmonyMatch": 0.20, "forbiddenHuePenalty": 0.20 }
+    },
+
+    {
+      "id": "farmhouse_cottage",
+      "label": "Farmhouse & Cottage",
+      "aliases": ["modern farmhouse","cottagecore","farmhouse"],
       "neutrals": { "L": [78, 93], "C": [0, 10], "H": [30, 90] },
-      "accents":  { "L": [8, 35],  "C": [0, 20], "H": [[0, 10],[340, 360]] },
-      "roleTargets": { "anchor": { "L": [78, 93], "C": [0, 10] },
-                        "secondary": { "L": [70, 88], "C": [0, 12] },
-                        "accent": { "L": [8, 30], "C": [0, 20] } },
+      "accents":  { "L": [35, 85], "C": [6, 20], "H": [[100,150],[330,355],[0,10],[340,360]] },
+      "roleTargets": {
+        "anchor":    { "L": [78, 93], "C": [0, 10] },
+        "secondary": { "L": [70, 88], "C": [0, 12] },
+        "accent":    { "L": [40, 75], "C": [6, 18] }
+      },
       "forbiddenHues": [[190, 220]],
       "harmonyBias": ["neutral-plus-accent","analogous"],
-      "weights": { "neutralShare": 0.25, "warmBias": 0.15, "saturationDiscipline": 0.15, "accentContrast": 0.15, "brandDiversity": 0.05, "forbiddenHuePenalty": 0.15, "harmonyMatch": 0.10 }
+      "weights": { "neutralShare": 0.30, "warmBias": 0.15, "saturationDiscipline": 0.20, "accentContrast": 0.10, "forbiddenHuePenalty": 0.15, "harmonyMatch": 0.10 }
     },
+
     {
       "id": "coastal",
       "label": "Coastal",
       "aliases": ["seaside","beachy"],
       "neutrals": { "L": [82, 96], "C": [0, 8] },
-      "accents":  { "L": [55, 90], "C": [10, 25], "H": [170, 210] },
-      "roleTargets": { "anchor": { "L": [82, 95], "C": [0, 8] },
-                        "accent": { "L": [60, 85], "C": [10, 24], "H": [170, 210] } },
+      "accents":  { "L": [60, 85], "C": [10, 24], "H": [170, 210] },
+      "roleTargets": {
+        "anchor": { "L": [82, 95], "C": [0, 8] },
+        "accent": { "L": [60, 85], "C": [10, 24], "H": [170, 210] }
+      },
       "forbiddenHues": [[0, 20], [300, 360]],
       "harmonyBias": ["analogous","split-complement","neutral-plus-accent"],
-      "weights": { "neutralShare": 0.2, "coolBias": 0.2, "accentContrast": 0.1, "saturationDiscipline": 0.2, "harmonyMatch": 0.2, "forbiddenHuePenalty": 0.1 }
+      "weights": { "neutralShare": 0.20, "coolBias": 0.20, "accentContrast": 0.10, "saturationDiscipline": 0.20, "harmonyMatch": 0.20, "forbiddenHuePenalty": 0.10 }
     },
+
     {
-      "id": "cottagecore",
-      "label": "Cottagecore",
-      "aliases": ["cottage","grandma chic"],
-      "neutrals": { "L": [75, 92], "C": [0, 10] },
-      "accents":  { "L": [45, 90], "C": [6, 20], "H": [[100,150],[330,355]] },
-      "roleTargets": { "anchor": { "L": [76, 90], "C": [0, 10] },
-                        "accent": { "L": [55, 80], "C": [6, 18] } },
-      "forbiddenHues": [[0, 15]],
-      "harmonyBias": ["analogous","neutral-plus-accent"],
-      "weights": { "neutralShare": 0.25, "lowContrastPref": 0.2, "saturationDiscipline": 0.2, "harmonyMatch": 0.2, "forbiddenHuePenalty": 0.15 }
-    },
-    {
-      "id": "quiet_luxury",
-      "label": "Quiet Luxury",
-      "aliases": ["stealth wealth","lux minimal"],
-      "neutrals": { "L": [40, 85], "C": [0, 12] },
-      "accents":  { "L": [20, 55], "C": [6, 16], "H": [[15,35],[190,220]] },
-      "roleTargets": { "anchor": { "L": [60, 85], "C": [0, 10] },
-                        "accent": { "L": [25, 45], "C": [6, 14] } },
-      "forbiddenHues": [[60, 90],[330, 360]],
-      "harmonyBias": ["monochrome","neutral-plus-accent"],
-      "weights": { "neutralShare": 0.35, "saturationDiscipline": 0.25, "accentContrast": 0.15, "forbiddenHuePenalty": 0.15, "harmonyMatch": 0.10 }
-    },
-    {
-      "id": "bohemian",
-      "label": "Bohemian",
-      "aliases": ["boho","eclectic"],
+      "id": "bohemian_eclectic",
+      "label": "Bohemian (Eclectic)",
+      "aliases": ["bohemian","boho","eclectic"],
       "neutrals": { "L": [55, 85], "C": [8, 20], "H": [20, 70] },
-      "accents":  { "L": [35, 80], "C": [10, 28], "H": [[140,160],[170,200],[300,330]] },
-      "roleTargets": { "anchor": { "L": [60, 85], "C": [8, 18] },
-                        "accent": { "L": [40, 70], "C": [12, 26] } },
+      "accents":  { "L": [35, 80], "C": [12, 28], "H": [[140,160],[170,200],[300,330]] },
+      "roleTargets": {
+        "anchor": { "L": [60, 85], "C": [8, 18] },
+        "accent": { "L": [40, 70], "C": [12, 26] }
+      },
       "forbiddenHues": [],
-      "harmonyBias": ["analogous","triad","neutral-plus-accent"],
-      "weights": { "neutralShare": 0.1, "chromaAllowance": 0.2, "harmonyMatch": 0.2, "accentContrast": 0.15, "forbiddenHuePenalty": 0.05, "brandDiversity": 0.1, "warmBias": 0.2 }
+      "harmonyBias": ["triad","analogous","neutral-plus-accent"],
+      "weights": { "neutralShare": 0.10, "warmBias": 0.15, "saturationDiscipline": 0.15, "accentContrast": 0.20, "harmonyMatch": 0.25, "brandDiversity": 0.15 }
+    },
+
+    {
+      "id": "rustic",
+      "label": "Rustic",
+      "aliases": ["cabin", "lodge"],
+      "neutrals": { "L": [35, 70], "C": [0, 12], "H": [20, 70] },
+      "accents":  { "L": [30, 60], "C": [8, 20], "H": [[20,40],[100,140]] },
+      "roleTargets": {
+        "anchor": { "L": [40, 60], "C": [0, 10] },
+        "accent": { "L": [35, 55], "C": [8, 18] }
+      },
+      "forbiddenHues": [[200, 240]],
+      "harmonyBias": ["analogous","neutral-plus-accent"],
+      "weights": { "neutralShare": 0.25, "warmBias": 0.20, "saturationDiscipline": 0.25, "accentContrast": 0.10, "forbiddenHuePenalty": 0.20 }
+    },
+
+    {
+      "id": "industrial",
+      "label": "Industrial",
+      "aliases": ["loft", "urban industrial"],
+      "neutrals": { "L": [40, 85], "C": [0, 10] },
+      "accents":  { "L": [20, 60], "C": [6, 16], "H": [[20,30],[200,220],[0,10],[340,360]] },
+      "roleTargets": {
+        "anchor": { "L": [50, 75], "C": [0, 10] },
+        "accent": { "L": [25, 50], "C": [6, 14] }
+      },
+      "forbiddenHues": [[60, 90],[280, 330]],
+      "harmonyBias": ["neutral-plus-accent","complementary","monochrome"],
+      "weights": { "neutralShare": 0.30, "coolBias": 0.25, "accentContrast": 0.20, "saturationDiscipline": 0.15, "forbiddenHuePenalty": 0.10 }
+    },
+
+    {
+      "id": "mediterranean",
+      "label": "Mediterranean",
+      "aliases": ["med", "spanish revival", "greco"],
+      "neutrals": { "L": [80, 96], "C": [0, 10], "H": [35, 75] },
+      "accents":  { "L": [45, 85], "C": [12, 24], "H": [[20,35],[210,240],[90,120]] },
+      "roleTargets": {
+        "anchor": { "L": [82, 95], "C": [0, 8] },
+        "accent": { "L": [50, 80], "C": [12, 22] }
+      },
+      "forbiddenHues": [[300, 345]],
+      "harmonyBias": ["split-complement","neutral-plus-accent","analogous"],
+      "weights": { "neutralShare": 0.20, "warmBias": 0.20, "saturationDiscipline": 0.20, "harmonyMatch": 0.20, "accentContrast": 0.10, "forbiddenHuePenalty": 0.10 }
+    },
+
+    {
+      "id": "maximalist",
+      "label": "Maximalist",
+      "aliases": ["more is more", "bold"],
+      "neutrals": { "L": [50, 90], "C": [0, 14] },
+      "accents":  { "L": [30, 85], "C": [14, 30] },
+      "roleTargets": {
+        "anchor": { "L": [55, 80], "C": [0, 12] },
+        "accent": { "L": [40, 75], "C": [16, 28] }
+      },
+      "forbiddenHues": [],
+      "harmonyBias": ["triad","complementary","split-complement"],
+      "weights": { "neutralShare": 0.05, "accentContrast": 0.25, "harmonyMatch": 0.30, "saturationDiscipline": 0.10, "brandDiversity": 0.15, "forbiddenHuePenalty": 0.05, "warmBias": 0.10 }
     }
   ]
 }
