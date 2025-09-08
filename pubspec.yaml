@@ -79,3 +79,4 @@ flutter:
   assets:
     - assets/documents/
     - assets/schemas/single-room-color-intake.json
+    - assets/themes/themes.json

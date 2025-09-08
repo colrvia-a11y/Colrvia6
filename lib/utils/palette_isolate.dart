@@ -1,5 +1,8 @@
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
 import 'package:color_canvas/utils/palette_generator.dart';
+import 'package:color_canvas/roller_theme/theme_engine.dart';
+import 'package:color_canvas/roller_theme/theme_spec.dart';
+import 'package:color_canvas/services/analytics_service.dart';
 
 /// Arguments passed to the isolate. All data must be simple/serializable.
 class _RollArgs {
@@ -9,14 +12,20 @@ class _RollArgs {
   final bool diversify;
   final List<List<double>>? slotLrvHints;
   final List<String>? fixedUndertones;
+  final Map<String, dynamic>? themeSpec; // ThemeSpec.toJson()
+  final double? themeThreshold;
+  final int? attempts;
 
   _RollArgs({
     required this.available,
     required this.anchors,
     required this.modeIndex,
     required this.diversify,
-    this.slotLrvHints,
-    this.fixedUndertones,
+  this.slotLrvHints,
+  this.fixedUndertones,
+  this.themeSpec,
+  this.themeThreshold,
+  this.attempts,
   });
 
   Map<String, dynamic> toMap() => {
@@ -26,6 +35,9 @@ class _RollArgs {
         'diversify': diversify,
         'slotLrvHints': slotLrvHints,
         'fixedUndertones': fixedUndertones,
+  'themeSpec': themeSpec,
+  'themeThreshold': themeThreshold,
+  'attempts': attempts,
       };
 
   static _RollArgs fromMap(Map<String, dynamic> m) => _RollArgs(
@@ -40,6 +52,9 @@ class _RollArgs {
         fixedUndertones: m['fixedUndertones'] != null
             ? List<String>.from(m['fixedUndertones'] as List)
             : null,
+  themeSpec: m['themeSpec'] as Map<String, dynamic>?,
+  themeThreshold: m['themeThreshold'] == null ? null : (m['themeThreshold'] as num).toDouble(),
+  attempts: m['attempts'] as int?,
       );
 }
 
@@ -56,17 +71,75 @@ List<Map<String, dynamic>> rollPaletteInIsolate(Map<String, dynamic> raw) {
       (j == null ? null : Paint.fromJson(j, j['id'] as String))
   ];
 
-  final rolled = PaletteGenerator.rollPalette(
-    availablePaints: available,
-    anchors: anchors,
-    mode: HarmonyMode.values[args.modeIndex],
-    diversifyBrands: args.diversify,
-    slotLrvHints: args.slotLrvHints,
-    fixedUndertones: args.fixedUndertones,
-  );
+  // If no theme specified, keep previous behavior
+  if (args.themeSpec == null) {
+    final rolled = PaletteGenerator.rollPalette(
+      availablePaints: available,
+      anchors: anchors,
+      mode: HarmonyMode.values[args.modeIndex],
+      diversifyBrands: args.diversify,
+      slotLrvHints: args.slotLrvHints,
+      fixedUndertones: args.fixedUndertones,
+    );
 
-  // Send back serializable maps (we'll map to Paint on the main isolate)
-  return [
-    for (final p in rolled) (p.toJson()..['id'] = p.id),
-  ];
+    return [for (final p in rolled) (p.toJson()..['id'] = p.id)];
+  }
+
+  // Rehydrate ThemeSpec
+  ThemeSpec spec;
+  try {
+    spec = ThemeSpec.fromJson(args.themeSpec!);
+  } catch (_) {
+    // fallback to no-theme behavior on parse error
+    final rolled = PaletteGenerator.rollPalette(
+      availablePaints: available,
+      anchors: anchors,
+      mode: HarmonyMode.values[args.modeIndex],
+      diversifyBrands: args.diversify,
+      slotLrvHints: args.slotLrvHints,
+      fixedUndertones: args.fixedUndertones,
+    );
+    return [for (final p in rolled) (p.toJson()..['id'] = p.id)];
+  }
+
+  // Prefilter paints by theme
+  final prefiltered = ThemeEngine.prefilter(available, spec);
+  final availableForRoll = prefiltered.length < 200 ? available : prefiltered;
+
+  final maxAttempts = args.attempts ?? 10;
+  final threshold = args.themeThreshold ?? 0.6;
+
+  double bestScore = -1.0;
+  List<Paint> bestPalette = [];
+
+  for (var i = 0; i < maxAttempts; i++) {
+    final rolled = PaletteGenerator.rollPalette(
+      availablePaints: availableForRoll,
+      anchors: anchors,
+      mode: HarmonyMode.values[args.modeIndex],
+      diversifyBrands: args.diversify,
+      slotLrvHints: args.slotLrvHints,
+      fixedUndertones: args.fixedUndertones,
+    );
+
+    final score = ThemeEngine.scorePalette(rolled, spec);
+    if (score > bestScore) {
+      bestScore = score;
+      bestPalette = rolled;
+    }
+    if (score >= threshold) break;
+  }
+
+  // If bestScore is below threshold, record a breadcrumb for debugging but still return best
+  if (bestScore < threshold) {
+    try {
+      AnalyticsService.instance.logEvent('theme_roll_low_score', {
+        'themeId': spec.id,
+        'score': bestScore,
+        'explain': ThemeEngine.explain(bestPalette, spec),
+      });
+    } catch (_) {}
+  }
+
+  return [for (final p in bestPalette) (p.toJson()..['id'] = p.id)];
 }

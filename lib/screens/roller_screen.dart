@@ -12,6 +12,9 @@ import 'package:color_canvas/widgets/brand_filter_dialog.dart';
 import 'package:color_canvas/widgets/save_palette_panel.dart';
 import 'package:color_canvas/widgets/colr_via_icon_button.dart';
 import 'package:color_canvas/utils/color_utils.dart';
+import 'package:color_canvas/roller_theme/theme_service.dart';
+import 'package:color_canvas/roller_theme/theme_engine.dart';
+import 'package:color_canvas/roller_theme/theme_spec.dart';
 import 'package:color_canvas/data/sample_paints.dart';
 import 'package:color_canvas/utils/debug_logger.dart';
 import 'package:color_canvas/models/color_strip_history.dart';
@@ -48,7 +51,7 @@ class GoToNextPageIntent extends Intent {
 enum ActiveTool { style, sort, adjust, count, save, share, temperature }
 
 // Top navigation categories
-enum _NavMenu { style, sort, count }
+enum _NavMenu { style, sort, count, theme }
 
 abstract class RollerScreenStatePublic extends State<RollerScreen> {
   int getPaletteSize();
@@ -121,6 +124,8 @@ class _RollerScreenState extends RollerScreenStatePublic {
   
   // Tools dock removed; direct action buttons are used instead
   _NavMenu? _activeNav; // controls top nav dropdowns
+  String? _selectedThemeId; // null => All
+  ThemeSpec? _selectedThemeSpec;
   
   // Track if user has manually applied brand filters
   final bool _hasAppliedFilters = false;
@@ -351,7 +356,9 @@ class _RollerScreenState extends RollerScreenStatePublic {
       _lockedStates = List.filled(_paletteSize, false);
       _isLoading = false;
     });
-    
+  // Load theme specs for theme UI
+  ThemeService.instance.loadFromAssetIfNeeded();
+
     await _maybeSeedFromInitial();
   }
 
@@ -364,6 +371,9 @@ class _RollerScreenState extends RollerScreenStatePublic {
         .map((p) => p == null ? null : (p.toJson()..['id'] = p.id))
         .toList();
 
+    // derive slot hints from the selected theme if not provided
+    slotLrvHints ??= _selectedThemeSpec == null ? null : ThemeEngine.slotLrvHintsFor(_paletteSize, _selectedThemeSpec!);
+
     final args = {
       'available': available,
       'anchors': anchorMaps,
@@ -372,6 +382,12 @@ class _RollerScreenState extends RollerScreenStatePublic {
       'slotLrvHints': slotLrvHints,
       'fixedUndertones': _fixedElements.map((e) => e.undertone).toList(),
     };
+
+    if (_selectedThemeSpec != null) {
+      args['themeSpec'] = _selectedThemeSpec!.toJson();
+      args['themeThreshold'] = 0.6;
+      args['attempts'] = 10;
+    }
 
     final resultMaps = await compute(rollPaletteInIsolate, args);
     return [for (final m in resultMaps) Paint.fromJson(m, m['id'] as String)];
@@ -639,8 +655,22 @@ class _RollerScreenState extends RollerScreenStatePublic {
     if (_selectedBrandIds.isEmpty || _selectedBrandIds.length == _availableBrands.length) {
       return _availablePaints;
     }
-    final filtered = _availablePaints.where((p) => _selectedBrandIds.contains(p.brandId)).toList();
+    var filtered = _availablePaints.where((p) => _selectedBrandIds.contains(p.brandId)).toList();
     Debug.info('RollerScreen', '_getFilteredPaints', 'Filtered ${_availablePaints.length} -> ${filtered.length}');
+    if (_selectedThemeSpec != null) {
+      final pre = ThemeEngine.prefilter(filtered, _selectedThemeSpec!);
+      if (pre.isNotEmpty) {
+        if (pre.length < 120) {
+          Debug.warning('RollerScreen', '_getFilteredPaints', 'Theme prefilter too tight (${pre.length}) for theme ${_selectedThemeSpec!.id}; falling back to brand-filtered set');
+          try {
+            AnalyticsService.instance.logEvent('theme_prefilter_fallback', {'themeId': _selectedThemeSpec!.id, 'prefilterCount': pre.length});
+          } catch (_) {}
+        } else {
+          filtered = pre;
+          Debug.info('RollerScreen', '_getFilteredPaints', 'Prefiltered by theme -> ${filtered.length}');
+        }
+      }
+    }
     return filtered;
   }
   
@@ -1002,6 +1032,14 @@ class _RollerScreenState extends RollerScreenStatePublic {
               }),
             ),
             _NavButton(
+              label: _selectedThemeSpec == null ? 'Theme' : 'Theme: ${_selectedThemeSpec!.label}',
+              selected: _activeNav == _NavMenu.theme,
+              fgColor: fgColor ?? (darkBg ? Colors.white : Colors.black),
+              onTap: () => _safeSetState(() {
+                _activeNav = _activeNav == _NavMenu.theme ? null : _NavMenu.theme;
+              }),
+            ),
+            _NavButton(
               label: 'Count',
               selected: _activeNav == _NavMenu.count,
               fgColor: fgColor ?? (darkBg ? Colors.white : Colors.black),
@@ -1113,6 +1151,19 @@ class _RollerScreenState extends RollerScreenStatePublic {
               if (_visiblePage < _pages.length - 1) {
                 _pages.removeRange(_visiblePage + 1, _pages.length);
               }
+            });
+            _resetFeedToPageZero();
+          },
+          onDone: _closeNav,
+        );
+        break;
+      case _NavMenu.theme:
+        child = _ThemePanelHost(
+          selectedThemeId: _selectedThemeId,
+          onSelected: (String? id) {
+            _safeSetState(() {
+              _selectedThemeId = id;
+              _selectedThemeSpec = ThemeService.instance.byId(id);
             });
             _resetFeedToPageZero();
           },
@@ -2198,6 +2249,33 @@ class _CountPanelHost extends StatelessWidget {
               );
             }),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ThemePanelHost extends StatelessWidget {
+  final String? selectedThemeId;
+  final ValueChanged<String?> onSelected;
+  final VoidCallback onDone;
+  const _ThemePanelHost({ required this.selectedThemeId, required this.onSelected, required this.onDone });
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 8, runSpacing: 8,
+            children: [
+              ChoiceChip(label: const Text('All Themes'), selected: selectedThemeId == null, onSelected: (_) => onSelected(null)),
+              ...ThemeService.instance.all().map((t) => ChoiceChip(label: Text(t.label), selected: selectedThemeId == t.id, onSelected: (_) => onSelected(t.id))),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Align(alignment: Alignment.centerRight, child: TextButton(onPressed: onDone, child: const Text('Done'))),
         ],
       ),
     );
