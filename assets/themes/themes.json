@@ -13,7 +13,23 @@
       },
       "forbiddenHues": [[50, 70]], 
       "harmonyBias": ["monochrome","neutral-plus-accent","analogous"],
-      "weights": { "neutralShare": 0.35, "saturationDiscipline": 0.25, "accentContrast": 0.15, "harmonyMatch": 0.15, "forbiddenHuePenalty": 0.10 }
+      "core_principles": [
+        "Use a neutral foundation (white, black, gray) to maintain a clean, open look",
+        "Introduce a single bold accent hue to add focus and contrast",
+        "Favor high contrast between the accent and the neutrals for a crisp, modern aesthetic",
+        "Keep the overall palette simple and uncluttered (minimal number of hues)"
+      ],
+      "allowed_hue_ranges": [[0,20],[40,60],[180,240]],
+      "variety_controls": { "min_colors": 3, "max_colors": 5, "must_include_neutral": true, "must_include_accent": true },
+      "weights": {
+        "neutralShare": 0.25,
+        "saturationDiscipline": 0.20,
+        "accentContrast": 0.20,
+        "harmonyMatch": 0.20,
+        "forbiddenHuePenalty": 0.10,
+        "accentHueFit": 0.15,
+        "varietyFitness": 0.10
+      }
     },
 
     {
@@ -29,7 +45,23 @@
       },
       "forbiddenHues": [[200, 260]], 
       "harmonyBias": ["neutral-plus-accent","monochrome","analogous"],
-      "weights": { "neutralShare": 0.40, "saturationDiscipline": 0.25, "harmonyMatch": 0.15, "warmBias": 0.10, "forbiddenHuePenalty": 0.10 }
+      "core_principles": [
+        "Keep the palette light, airy, and predominantly neutral (whites, off-whites, light grays)",
+        "Use natural materials as color inspiration: warm wood tones, linen creams, stone grays",
+        "Incorporate subtle nature accents (muted sage, dusty blue, soft terracotta)",
+        "Maintain low saturation and tonal harmony; sparing contrast (small black ok)"
+      ],
+      "allowed_hue_ranges": [[0,20],[80,150],[180,220]],
+      "variety_controls": { "min_colors": 3, "max_colors": 4, "must_include_neutral": true, "must_include_accent": false },
+      "weights": {
+        "neutralShare": 0.35,
+        "saturationDiscipline": 0.25,
+        "harmonyMatch": 0.20,
+        "warmBias": 0.10,
+        "forbiddenHuePenalty": 0.10,
+        "accentHueFit": 0.10,
+        "varietyFitness": 0.10
+      }
     },
 
     {
@@ -44,7 +76,24 @@
       },
       "forbiddenHues": [[300, 345]],
       "harmonyBias": ["complementary","triad","neutral-plus-accent"],
-      "weights": { "harmonyMatch": 0.25, "accentContrast": 0.20, "saturationDiscipline": 0.15, "neutralShare": 0.10, "forbiddenHuePenalty": 0.15, "brandDiversity": 0.15 }
+      "core_principles": [
+        "Ground in warm neutrals/wood tones",
+        "Use iconic MCM accents (mustard, burnt orange, avocado/olive, teal/turquoise, occasional red/burgundy)",
+        "Add modest black/white touches for definition",
+        "Balance warm + cool accents; retro (not neon) saturation"
+      ],
+      "allowed_hue_ranges": [[340,360],[0,20],[20,45],[50,70],[90,110],[160,190]],
+      "variety_controls": { "min_colors": 3, "max_colors": 5, "must_include_neutral": true, "must_include_accent": true },
+      "weights": {
+        "harmonyMatch": 0.25,
+        "accentContrast": 0.20,
+        "saturationDiscipline": 0.15,
+        "neutralShare": 0.15,
+        "forbiddenHuePenalty": 0.15,
+        "brandDiversity": 0.15,
+        "accentHueFit": 0.15,
+        "varietyFitness": 0.10
+      }
     },
 
     {
@@ -60,7 +109,23 @@
       },
       "forbiddenHues": [[0,10],[330,360]],
       "harmonyBias": ["neutral-plus-accent","analogous","monochrome"],
-      "weights": { "neutralShare": 0.30, "saturationDiscipline": 0.25, "harmonyMatch": 0.20, "accentContrast": 0.10, "forbiddenHuePenalty": 0.15 }
+      "core_principles": [
+        "Timeless neutral base (white/ivory/beige/greige/gray)",
+        "Low-to-moderate contrast overall",
+        "Introduce ≤1–2 muted, classic accents with gray/brown undertones",
+        "Maintain warm/cool balance"
+      ],
+      "allowed_hue_ranges": [[40,70],[80,140],[180,240],[260,290]],
+      "variety_controls": { "min_colors": 3, "max_colors": 5, "must_include_neutral": true, "must_include_accent": false },
+      "weights": {
+        "neutralShare": 0.30,
+        "saturationDiscipline": 0.20,
+        "harmonyMatch": 0.20,
+        "accentContrast": 0.10,
+        "forbiddenHuePenalty": 0.15,
+        "accentHueFit": 0.10,
+        "varietyFitness": 0.10
+      }
     },
 
     {
@@ -75,7 +140,23 @@
       },
       "forbiddenHues": [[60, 90]], 
       "harmonyBias": ["complementary","neutral-plus-accent","analogous"],
-      "weights": { "neutralShare": 0.20, "saturationDiscipline": 0.20, "accentContrast": 0.20, "harmonyMatch": 0.20, "forbiddenHuePenalty": 0.20 }
+      "core_principles": [
+        "Favor warm, classic hues; layer deep accents",
+        "Use ample warm neutrals and wood tones",
+        "Multiple accents allowed (2–3) in rich, aged tones",
+        "Bias overall warmth; include light + dark neutrals for depth"
+      ],
+      "allowed_hue_ranges": [[0,20],[340,360],[30,50],[100,140],[200,240]],
+      "variety_controls": { "min_colors": 3, "max_colors": 5, "must_include_neutral": true, "must_include_accent": true },
+      "weights": {
+        "neutralShare": 0.20,
+        "saturationDiscipline": 0.20,
+        "accentContrast": 0.20,
+        "harmonyMatch": 0.20,
+        "forbiddenHuePenalty": 0.20,
+        "accentHueFit": 0.10,
+        "varietyFitness": 0.10
+      }
     },
 
     {
@@ -91,7 +172,24 @@
       },
       "forbiddenHues": [[190, 220]],
       "harmonyBias": ["neutral-plus-accent","analogous"],
-      "weights": { "neutralShare": 0.30, "warmBias": 0.15, "saturationDiscipline": 0.20, "accentContrast": 0.10, "forbiddenHuePenalty": 0.15, "harmonyMatch": 0.10 }
+      "core_principles": [
+        "Light, bright neutral base (white/cream)",
+        "Warm, homey neutrals + natural wood tone",
+        "Gentle muted pastels (sage, sky/robin’s egg, butter yellow, dusty rose/lavender)",
+        "Low contrast overall; black hardware OK in small amounts"
+      ],
+      "allowed_hue_ranges": [[40,70],[80,120],[180,210],[250,290]],
+      "variety_controls": { "min_colors": 3, "max_colors": 5, "must_include_neutral": true, "must_include_accent": false },
+      "weights": {
+        "neutralShare": 0.30,
+        "warmBias": 0.15,
+        "saturationDiscipline": 0.20,
+        "accentContrast": 0.10,
+        "forbiddenHuePenalty": 0.15,
+        "harmonyMatch": 0.10,
+        "accentHueFit": 0.15,
+        "varietyFitness": 0.10
+      }
     },
 
     {
@@ -106,7 +204,24 @@
       },
       "forbiddenHues": [[0, 20], [300, 360]],
       "harmonyBias": ["analogous","split-complement","neutral-plus-accent"],
-      "weights": { "neutralShare": 0.20, "coolBias": 0.20, "accentContrast": 0.10, "saturationDiscipline": 0.20, "harmonyMatch": 0.20, "forbiddenHuePenalty": 0.10 }
+      "core_principles": [
+        "Airy beachy neutral base (white/sand)",
+        "Blue/blue-green accents are primary; include seafoam",
+        "Optional tiny warm accent (coral/peach/yellow)",
+        "Cool-dominant vibe; moderate contrast (navy anchor optional)"
+      ],
+      "allowed_hue_ranges": [[180,210],[210,240],[160,180],[80,140],[30,50]],
+      "variety_controls": { "min_colors": 3, "max_colors": 5, "must_include_neutral": true, "must_include_accent": true },
+      "weights": {
+        "neutralShare": 0.20,
+        "coolBias": 0.25,
+        "accentContrast": 0.10,
+        "saturationDiscipline": 0.20,
+        "harmonyMatch": 0.20,
+        "forbiddenHuePenalty": 0.10,
+        "accentHueFit": 0.10,
+        "varietyFitness": 0.05
+      }
     },
 
     {

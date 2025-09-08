@@ -5,6 +5,24 @@ import 'package:color_canvas/utils/color_utils.dart';
 import 'theme_spec.dart';
 
 class ThemeEngine {
+  static bool _isNeutral(Paint p, ThemeSpec spec) {
+    final c = p.lch.length > 1 ? p.lch[1] : 0.0;
+    final neutralMax = spec.neutrals?.C?.max ?? 12.0;
+    return c <= neutralMax;
+  }
+
+  static List<double> _accentHues(List<Paint> palette, ThemeSpec spec) {
+    final neutralMax = spec.neutrals?.C?.max ?? 12.0;
+    final out = <double>[];
+    for (final p in palette) {
+      final c = p.lch.length > 1 ? p.lch[1] : 0.0;
+      if (c > neutralMax) {
+        final h = p.lch.length > 2 ? (p.lch[2] % 360) : 0.0;
+        out.add(h < 0 ? h + 360 : h);
+      }
+    }
+    return out;
+  }
   // Prefilter paints by LCH windows in spec.neutrals or spec.accents
   static List<Paint> prefilter(List<Paint> paints, ThemeSpec spec) {
     if (spec.neutrals == null && spec.accents == null) return paints;
@@ -60,6 +78,23 @@ class ThemeEngine {
 
   static double scorePalette(List<Paint> palette, ThemeSpec spec) {
     if (palette.isEmpty) return 0.0;
+
+    // v2: hard gates from varietyControls
+    final vc = spec.varietyControls;
+    if (vc != null) {
+      // count range gating
+      if (palette.length < vc.minColors || palette.length > vc.maxColors) {
+        return 0.0;
+      }
+      // must include neutral
+      if (vc.mustIncludeNeutral && !palette.any((p) => _isNeutral(p, spec))) {
+        return 0.0;
+      }
+      // must include accent (chroma > neutral C max)
+      if (vc.mustIncludeAccent && _accentHues(palette, spec).isEmpty) {
+        return 0.0;
+      }
+    }
 
     final weights = spec.weights;
     double weightedSum = 0.0;
@@ -153,9 +188,51 @@ class ThemeEngine {
       weightedSum += s * w; sumWeights += w;
     });
 
+    // v2: varietyFitness (soft feature for score shaping)
+    double varietyFitness = 1.0;
+    if (vc != null) {
+      final n = palette.length.toDouble();
+      if (n < vc.minColors) {
+        final d = (vc.minColors - n).clamp(0.0, vc.minColors.toDouble());
+        varietyFitness = (1.0 - d / vc.minColors).clamp(0.0, 1.0);
+      } else if (n > vc.maxColors) {
+        final d = (n - vc.maxColors).clamp(0.0, n);
+        varietyFitness = (1.0 - d / n).clamp(0.0, 1.0);
+      }
+    }
+    _accumulate('varietyFitness', varietyFitness, weights, (s, w) {
+      weightedSum += s * w; sumWeights += w;
+    });
+
+    // v2: accentHueFit (share of accent hues inside allowed_hue_ranges)
+    double accentHueFit = 1.0;
+    if (spec.allowedHueRanges.isNotEmpty) {
+      final huesAcc = _accentHues(palette, spec);
+      if (huesAcc.isNotEmpty) {
+        int ok = 0;
+        for (final h in huesAcc) {
+          bool inside = false;
+          for (final band in spec.allowedHueRanges) {
+            if (band.length < 2) continue;
+            final a = band[0];
+            final b = band[1];
+            if (a <= b ? (h >= a && h <= b) : (h >= a || h <= b)) {
+              inside = true;
+              break;
+            }
+          }
+          if (inside) ok++;
+        }
+        accentHueFit = ok / huesAcc.length;
+      }
+    }
+    _accumulate('accentHueFit', accentHueFit, weights, (s, w) {
+      weightedSum += s * w; sumWeights += w;
+    });
+
     // If no weights provided, return simple average of some features
     if (sumWeights <= 0.0) {
-      final fallback = (neutralShare + hueAllowed + saturationDiscipline + harmonyMatch + accentContrast + warmProp + brandDiversity) / 7.0;
+  final fallback = (neutralShare + hueAllowed + saturationDiscipline + harmonyMatch + accentContrast + warmProp + brandDiversity) / 7.0;
       return fallback.clamp(0.0, 1.0);
     }
 
@@ -165,8 +242,11 @@ class ThemeEngine {
 
   static String explain(List<Paint> palette, ThemeSpec spec) {
     try {
-      final score = scorePalette(palette, spec);
-      return 'score=${score.toStringAsFixed(3)},n=${palette.length}';
+  final score = scorePalette(palette, spec);
+  final vc = spec.varietyControls;
+  final accents = _accentHues(palette, spec).length;
+  final neutrals = palette.where((p) => _isNeutral(p, spec)).length;
+  return 'score=${score.toStringAsFixed(3)},n=${palette.length},neutrals=$neutrals,accents=$accents,vc=${vc?.minColors}-${vc?.maxColors}';
     } catch (e) {
       return 'error:${e.toString()}';
     }

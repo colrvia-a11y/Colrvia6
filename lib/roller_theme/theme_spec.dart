@@ -128,17 +128,24 @@ class ThemeSpec {
   final List<List<double>> forbiddenHues;
   final List<String> harmonyBias;
   final Map<String, double> weights;
+  // v2 additions (backward-compatible)
+  final List<String> corePrinciples;           // docs only
+  final List<List<double>> allowedHueRanges;   // accent-allowed hue bands
+  final VarietyControls? varietyControls;      // min/max + inclusion rules
 
   ThemeSpec({
     required this.id,
     required this.label,
-    this.aliases = const [],
+  this.aliases = const [],
     this.neutrals,
     this.accents,
     this.roleTargets,
     this.forbiddenHues = const [],
     this.harmonyBias = const [],
     this.weights = const {},
+  this.corePrinciples = const [],
+  this.allowedHueRanges = const [],
+  this.varietyControls,
   });
 
   factory ThemeSpec.fromJson(Map<String, dynamic> m) {
@@ -161,6 +168,22 @@ class ThemeSpec {
       return (h as List).map((e) => e.toString()).toList();
     }
 
+    List<String> parseCore(dynamic v) {
+      if (v == null) return [];
+      return (v as List).map((e) => e.toString()).toList();
+    }
+
+    List<List<double>> parseBands(dynamic v) {
+      if (v == null) return [];
+      final out = <List<double>>[];
+      for (final band in (v as List)) {
+        if (band is List && band.length >= 2) {
+          out.add([(band[0] as num).toDouble(), (band[1] as num).toDouble()]);
+        }
+      }
+      return out;
+    }
+
     Map<String, double> parseWeights(dynamic w) {
       if (w == null) return {};
       final map = <String, double>{};
@@ -180,6 +203,9 @@ class ThemeSpec {
       forbiddenHues: parseForbidden(m['forbiddenHues']),
       harmonyBias: parseHarmony(m['harmonyBias']),
       weights: parseWeights(m['weights']),
+  corePrinciples: parseCore(m['core_principles']),
+  allowedHueRanges: parseBands(m['allowed_hue_ranges']),
+  varietyControls: VarietyControls.fromJson(m['variety_controls'] as Map<String, dynamic>?),
     );
   }
 
@@ -193,5 +219,38 @@ class ThemeSpec {
         if (forbiddenHues.isNotEmpty) 'forbiddenHues': forbiddenHues,
         if (harmonyBias.isNotEmpty) 'harmonyBias': harmonyBias,
         if (weights.isNotEmpty) 'weights': weights,
+        if (corePrinciples.isNotEmpty) 'core_principles': corePrinciples,
+        if (allowedHueRanges.isNotEmpty) 'allowed_hue_ranges': allowedHueRanges,
+        if (varietyControls != null) 'variety_controls': varietyControls!.toJson(),
       };
+}
+
+class VarietyControls {
+  final int minColors;
+  final int maxColors;
+  final bool mustIncludeNeutral;
+  final bool mustIncludeAccent;
+  const VarietyControls({
+    required this.minColors,
+    required this.maxColors,
+    required this.mustIncludeNeutral,
+    required this.mustIncludeAccent,
+  });
+  factory VarietyControls.fromJson(Map<String, dynamic>? m) {
+    if (m == null) return const VarietyControls(minColors: 0, maxColors: 99, mustIncludeNeutral: false, mustIncludeAccent: false);
+    int _i(String k, int d) => (m[k] == null) ? d : (m[k] as num).toInt();
+    bool _b(String k, bool d) => (m[k] == null) ? d : (m[k] as bool);
+    return VarietyControls(
+      minColors: _i('min_colors', 0),
+      maxColors: _i('max_colors', 99),
+      mustIncludeNeutral: _b('must_include_neutral', false),
+      mustIncludeAccent: _b('must_include_accent', false),
+    );
+  }
+  Map<String, dynamic> toJson() => {
+    'min_colors': minColors,
+    'max_colors': maxColors,
+    'must_include_neutral': mustIncludeNeutral,
+    'must_include_accent': mustIncludeAccent,
+  };
 }
