@@ -142,12 +142,12 @@ class _PaintStripeState extends State<PaintStripe> {
             if (widget.paint != null)
               Positioned(
                 left: widget.isLocked ? 60 : 16,
-                top: 0,
-                bottom: 0,
+                right: 16,
+                bottom: 12,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     // Brand information (roles removed)
                     Text(
@@ -158,10 +158,16 @@ class _PaintStripeState extends State<PaintStripe> {
                         color: textColor,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.18),
+                            blurRadius: 2,
+                            offset: Offset(0, 1),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 4),
-
+                    const SizedBox(height: 2),
                     // Paint name
                     Text(
                       widget.paint!.name,
@@ -169,6 +175,13 @@ class _PaintStripeState extends State<PaintStripe> {
                         color: textColor,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.18),
+                            blurRadius: 2,
+                            offset: Offset(0, 1),
+                          ),
+                        ],
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -249,7 +262,7 @@ class AnimatedPaintStripe extends StatefulWidget {
     this.onSwipeLeft,
     this.onRefine,
     this.onDelete,
-    this.index,
+  this.index,
   this.onReorder,
   this.fullBleed = false,
   });
@@ -510,6 +523,7 @@ class _AnimatedPaintStripeState extends State<AnimatedPaintStripe>
                     brightness == Brightness.dark ? Colors.white : Colors.black;
 
                 // Key by effective color identity so Flutter rebuilds properly
+                final bool isTopStripe = (widget.index ?? -1) == 0;
                 Widget stripContent = Semantics(
                   button: true,
                   toggled: widget.isLocked,
@@ -520,19 +534,19 @@ class _AnimatedPaintStripeState extends State<AnimatedPaintStripe>
                       : 'Empty color slot',
                   onTap: widget.onTap,
                   child: Container(
-                    margin: widget.fullBleed
+          margin: widget.fullBleed
                         ? EdgeInsets.zero
-                        : (_RollerEnhancements.enableRoundedStrips
+            : (_RollerEnhancements.enableRoundedStrips && !isTopStripe
                             ? const EdgeInsets.symmetric(horizontal: 8, vertical: 2)
                             : EdgeInsets.zero),
-                    decoration: _RollerEnhancements.enableGradientBackdrops
+          decoration: _RollerEnhancements.enableGradientBackdrops && !isTopStripe
                         ? BoxDecoration(
                             gradient: _createBackdropGradient(color),
-                            borderRadius: _RollerEnhancements.enableRoundedStrips
+              borderRadius: _RollerEnhancements.enableRoundedStrips && !isTopStripe
                                 ? BorderRadius.circular(
                                     _RollerEnhancements.stripBorderRadius)
                                 : null,
-                            boxShadow: _createEnhancedShadows(color),
+              boxShadow: _createEnhancedShadows(color),
                           )
                         : null,
                     child: GestureDetector(
@@ -567,7 +581,7 @@ class _AnimatedPaintStripeState extends State<AnimatedPaintStripe>
                       child: Container(
                         decoration: BoxDecoration(
                           color: color,
-                          borderRadius: _RollerEnhancements.enableRoundedStrips
+                          borderRadius: _RollerEnhancements.enableRoundedStrips && !isTopStripe
                               ? BorderRadius.circular(
                                   _RollerEnhancements.stripBorderRadius - 2)
                               : null,
@@ -583,7 +597,7 @@ class _AnimatedPaintStripeState extends State<AnimatedPaintStripe>
                         child: Stack(
                           children: [
                           // Subtle gradient overlay for depth
-                          if (_RollerEnhancements.enableRoundedStrips)
+                          if (_RollerEnhancements.enableRoundedStrips && !isTopStripe)
                             Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(

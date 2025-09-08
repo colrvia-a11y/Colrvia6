@@ -141,6 +141,15 @@ class _RollerScreenState extends RollerScreenStatePublic {
   int _setStateCount = 0;
   DateTime? _lastSetStateTime;
 
+  // Height reserved for the top chrome (status bar + margins + nav bar)
+  double _topReservedHeight(BuildContext context) {
+    final double sys = MediaQuery.of(context).padding.top; // status bar / notch
+    const double topMargin = 12.0; // Positioned(top: 12)
+    const double navHeight = 44.0; // _buildTopNavBar height
+    const double extraGap = 8.0;   // small breathing room under the nav
+    return sys + topMargin + navHeight + extraGap;
+  }
+
   // Throttled setState to prevent infinite loops
   void _safeSetState(VoidCallback callback, {String? details}) {
     if (!mounted) return;
@@ -843,20 +852,10 @@ class _RollerScreenState extends RollerScreenStatePublic {
                     ),
                   ),
 
-                // Top Navigation Bar (Style | Sort | Account)
+                // Top-left row: Back button + inline top nav bar
                 Positioned(
                   left: 12,
                   right: 12,
-                  top: 12,
-                  child: SafeArea(
-                    bottom: false,
-                    child: _buildTopNavBar(),
-                  ),
-                ),
-
-                // Back button (match Paint Detail styling)
-                Positioned(
-                  left: 12,
                   top: 12,
                   child: SafeArea(
                     bottom: false,
@@ -867,14 +866,33 @@ class _RollerScreenState extends RollerScreenStatePublic {
                       final Color fg = ThemeData.estimateBrightnessForColor(topColor) == Brightness.dark
                           ? Colors.white
                           : Colors.black;
-                      return Padding(
-                        padding: const EdgeInsets.only(left: 0, top: 0, bottom: 0),
-                        child: ColrViaIconButton(
-                          icon: Icons.arrow_back,
-                          color: fg,
-                          onPressed: () => Navigator.of(context).maybePop(),
-                          semanticLabel: 'Back',
-                        ),
+                      final navBar = _buildTopNavBar(fg);
+                      final dropdown = _buildNavDropdown();
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              ColrViaIconButton(
+                                icon: Icons.arrow_back,
+                                color: fg,
+                                onPressed: () => Navigator.of(context).maybePop(),
+                                semanticLabel: 'Back',
+                              ),
+                              const SizedBox(width: 8),
+                              Flexible(child: navBar),
+                            ],
+                          ),
+                          if (dropdown != null) ...[
+                            const SizedBox(height: 8),
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 720, maxHeight: 480),
+                              child: dropdown,
+                            ),
+                          ]
+                        ],
                       );
                     }),
                   ),
@@ -946,90 +964,79 @@ class _RollerScreenState extends RollerScreenStatePublic {
   }
 
   // Build the new top nav bar and its dropdown content
-  Widget _buildTopNavBar() {
+  Widget _buildTopNavBar([Color? fgColor]) {
     // Compute foreground based on top-most stripe color for contrast
   final Color bgColor = _currentPalette.isNotEmpty
     ? ColorUtils.hexToColor(_currentPalette.first.hex)
     : Colors.white;
   final bool darkBg = ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark;
 
-  final navBar = Container(
+    final Color outline = (fgColor ?? (darkBg ? Colors.white : Colors.black)).withAlpha(150);
+    final navBar = Container(
       decoration: BoxDecoration(
-    color: Colors.white.withAlpha(220),
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withAlpha(14), blurRadius: 12, offset: const Offset(0, 4)),
-        ],
-    border: Border.all(color: Colors.black.withAlpha(darkBg ? 30 : 12)),
+        border: Border.all(color: outline, width: 1.2),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _NavButton(
-            label: 'Style',
-            selected: _activeNav == _NavMenu.style,
-            onTap: () => _safeSetState(() {
-              _activeNav = _activeNav == _NavMenu.style ? null : _NavMenu.style;
-            }),
-          ),
-          _NavButton(
-            label: 'Sort',
-            selected: _activeNav == _NavMenu.sort,
-            onTap: () => _safeSetState(() {
-              _activeNav = _activeNav == _NavMenu.sort ? null : _NavMenu.sort;
-            }),
-          ),
-          _NavButton(
-            label: 'Count',
-            selected: _activeNav == _NavMenu.count,
-            onTap: () => _safeSetState(() {
-              _activeNav = _activeNav == _NavMenu.count ? null : _NavMenu.count;
-            }),
-          ),
-        ],
+      height: 44,
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _NavButton(
+              label: 'Style',
+              selected: _activeNav == _NavMenu.style,
+              fgColor: fgColor ?? (darkBg ? Colors.white : Colors.black),
+              onTap: () => _safeSetState(() {
+                _activeNav = _activeNav == _NavMenu.style ? null : _NavMenu.style;
+              }),
+            ),
+            _NavButton(
+              label: 'Brand',
+              selected: _activeNav == _NavMenu.sort,
+              fgColor: fgColor ?? (darkBg ? Colors.white : Colors.black),
+              onTap: () => _safeSetState(() {
+                _activeNav = _activeNav == _NavMenu.sort ? null : _NavMenu.sort;
+              }),
+            ),
+            _NavButton(
+              label: 'Count',
+              selected: _activeNav == _NavMenu.count,
+              fgColor: fgColor ?? (darkBg ? Colors.white : Colors.black),
+              onTap: () => _safeSetState(() {
+                _activeNav = _activeNav == _NavMenu.count ? null : _NavMenu.count;
+              }),
+            ),
+          ],
+        ),
       ),
     );
 
-    final dropdown = _buildNavDropdown();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 680),
-            child: navBar,
-          ),
-        ),
-        if (dropdown != null) ...[
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.topCenter,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 720, maxHeight: 480),
-              child: dropdown,
-            ),
-          ),
-        ],
-      ],
+    return Align(
+      alignment: Alignment.topLeft,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 680),
+        child: navBar,
+      ),
     );
   }
 
   // Lightweight top nav button
   // ignore: unused_element
-  Widget _NavButton({required String label, required bool selected, required VoidCallback onTap}) {
+  Widget _NavButton({required String label, required bool selected, Color? fgColor, required VoidCallback onTap}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+    padding: const EdgeInsets.symmetric(horizontal: 2),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          height: 32,
+          alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
           decoration: BoxDecoration(
-            color: selected ? Colors.black.withAlpha(8) : Colors.transparent,
+            color: selected ? Colors.black.withAlpha(10) : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
@@ -1039,11 +1046,11 @@ class _RollerScreenState extends RollerScreenStatePublic {
                 label,
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  color: Colors.black,
+                  color: fgColor ?? Colors.black,
                 ),
               ),
-              const SizedBox(width: 4),
-              Icon(selected ? Icons.expand_less : Icons.expand_more, size: 18),
+        const SizedBox(width: 2),
+        Icon(selected ? Icons.expand_less : Icons.expand_more, size: 18, color: fgColor ?? Colors.black),
             ],
           ),
         ),
@@ -1289,16 +1296,34 @@ class _RollerScreenState extends RollerScreenStatePublic {
     return LayoutBuilder(
       builder: (context, constraints) {
         final n = _paletteSize.clamp(1, 9);
-        // Adjusted height so overlap cancels out and fills the screen
-        final slotHeight = (constraints.maxHeight + overlapPx * (n - 1)) / n;
+        // Space reserved for top chrome (back + nav)
+        final double topPad = _topReservedHeight(context).clamp(0.0, constraints.maxHeight);
+        final double effectiveHeight = (constraints.maxHeight - topPad).clamp(0.0, constraints.maxHeight);
+        // Adjusted height so overlap cancels out and fills the remaining screen
+        final double slotHeight = n > 0
+            ? (effectiveHeight + overlapPx * (n - 1)) / n
+            : 0.0;
 
         // Build bottom → top so the top stripe is rendered last (visually on top).
         final children = <Widget>[];
+        // Reserved top area painted with the top stripe color for seamless look
+        final Paint? topPaint = palette.isNotEmpty ? palette.first : null;
+        if (topPad > 0) {
+          children.add(Positioned(
+            left: -bleed,
+            right: -bleed,
+            top: 0,
+            height: topPad,
+            child: Container(
+              color: topPaint != null ? ColorUtils.hexToColor(topPaint.hex) : Colors.white,
+            ),
+          ));
+        }
         for (int i = n - 1; i >= 0; i--) {
           final paint = i < palette.length ? palette[i] : null;
           final isLocked = i < _lockedStates.length ? _lockedStates[i] : false;
 
-          final double top = i * (slotHeight - overlapPx);
+          final double top = topPad + i * (slotHeight - overlapPx);
 
           children.add(Positioned(
             left: -bleed,
@@ -1317,6 +1342,7 @@ class _RollerScreenState extends RollerScreenStatePublic {
                 isLocked: isLocked,
                 isRolling: _isRolling,
                 fullBleed: true,
+                index: i,
                 onTap: () => _toggleLock(i),
                 onSwipeRight: () => _navigateStripForward(i),
                 onSwipeLeft: () => _navigateStripBackward(i),
@@ -1327,8 +1353,8 @@ class _RollerScreenState extends RollerScreenStatePublic {
           ));
         }
 
-        // Ensure no white space by painting bottom-most color behind everything
-        final bg = (n - 1 < palette.length) ? palette[n - 1] : null;
+  // Ensure no white space by painting bottom-most color behind everything
+  final bg = (n - 1 < palette.length) ? palette[n - 1] : null;
         return Stack(
           clipBehavior: Clip.none,
           children: [
@@ -1336,7 +1362,7 @@ class _RollerScreenState extends RollerScreenStatePublic {
               Positioned(
                 left: -bleed,
                 right: -bleed,
-                top: 0,
+    top: topPad,
                 bottom: 0,
                 child: Container(color: ColorUtils.hexToColor(bg.hex)),
               ),
