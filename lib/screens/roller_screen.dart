@@ -10,6 +10,7 @@ import 'package:color_canvas/widgets/paint_column.dart';
 import 'package:color_canvas/widgets/refine_sheet.dart';
 import 'package:color_canvas/widgets/brand_filter_dialog.dart';
 import 'package:color_canvas/widgets/save_palette_panel.dart';
+import 'package:color_canvas/widgets/colr_via_icon_button.dart';
 import 'package:color_canvas/utils/color_utils.dart';
 import 'package:color_canvas/data/sample_paints.dart';
 import 'package:color_canvas/utils/debug_logger.dart';
@@ -30,6 +31,7 @@ import 'package:color_canvas/models/fixed_elements.dart';
 import 'package:color_canvas/services/accessibility_service.dart';
 import 'package:color_canvas/services/fixed_element_service.dart';
 import 'package:share_plus/share_plus.dart';
+// (No direct screen imports needed here; we navigate via named routes.)
 
 import '../services/roller_progress.dart';
 import '../services/create_flow_progress.dart';
@@ -44,6 +46,9 @@ class GoToNextPageIntent extends Intent {
 }
 
 enum ActiveTool { style, sort, adjust, count, save, share, temperature }
+
+// Top navigation categories
+enum _NavMenu { style, sort, count }
 
 abstract class RollerScreenStatePublic extends State<RollerScreen> {
   int getPaletteSize();
@@ -114,9 +119,8 @@ class _RollerScreenState extends RollerScreenStatePublic {
   // Track original palette order before any LRV sorting (for stable ties)
   final Map<String, int> _originalIndexMap = {};
   
-  // Tools dock state
-  bool _toolsOpen = false;
-  ActiveTool? _activeTool;
+  // Tools dock removed; direct action buttons are used instead
+  _NavMenu? _activeNav; // controls top nav dropdowns
   
   // Track if user has manually applied brand filters
   final bool _hasAppliedFilters = false;
@@ -638,12 +642,7 @@ class _RollerScreenState extends RollerScreenStatePublic {
     return List<Paint>.from(_currentPalette);
   }
 
-  void _closeDock() {
-    _safeSetState(() {
-      _toolsOpen = false;
-      _activeTool = null;
-    });
-  }
+  // Tools dock removed
 
   void _resizeLocksAndPaletteTo(int size) {
     if (_lockedStates.length > size) {
@@ -660,100 +659,80 @@ class _RollerScreenState extends RollerScreenStatePublic {
     _ensureStripHistories();
   }
 
-  Widget _buildToolPanel(ActiveTool tool) {
-    switch (tool) {
-      case ActiveTool.style:
-        return _StylePanel(
-          currentMode: _currentMode,
-          diversifyBrands: _diversifyBrands,
-          paletteSize: _paletteSize,
-          onModeChanged: (mode) {
-            _safeSetState(() => _currentMode = mode);
-            _resetFeedToPageZero();
-          },
-          onDiversifyChanged: (value) {
-            _safeSetState(() => _diversifyBrands = value);
-            _resetFeedToPageZero();
-          },
-          onPaletteSizeChanged: (size) {
-            _safeSetState(() {
-              _paletteSize = size.clamp(1, 9);
-              _resizeLocksAndPaletteTo(_paletteSize);
-            });
-            _resetFeedToPageZero();
-          },
-          onDone: _closeDock,
+  // Open bottom sheets for Adjust and Temp
+  void _openAdjustSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => _AdjustPanelHost(
+        hueShift: _hueShift,
+        satScale: _satScale,
+        onHueChanged: (value) {
+          _safeSetState(() => _hueShift = value);
+          Future.delayed(const Duration(milliseconds: 150), () {
+            if (mounted) _rollPalette();
+          });
+        },
+        onSatChanged: (value) {
+          _safeSetState(() => _satScale = value);
+          Future.delayed(const Duration(milliseconds: 150), () {
+            if (mounted) _rollPalette();
+          });
+        },
+        onReset: () {
+          _safeSetState(() {
+            _hueShift = 0.0;
+            _satScale = 1.0;
+          });
+          _rollPalette();
+        },
+        onDone: () => Navigator.of(context).pop(),
+      ),
+    );
+  }
+
+  void _openTempSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.thermostat),
+                  const SizedBox(width: 8),
+                  Text('Palette Variants', style: Theme.of(context).textTheme.titleMedium),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _TempChip(label: 'Softer',    kind: 'softer',    onTap: _applyVariant),
+                  _TempChip(label: 'Brighter',  kind: 'brighter',  onTap: _applyVariant),
+                  _TempChip(label: 'Moodier',   kind: 'moodier',   onTap: _applyVariant),
+                  _TempChip(label: 'Warmer',    kind: 'warmer',    onTap: _applyVariant),
+                  _TempChip(label: 'Cooler',    kind: 'cooler',    onTap: _applyVariant),
+                  _TempChip(label: 'CB friendly', kind: 'cbFriendly', onTap: _applyVariant),
+                ],
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Close'),
+                ),
+              )
+            ],
+          ),
         );
-      case ActiveTool.sort:
-        return _BrandFilterPanelHost(
-          availableBrands: _availableBrands,
-          selectedBrandIds: _selectedBrandIds,
-          onBrandsSelected: (brands) {
-            _safeSetState(() => _selectedBrandIds = brands);
-            _resetFeedToPageZero();
-          },
-          onDone: _closeDock,
-        );
-      case ActiveTool.adjust:
-        return _AdjustPanelHost(
-          hueShift: _hueShift,
-          satScale: _satScale,
-          onHueChanged: (value) {
-            _safeSetState(() => _hueShift = value);
-            Future.delayed(const Duration(milliseconds: 150), () {
-              if (mounted) _rollPalette();
-            });
-          },
-          onSatChanged: (value) {
-            _safeSetState(() => _satScale = value);
-            Future.delayed(const Duration(milliseconds: 150), () {
-              if (mounted) _rollPalette();
-            });
-          },
-          onReset: () {
-            _safeSetState(() {
-              _hueShift = 0.0;
-              _satScale = 1.0;
-            });
-            _rollPalette();
-          },
-          onDone: _closeDock,
-        );
-      case ActiveTool.count:
-        return _CountPanelHost(
-          paletteSize: _paletteSize,
-          onSizeChanged: (size) {
-            _safeSetState(() {
-              _paletteSize = size;
-              _resizeLocksAndPaletteTo(_paletteSize);
-              if (_visiblePage < _pages.length) {
-                _pages[_visiblePage] = List<Paint>.from(_currentPalette);
-              }
-              if (_visiblePage < _pages.length - 1) {
-                _pages.removeRange(_visiblePage + 1, _pages.length);
-              }
-            });
-            _resetFeedToPageZero();
-          },
-          onDone: _closeDock,
-        );
-      case ActiveTool.save:
-        return _SavePanelHost(
-          projectId: widget.projectId,
-          paints: _visiblePaletteSnapshot(),
-          onSaved: _closeDock,
-          onCancel: _closeDock,
-        );
-      case ActiveTool.share:
-        return _SharePanelHost(
-          onShare: () {
-            _shareCurrentPalette();
-            _closeDock();
-          },
-        );
-      case ActiveTool.temperature:
-        return const SizedBox.shrink();
-    }
+      },
+    );
   }
 
   Paint _adjustPaint(Paint p, List<Paint> pool) {
@@ -784,6 +763,7 @@ class _RollerScreenState extends RollerScreenStatePublic {
           ? const Center(child: CircularProgressIndicator())
           : Stack(
               children: [
+                // Note: foreground color (fg) is computed where needed for buttons.
                 Focus(
                   autofocus: true,
                   child: Shortcuts(
@@ -796,8 +776,12 @@ class _RollerScreenState extends RollerScreenStatePublic {
                         GoToPrevPageIntent: CallbackAction<GoToPrevPageIntent>(onInvoke: (_) { _goToPrevPage(); return null; }),
                         GoToNextPageIntent: CallbackAction<GoToNextPageIntent>(onInvoke: (_) { _goToNextPage(); return null; }),
                       },
-                      child: PageView.builder(
-                        controller: _pageCtrl,
+                      child: MediaQuery.removePadding(
+                        context: context,
+                        removeLeft: true,
+                        removeRight: true,
+                        child: PageView.builder(
+                          controller: _pageCtrl,
                         scrollDirection: Axis.vertical,
                         onPageChanged: _onPageChanged,
                         itemBuilder: (context, index) {
@@ -815,7 +799,8 @@ class _RollerScreenState extends RollerScreenStatePublic {
                           }
                           final palette = _pages[index];
                           return _buildPaletteView(palette);
-                        },
+                          },
+                        ),
                       ),
                     ),
                   ),
@@ -847,69 +832,302 @@ class _RollerScreenState extends RollerScreenStatePublic {
                       ),
                     ),
                   ),
-                if (_toolsOpen)
+                // Tools dock overlay removed (no expandable toolbar anymore)
+
+                // Close top nav dropdowns when tapping outside (render below the bar)
+                if (_activeNav != null)
                   Positioned.fill(
                     child: GestureDetector(
-                      onTap: () => _safeSetState(() {
-                        _toolsOpen = false;
-                        _activeTool = null;
-                      }),
+                      onTap: () => _safeSetState(() => _activeNav = null),
                       behavior: HitTestBehavior.translucent,
                     ),
                   ),
 
+                // Top Navigation Bar (Style | Sort | Account)
+                Positioned(
+                  left: 12,
+                  right: 12,
+                  top: 12,
+                  child: SafeArea(
+                    bottom: false,
+                    child: _buildTopNavBar(),
+                  ),
+                ),
+
+                // Back button (match Paint Detail styling)
+                Positioned(
+                  left: 12,
+                  top: 12,
+                  child: SafeArea(
+                    bottom: false,
+                    child: Builder(builder: (context) {
+                      final Color topColor = _currentPalette.isNotEmpty
+                          ? ColorUtils.hexToColor(_currentPalette.first.hex)
+                          : Colors.white;
+                      final Color fg = ThemeData.estimateBrightnessForColor(topColor) == Brightness.dark
+                          ? Colors.white
+                          : Colors.black;
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 0, top: 0, bottom: 0),
+                        child: ColrViaIconButton(
+                          icon: Icons.arrow_back,
+                          color: fg,
+                          onPressed: () => Navigator.of(context).maybePop(),
+                          semanticLabel: 'Back',
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+
                 Positioned(
                   right: 12,
                   bottom: 24,
-                  child: ToolsDock(
-                    open: _toolsOpen,
-                    activeTool: _activeTool,
-                    onToggle: () {
-                      HapticFeedback.selectionClick();
-                      _safeSetState(() => _toolsOpen = !_toolsOpen);
-                    },
-                    onSelect: (t) {
-                      _safeSetState(() {
-                        if (t == null) {
-                          _activeTool = null;
-                          _toolsOpen = false;
-                        } else {
-                          _toolsOpen = true;
-                          if (_activeTool == ActiveTool.temperature && t == ActiveTool.temperature) {
-                          } else {
-                            _activeTool = t;
-                          }
-                        }
-                      });
-                    },
-                    items: [
-                      DockItem(tool: ActiveTool.style, icon: Icons.auto_awesome, label: 'Style'),
-                      DockItem(tool: ActiveTool.sort, icon: Icons.filter_list, label: 'Sort'),
-                      DockItem(tool: ActiveTool.adjust, icon: Icons.tune, label: 'Adjust'),
-                      DockItem(tool: ActiveTool.count, icon: Icons.grid_goldenratio, label: 'Count'),
-                      DockItem(tool: ActiveTool.save, icon: Icons.bookmark_add_outlined, label: 'Save'),
-                      DockItem(tool: ActiveTool.share, icon: Icons.ios_share_outlined, label: 'Share'),
-                      DockItem(tool: ActiveTool.temperature, icon: Icons.thermostat, label: 'Temp'),
-                    ],
-                    panelBuilder: (tool) => _buildToolPanel(tool),
-                    onTemperatureAction: (kind) {
-                      _applyVariant(kind);
-                      AnalyticsService.instance
-                          .logEvent('temperature_action', {'kind': kind, 'size': _currentPalette.length});
-                    },
-                    onTemperatureBack: () {
-                      _safeSetState(() {
-                        _activeTool = null;
-                        _toolsOpen = true;
-                      });
-                    },
-                  ),
+                  child: Builder(builder: (context) {
+                    // Foreground color based on bottom stripe
+                    final Color bgColor = _currentPalette.isNotEmpty
+                        ? ColorUtils.hexToColor(_currentPalette.last.hex)
+                        : Colors.white;
+                    final Color fg = ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark
+                        ? Colors.white
+                        : Colors.black;
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Adjust
+                        ColrViaIconButton(
+                          icon: Icons.tune,
+                          color: fg,
+                          onPressed: _openAdjustSheet,
+                          semanticLabel: 'Adjust',
+                        ),
+                        const SizedBox(height: 12),
+                        // Temp variants
+                        ColrViaIconButton(
+                          icon: Icons.thermostat,
+                          color: fg,
+                          onPressed: _openTempSheet,
+                          semanticLabel: 'Temp',
+                        ),
+                        const SizedBox(height: 12),
+                        // Save
+                        ColrViaIconButton(
+                          icon: Icons.bookmark_border,
+                          color: fg,
+                          onPressed: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              builder: (ctx) => SavePalettePanel(
+                                projectId: widget.projectId,
+                                paints: _visiblePaletteSnapshot(),
+                                onSaved: () => Navigator.of(ctx).pop(),
+                                onCancel: () => Navigator.of(ctx).pop(),
+                              ),
+                            );
+                          },
+                          semanticLabel: 'Save',
+                        ),
+                        const SizedBox(height: 12),
+                        // Share
+                        ColrViaIconButton(
+                          icon: Icons.ios_share_outlined,
+                          color: fg,
+                          onPressed: _shareCurrentPalette,
+                          semanticLabel: 'Share',
+                        ),
+                      ],
+                    );
+                  }),
                 ),
               ],
             ),
     );
   }
 
+  // Build the new top nav bar and its dropdown content
+  Widget _buildTopNavBar() {
+    // Compute foreground based on top-most stripe color for contrast
+  final Color bgColor = _currentPalette.isNotEmpty
+    ? ColorUtils.hexToColor(_currentPalette.first.hex)
+    : Colors.white;
+  final bool darkBg = ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark;
+
+  final navBar = Container(
+      decoration: BoxDecoration(
+    color: Colors.white.withAlpha(220),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withAlpha(14), blurRadius: 12, offset: const Offset(0, 4)),
+        ],
+    border: Border.all(color: Colors.black.withAlpha(darkBg ? 30 : 12)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _NavButton(
+            label: 'Style',
+            selected: _activeNav == _NavMenu.style,
+            onTap: () => _safeSetState(() {
+              _activeNav = _activeNav == _NavMenu.style ? null : _NavMenu.style;
+            }),
+          ),
+          _NavButton(
+            label: 'Sort',
+            selected: _activeNav == _NavMenu.sort,
+            onTap: () => _safeSetState(() {
+              _activeNav = _activeNav == _NavMenu.sort ? null : _NavMenu.sort;
+            }),
+          ),
+          _NavButton(
+            label: 'Count',
+            selected: _activeNav == _NavMenu.count,
+            onTap: () => _safeSetState(() {
+              _activeNav = _activeNav == _NavMenu.count ? null : _NavMenu.count;
+            }),
+          ),
+        ],
+      ),
+    );
+
+    final dropdown = _buildNavDropdown();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 680),
+            child: navBar,
+          ),
+        ),
+        if (dropdown != null) ...[
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720, maxHeight: 480),
+              child: dropdown,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  // Lightweight top nav button
+  // ignore: unused_element
+  Widget _NavButton({required String label, required bool selected, required VoidCallback onTap}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: selected ? Colors.black.withAlpha(8) : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(selected ? Icons.expand_less : Icons.expand_more, size: 18),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+
+  void _closeNav() => _safeSetState(() => _activeNav = null);
+
+  Widget? _buildNavDropdown() {
+    if (_activeNav == null) return null;
+
+    Widget child;
+    switch (_activeNav!) {
+      case _NavMenu.style:
+        child = _StylePanel(
+          currentMode: _currentMode,
+          diversifyBrands: _diversifyBrands,
+          paletteSize: _paletteSize,
+          onModeChanged: (mode) {
+            _safeSetState(() => _currentMode = mode);
+            _resetFeedToPageZero();
+          },
+          onDiversifyChanged: (value) {
+            _safeSetState(() => _diversifyBrands = value);
+            _resetFeedToPageZero();
+          },
+          onPaletteSizeChanged: (size) {
+            _safeSetState(() {
+              _paletteSize = size.clamp(1, 9);
+              _resizeLocksAndPaletteTo(_paletteSize);
+            });
+            _resetFeedToPageZero();
+          },
+          onDone: _closeNav,
+        );
+        break;
+      case _NavMenu.sort:
+        child = _BrandFilterPanelHost(
+          availableBrands: _availableBrands,
+          selectedBrandIds: _selectedBrandIds,
+          onBrandsSelected: (brands) {
+            _safeSetState(() => _selectedBrandIds = brands);
+            _resetFeedToPageZero();
+          },
+          onDone: _closeNav,
+        );
+        break;
+      case _NavMenu.count:
+        child = _CountPanelHost(
+          paletteSize: _paletteSize,
+          onSizeChanged: (size) {
+            _safeSetState(() {
+              _paletteSize = size;
+              _resizeLocksAndPaletteTo(_paletteSize);
+              if (_visiblePage < _pages.length) {
+                _pages[_visiblePage] = List<Paint>.from(_currentPalette);
+              }
+              if (_visiblePage < _pages.length - 1) {
+                _pages.removeRange(_visiblePage + 1, _pages.length);
+              }
+            });
+            _resetFeedToPageZero();
+          },
+          onDone: _closeNav,
+        );
+        break;
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withAlpha(16), blurRadius: 16, offset: const Offset(0, 6)),
+        ],
+        border: Border.all(color: Colors.black.withAlpha(16)),
+      ),
+      child: child,
+    );
+  }
+
+  // Account menu removed; Count lives in top nav
   void _resetFeedToPageZero() {
     _safeSetState(() {
       _pages.clear();
@@ -1064,25 +1282,68 @@ class _RollerScreenState extends RollerScreenStatePublic {
   }
 
   Widget _buildPaletteView(List<Paint> palette) {
-    return Column(
-      children: List.generate(_paletteSize, (i) {
-        final paint = i < palette.length ? palette[i] : null;
-        final isLocked = i < _lockedStates.length ? _lockedStates[i] : false;
-        return Expanded(
-          child: AnimatedPaintStripe(
-            key: ValueKey(paint?.id ?? 'empty_$i'),
-            paint: paint,
-            previousPaint: null,
-            isLocked: isLocked,
-            isRolling: _isRolling,
-            onTap: () => _toggleLock(i),
-            onSwipeRight: () => _navigateStripForward(i),
-            onSwipeLeft: () => _navigateStripBackward(i),
-            onRefine: () => _showRefineSheet(i),
-            onDelete: _paletteSize > 2 ? () => _removeStripe(i) : null,
-          ),
+  const double overlapPx = 14.0;      // how much each stripe overlaps the next
+  const double bottomRadius = 18.0;   // round ONLY the bottom corners
+  const double bleed = 1.5;           // extend stripes slightly to hide any side gutters/borders
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final n = _paletteSize.clamp(1, 9);
+        // Adjusted height so overlap cancels out and fills the screen
+        final slotHeight = (constraints.maxHeight + overlapPx * (n - 1)) / n;
+
+        // Build bottom → top so the top stripe is rendered last (visually on top).
+        final children = <Widget>[];
+        for (int i = n - 1; i >= 0; i--) {
+          final paint = i < palette.length ? palette[i] : null;
+          final isLocked = i < _lockedStates.length ? _lockedStates[i] : false;
+
+          final double top = i * (slotHeight - overlapPx);
+
+          children.add(Positioned(
+            left: -bleed,
+            right: -bleed,
+            top: top,
+            height: slotHeight,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(bottomRadius),
+                bottomRight: Radius.circular(bottomRadius),
+              ),
+              child: AnimatedPaintStripe(
+                key: ValueKey(paint?.id ?? 'empty_$i'),
+                paint: paint,
+                previousPaint: null,
+                isLocked: isLocked,
+                isRolling: _isRolling,
+                fullBleed: true,
+                onTap: () => _toggleLock(i),
+                onSwipeRight: () => _navigateStripForward(i),
+                onSwipeLeft: () => _navigateStripBackward(i),
+                onRefine: () => _showRefineSheet(i),
+                onDelete: _paletteSize > 2 ? () => _removeStripe(i) : null,
+              ),
+            ),
+          ));
+        }
+
+        // Ensure no white space by painting bottom-most color behind everything
+        final bg = (n - 1 < palette.length) ? palette[n - 1] : null;
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            if (bg != null)
+              Positioned(
+                left: -bleed,
+                right: -bleed,
+                top: 0,
+                bottom: 0,
+                child: Container(color: ColorUtils.hexToColor(bg.hex)),
+              ),
+            ...children,
+          ],
         );
-      }),
+      },
     );
   }
 
@@ -1153,7 +1414,22 @@ class _RollerScreenState extends RollerScreenStatePublic {
         return (locked && i < base.length) ? base[i] : null;
       });
 
-      final rolled = await _rollPaletteAsync(anchors);
+      List<Paint> rolled;
+      try {
+        rolled = await _rollPaletteAsync(anchors);
+      } catch (e, st) {
+        Debug.warning('RollerScreen', '_ensurePage', 'Async roll failed for page $pageIndex: $e');
+        Debug.error('RollerScreen', '_ensurePage', 'Stacktrace: $st');
+        // Fall back to the synchronous generator on the UI thread to ensure we produce a page.
+        rolled = PaletteGenerator.rollPalette(
+          availablePaints: filtered,
+          anchors: anchors,
+          mode: _currentMode,
+          diversifyBrands: _diversifyBrands,
+          fixedUndertones: _fixedElements.map((e) => e.undertone).toList(),
+        );
+      }
+
       final adjusted = _applyAdjustments(rolled);
       final newPage = _displayColorsForCurrentMode(adjusted.take(_paletteSize).toList());
 
@@ -1191,8 +1467,8 @@ class _RollerScreenState extends RollerScreenStatePublic {
           _safeJumpToPage(_visiblePage);
         }
       }
-    } catch (e) {
-      Debug.error('RollerScreen', '_ensurePage', 'Error generating page $pageIndex: $e');
+    } catch (e, st) {
+      Debug.error('RollerScreen', '_ensurePage', 'Error generating page $pageIndex: $e\n$st');
     } finally {
       _generatingPages.remove(pageIndex);
       Debug.info('RollerScreen', '_ensurePage', 'Finished page $pageIndex');
@@ -1305,6 +1581,21 @@ class _StyleOptionTile extends StatelessWidget {
   }
 }
 
+class _TempChip extends StatelessWidget {
+  final String label;
+  final String kind;
+  final void Function(String) onTap;
+  const _TempChip({required this.label, required this.kind, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return ActionChip(
+      label: Text(label),
+      onPressed: () => onTap(kind),
+    );
+  }
+}
+
 class DockItem {
   final ActiveTool tool;
   final IconData icon;
@@ -1319,6 +1610,8 @@ class ToolsDock extends StatefulWidget {
   final Function(ActiveTool?) onSelect;
   final List<DockItem> items;
   final Widget Function(ActiveTool) panelBuilder;
+  // Foreground color for collapsed + icon (to match Paint Detail styling)
+  final Color? color;
 
   final ValueChanged<String>? onTemperatureAction;
   final VoidCallback? onTemperatureBack;
@@ -1333,6 +1626,7 @@ class ToolsDock extends StatefulWidget {
     required this.panelBuilder,
     this.onTemperatureAction,
     this.onTemperatureBack,
+  this.color,
   });
 
   @override
@@ -1442,6 +1736,7 @@ class _ToolsDockState extends State<ToolsDock> with TickerProviderStateMixin {
                   key: const ValueKey('collapsed'),
                   onTap: widget.onToggle,
                   onMeasured: null,
+                  color: widget.color,
                 )
               : (widget.activeTool == ActiveTool.temperature
                   ? _TemperatureRail(
@@ -1471,28 +1766,22 @@ class _ToolsDockState extends State<ToolsDock> with TickerProviderStateMixin {
 class _ToolsCollapsed extends StatelessWidget {
   final VoidCallback onTap;
   final ValueChanged<double>? onMeasured;
-  const _ToolsCollapsed({super.key, required this.onTap, this.onMeasured});
+  final Color? color;
+  const _ToolsCollapsed({super.key, required this.onTap, this.onMeasured, this.color});
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      shape: const StadiumBorder(),
-      elevation: 3,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(999),
-        onTap: onTap,
-        child: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.add, color: Colors.black, size: 20),
-              SizedBox(width: 8),
-              Text('Tools', style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w600)),
-            ],
-          ),
-        ),
+    return Padding(
+      padding: const EdgeInsets.only(right: 4),
+      child: ColrViaIconButton(
+        icon: Icons.add,
+  color: color ?? Colors.black,
+        size: 44,
+        borderRadius: 12,
+        borderWidth: 1.2,
+        style: ColrViaIconButtonStyle.outline,
+        onPressed: onTap,
+        semanticLabel: 'Tools',
       ),
     );
   }
@@ -1889,66 +2178,4 @@ class _CountPanelHost extends StatelessWidget {
   }
 }
 
-class _SharePanelHost extends StatelessWidget {
-  final VoidCallback onShare;
-
-  const _SharePanelHost({required this.onShare});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          Text('Share Palette', style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: onShare,
-              icon: const Icon(Icons.share),
-              label: const Text('Share Now'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SavePanelHost extends StatelessWidget {
-  final String? projectId;
-  final List<Paint> paints;
-  final VoidCallback onSaved;
-  final VoidCallback onCancel;
-
-  const _SavePanelHost({
-    this.projectId,
-    required this.paints,
-    required this.onSaved,
-    required this.onCancel,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (paints.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const Icon(Icons.palette_outlined, size: 48, color: Colors.grey),
-            const SizedBox(height: 16),
-            Text('Roll a palette first.', style: Theme.of(context).textTheme.titleMedium),
-          ],
-        ),
-      );
-    }
-    
-    return SavePalettePanel(
-      projectId: projectId,
-      paints: paints,
-      onSaved: onSaved,
-      onCancel: onCancel,
-    );
-  }
-}
+// Share and Save panels are opened directly via bottom sheets above

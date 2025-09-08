@@ -235,6 +235,7 @@ class AnimatedPaintStripe extends StatefulWidget {
   final VoidCallback? onDelete; // New: explicit delete callback
   final int? index; // New: for drag reordering
   final Function(int oldIndex, int newIndex)? onReorder; // New: drag callback
+  final bool fullBleed; // New: remove side margins/borders for edge-to-edge
 
   const AnimatedPaintStripe({
   super.key,
@@ -249,7 +250,8 @@ class AnimatedPaintStripe extends StatefulWidget {
     this.onRefine,
     this.onDelete,
     this.index,
-    this.onReorder,
+  this.onReorder,
+  this.fullBleed = false,
   });
 
   @override
@@ -518,9 +520,11 @@ class _AnimatedPaintStripeState extends State<AnimatedPaintStripe>
                       : 'Empty color slot',
                   onTap: widget.onTap,
                   child: Container(
-                    margin: _RollerEnhancements.enableRoundedStrips
-                        ? const EdgeInsets.symmetric(horizontal: 8, vertical: 2)
-                        : EdgeInsets.zero,
+                    margin: widget.fullBleed
+                        ? EdgeInsets.zero
+                        : (_RollerEnhancements.enableRoundedStrips
+                            ? const EdgeInsets.symmetric(horizontal: 8, vertical: 2)
+                            : EdgeInsets.zero),
                     decoration: _RollerEnhancements.enableGradientBackdrops
                         ? BoxDecoration(
                             gradient: _createBackdropGradient(color),
@@ -567,12 +571,14 @@ class _AnimatedPaintStripeState extends State<AnimatedPaintStripe>
                               ? BorderRadius.circular(
                                   _RollerEnhancements.stripBorderRadius - 2)
                               : null,
-                          border: _RollerEnhancements.enableSubtleBorders
-                              ? Border.all(
-                                  color: Colors.white.withValues(alpha: 0.3),
-                                  width: 0.5,
-                                )
-                              : null,
+                          border: widget.fullBleed
+                              ? null
+                              : (_RollerEnhancements.enableSubtleBorders
+                                  ? Border.all(
+                                      color: Colors.white.withValues(alpha: 0.3),
+                                      width: 0.5,
+                                    )
+                                  : null),
                         ),
                         child: Stack(
                           children: [
