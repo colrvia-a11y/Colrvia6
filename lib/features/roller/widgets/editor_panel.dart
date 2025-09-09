@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:color_canvas/features/roller/roller_controller.dart';
+import 'package:color_canvas/roller_theme/theme_service.dart';
 
 class EditorPanel extends ConsumerWidget {
   final bool visible;
@@ -162,32 +163,63 @@ class EditorPanel extends ConsumerWidget {
       context: context,
       showDragHandle: true,
       builder: (_) {
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Brand IDs (comma-separated)', style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              TextField(controller: brandsCtrl),
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: () {
-                  final ids = brandsCtrl.text
-                      .split(',')
-                      .map((s) => s.trim())
-                      .where((s) => s.isNotEmpty)
-                      .toSet();
-                  ref.read(rollerControllerProvider.notifier).setFilters(
-                        s.filters.copyWith(brandIds: ids),
-                      );
-                  Navigator.pop(context);
-                },
-                child: const Text('Apply'),
-              ),
-            ],
-          ),
-        );
+        return Consumer(builder: (context, ref, __) {
+          final theme = ref.watch(rollerControllerProvider).valueOrNull?.themeSpec;
+          final labels = ThemeService.instance.themeLabels();
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Theme quick chips
+                Text('Theme', style: Theme.of(context).textTheme.titleSmall),
+                const SizedBox(height: 8),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      for (final m in labels) ...[
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: ChoiceChip(
+                            label: Text(m['label']!),
+                            selected: (m['id'] == 'all' && theme == null) || (theme?.id == m['id']),
+                            onSelected: (_) async {
+                              final id = m['id']!;
+                              await ref.read(rollerControllerProvider.notifier).setThemeById(id == 'all' ? null : id);
+                            },
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Divider(),
+                const SizedBox(height: 12),
+                const Text('Brand IDs (comma-separated)', style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                TextField(controller: brandsCtrl),
+                const SizedBox(height: 16),
+                FilledButton(
+                  onPressed: () {
+                    final ids = brandsCtrl.text
+                        .split(',')
+                        .map((s) => s.trim())
+                        .where((s) => s.isNotEmpty)
+                        .toSet();
+                    ref.read(rollerControllerProvider.notifier).setFilters(
+                          s.filters.copyWith(brandIds: ids),
+                        );
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Apply'),
+                ),
+              ],
+            ),
+          );
+        });
       },
     );
   }

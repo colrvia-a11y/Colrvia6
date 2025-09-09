@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
 import 'package:color_canvas/roller_theme/theme_spec.dart';
+import 'package:color_canvas/roller_theme/theme_service.dart';
 import 'package:color_canvas/features/roller/roller_state.dart';
 import 'package:color_canvas/features/roller/palette_service.dart';
 import 'package:color_canvas/features/roller/paint_repository.dart';
@@ -26,6 +27,7 @@ class RollerController extends AsyncNotifier<RollerState> {
   late final PaintRepository _repo;
   late final PaletteService _service;
   late final FavoritesRepository _favorites;
+  int _epoch = 0; // bump to invalidate in-flight rolls on theme changes
 
   static const bool _enableAlternates = true; // feature flag
   static const int _maxAlternateKeys = 30;
@@ -127,6 +129,8 @@ class RollerController extends AsyncNotifier<RollerState> {
     _repo = ref.read(paintRepositoryProvider);
     _service = ref.read(paletteServiceProvider);
     _favorites = FavoritesRepository();
+  // ensure themes are available for UI and generation
+  await ThemeService.instance.loadFromAssetIfNeeded();
     // eager-load paints so first roll is fast
     await _repo.getAll();
     // seed empty
@@ -148,6 +152,7 @@ class RollerController extends AsyncNotifier<RollerState> {
   }
 
   Future<void> rollNext() async {
+  final startEpoch = _epoch;
     final s0 = state.valueOrNull ?? const RollerState();
     // prevent duplicate work if already generating next page
     final nextIndex = s0.pages.length;
@@ -166,6 +171,11 @@ class RollerController extends AsyncNotifier<RollerState> {
         brandIds: s0.filters.brandIds,
         theme: s0.themeSpec,
       );
+      // brand-only pool for auto-relax fallback
+      final brandOnly = _repo.filterByBrands(
+        await _repo.getAll(),
+        s0.filters.brandIds,
+      );
 
       // anchors come from visible page locks if any
       final anchors = List<Paint?>.filled(5, null);
@@ -182,6 +192,7 @@ class RollerController extends AsyncNotifier<RollerState> {
         diversifyBrands: s0.filters.diversifyBrands,
         fixedUndertones: s0.filters.fixedUndertones,
         themeSpec: s0.themeSpec,
+        availableBrandOnly: brandOnly,
       );
 
       // Sort only if we didn’t anchor any slot (no locks active)
@@ -203,14 +214,14 @@ class RollerController extends AsyncNotifier<RollerState> {
       // maintain visible index if we trimmed
       final newVisible = start > 0 ? (s0.visiblePage - start).clamp(0, trimmed.length - 1) : s0.visiblePage;
 
-      state = AsyncData(
-        s0.copyWith(
-          pages: trimmed,
-          visiblePage: newVisible,
-          status: RollerStatus.idle,
-          generatingPages: {...s0.generatingPages}..remove(nextIndex),
-        ),
-      );
+      // Abort if theme changed mid-flight
+      if (startEpoch != _epoch) return;
+      state = AsyncData(s0.copyWith(
+        pages: trimmed,
+        visiblePage: newVisible,
+        status: RollerStatus.idle,
+        generatingPages: {...s0.generatingPages}..remove(nextIndex),
+      ));
 
       sw.stop();
       final poolSize = pool.length;
@@ -257,6 +268,7 @@ class RollerController extends AsyncNotifier<RollerState> {
   }
 
   Future<void> rerollCurrent({int attempts = 4}) async {
+  final startEpoch = _epoch;
     final s0 = state.valueOrNull;
     if (s0 == null || !s0.hasPages) return;
     final idx = s0.visiblePage;
@@ -273,6 +285,10 @@ class RollerController extends AsyncNotifier<RollerState> {
         brandIds: s0.filters.brandIds,
         theme: s0.themeSpec,
       );
+      final brandOnly = _repo.filterByBrands(
+        await _repo.getAll(),
+        s0.filters.brandIds,
+      );
       final current = s0.currentPage!;
       final anchors = <Paint?>[
         for (var i = 0; i < current.strips.length; i++)
@@ -285,6 +301,7 @@ class RollerController extends AsyncNotifier<RollerState> {
         diversifyBrands: s0.filters.diversifyBrands,
         fixedUndertones: s0.filters.fixedUndertones,
         themeSpec: s0.themeSpec,
+        availableBrandOnly: brandOnly,
         attempts: attempts,
       );
 
@@ -295,6 +312,8 @@ class RollerController extends AsyncNotifier<RollerState> {
   final nextPage = current.copyWith(strips: sorted);
 
       final pages = [...s0.pages]..[idx] = nextPage;
+      // Abort if theme changed mid-flight
+      if (startEpoch != _epoch) return;
       state = AsyncData(s0.copyWith(
         pages: pages,
         status: RollerStatus.idle,
@@ -347,12 +366,17 @@ class RollerController extends AsyncNotifier<RollerState> {
       final sw = Stopwatch()..start();
       final pool = await _repo.getPool(
           brandIds: s0.filters.brandIds, theme: s0.themeSpec);
+      final brandOnly = _repo.filterByBrands(
+        await _repo.getAll(),
+        s0.filters.brandIds,
+      );
       final rolled = await _service.generate(
         available: pool,
         anchors: anchors,
         diversifyBrands: s0.filters.diversifyBrands,
         fixedUndertones: s0.filters.fixedUndertones,
         themeSpec: s0.themeSpec,
+        availableBrandOnly: brandOnly,
       );
 
       final nextStrips = [...current.strips]..[stripIndex] = rolled[stripIndex];
@@ -481,6 +505,38 @@ class RollerController extends AsyncNotifier<RollerState> {
     final s0 = state.valueOrNull ?? const RollerState();
     state = AsyncData(s0.copyWith(themeSpec: spec));
     await rerollCurrent();
+  }
+
+  // New: set theme by id, resetting feed and triggering new roll
+  Future<void> setThemeById(String? id) async {
+    final current = state.valueOrNull ?? const RollerState();
+    final currentId = current.themeSpec?.id;
+    final nextKey = (id ?? 'all');
+    final currKey = (currentId ?? 'all');
+    if (nextKey == currKey) return; // no-op
+
+    // Resolve spec (null for 'all')
+    final spec = (id == null || id == 'all')
+        ? null
+        : ThemeService.instance.byId(id);
+
+    // Reset pages and status; clear alternates
+  _epoch++;
+    _slotAlternates.clear();
+    state = AsyncData(current.copyWith(
+      pages: const [],
+      visiblePage: 0,
+      themeSpec: spec,
+      status: RollerStatus.idle,
+      generatingPages: {},
+      error: null,
+    ));
+
+    // Prewarm pool (brands + theme), then roll first page
+    await _repo.getPool(brandIds: current.filters.brandIds, theme: spec);
+    await rollNext();
+    AnalyticsService.instance
+        .logEvent('theme_selected', {'themeId': spec?.id ?? 'all'});
   }
 
   String _currentKey() {

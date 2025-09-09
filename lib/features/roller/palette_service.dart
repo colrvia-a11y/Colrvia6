@@ -13,7 +13,12 @@ class PaletteService {
     ThemeSpec? themeSpec,
     double? themeThreshold,
     int attempts = 6,
+    List<Paint>? availableBrandOnly,
   }) async {
+    final isThemed = themeSpec != null;
+    final threshold = isThemed ? (themeThreshold ?? 0.6) : themeThreshold;
+    final tries = isThemed ? (attempts == 6 ? 10 : attempts) : attempts;
+
     final args = {
       'available': [for (final p in available) (p.toJson()..['id'] = p.id)],
       'anchors': [for (final p in anchors) (p == null ? null : (p.toJson()..['id'] = p.id))],
@@ -22,8 +27,13 @@ class PaletteService {
       'slotLrvHints': slotLrvHints,
       'fixedUndertones': fixedUndertones,
       'themeSpec': themeSpec?.toJson(),
-      'themeThreshold': themeThreshold,
-      'attempts': attempts,
+      'themeThreshold': threshold,
+      'attempts': tries,
+      // Provide a wider brand-only pool for auto-relax in the isolate.
+      // Callers may pass a distinct brand-only pool via availableBrandOnly; fallback to 'available' otherwise.
+      'availableBrandOnly': [
+        for (final p in (availableBrandOnly ?? available)) (p.toJson()..['id'] = p.id)
+      ],
     };
     final result = await compute(isolate.rollPipelineInIsolate, args);
     return [for (final m in result) Paint.fromJson(m, m['id'] as String)];

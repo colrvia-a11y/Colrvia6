@@ -71,6 +71,7 @@ void main() {
             themeSpec: any(named: 'themeSpec'),
             themeThreshold: any(named: 'themeThreshold'),
             attempts: any(named: 'attempts'),
+            availableBrandOnly: any(named: 'availableBrandOnly'),
           )).thenAnswer((_) async => List.generate(5, (i) => _FakePaint('r$i', '#ABCDEF')));
 
       final ctrl = container.read(rollerControllerProvider.notifier);
@@ -95,6 +96,7 @@ void main() {
             themeSpec: any(named: 'themeSpec'),
             themeThreshold: any(named: 'themeThreshold'),
             attempts: any(named: 'attempts'),
+            availableBrandOnly: any(named: 'availableBrandOnly'),
           )).thenAnswer((inv) async {
         final anchors = inv.namedArguments[#anchors] as List<Paint?>;
         // ignore: avoid_print
@@ -155,6 +157,7 @@ void main() {
             themeSpec: any(named: 'themeSpec'),
             themeThreshold: any(named: 'themeThreshold'),
             attempts: any(named: 'attempts'),
+            availableBrandOnly: any(named: 'availableBrandOnly'),
           )).thenAnswer((_) async => [
             _FakePaint('L0', '#101010'),
             _FakePaint('L1', '#B0B0B0'),

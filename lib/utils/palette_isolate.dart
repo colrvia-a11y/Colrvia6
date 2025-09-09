@@ -129,12 +129,16 @@ List<Paint> _pipeMaybeScoreTheme({
 // ---------- New public entrypoints ----------
 List<Map<String, dynamic>> rollPipelineInIsolate(Map<String, dynamic> argsMap) {
   final args = _PipelineArgs.from(argsMap);
-  final available = _rehydrate(args.available);
+  final themedOrBrandOnly = _rehydrate(args.available);
   final anchors = [for (final m in args.anchors) (m == null ? null : Paint.fromJson(m, m['id'] as String))];
+
+  // Optional wider brand-only pool for auto-relax fallback
+  final brandOnlyRaw = (argsMap['availableBrandOnly'] as List?)?.cast<Map<String, dynamic>>();
+  final brandOnly = brandOnlyRaw == null ? themedOrBrandOnly : _rehydrate(brandOnlyRaw);
 
   if (args.themeSpec == null) {
     final rolled = _pipeRollBase(
-      available: available,
+      available: themedOrBrandOnly,
       anchors: anchors,
       modeIndex: args.modeIndex,
       diversify: args.diversify,
@@ -144,19 +148,52 @@ List<Map<String, dynamic>> rollPipelineInIsolate(Map<String, dynamic> argsMap) {
     return _dehydrate(rolled);
   }
 
+  // Rehydrate ThemeSpec and apply prefilter with auto-relax
   final spec = ThemeSpec.fromJson(args.themeSpec!);
-  final rolled = _pipeMaybeScoreTheme(
-    available: available,
-    anchors: anchors,
-    modeIndex: args.modeIndex,
-    diversify: args.diversify,
-    spec: spec,
-    threshold: args.themeThreshold ?? 0.68,
-    slotLrvHints: args.slotLrvHints ?? ThemeEngine.slotLrvHintsFor(anchors.length, spec),
-    fixedUndertones: args.fixedUndertones,
-    attempts: args.attempts ?? 6,
-  );
-  return _dehydrate(rolled);
+  final pre = ThemeEngine.prefilter(brandOnly, spec);
+  final pool = pre.length < 120 ? brandOnly : pre; // auto-relax if too small
+
+  final maxAttempts = args.attempts ?? 10; // service should default, but enforce here
+  final threshold = args.themeThreshold ?? 0.6;
+
+  double best = -1.0;
+  List<Paint> bestPalette = const [];
+  for (var i = 0; i < maxAttempts; i++) {
+    final rolled = PaletteGenerator.rollPalette(
+      availablePaints: pool,
+      anchors: anchors,
+      mode: HarmonyMode.values[args.modeIndex],
+      diversifyBrands: args.diversify,
+      slotLrvHints: args.slotLrvHints ?? ThemeEngine.slotLrvHintsFor(anchors.length, spec),
+      fixedUndertones: args.fixedUndertones,
+    );
+    final score = ThemeEngine.scorePalette(rolled, spec);
+    if (score > best) {
+      best = score;
+      bestPalette = rolled;
+    }
+    if (score >= threshold) break; // early exit
+  }
+
+  // Logs for visibility
+  try {
+    AnalyticsService.instance.logEvent('theme_roll_summary', {
+      'themeId': spec.id,
+      'attempts': maxAttempts,
+      'bestScore': best,
+      'poolSize': pool.length,
+      'prefilterSize': pre.length,
+    });
+    if (best < threshold) {
+      AnalyticsService.instance.logEvent('theme_roll_low_score', {
+        'themeId': spec.id,
+        'score': best,
+        'explain': ThemeEngine.explain(bestPalette, spec),
+      });
+    }
+  } catch (_) {}
+
+  return _dehydrate(bestPalette);
 }
 
 /// Produce distinct alternates for a single [slotIndex] while keeping other slots fixed.
@@ -202,7 +239,7 @@ List<Map<String, dynamic>> alternatesForSlotInIsolate(Map<String, dynamic> args)
               anchors: anchors,
               modeIndex: 0,
               diversify: diversify,
-              spec: spec!,
+              spec: spec,
               fixedUndertones: fixedUndertones,
               attempts: 2,
             );
