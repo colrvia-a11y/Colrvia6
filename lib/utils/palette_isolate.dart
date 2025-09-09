@@ -104,7 +104,7 @@ List<Map<String, dynamic>> rollPaletteInIsolate(Map<String, dynamic> raw) {
 
   // Prefilter paints by theme
   final prefiltered = ThemeEngine.prefilter(available, spec);
-  final availableForRoll = prefiltered.length < 120 ? available : prefiltered;
+  final availableForRoll = prefiltered.isEmpty ? available : prefiltered;
 
   final maxAttempts = args.attempts ?? 10;
   final threshold = args.themeThreshold ?? 0.6;

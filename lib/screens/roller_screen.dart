@@ -160,23 +160,25 @@ class _RollerScreenState extends RollerScreenStatePublic {
     if (!mounted) return;
     
     final now = DateTime.now();
+    final last = _lastSetStateTime;
     Debug.setState('RollerScreen', '_safeSetState', details: details);
     if (kDebugMode) {
       _setStateCount++;
-      if (_lastSetStateTime != null && now.difference(_lastSetStateTime!).inMilliseconds < 16) {
+      if (last != null && now.difference(last).inMilliseconds < 16) {
         Debug.warning('RollerScreen', '_safeSetState', 'Rapid setState calls detected - count: $_setStateCount');
         if (_setStateCount > 100) {
           Debug.error('RollerScreen', '_safeSetState', 'Potential infinite setState loop detected! Skipping setState.');
           return;
         }
       }
-      _lastSetStateTime = now;
-      if (_setStateCount > 50 && now.difference(_lastSetStateTime!).inSeconds >= 1) {
+      // If it's been a while since the last setState, reset the counter
+      if (_setStateCount > 50 && last != null && now.difference(last).inSeconds >= 1) {
         _setStateCount = 0;
       }
       if (_setStateCount % 50 == 0) {
         Debug.info('RollerScreen', '_safeSetState', 'setState count: $_setStateCount');
       }
+      _lastSetStateTime = now;
     }
     setState(callback);
   }
@@ -660,15 +662,10 @@ class _RollerScreenState extends RollerScreenStatePublic {
     if (_selectedThemeSpec != null) {
       final pre = ThemeEngine.prefilter(filtered, _selectedThemeSpec!);
       if (pre.isNotEmpty) {
-        if (pre.length < 120) {
-          Debug.warning('RollerScreen', '_getFilteredPaints', 'Theme prefilter too tight (${pre.length}) for theme ${_selectedThemeSpec!.id}; falling back to brand-filtered set');
-          try {
-            AnalyticsService.instance.logEvent('theme_prefilter_fallback', {'themeId': _selectedThemeSpec!.id, 'prefilterCount': pre.length});
-          } catch (_) {}
-        } else {
-          filtered = pre;
-          Debug.info('RollerScreen', '_getFilteredPaints', 'Prefiltered by theme -> ${filtered.length}');
-        }
+        filtered = pre;
+        Debug.info('RollerScreen', '_getFilteredPaints', 'Prefiltered by theme -> ${filtered.length}');
+      } else {
+        Debug.warning('RollerScreen', '_getFilteredPaints', 'Theme prefilter empty for ${_selectedThemeSpec!.id}; keeping brand-filtered set (${filtered.length})');
       }
     }
     return filtered;
@@ -1214,6 +1211,9 @@ class _RollerScreenState extends RollerScreenStatePublic {
           final newPalette = _displayColorsForCurrentMode(pageColors);
           if (_currentPalette.length != newPalette.length || !_palettesEqual(_currentPalette, newPalette)) {
             _currentPalette = newPalette;
+            // Keep the stored page in sync with the sorted order to avoid repeated re-sorts
+            _pages[i] = List<Paint>.from(newPalette);
+            _markPaletteUpdated();
           }
         }
         if (_pages.length > 1) {
@@ -1462,7 +1462,13 @@ class _RollerScreenState extends RollerScreenStatePublic {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!_activePaletteCallbacks.remove(callbackId)) return;
           if (mounted) {
-            _safeSetState(() => _currentPalette = sortedPage, details: 'Updated existing page $pageIndex');
+            _safeSetState(() {
+              // Keep the stored page in sync with the sorted display order to avoid repeated updates
+              if (pageIndex < _pages.length) {
+                _pages[pageIndex] = List<Paint>.from(sortedPage);
+              }
+              _currentPalette = sortedPage;
+            }, details: 'Updated existing page $pageIndex');
             _markPaletteUpdated();
           }
         });

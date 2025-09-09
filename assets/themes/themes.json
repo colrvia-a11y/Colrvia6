@@ -4,15 +4,15 @@
       "id": "modern",
       "label": "Modern",
       "aliases": ["contemporary", "modern minimal"],
-      "neutrals": { "L": [70, 95], "C": [0, 10] },
-      "accents":  { "L": [20, 70], "C": [6, 18], "H": [[15,35],[190,230],[340,360],[0,10]] },
+      "neutrals": { "L": [10, 95], "C": [0, 10] },
+      "accents":  { "L": [20, 70], "C": [6, 18], "H": [[0,20],[40,60],[180,240]] },
       "roleTargets": {
         "anchor":    { "L": [72, 92], "C": [0, 8] },
         "secondary": { "L": [65, 85], "C": [0, 10] },
         "accent":    { "L": [30, 60], "C": [8, 16] }
       },
-      "forbiddenHues": [[50, 70]], 
-      "harmonyBias": ["monochrome","neutral-plus-accent","analogous"],
+      "forbiddenHues": [[270, 330]], 
+      "harmonyBias": ["neutral-plus-accent","monochrome"],
       "core_principles": [
         "Use a neutral foundation (white, black, gray) to maintain a clean, open look",
         "Introduce a single bold accent hue to add focus and contrast",
@@ -22,9 +22,9 @@
       "allowed_hue_ranges": [[0,20],[40,60],[180,240]],
       "variety_controls": { "min_colors": 3, "max_colors": 5, "must_include_neutral": true, "must_include_accent": true },
       "weights": {
-        "neutralShare": 0.25,
+        "neutralShare": 0.35,
         "saturationDiscipline": 0.20,
-        "accentContrast": 0.20,
+        "accentContrast": 0.15,
         "harmonyMatch": 0.20,
         "forbiddenHuePenalty": 0.10,
         "accentHueFit": 0.15,
@@ -36,14 +36,14 @@
       "id": "scandinavian_japandi",
       "label": "Scandinavian / Japandi",
       "aliases": ["scandinavian", "japandi", "nordic"],
-      "neutrals": { "L": [78, 96], "C": [0, 8], "H": [30, 90] },
-      "accents":  { "L": [25, 55], "C": [6, 14], "H": [[15,35],[100,150],[340,360],[0,10]] },
+      "neutrals": { "L": [78, 96], "C": [0, 8], "H": [0, 360] },
+      "accents":  { "L": [25, 55], "C": [6, 14], "H": [[0,20],[80,150],[180,220]] },
       "roleTargets": {
         "anchor":    { "L": [82, 95], "C": [0, 8] },
         "secondary": { "L": [74, 90], "C": [0, 10] },
         "accent":    { "L": [30, 50], "C": [6, 12] }
       },
-      "forbiddenHues": [[200, 260]], 
+      "forbiddenHues": [[270, 330]], 
       "harmonyBias": ["neutral-plus-accent","monochrome","analogous"],
       "core_principles": [
         "Keep the palette light, airy, and predominantly neutral (whites, off-whites, light grays)",
@@ -54,7 +54,7 @@
       "allowed_hue_ranges": [[0,20],[80,150],[180,220]],
       "variety_controls": { "min_colors": 3, "max_colors": 4, "must_include_neutral": true, "must_include_accent": false },
       "weights": {
-        "neutralShare": 0.35,
+        "neutralShare": 0.40,
         "saturationDiscipline": 0.25,
         "harmonyMatch": 0.20,
         "warmBias": 0.10,
@@ -68,13 +68,13 @@
       "id": "mid_century_modern",
       "label": "Mid-Century Modern",
       "aliases": ["mcm", "midcentury"],
-      "neutrals": { "L": [60, 90], "C": [0, 12] },
-      "accents":  { "L": [45, 75], "C": [12, 26], "H": [[25,45],[160,190],[5,20],[200,220]] },
+      "neutrals": { "L": [50, 90], "C": [0, 12] },
+      "accents":  { "L": [20, 70], "C": [12, 26], "H": [[340,360],[0,20],[20,45],[50,70],[90,110],[160,190]] },
       "roleTargets": {
         "anchor":    { "L": [65, 85], "C": [0, 10] },
         "accent":    { "L": [50, 70], "C": [14, 24] }
       },
-      "forbiddenHues": [[300, 345]],
+      "forbiddenHues": [[300, 339]],
       "harmonyBias": ["complementary","triad","neutral-plus-accent"],
       "core_principles": [
         "Ground in warm neutrals/wood tones",
@@ -88,11 +88,12 @@
         "harmonyMatch": 0.25,
         "accentContrast": 0.20,
         "saturationDiscipline": 0.15,
-        "neutralShare": 0.15,
+        "neutralShare": 0.20,
         "forbiddenHuePenalty": 0.15,
         "brandDiversity": 0.15,
         "accentHueFit": 0.15,
-        "varietyFitness": 0.10
+        "varietyFitness": 0.10,
+        "warmBias": 0.15
       }
     },
 
@@ -101,13 +102,13 @@
       "label": "Transitional",
       "aliases": ["updated traditional", "new traditional"],
       "neutrals": { "L": [68, 92], "C": [0, 12] },
-      "accents":  { "L": [45, 80], "C": [8, 18], "H": [[20,70],[180,210]] },
+      "accents":  { "L": [40, 80], "C": [8, 18], "H": [[40,70],[80,140],[180,240],[260,290]] },
       "roleTargets": {
         "anchor":    { "L": [70, 88], "C": [0, 10] },
         "secondary": { "L": [64, 84], "C": [0, 12] },
         "accent":    { "L": [50, 75], "C": [8, 16] }
       },
-      "forbiddenHues": [[0,10],[330,360]],
+      "forbiddenHues": [[0,30],[300,330]],
       "harmonyBias": ["neutral-plus-accent","analogous","monochrome"],
       "core_principles": [
         "Timeless neutral base (white/ivory/beige/greige/gray)",
@@ -119,12 +120,13 @@
       "variety_controls": { "min_colors": 3, "max_colors": 5, "must_include_neutral": true, "must_include_accent": false },
       "weights": {
         "neutralShare": 0.30,
-        "saturationDiscipline": 0.20,
+        "saturationDiscipline": 0.25,
         "harmonyMatch": 0.20,
         "accentContrast": 0.10,
         "forbiddenHuePenalty": 0.15,
         "accentHueFit": 0.10,
-        "varietyFitness": 0.10
+        "varietyFitness": 0.10,
+        "warmBias": 0.10
       }
     },
 
@@ -132,13 +134,13 @@
       "id": "traditional",
       "label": "Traditional",
       "aliases": ["classic", "heritage"],
-      "neutrals": { "L": [62, 90], "C": [0, 12], "H": [30, 90] },
-      "accents":  { "L": [25, 60], "C": [10, 22], "H": [[350,360],[0,20],[200,240],[110,150]] },
+      "neutrals": { "L": [55, 90], "C": [0, 12], "H": [30, 90] },
+      "accents":  { "L": [25, 60], "C": [10, 22], "H": [[340,360],[0,20],[30,50],[100,140],[200,240],[280,300]] },
       "roleTargets": {
         "anchor":    { "L": [65, 85], "C": [0, 10] },
         "accent":    { "L": [30, 55], "C": [10, 20] }
       },
-      "forbiddenHues": [[60, 90]], 
+      "forbiddenHues": [[60, 90],[320,339]], 
       "harmonyBias": ["complementary","neutral-plus-accent","analogous"],
       "core_principles": [
         "Favor warm, classic hues; layer deep accents",
@@ -149,13 +151,14 @@
       "allowed_hue_ranges": [[0,20],[340,360],[30,50],[100,140],[200,240]],
       "variety_controls": { "min_colors": 3, "max_colors": 5, "must_include_neutral": true, "must_include_accent": true },
       "weights": {
-        "neutralShare": 0.20,
+        "neutralShare": 0.25,
         "saturationDiscipline": 0.20,
         "accentContrast": 0.20,
         "harmonyMatch": 0.20,
         "forbiddenHuePenalty": 0.20,
         "accentHueFit": 0.10,
-        "varietyFitness": 0.10
+        "varietyFitness": 0.10,
+        "warmBias": 0.20
       }
     },
 
@@ -163,14 +166,14 @@
       "id": "farmhouse_cottage",
       "label": "Farmhouse & Cottage",
       "aliases": ["modern farmhouse","cottagecore","farmhouse"],
-      "neutrals": { "L": [78, 93], "C": [0, 10], "H": [30, 90] },
-      "accents":  { "L": [35, 85], "C": [6, 20], "H": [[100,150],[330,355],[0,10],[340,360]] },
+      "neutrals": { "L": [60, 96], "C": [0, 10], "H": [30, 90] },
+      "accents":  { "L": [35, 85], "C": [6, 20], "H": [[40,70],[80,120],[180,210],[250,290]] },
       "roleTargets": {
         "anchor":    { "L": [78, 93], "C": [0, 10] },
         "secondary": { "L": [70, 88], "C": [0, 12] },
         "accent":    { "L": [40, 75], "C": [6, 18] }
       },
-      "forbiddenHues": [[190, 220]],
+      "forbiddenHues": [[0,20],[330,360]],
       "harmonyBias": ["neutral-plus-accent","analogous"],
       "core_principles": [
         "Light, bright neutral base (white/cream)",
@@ -183,7 +186,7 @@
       "weights": {
         "neutralShare": 0.30,
         "warmBias": 0.15,
-        "saturationDiscipline": 0.20,
+        "saturationDiscipline": 0.25,
         "accentContrast": 0.10,
         "forbiddenHuePenalty": 0.15,
         "harmonyMatch": 0.10,
@@ -196,11 +199,11 @@
       "id": "coastal",
       "label": "Coastal",
       "aliases": ["seaside","beachy"],
-      "neutrals": { "L": [82, 96], "C": [0, 8] },
-      "accents":  { "L": [60, 85], "C": [10, 24], "H": [170, 210] },
+      "neutrals": { "L": [75, 96], "C": [0, 8] },
+      "accents":  { "L": [30, 85], "C": [10, 24], "H": [[80,140],[160,240],[30,50]] },
       "roleTargets": {
         "anchor": { "L": [82, 95], "C": [0, 8] },
-        "accent": { "L": [60, 85], "C": [10, 24], "H": [170, 210] }
+        "accent": { "L": [20, 85], "C": [10, 24], "H": [170, 210] }
       },
       "forbiddenHues": [[0, 20], [300, 360]],
       "harmonyBias": ["analogous","split-complement","neutral-plus-accent"],
@@ -210,12 +213,12 @@
         "Optional tiny warm accent (coral/peach/yellow)",
         "Cool-dominant vibe; moderate contrast (navy anchor optional)"
       ],
-      "allowed_hue_ranges": [[180,210],[210,240],[160,180],[80,140],[30,50]],
+      "allowed_hue_ranges": [[80,140],[160,240],[30,50]],
       "variety_controls": { "min_colors": 3, "max_colors": 5, "must_include_neutral": true, "must_include_accent": true },
       "weights": {
         "neutralShare": 0.20,
         "coolBias": 0.25,
-        "accentContrast": 0.10,
+        "accentContrast": 0.20,
         "saturationDiscipline": 0.20,
         "harmonyMatch": 0.20,
         "forbiddenHuePenalty": 0.10,
@@ -228,15 +231,15 @@
       "id": "bohemian_eclectic",
       "label": "Bohemian (Eclectic)",
       "aliases": ["bohemian","boho","eclectic"],
-      "neutrals": { "L": [55, 85], "C": [8, 20], "H": [20, 70] },
-      "accents":  { "L": [35, 80], "C": [12, 28], "H": [[140,160],[170,200],[300,330]] },
+  "neutrals": { "L": [10, 90], "C": [0, 12] },
+  "accents":  { "L": [30, 80], "C": [12, 28] },
       "roleTargets": {
         "anchor": { "L": [60, 85], "C": [8, 18] },
         "accent": { "L": [40, 70], "C": [12, 26] }
       },
       "forbiddenHues": [],
       "harmonyBias": ["triad","analogous","neutral-plus-accent"],
-      "weights": { "neutralShare": 0.10, "warmBias": 0.15, "saturationDiscipline": 0.15, "accentContrast": 0.20, "harmonyMatch": 0.25, "brandDiversity": 0.15 }
+  "weights": { "neutralShare": 0.10, "warmBias": 0.15, "saturationDiscipline": 0.20, "accentContrast": 0.20, "harmonyMatch": 0.25, "brandDiversity": 0.15 }
     },
 
     {
