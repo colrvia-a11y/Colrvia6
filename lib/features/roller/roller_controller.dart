@@ -7,6 +7,12 @@ import 'package:color_canvas/features/roller/roller_state.dart';
 import 'package:color_canvas/features/roller/palette_service.dart';
 import 'package:color_canvas/features/roller/paint_repository.dart';
 import 'package:color_canvas/features/favorites/favorites_repository.dart';
+import 'package:color_canvas/services/analytics_service.dart';
+
+final paintRepositoryProvider =
+    Provider<PaintRepository>((ref) => PaintRepository());
+final paletteServiceProvider =
+    Provider<PaletteService>((ref) => PaletteService());
 
 final rollerControllerProvider =
     AsyncNotifierProvider<RollerController, RollerState>(RollerController.new);
@@ -31,13 +37,20 @@ class RollerController extends AsyncNotifier<RollerState> {
 
   @override
   Future<RollerState> build() async {
-    _repo = PaintRepository();
-    _service = PaletteService();
+    _repo = ref.read(paintRepositoryProvider);
+    _service = ref.read(paletteServiceProvider);
     _favorites = FavoritesRepository();
     // eager-load paints so first roll is fast
     await _repo.getAll();
     // seed empty
     return const RollerState(status: RollerStatus.idle);
+  }
+
+  void clearError() {
+    final s0 = state.valueOrNull ?? const RollerState();
+    if (s0.status == RollerStatus.error || s0.error != null) {
+      state = AsyncData(s0.copyWith(status: RollerStatus.idle, error: null));
+    }
   }
 
   Future<void> initIfNeeded() async {
@@ -107,6 +120,11 @@ class RollerController extends AsyncNotifier<RollerState> {
         ),
       );
 
+      AnalyticsService.instance.logEvent('roll_next', {
+        'pageCount': trimmed.length,
+        'visible': newVisible,
+      });
+
       // prefetch one ahead
       if (trimmed.length - 1 - newVisible <= 1) {
         // don't await
@@ -141,33 +159,47 @@ class RollerController extends AsyncNotifier<RollerState> {
       status: RollerStatus.rolling,
     ));
 
-    final pool = await _repo.getPool(
-      brandIds: s0.filters.brandIds,
-      theme: s0.themeSpec,
-    );
-    final current = s0.currentPage!;
-    final anchors = <Paint?>[
-      for (var i = 0; i < current.strips.length; i++)
-        current.locks[i] ? current.strips[i] : null
-    ];
+    try {
+      final pool = await _repo.getPool(
+        brandIds: s0.filters.brandIds,
+        theme: s0.themeSpec,
+      );
+      final current = s0.currentPage!;
+      final anchors = <Paint?>[
+        for (var i = 0; i < current.strips.length; i++)
+          current.locks[i] ? current.strips[i] : null
+      ];
 
-    final rolled = await _service.generate(
-      available: pool,
-      anchors: anchors,
-      diversifyBrands: s0.filters.diversifyBrands,
-      fixedUndertones: s0.filters.fixedUndertones,
-      themeSpec: s0.themeSpec,
-      attempts: attempts,
-    );
+      final rolled = await _service.generate(
+        available: pool,
+        anchors: anchors,
+        diversifyBrands: s0.filters.diversifyBrands,
+        fixedUndertones: s0.filters.fixedUndertones,
+        themeSpec: s0.themeSpec,
+        attempts: attempts,
+      );
 
-    final nextPage = current.copyWith(strips: rolled);
+      final nextPage = current.copyWith(strips: rolled);
 
-    final pages = [...s0.pages]..[idx] = nextPage;
-    state = AsyncData(s0.copyWith(
-      pages: pages,
-      status: RollerStatus.idle,
-      generatingPages: {...s0.generatingPages}..remove(idx),
-    ));
+      final pages = [...s0.pages]..[idx] = nextPage;
+      state = AsyncData(s0.copyWith(
+        pages: pages,
+        status: RollerStatus.idle,
+        generatingPages: {...s0.generatingPages}..remove(idx),
+      ));
+
+      AnalyticsService.instance.logEvent('reroll_current', {
+        'pageIndex': idx,
+      });
+    } catch (e) {
+      state = AsyncData(
+        (state.valueOrNull ?? const RollerState()).copyWith(
+          status: RollerStatus.error,
+          error: e.toString(),
+          generatingPages: {},
+        ),
+      );
+    }
   }
 
   Future<void> rerollStrip(int stripIndex) async {
@@ -185,23 +217,37 @@ class RollerController extends AsyncNotifier<RollerState> {
       status: RollerStatus.rolling,
     ));
 
-    final pool = await _repo.getPool(brandIds: s0.filters.brandIds, theme: s0.themeSpec);
-    final rolled = await _service.generate(
-      available: pool,
-      anchors: anchors,
-      diversifyBrands: s0.filters.diversifyBrands,
-      fixedUndertones: s0.filters.fixedUndertones,
-      themeSpec: s0.themeSpec,
-    );
+    try {
+      final pool = await _repo.getPool(
+          brandIds: s0.filters.brandIds, theme: s0.themeSpec);
+      final rolled = await _service.generate(
+        available: pool,
+        anchors: anchors,
+        diversifyBrands: s0.filters.diversifyBrands,
+        fixedUndertones: s0.filters.fixedUndertones,
+        themeSpec: s0.themeSpec,
+      );
 
-    final nextStrips = [...current.strips]..[stripIndex] = rolled[stripIndex];
-    final pages = [...s0.pages]..[idx] = current.copyWith(strips: nextStrips);
+      final nextStrips = [...current.strips]..[stripIndex] = rolled[stripIndex];
+      final pages = [...s0.pages]..[idx] = current.copyWith(strips: nextStrips);
 
-    state = AsyncData(s0.copyWith(
-      pages: pages,
-      status: RollerStatus.idle,
-      generatingPages: {...s0.generatingPages}..remove(idx),
-    ));
+      state = AsyncData(s0.copyWith(
+        pages: pages,
+        status: RollerStatus.idle,
+        generatingPages: {...s0.generatingPages}..remove(idx),
+      ));
+
+      AnalyticsService.instance
+          .logEvent('reroll_strip', {'strip': stripIndex});
+    } catch (e) {
+      state = AsyncData(
+        (state.valueOrNull ?? const RollerState()).copyWith(
+          status: RollerStatus.error,
+          error: e.toString(),
+          generatingPages: {},
+        ),
+      );
+    }
   }
 
   Future<void> _primeAlternatesForVisible() async {
@@ -247,6 +293,8 @@ class RollerController extends AsyncNotifier<RollerState> {
     final nextStrips = [...page.strips]..[i] = next;
     final pages = [...s0.pages]..[idx] = page.copyWith(strips: nextStrips);
     state = AsyncData(s0.copyWith(pages: pages));
+    AnalyticsService.instance
+        .logEvent('alternate_applied', {'strip': i});
   }
 
   void toggleLock(int stripIndex) {
@@ -259,6 +307,8 @@ class RollerController extends AsyncNotifier<RollerState> {
     newLocks[stripIndex] = !newLocks[stripIndex];
     final pages = [...s0.pages]..[idx] = page.copyWith(locks: newLocks);
     state = AsyncData(s0.copyWith(pages: pages));
+    AnalyticsService.instance.logEvent(
+        'toggle_lock', {'strip': stripIndex, 'locked': newLocks[stripIndex]});
   }
 
   void unlockAll() {
