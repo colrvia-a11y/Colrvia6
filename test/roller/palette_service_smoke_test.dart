@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:color_canvas/features/roller/palette_service.dart';
 import 'package:color_canvas/features/roller/paint_repository.dart';
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
+import 'package:color_canvas/utils/palette_generator.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -17,9 +18,9 @@ void main() {
       available: all,
       anchors: anchors,
       diversifyBrands: true,
+      mode: HarmonyMode.colrvia,
     );
     expect(out.length, 5);
     expect(out.first.id, anchors[0]!.id);
   }, timeout: const Timeout(Duration(seconds: 30)));
 }
-

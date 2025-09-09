@@ -47,8 +47,7 @@ class AiService {
     };
 
     try {
-      _logger.info(
-          'Calling generateColorPlan with parameters: $parameters');
+      _logger.info('Calling generateColorPlan with parameters: $parameters');
 
       final res =
           await _f.httpsCallable('generateColorPlanV1').call(parameters);
@@ -69,8 +68,8 @@ class AiService {
       // Note: Server returns 'docId' field, not 'storyId'
       String? storyId = data['docId'] as String?;
 
-      _logger.info(
-          'Extracted storyId: "$storyId" (type: ${storyId.runtimeType})');
+      _logger
+          .info('Extracted storyId: "$storyId" (type: ${storyId.runtimeType})');
       _logger.info('Available keys in response: ${data.keys.toList()}');
 
       if (storyId == null || storyId.isEmpty) {
@@ -85,8 +84,7 @@ class AiService {
       _logger.severe('generateColorStory error: $e');
       _logger.severe('generateColorStory error type: ${e.runtimeType}');
       if (e is Exception) {
-        _logger.severe(
-            'generateColorStory exception details: ${e.toString()}');
+        _logger.severe('generateColorStory exception details: ${e.toString()}');
       }
 
       // Handle Firebase Functions specific errors

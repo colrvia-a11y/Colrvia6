@@ -26,4 +26,3 @@ class HouseFlow {
         'edges': edges.map((e) => e.toJson()).toList(),
       };
 }
-

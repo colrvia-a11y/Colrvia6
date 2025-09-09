@@ -4,4 +4,3 @@ enum LiveTalkConnectionState {
   connected,
   error,
 }
-

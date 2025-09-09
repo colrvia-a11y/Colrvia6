@@ -40,8 +40,8 @@ class FancyPaintTile extends StatefulWidget {
 class _FancyPaintTileState extends State<FancyPaintTile> {
   final GlobalKey _tileKey = GlobalKey();
 
-  bool _peeked = false;       // overlay shown
-  bool _hovered = false;      // desktop hover lift
+  bool _peeked = false; // overlay shown
+  bool _hovered = false; // desktop hover lift
   Timer? _peekTimer;
 
   // Parallax tilt (radians)
@@ -79,8 +79,8 @@ class _FancyPaintTileState extends State<FancyPaintTile> {
     final dx = (local.dx / size.width) * 2 - 1;
     final dy = (local.dy / size.height) * 2 - 1;
     setState(() {
-      _tiltY = dx * _kMaxTilt;   // left/right → rotateY
-      _tiltX = -dy * _kMaxTilt;  // up/down   → rotateX (invert feels natural)
+      _tiltY = dx * _kMaxTilt; // left/right → rotateY
+      _tiltX = -dy * _kMaxTilt; // up/down   → rotateX (invert feels natural)
     });
   }
 
@@ -216,12 +216,14 @@ class _FancyPaintTileState extends State<FancyPaintTile> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 6),
                                   decoration: BoxDecoration(
                                     color: Colors.black.withValues(alpha: 0.45),
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
-                                      color: Colors.white.withValues(alpha: 0.15),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.15),
                                     ),
                                   ),
                                   child: Text(
@@ -258,9 +260,11 @@ class _FancyPaintTileState extends State<FancyPaintTile> {
                             color: Colors.black.withValues(alpha: 0.35),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Icon(Icons.check_circle, size: 18, color: theme.colorScheme.inversePrimary),
-                          ),
+                          child: Icon(Icons.check_circle,
+                              size: 18,
+                              color: theme.colorScheme.inversePrimary),
                         ),
+                      ),
                     if (widget.onQuickRoller != null)
                       Positioned(
                         top: 8,
@@ -271,14 +275,18 @@ class _FancyPaintTileState extends State<FancyPaintTile> {
                           child: TextButton.icon(
                             style: TextButton.styleFrom(
                               foregroundColor: Colors.white,
-                              backgroundColor: Colors.black.withValues(alpha: 0.35),
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              backgroundColor:
+                                  Colors.black.withValues(alpha: 0.35),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 6),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
                               visualDensity: VisualDensity.compact,
                             ),
                             onPressed: widget.onQuickRoller,
                             icon: const Icon(Icons.colorize, size: 16),
-                            label: const Text('Roll', overflow: TextOverflow.fade),
+                            label:
+                                const Text('Roll', overflow: TextOverflow.fade),
                           ),
                         ),
                       ),

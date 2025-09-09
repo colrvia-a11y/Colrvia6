@@ -101,8 +101,10 @@ class _FeaturesScreenState extends State<FeaturesScreen>
           Text(
             'Choose which paint brands to include in your palette generation',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.7),
                 ),
           ),
           const SizedBox(height: 32),
@@ -118,7 +120,10 @@ class _FeaturesScreenState extends State<FeaturesScreen>
                   .withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.2),
               ),
             ),
             child: Row(
@@ -213,7 +218,10 @@ class _FeaturesScreenState extends State<FeaturesScreen>
               ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                color: Theme.of(context)
+                    .colorScheme
+                    .outline
+                    .withValues(alpha: 0.2),
               ),
             ),
             child: Column(
@@ -290,7 +298,10 @@ class _FeaturesScreenState extends State<FeaturesScreen>
                         tileColor: isSelected
                             ? Theme.of(
                                 context,
-                              ).colorScheme.primaryContainer.withValues(alpha: 0.3)
+                              )
+                                .colorScheme
+                                .primaryContainer
+                                .withValues(alpha: 0.3)
                             : Colors.transparent,
                       );
                     },
@@ -322,8 +333,10 @@ class _FeaturesScreenState extends State<FeaturesScreen>
           Text(
             'Choose how colors in your palette relate to each other',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.7),
                 ),
           ),
           const SizedBox(height: 32),
@@ -339,7 +352,10 @@ class _FeaturesScreenState extends State<FeaturesScreen>
                   .withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.2),
               ),
             ),
             child: Row(
@@ -421,8 +437,10 @@ class _FeaturesScreenState extends State<FeaturesScreen>
           Text(
             'Adjust the number of colors in your palette (1-5 colors)',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.7),
                 ),
           ),
           const SizedBox(height: 32),
@@ -438,7 +456,10 @@ class _FeaturesScreenState extends State<FeaturesScreen>
                   .withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                color: Theme.of(context)
+                    .colorScheme
+                    .outline
+                    .withValues(alpha: 0.2),
               ),
             ),
             child: Column(
@@ -596,8 +617,10 @@ class _FeaturesScreenState extends State<FeaturesScreen>
           Text(
             'Save your current palette to your library for future use',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.7),
                 ),
           ),
           const SizedBox(height: 32),
@@ -613,7 +636,10 @@ class _FeaturesScreenState extends State<FeaturesScreen>
                   .withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                color: Theme.of(context)
+                    .colorScheme
+                    .outline
+                    .withValues(alpha: 0.2),
               ),
             ),
             child: Column(
@@ -730,6 +756,8 @@ class _FeaturesScreenState extends State<FeaturesScreen>
     switch (mode) {
       case HarmonyMode.neutral:
         return 'Neutral';
+      case HarmonyMode.colrvia:
+        return 'ColrVia';
       case HarmonyMode.analogous:
         return 'Analogous';
       case HarmonyMode.complementary:
@@ -745,6 +773,8 @@ class _FeaturesScreenState extends State<FeaturesScreen>
     switch (mode) {
       case HarmonyMode.neutral:
         return 'Calm, balanced colors that work well together';
+      case HarmonyMode.colrvia:
+        return 'ColrVia universal recipe: broadly harmonious palettes';
       case HarmonyMode.analogous:
         return 'Colors that are next to each other on the color wheel';
       case HarmonyMode.complementary:
@@ -857,6 +887,8 @@ class _HarmonyModeOption extends StatelessWidget {
     switch (mode) {
       case HarmonyMode.neutral:
         return 'Neutral';
+      case HarmonyMode.colrvia:
+        return 'ColrVia';
       case HarmonyMode.analogous:
         return 'Analogous';
       case HarmonyMode.complementary:
@@ -872,6 +904,8 @@ class _HarmonyModeOption extends StatelessWidget {
     switch (mode) {
       case HarmonyMode.neutral:
         return 'Calm, balanced colors that work well together';
+      case HarmonyMode.colrvia:
+        return 'ColrVia universal recipe: broadly harmonious palettes';
       case HarmonyMode.analogous:
         return 'Colors that are next to each other on the color wheel';
       case HarmonyMode.complementary:

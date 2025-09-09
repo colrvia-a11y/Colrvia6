@@ -20,9 +20,9 @@ class InterviewVoiceScreen extends StatefulWidget {
 class _InterviewVoiceScreenState extends State<InterviewVoiceScreen>
     with SingleTickerProviderStateMixin {
   late final LiveTalkService _talk = LiveTalkService.instance;
-  late final AnimationController _pulse =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 800))
-        ..repeat(reverse: true);
+  late final AnimationController _pulse = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 800))
+    ..repeat(reverse: true);
 
   StreamSubscription<String>? _partialSub;
   StreamSubscription<String>? _finalSub;
@@ -67,7 +67,9 @@ class _InterviewVoiceScreenState extends State<InterviewVoiceScreen>
     final rec = _recorder;
     await _talk.disconnect();
     if (rec != null) {
-      try { await rec.stopAndPersist(); } catch (_) {}
+      try {
+        await rec.stopAndPersist();
+      } catch (_) {}
     }
     if (mounted) Navigator.of(context).maybePop();
   }
@@ -110,9 +112,13 @@ class _InterviewVoiceScreenState extends State<InterviewVoiceScreen>
       canPop: true,
       onPopInvokedWithResult: (didPop, result) async {
         final rec = _recorder;
-        try { await _talk.disconnect(); } catch (_) {}
+        try {
+          await _talk.disconnect();
+        } catch (_) {}
         if (rec != null) {
-          try { await rec.stopAndPersist(); } catch (_) {}
+          try {
+            await rec.stopAndPersist();
+          } catch (_) {}
         }
       },
       child: Scaffold(
@@ -153,12 +159,19 @@ class _InterviewVoiceScreenState extends State<InterviewVoiceScreen>
                               return Align(
                                 alignment: Alignment.center,
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.15),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondary
+                                        .withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(999),
                                     border: Border.all(
-                                      color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.35),
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary
+                                          .withValues(alpha: 0.35),
                                     ),
                                   ),
                                   child: Text(
@@ -190,7 +203,10 @@ class _InterviewVoiceScreenState extends State<InterviewVoiceScreen>
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Material(
-                      color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.25),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .errorContainer
+                          .withValues(alpha: 0.25),
                       borderRadius: BorderRadius.circular(12),
                       child: Padding(
                         padding: const EdgeInsets.all(12),
@@ -199,7 +215,8 @@ class _InterviewVoiceScreenState extends State<InterviewVoiceScreen>
                           children: [
                             const Padding(
                               padding: EdgeInsets.only(top: 2),
-                              child: Icon(Icons.error_outline, color: Colors.redAccent),
+                              child: Icon(Icons.error_outline,
+                                  color: Colors.redAccent),
                             ),
                             const SizedBox(width: 8),
                             Expanded(
@@ -208,17 +225,24 @@ class _InterviewVoiceScreenState extends State<InterviewVoiceScreen>
                                 children: [
                                   Text(
                                     title,
-                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
                                           fontWeight: FontWeight.w600,
                                         ),
                                   ),
                                   const SizedBox(height: 2),
-                                  Text(desc, style: Theme.of(context).textTheme.bodySmall),
+                                  Text(desc,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall),
                                   const SizedBox(height: 8),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      if (LiveTalkErrorMessages.showOpenSettings(err))
+                                      if (LiveTalkErrorMessages
+                                          .showOpenSettings(err))
                                         TextButton(
                                           onPressed: () {
                                             openAppSettings();
@@ -276,7 +300,10 @@ class _InterviewVoiceScreenState extends State<InterviewVoiceScreen>
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest
+                        .withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -285,22 +312,28 @@ class _InterviewVoiceScreenState extends State<InterviewVoiceScreen>
                       Expanded(
                         child: ListView.builder(
                           reverse: true,
-                          itemCount: _assistantTurns.length + (_partial.isNotEmpty ? 1 : 0),
+                          itemCount: _assistantTurns.length +
+                              (_partial.isNotEmpty ? 1 : 0),
                           itemBuilder: (context, index) {
                             if (_partial.isNotEmpty && index == 0) {
                               return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 6),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 6),
                                 child: Text(
                                   _partial,
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyMedium
-                                      ?.copyWith(color: Colors.grey[700], fontStyle: FontStyle.italic),
+                                      ?.copyWith(
+                                          color: Colors.grey[700],
+                                          fontStyle: FontStyle.italic),
                                 ),
                               );
                             }
-                            final turnIndex = _partial.isNotEmpty ? index - 1 : index;
-                            final text = _assistantTurns.reversed.elementAt(turnIndex);
+                            final turnIndex =
+                                _partial.isNotEmpty ? index - 1 : index;
+                            final text =
+                                _assistantTurns.reversed.elementAt(turnIndex);
                             return _AssistantBubble(text: text);
                           },
                         ),
@@ -310,7 +343,8 @@ class _InterviewVoiceScreenState extends State<InterviewVoiceScreen>
                       SizedBox(
                         height: 1,
                         width: 1,
-                        child: RTCVideoView(_talk.remoteRenderer, mirror: false),
+                        child:
+                            RTCVideoView(_talk.remoteRenderer, mirror: false),
                       ),
                     ],
                   ),
@@ -323,7 +357,8 @@ class _InterviewVoiceScreenState extends State<InterviewVoiceScreen>
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   TextButton.icon(
-                    icon: const Icon(Icons.stop_circle_outlined, color: Colors.red),
+                    icon: const Icon(Icons.stop_circle_outlined,
+                        color: Colors.red),
                     label: const Text('Stop'),
                     onPressed: _endCall,
                   ),
@@ -334,8 +369,11 @@ class _InterviewVoiceScreenState extends State<InterviewVoiceScreen>
                       final color = muted
                           ? Colors.grey.shade400
                           : Theme.of(context).colorScheme.primary;
-                      final icon = muted ? Icons.mic_off_rounded : Icons.mic_rounded;
-                      final label = muted ? 'Tap to unmute\nHold to talk' : 'Tap to mute\nHold to talk';
+                      final icon =
+                          muted ? Icons.mic_off_rounded : Icons.mic_rounded;
+                      final label = muted
+                          ? 'Tap to unmute\nHold to talk'
+                          : 'Tap to mute\nHold to talk';
                       return Column(
                         children: [
                           GestureDetector(
@@ -388,7 +426,8 @@ class _AssistantBubble extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.12),
+          color:
+              Theme.of(context).colorScheme.secondary.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(text),

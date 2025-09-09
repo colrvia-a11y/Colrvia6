@@ -1,26 +1,27 @@
 part of 'example.dart';
 
 class CreateColorPaletteVariablesBuilder {
-  
   final FirebaseDataConnect _dataConnect;
-  CreateColorPaletteVariablesBuilder(this._dataConnect, );
-  Deserializer<CreateColorPaletteData> dataDeserializer = (dynamic json)  => CreateColorPaletteData.fromJson(jsonDecode(json));
-  
+  CreateColorPaletteVariablesBuilder(
+    this._dataConnect,
+  );
+  Deserializer<CreateColorPaletteData> dataDeserializer =
+      (dynamic json) => CreateColorPaletteData.fromJson(jsonDecode(json));
+
   Future<OperationResult<CreateColorPaletteData, void>> execute() {
     return ref().execute();
   }
 
   MutationRef<CreateColorPaletteData, void> ref() {
-    
-    return _dataConnect.mutation("CreateColorPalette", dataDeserializer, emptySerializer, null);
+    return _dataConnect.mutation(
+        "CreateColorPalette", dataDeserializer, emptySerializer, null);
   }
 }
 
 class CreateColorPaletteColorPaletteInsert {
   String id;
-  CreateColorPaletteColorPaletteInsert.fromJson(dynamic json):
-  
-  id = nativeFromJson<String>(json['id']);
+  CreateColorPaletteColorPaletteInsert.fromJson(dynamic json)
+      : id = nativeFromJson<String>(json['id']);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -35,9 +36,9 @@ class CreateColorPaletteColorPaletteInsert {
 
 class CreateColorPaletteData {
   CreateColorPaletteColorPaletteInsert colorPalette_insert;
-  CreateColorPaletteData.fromJson(dynamic json):
-  
-  colorPalette_insert = CreateColorPaletteColorPaletteInsert.fromJson(json['colorPalette_insert']);
+  CreateColorPaletteData.fromJson(dynamic json)
+      : colorPalette_insert = CreateColorPaletteColorPaletteInsert.fromJson(
+            json['colorPalette_insert']);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -49,4 +50,3 @@ class CreateColorPaletteData {
     required this.colorPalette_insert,
   });
 }
-

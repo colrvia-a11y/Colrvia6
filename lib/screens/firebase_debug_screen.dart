@@ -26,12 +26,12 @@ class _FirebaseDebugScreenState extends State<FirebaseDebugScreen> {
       await Firebase.initializeApp(
         options: FirebaseConfig.options,
       );
-      
+
       setState(() {
         _status = 'Firebase initialized successfully';
         _details = 'Project ID: ${Firebase.app().options.projectId}\n'
-                  'App ID: ${Firebase.app().options.appId}\n'
-                  'API Key: ${Firebase.app().options.apiKey.substring(0, 20)}...';
+            'App ID: ${Firebase.app().options.appId}\n'
+            'API Key: ${Firebase.app().options.apiKey.substring(0, 20)}...';
       });
 
       // Test FirebaseAuth

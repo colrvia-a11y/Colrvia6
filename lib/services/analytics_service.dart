@@ -6,11 +6,18 @@ class AnalyticsService {
   AnalyticsService._();
   static final AnalyticsService instance = AnalyticsService._();
 
-  List<Map<String, dynamic>> get recentEvents => const []; // TODO: Implement event storage for diagnostics
+  List<Map<String, dynamic>> get recentEvents =>
+      const []; // TODO: Implement event storage for diagnostics
 
   void logEvent(String name, [Map<String, Object?> params = const {}]) {
     try {
-      dev.log('analytics:$name', name: 'analytics', error: null, stackTrace: null, sequenceNumber: null, time: DateTime.now(), zone: null);
+      dev.log('analytics:$name',
+          name: 'analytics',
+          error: null,
+          stackTrace: null,
+          sequenceNumber: null,
+          time: DateTime.now(),
+          zone: null);
       // Hook real analytics here later (Firebase, Segment, etc.)
     } catch (_) {
       // swallow
@@ -26,11 +33,13 @@ class AnalyticsService {
   }
 
   Future<void> painterPackExported(int pageCount, int colorCount) async {
-    logEvent('painter_pack_exported', {'page_count': pageCount, 'color_count': colorCount});
+    logEvent('painter_pack_exported',
+        {'page_count': pageCount, 'color_count': colorCount});
   }
 
   void logStartFromExplore(String storyId, String projectId) {
-    logEvent('start_from_explore', {'story_id': storyId, 'project_id': projectId});
+    logEvent(
+        'start_from_explore', {'story_id': storyId, 'project_id': projectId});
   }
 
   void logExportShared(String projectId) {
@@ -42,7 +51,8 @@ class AnalyticsService {
   }
 
   void resumeLastClicked(String projectId, String screen) {
-    logEvent('resume_last_clicked', {'project_id': projectId, 'screen': screen});
+    logEvent(
+        'resume_last_clicked', {'project_id': projectId, 'screen': screen});
   }
 
   Future<void> trackColorStoryOpen({
@@ -218,11 +228,12 @@ class AnalyticsService {
 
   void logProjectStageChanged(String projectId, FunnelStage stage) {
     final stageStr = stage.toString().split('.').last;
-    logEvent('project_stage_changed', {'project_id': projectId, 'stage': stageStr});
+    logEvent(
+        'project_stage_changed', {'project_id': projectId, 'stage': stageStr});
   }
 
   void logRollerSaveToProject(String projectId, String savedPaletteId) {
-    logEvent('roller_save_to_project', {'project_id': projectId, 'saved_palette_id': savedPaletteId});
+    logEvent('roller_save_to_project',
+        {'project_id': projectId, 'saved_palette_id': savedPaletteId});
   }
 }
-

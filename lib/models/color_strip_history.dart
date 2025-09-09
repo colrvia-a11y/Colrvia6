@@ -13,7 +13,7 @@ class ColorStripHistory {
   /// Gets whether we can navigate backwards
   bool get canGoBack => _currentIndex > 0;
 
-  /// Gets whether we can navigate forwards  
+  /// Gets whether we can navigate forwards
   bool get canGoForward => _currentIndex < _history.length - 1;
 
   /// Gets the total number of colors in history
@@ -28,7 +28,7 @@ class ColorStripHistory {
     if (_currentIndex < _history.length - 1) {
       _history.removeRange(_currentIndex + 1, _history.length);
     }
-    
+
     // Add the new paint
     _history.add(paint);
     _currentIndex = _history.length - 1;

@@ -34,10 +34,10 @@ class LiveTalkTranscriptAdapter {
   }
 
   Future<String> stopAndPersist() async {
-  await _assistantSub?.cancel();
-  await _userSub?.cancel();
-  final endedAt = DateTime.now();
-  final started = _startedAt ?? endedAt;
+    await _assistantSub?.cancel();
+    await _userSub?.cancel();
+    final endedAt = DateTime.now();
+    final started = _startedAt ?? endedAt;
 
     final id = await shared.InterviewEngine.saveVoiceSession(
       model: _talk.selectedModel ?? 'gpt-realtime-nano',

@@ -14,7 +14,8 @@ class FixedElementService {
   final _db = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
 
-  CollectionReference<Map<String, dynamic>> _col(String uid, String projectId) =>
+  CollectionReference<Map<String, dynamic>> _col(
+          String uid, String projectId) =>
       _db
           .collection('users')
           .doc(uid)

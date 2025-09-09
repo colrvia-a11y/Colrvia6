@@ -20,5 +20,6 @@ class InterviewTurn {
   }
 
   @override
-  String toString() => 'InterviewTurn(isUser: ${isUser ? 'true' : 'false'}, text: $text)';
+  String toString() =>
+      'InterviewTurn(isUser: ${isUser ? 'true' : 'false'}, text: $text)';
 }

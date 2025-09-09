@@ -311,7 +311,7 @@ class _PhotoLibraryScreenState extends State<PhotoLibraryScreen> {
                 height: double.infinity,
                 fit: BoxFit.cover,
               ),
-              
+
               // Gradient overlay
               Positioned(
                 bottom: 0,
@@ -371,7 +371,7 @@ class _PhotoLibraryScreenState extends State<PhotoLibraryScreen> {
                   ),
                 ),
               ),
-              
+
               // Action button
               Positioned(
                 top: 8,
@@ -536,7 +536,8 @@ class _PhotoLibraryScreenState extends State<PhotoLibraryScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Photo'),
-        content: const Text('Are you sure you want to delete this photo? This action cannot be undone.'),
+        content: const Text(
+            'Are you sure you want to delete this photo? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -584,16 +585,18 @@ class _PhotoLibraryScreenState extends State<PhotoLibraryScreen> {
     try {
       // Create a temporary file name for sharing
       final fileName = 'photo_${photo.id}.jpg';
-      
+
       // Share the image data using modern SharePlus API
       await SharePlus.instance.share(
         ShareParams(
-          files: [XFile.fromData(
-            photo.imageData,
-            name: fileName,
-            mimeType: 'image/jpeg',
-          )],
-          text: photo.description.isNotEmpty 
+          files: [
+            XFile.fromData(
+              photo.imageData,
+              name: fileName,
+              mimeType: 'image/jpeg',
+            )
+          ],
+          text: photo.description.isNotEmpty
               ? 'Check out this photo: ${photo.description}'
               : 'Check out this photo from ColrVia!',
         ),
@@ -615,7 +618,8 @@ class _PhotoLibraryScreenState extends State<PhotoLibraryScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Clear All Photos'),
-        content: Text('Are you sure you want to delete all ${_photos.length} photos? This action cannot be undone.'),
+        content: Text(
+            'Are you sure you want to delete all ${_photos.length} photos? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -661,7 +665,7 @@ class _PhotoLibraryScreenState extends State<PhotoLibraryScreen> {
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    
+
     if (difference.inDays > 7) {
       return '${date.month}/${date.day}/${date.year}';
     } else if (difference.inDays > 0) {

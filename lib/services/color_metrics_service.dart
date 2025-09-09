@@ -27,4 +27,3 @@ class ColorMetricsService {
     return conflictA || conflictB;
   }
 }
-

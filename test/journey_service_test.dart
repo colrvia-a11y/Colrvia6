@@ -33,7 +33,9 @@ void main() {
       },
     );
 
-    await j.completeCurrentStep(artifacts: {'renderIds': ['r1']});
+    await j.completeCurrentStep(artifacts: {
+      'renderIds': ['r1']
+    });
     final s = j.state.value!;
     expect(s.currentStepId, 'plan.create');
     expect(s.artifacts['renderIds'], ['r1']);

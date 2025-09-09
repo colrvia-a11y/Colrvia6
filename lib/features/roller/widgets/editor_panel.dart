@@ -26,10 +26,12 @@ class EditorPanel extends ConsumerWidget {
               top: false,
               child: Material(
                 elevation: 8,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(16)),
                 color: Theme.of(context).colorScheme.surface,
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(minHeight: 200, maxHeight: 380),
+                  constraints:
+                      const BoxConstraints(minHeight: 200, maxHeight: 380),
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                     child: Column(
@@ -39,7 +41,8 @@ class EditorPanel extends ConsumerWidget {
                           children: [
                             const Icon(Icons.tune, size: 18),
                             const SizedBox(width: 8),
-                            Text('Editor', style: Theme.of(context).textTheme.titleMedium),
+                            Text('Editor',
+                                style: Theme.of(context).textTheme.titleMedium),
                             const Spacer(),
                             IconButton(
                               tooltip: 'Filters',
@@ -54,26 +57,36 @@ class EditorPanel extends ConsumerWidget {
                           runSpacing: 8,
                           children: [
                             FilledButton.icon(
-                              onPressed: () => ref.read(rollerControllerProvider.notifier).rerollCurrent(),
+                              onPressed: () => ref
+                                  .read(rollerControllerProvider.notifier)
+                                  .rerollCurrent(),
                               icon: const Icon(Icons.casino),
                               label: const Text('Roll'),
                             ),
                             OutlinedButton.icon(
-                              onPressed: () => ref.read(rollerControllerProvider.notifier).rollNext(),
+                              onPressed: () => ref
+                                  .read(rollerControllerProvider.notifier)
+                                  .rollNext(),
                               icon: const Icon(Icons.arrow_downward),
                               label: const Text('Next'),
                             ),
                             OutlinedButton.icon(
-                              onPressed: () => ref.read(rollerControllerProvider.notifier).unlockAll(),
+                              onPressed: () => ref
+                                  .read(rollerControllerProvider.notifier)
+                                  .unlockAll(),
                               icon: const Icon(Icons.lock_open),
                               label: const Text('Unlock all'),
                             ),
                             OutlinedButton.icon(
                               onPressed: () async {
-                                await ref.read(rollerControllerProvider.notifier).toggleFavoriteCurrent();
+                                await ref
+                                    .read(rollerControllerProvider.notifier)
+                                    .toggleFavoriteCurrent();
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Toggled favorite for current palette')),
+                                    const SnackBar(
+                                        content: Text(
+                                            'Toggled favorite for current palette')),
                                   );
                                 }
                               },
@@ -83,13 +96,17 @@ class EditorPanel extends ConsumerWidget {
                             PopupMenuButton<String>(
                               tooltip: 'Copy HEX',
                               onSelected: (value) async {
-                                final ctrl = ref.read(rollerControllerProvider.notifier);
+                                final ctrl =
+                                    ref.read(rollerControllerProvider.notifier);
                                 if (value == 'comma') {
-                                  await ctrl.copyCurrentHexesToClipboard(CopyFormat.comma);
+                                  await ctrl.copyCurrentHexesToClipboard(
+                                      CopyFormat.comma);
                                 } else if (value == 'newline') {
-                                  await ctrl.copyCurrentHexesToClipboard(CopyFormat.newline);
+                                  await ctrl.copyCurrentHexesToClipboard(
+                                      CopyFormat.newline);
                                 } else if (value == 'labeled') {
-                                  await ctrl.copyCurrentHexesToClipboard(CopyFormat.labeled);
+                                  await ctrl.copyCurrentHexesToClipboard(
+                                      CopyFormat.labeled);
                                 }
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -98,9 +115,15 @@ class EditorPanel extends ConsumerWidget {
                                 }
                               },
                               itemBuilder: (_) => const [
-                                PopupMenuItem(value: 'comma', child: Text('Comma-separated')),
-                                PopupMenuItem(value: 'newline', child: Text('New lines')),
-                                PopupMenuItem(value: 'labeled', child: Text('Labeled (brand · name (code) — hex)')),
+                                PopupMenuItem(
+                                    value: 'comma',
+                                    child: Text('Comma-separated')),
+                                PopupMenuItem(
+                                    value: 'newline', child: Text('New lines')),
+                                PopupMenuItem(
+                                    value: 'labeled',
+                                    child: Text(
+                                        'Labeled (brand · name (code) — hex)')),
                               ],
                               child: OutlinedButton.icon(
                                 onPressed: null,
@@ -115,26 +138,39 @@ class EditorPanel extends ConsumerWidget {
                           Expanded(
                             child: ListView.separated(
                               itemCount: s!.currentPage!.strips.length,
-                              separatorBuilder: (_, __) => const Divider(height: 12),
+                              separatorBuilder: (_, __) =>
+                                  const Divider(height: 12),
                               itemBuilder: (context, i) {
-                                final isLocked = s.currentPage!.locks[i];
+                                final locks = s.currentPage!.locks;
+                                final isLocked = i < locks.length && locks[i];
                                 return Row(
                                   children: [
                                     Text('Strip ${i + 1}'),
                                     const Spacer(),
                                     IconButton(
                                       tooltip: isLocked ? 'Unlock' : 'Lock',
-                                      onPressed: () => ref.read(rollerControllerProvider.notifier).toggleLock(i),
-                                      icon: Icon(isLocked ? Icons.lock : Icons.lock_open),
+                                      onPressed: () => ref
+                                          .read(
+                                              rollerControllerProvider.notifier)
+                                          .toggleLock(i),
+                                      icon: Icon(isLocked
+                                          ? Icons.lock
+                                          : Icons.lock_open),
                                     ),
                                     IconButton(
                                       tooltip: 'Alternate',
-                                      onPressed: () => ref.read(rollerControllerProvider.notifier).useNextAlternateForStrip(i),
+                                      onPressed: () => ref
+                                          .read(
+                                              rollerControllerProvider.notifier)
+                                          .useNextAlternateForStrip(i),
                                       icon: const Icon(Icons.swap_horiz),
                                     ),
                                     IconButton(
                                       tooltip: 'Reroll this strip',
-                                      onPressed: () => ref.read(rollerControllerProvider.notifier).rerollStrip(i),
+                                      onPressed: () => ref
+                                          .read(
+                                              rollerControllerProvider.notifier)
+                                          .rerollStrip(i),
                                       icon: const Icon(Icons.autorenew),
                                     ),
                                   ],
@@ -158,13 +194,15 @@ class EditorPanel extends ConsumerWidget {
     // Reuse the feed's bottom sheet by calling the same method if it is public, or replicate a minimal version.
     final s = ref.read(rollerControllerProvider).valueOrNull;
     if (s == null) return;
-    final TextEditingController brandsCtrl = TextEditingController(text: s.filters.brandIds.join(','));
+    final TextEditingController brandsCtrl =
+        TextEditingController(text: s.filters.brandIds.join(','));
     showModalBottomSheet(
       context: context,
       showDragHandle: true,
       builder: (_) {
         return Consumer(builder: (context, ref, __) {
-          final theme = ref.watch(rollerControllerProvider).valueOrNull?.themeSpec;
+          final theme =
+              ref.watch(rollerControllerProvider).valueOrNull?.themeSpec;
           final labels = ThemeService.instance.themeLabels();
           return Padding(
             padding: const EdgeInsets.all(16),
@@ -184,10 +222,13 @@ class EditorPanel extends ConsumerWidget {
                           padding: const EdgeInsets.only(right: 8),
                           child: ChoiceChip(
                             label: Text(m['label']!),
-                            selected: (m['id'] == 'all' && theme == null) || (theme?.id == m['id']),
+                            selected: (m['id'] == 'all' && theme == null) ||
+                                (theme?.id == m['id']),
                             onSelected: (_) async {
                               final id = m['id']!;
-                              await ref.read(rollerControllerProvider.notifier).setThemeById(id == 'all' ? null : id);
+                              await ref
+                                  .read(rollerControllerProvider.notifier)
+                                  .setThemeById(id == 'all' ? null : id);
                             },
                           ),
                         ),
@@ -198,7 +239,8 @@ class EditorPanel extends ConsumerWidget {
                 const SizedBox(height: 16),
                 const Divider(),
                 const SizedBox(height: 12),
-                const Text('Brand IDs (comma-separated)', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text('Brand IDs (comma-separated)',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 TextField(controller: brandsCtrl),
                 const SizedBox(height: 16),

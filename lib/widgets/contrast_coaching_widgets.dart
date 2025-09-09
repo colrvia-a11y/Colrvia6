@@ -100,7 +100,8 @@ class ContrastEvaluationCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: evaluation.color1,
                     borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+                    border:
+                        Border.all(color: Colors.grey.withValues(alpha: 0.3)),
                   ),
                 ),
                 const SizedBox(width: 4),
@@ -114,7 +115,8 @@ class ContrastEvaluationCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: evaluation.color2,
                     borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+                    border:
+                        Border.all(color: Colors.grey.withValues(alpha: 0.3)),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -144,7 +146,8 @@ class ContrastEvaluationCard extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: theme.colorScheme.primary,
                     side: BorderSide(
-                        color: theme.colorScheme.primary.withValues(alpha: 0.5)),
+                        color:
+                            theme.colorScheme.primary.withValues(alpha: 0.5)),
                   ),
                 ),
               ),
@@ -202,7 +205,8 @@ class ContrastSuggestionCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: suggestion.currentColor,
                     borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+                    border:
+                        Border.all(color: Colors.grey.withValues(alpha: 0.3)),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -217,7 +221,8 @@ class ContrastSuggestionCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: suggestion.suggestedColor,
                     borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+                    border:
+                        Border.all(color: Colors.grey.withValues(alpha: 0.3)),
                   ),
                 ),
                 const Spacer(),
@@ -294,7 +299,8 @@ class _ContrastCoachingSectionState extends State<ContrastCoachingSection> {
               child: Row(
                 children: [
                   Icon(Icons.info_outline,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+                      color:
+                          theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                   const SizedBox(width: 8),
                   const Expanded(
                     child: Text(
@@ -338,7 +344,8 @@ class _ContrastCoachingSectionState extends State<ContrastCoachingSection> {
                   child: Row(
                     children: [
                       Icon(Icons.lightbulb_outline,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.6)),
                       const SizedBox(width: 8),
                       const Expanded(
                         child: Text(

@@ -14,8 +14,11 @@ class LightingService {
 
   LightingService._();
 
-  DocumentReference<Map<String, dynamic>> _settingsDoc(String projectId) =>
-      _db.collection('projects').doc(projectId).collection('meta').doc('settings');
+  DocumentReference<Map<String, dynamic>> _settingsDoc(String projectId) => _db
+      .collection('projects')
+      .doc(projectId)
+      .collection('meta')
+      .doc('settings');
 
   /// Reads the lighting profile for the given project. Defaults to [LightingProfile.mixed].
   Future<LightingProfile> getProfile(String projectId) async {
@@ -38,4 +41,3 @@ class LightingService {
         .logEvent('lighting_profile_selected', {'profile': profile.name});
   }
 }
-

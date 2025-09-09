@@ -45,7 +45,8 @@ class InterviewSessionService {
   }
 
   /// Returns a stream of the current user's interview sessions, most recent first.
-  Stream<List<InterviewSessionSummary>> watchCurrentUserSessions({int limit = 25}) {
+  Stream<List<InterviewSessionSummary>> watchCurrentUserSessions(
+      {int limit = 25}) {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null || uid.isEmpty) {
       // Emit empty list if not signed in
@@ -56,11 +57,13 @@ class InterviewSessionService {
         .where('userId', isEqualTo: uid)
         .orderBy('startedAt', descending: true)
         .limit(limit);
-    return q.snapshots().map((s) => s.docs.map((d) => InterviewSessionSummary.fromSnap(d)).toList());
+    return q.snapshots().map(
+        (s) => s.docs.map((d) => InterviewSessionSummary.fromSnap(d)).toList());
   }
 
   /// One-shot fetch of the current user's recent interview sessions.
-  Future<List<InterviewSessionSummary>> getCurrentUserSessions({int limit = 25}) async {
+  Future<List<InterviewSessionSummary>> getCurrentUserSessions(
+      {int limit = 25}) async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null || uid.isEmpty) return <InterviewSessionSummary>[];
     final snap = await FirebaseFirestore.instance
@@ -72,4 +75,3 @@ class InterviewSessionService {
     return snap.docs.map((d) => InterviewSessionSummary.fromSnap(d)).toList();
   }
 }
-

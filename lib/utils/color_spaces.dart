@@ -28,9 +28,10 @@ List<int> _hexToRgb(String hex) {
 
 String _rgbToHex(int r, int g, int b) {
   return '#'
-      '${r.toRadixString(16).padLeft(2, '0')}'
-      '${g.toRadixString(16).padLeft(2, '0')}'
-      '${b.toRadixString(16).padLeft(2, '0')}'.toUpperCase();
+          '${r.toRadixString(16).padLeft(2, '0')}'
+          '${g.toRadixString(16).padLeft(2, '0')}'
+          '${b.toRadixString(16).padLeft(2, '0')}'
+      .toUpperCase();
 }
 
 /// Convert a hex color to Lab (D65).
@@ -51,7 +52,9 @@ Lab hexToLab(String hex) {
   final zn = z / 1.08883;
 
   double f(double t) {
-    return t > 0.008856 ? math.pow(t, 1.0 / 3.0).toDouble() : (7.787 * t + 16.0 / 116.0);
+    return t > 0.008856
+        ? math.pow(t, 1.0 / 3.0).toDouble()
+        : (7.787 * t + 16.0 / 116.0);
   }
 
   final fx = f(xn);
@@ -103,4 +106,3 @@ String labToHex(Lab lab) {
 
   return _rgbToHex(r, g, b);
 }
-

@@ -21,7 +21,9 @@ class RangeH {
     // value can be a single pair [a,b] or list of pairs
     if (value is List && value.isNotEmpty && value.first is num) {
       // single pair like [a,b]
-      return RangeH([[(value[0] as num).toDouble(), (value[1] as num).toDouble()]]);
+      return RangeH([
+        [(value[0] as num).toDouble(), (value[1] as num).toDouble()]
+      ]);
     }
     // assume list of pairs
     final bands = <List<double>>[];
@@ -105,9 +107,9 @@ class RoleTargets {
   factory RoleTargets.fromJson(Map<String, dynamic>? m) {
     if (m == null) return RoleTargets();
     return RoleTargets(
-      anchor: RoleTarget.fromJson(m['anchor'] as Map<String, dynamic>? ),
-      secondary: RoleTarget.fromJson(m['secondary'] as Map<String, dynamic>? ),
-      accent: RoleTarget.fromJson(m['accent'] as Map<String, dynamic>? ),
+      anchor: RoleTarget.fromJson(m['anchor'] as Map<String, dynamic>?),
+      secondary: RoleTarget.fromJson(m['secondary'] as Map<String, dynamic>?),
+      accent: RoleTarget.fromJson(m['accent'] as Map<String, dynamic>?),
     );
   }
 
@@ -129,23 +131,23 @@ class ThemeSpec {
   final List<String> harmonyBias;
   final Map<String, double> weights;
   // v2 additions (backward-compatible)
-  final List<String> corePrinciples;           // docs only
-  final List<List<double>> allowedHueRanges;   // accent-allowed hue bands
-  final VarietyControls? varietyControls;      // min/max + inclusion rules
+  final List<String> corePrinciples; // docs only
+  final List<List<double>> allowedHueRanges; // accent-allowed hue bands
+  final VarietyControls? varietyControls; // min/max + inclusion rules
 
   ThemeSpec({
     required this.id,
     required this.label,
-  this.aliases = const [],
+    this.aliases = const [],
     this.neutrals,
     this.accents,
     this.roleTargets,
     this.forbiddenHues = const [],
     this.harmonyBias = const [],
     this.weights = const {},
-  this.corePrinciples = const [],
-  this.allowedHueRanges = const [],
-  this.varietyControls,
+    this.corePrinciples = const [],
+    this.allowedHueRanges = const [],
+    this.varietyControls,
   });
 
   factory ThemeSpec.fromJson(Map<String, dynamic> m) {
@@ -197,15 +199,17 @@ class ThemeSpec {
       id: m['id'] as String,
       label: m['label'] as String,
       aliases: parseAliases(m['aliases']),
-      neutrals: Range3.fromJson((m['neutrals'] as Map<String, dynamic>?) ),
-      accents: Range3.fromJson((m['accents'] as Map<String, dynamic>?) ),
-      roleTargets: RoleTargets.fromJson((m['roleTargets'] as Map<String, dynamic>?) ),
+      neutrals: Range3.fromJson((m['neutrals'] as Map<String, dynamic>?)),
+      accents: Range3.fromJson((m['accents'] as Map<String, dynamic>?)),
+      roleTargets:
+          RoleTargets.fromJson((m['roleTargets'] as Map<String, dynamic>?)),
       forbiddenHues: parseForbidden(m['forbiddenHues']),
       harmonyBias: parseHarmony(m['harmonyBias']),
       weights: parseWeights(m['weights']),
-  corePrinciples: parseCore(m['core_principles']),
-  allowedHueRanges: parseBands(m['allowed_hue_ranges']),
-  varietyControls: VarietyControls.fromJson(m['variety_controls'] as Map<String, dynamic>?),
+      corePrinciples: parseCore(m['core_principles']),
+      allowedHueRanges: parseBands(m['allowed_hue_ranges']),
+      varietyControls: VarietyControls.fromJson(
+          m['variety_controls'] as Map<String, dynamic>?),
     );
   }
 
@@ -221,7 +225,8 @@ class ThemeSpec {
         if (weights.isNotEmpty) 'weights': weights,
         if (corePrinciples.isNotEmpty) 'core_principles': corePrinciples,
         if (allowedHueRanges.isNotEmpty) 'allowed_hue_ranges': allowedHueRanges,
-        if (varietyControls != null) 'variety_controls': varietyControls!.toJson(),
+        if (varietyControls != null)
+          'variety_controls': varietyControls!.toJson(),
       };
 }
 
@@ -237,7 +242,12 @@ class VarietyControls {
     required this.mustIncludeAccent,
   });
   factory VarietyControls.fromJson(Map<String, dynamic>? m) {
-    if (m == null) return const VarietyControls(minColors: 0, maxColors: 99, mustIncludeNeutral: false, mustIncludeAccent: false);
+    if (m == null)
+      return const VarietyControls(
+          minColors: 0,
+          maxColors: 99,
+          mustIncludeNeutral: false,
+          mustIncludeAccent: false);
     int _i(String k, int d) => (m[k] == null) ? d : (m[k] as num).toInt();
     bool _b(String k, bool d) => (m[k] == null) ? d : (m[k] as bool);
     return VarietyControls(
@@ -248,9 +258,9 @@ class VarietyControls {
     );
   }
   Map<String, dynamic> toJson() => {
-    'min_colors': minColors,
-    'max_colors': maxColors,
-    'must_include_neutral': mustIncludeNeutral,
-    'must_include_accent': mustIncludeAccent,
-  };
+        'min_colors': minColors,
+        'max_colors': maxColors,
+        'must_include_neutral': mustIncludeNeutral,
+        'must_include_accent': mustIncludeAccent,
+      };
 }

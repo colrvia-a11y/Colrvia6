@@ -31,10 +31,10 @@ class FirebaseAppSetup {
   static void logActiveOptions() {
     if (Firebase.apps.isEmpty) return;
     final o = Firebase.app().options;
-    final apiKey = (o.apiKey.length > 8)
-        ? '${o.apiKey.substring(0, 8)}…'
-        : o.apiKey;
+    final apiKey =
+        (o.apiKey.length > 8) ? '${o.apiKey.substring(0, 8)}…' : o.apiKey;
     // Print minimal identifying info; avoid leaking full API key in logs.
-    debugPrint('[Firebase] projectId=${o.projectId} appId=${o.appId} apiKey=$apiKey');
+    debugPrint(
+        '[Firebase] projectId=${o.projectId} appId=${o.appId} apiKey=$apiKey');
   }
 }

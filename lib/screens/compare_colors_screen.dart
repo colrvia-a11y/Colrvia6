@@ -18,8 +18,8 @@ class _CompareColorsScreenState extends State<CompareColorsScreen> {
   @override
   void initState() {
     super.initState();
-    _paintsFuture = FirebaseService.getPaintsByIds(
-        widget.paletteColorIds.take(4).toList());
+    _paintsFuture =
+        FirebaseService.getPaintsByIds(widget.paletteColorIds.take(4).toList());
     AnalyticsService.instance.compareOpened(widget.paletteColorIds.length);
   }
 
@@ -72,8 +72,7 @@ class _SwatchCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(paint.name,
-                    style: Theme.of(context).textTheme.bodyMedium),
+                Text(paint.name, style: Theme.of(context).textTheme.bodyMedium),
                 const SizedBox(height: 4),
                 Text('LRV ${paint.computedLrv.toStringAsFixed(1)}',
                     style: Theme.of(context).textTheme.bodySmall),
@@ -114,9 +113,8 @@ class _ContrastTable extends StatelessWidget {
             for (final b in paints)
               Padding(
                 padding: const EdgeInsets.all(8),
-                child: a.id == b.id
-                    ? const Text('—')
-                    : _ContrastCell(a: a, b: b),
+                child:
+                    a.id == b.id ? const Text('—') : _ContrastCell(a: a, b: b),
               ),
           ]),
       ],
@@ -133,7 +131,7 @@ class _ContrastCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorA = ColorUtils.getPaintColor(a.hex);
     final colorB = ColorUtils.getPaintColor(b.hex);
-  final contrast = contrastRatio(colorA, colorB);
+    final contrast = contrastRatio(colorA, colorB);
     final lrvDiff = (a.computedLrv - b.computedLrv).abs();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

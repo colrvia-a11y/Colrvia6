@@ -68,8 +68,7 @@ class InterviewHomeScreen extends StatelessWidget {
                     },
                     style: FilledButton.styleFrom(
                       minimumSize: const Size.fromHeight(56),
-                      backgroundColor:
-                          Theme.of(context).colorScheme.secondary,
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
                       foregroundColor: Colors.black,
                       textStyle: Theme.of(context)
                           .textTheme
@@ -107,12 +106,12 @@ class InterviewHomeScreen extends StatelessWidget {
                           title: Text(
                               "2. We gather room, light, and style details.")),
                       const ListTile(
-                          title: Text(
-                              "3. Get your personalized palette plan.")),
+                          title:
+                              Text("3. Get your personalized palette plan.")),
                       ListTile(
                         title: const Text(
                           "Privacy & mic permissions",
- style: TextStyle(color: Colors.blue),
+                          style: TextStyle(color: Colors.blue),
                         ),
                         onTap: () {
                           // TODO: Implement privacy link

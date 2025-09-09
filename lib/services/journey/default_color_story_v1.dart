@@ -18,7 +18,10 @@ final defaultJourneySteps = <JourneyStep>[
     type: StepType.tool,
     screenRoute: null,
     requires: [],
-    next: [TransitionRule(condition: 'art.paletteId != null', toStepId: 'review.contrast')],
+    next: [
+      TransitionRule(
+          condition: 'art.paletteId != null', toStepId: 'review.contrast')
+    ],
   ),
   JourneyStep(
     id: 'review.contrast',
@@ -34,15 +37,21 @@ final defaultJourneySteps = <JourneyStep>[
     type: StepType.tool,
     screenRoute: null,
     requires: [],
-    next: [TransitionRule(condition: 'art.photoId != null', toStepId: 'visualizer.generate')],
+    next: [
+      TransitionRule(
+          condition: 'art.photoId != null', toStepId: 'visualizer.generate')
+    ],
   ),
   JourneyStep(
     id: 'visualizer.generate',
     title: 'See it on your walls',
     type: StepType.generate,
     screenRoute: null,
-    requires: ['paletteId','photoId'],
-    next: [TransitionRule(condition: 'art.renderIds.length > 0', toStepId: 'plan.create')],
+    requires: ['paletteId', 'photoId'],
+    next: [
+      TransitionRule(
+          condition: 'art.renderIds.length > 0', toStepId: 'plan.create')
+    ],
   ),
   JourneyStep(
     id: 'plan.create',
@@ -50,7 +59,9 @@ final defaultJourneySteps = <JourneyStep>[
     type: StepType.generate,
     screenRoute: null,
     requires: ['paletteId'],
-    next: [TransitionRule(condition: 'art.planId != null', toStepId: 'guide.export')],
+    next: [
+      TransitionRule(condition: 'art.planId != null', toStepId: 'guide.export')
+    ],
   ),
   JourneyStep(
     id: 'guide.export',

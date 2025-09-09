@@ -42,7 +42,8 @@ class StackedChipCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final BorderRadius cardRadius =
         BorderRadius.vertical(bottom: Radius.circular(cardBottomRadius));
-    final bool onDark = ThemeData.estimateBrightnessForColor(color) == Brightness.dark;
+    final bool onDark =
+        ThemeData.estimateBrightnessForColor(color) == Brightness.dark;
     final Color fg = onDark ? Colors.white : Colors.black;
 
     double baseOverlap = index == 0 ? -cardBottomRadius : -overlap;
@@ -50,8 +51,8 @@ class StackedChipCard extends StatelessWidget {
       baseOverlap += secondExtraRoom;
     }
     final double parallaxFactor = _parallaxBase + index * _parallaxIncrement;
-    final double parallaxShift =
-        (-scrollOffset * parallaxFactor).clamp(-_parallaxMaxShift, _parallaxMaxShift);
+    final double parallaxShift = (-scrollOffset * parallaxFactor)
+        .clamp(-_parallaxMaxShift, _parallaxMaxShift);
     final double shiftY = isSelected ? 0.0 : (baseOverlap + parallaxShift);
 
     return GestureDetector(
@@ -103,7 +104,9 @@ class StackedChipCard extends StatelessWidget {
                             child: AnimatedSlide(
                               duration: const Duration(milliseconds: 280),
                               curve: Curves.easeOutCubic,
-                              offset: isSelected ? Offset.zero : const Offset(0, 0.02),
+                              offset: isSelected
+                                  ? Offset.zero
+                                  : const Offset(0, 0.02),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -112,7 +115,9 @@ class StackedChipCard extends StatelessWidget {
                                     style: Theme.of(context)
                                         .textTheme
                                         .labelLarge
-                                        ?.copyWith(color: fg, fontWeight: FontWeight.w600),
+                                        ?.copyWith(
+                                            color: fg,
+                                            fontWeight: FontWeight.w600),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -122,7 +127,9 @@ class StackedChipCard extends StatelessWidget {
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleMedium
-                                        ?.copyWith(color: fg, fontWeight: FontWeight.w800),
+                                        ?.copyWith(
+                                            color: fg,
+                                            fontWeight: FontWeight.w800),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -133,11 +140,14 @@ class StackedChipCard extends StatelessWidget {
                           Material(
                             color: Colors.transparent,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(AppDims.radiusMedium),
-                              side: BorderSide(color: fg.withAlpha(140), width: 1.2),
+                              borderRadius:
+                                  BorderRadius.circular(AppDims.radiusMedium),
+                              side: BorderSide(
+                                  color: fg.withAlpha(140), width: 1.2),
                             ),
                             child: InkWell(
-                              borderRadius: BorderRadius.circular(AppDims.radiusMedium),
+                              borderRadius:
+                                  BorderRadius.circular(AppDims.radiusMedium),
                               splashColor: fg.withAlpha(60),
                               highlightColor: fg.withAlpha(24),
                               hoverColor: fg.withAlpha(12),
@@ -146,7 +156,9 @@ class StackedChipCard extends StatelessWidget {
                               child: SizedBox(
                                 width: 40,
                                 height: 40,
-                                child: Center(child: Icon(Icons.arrow_forward, color: fg)),
+                                child: Center(
+                                    child:
+                                        Icon(Icons.arrow_forward, color: fg)),
                               ),
                             ),
                           ),
@@ -182,7 +194,8 @@ class StackedChipCard extends StatelessWidget {
                                           child: OutlinedButton.icon(
                                             style: OutlinedButton.styleFrom(
                                               foregroundColor: fg,
-                                              side: BorderSide(color: fg.withAlpha(140)),
+                                              side: BorderSide(
+                                                  color: fg.withAlpha(140)),
                                             ),
                                             onPressed: () {
                                               Navigator.of(context).push(
@@ -192,7 +205,8 @@ class StackedChipCard extends StatelessWidget {
                                                 ),
                                               );
                                             },
-                                            icon: const Icon(Icons.grid_goldenratio),
+                                            icon: const Icon(
+                                                Icons.grid_goldenratio),
                                             label: const Text('Add to Roller'),
                                           ),
                                         ),
@@ -201,17 +215,21 @@ class StackedChipCard extends StatelessWidget {
                                           child: OutlinedButton.icon(
                                             style: OutlinedButton.styleFrom(
                                               foregroundColor: fg,
-                                              side: BorderSide(color: fg.withAlpha(140)),
+                                              side: BorderSide(
+                                                  color: fg.withAlpha(140)),
                                             ),
                                             onPressed: () {
                                               Navigator.of(context).push(
                                                 MaterialPageRoute(
-                                                  builder: (_) => const VisualizerScreen(),
+                                                  builder: (_) =>
+                                                      const VisualizerScreen(),
                                                 ),
                                               );
                                             },
-                                            icon: const Icon(Icons.visibility_outlined),
-                                            label: const Text('Add to Visualizer'),
+                                            icon: const Icon(
+                                                Icons.visibility_outlined),
+                                            label:
+                                                const Text('Add to Visualizer'),
                                           ),
                                         ),
                                       ],
@@ -249,4 +267,3 @@ class StackedChipCard extends StatelessWidget {
     );
   }
 }
-

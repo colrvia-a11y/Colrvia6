@@ -28,19 +28,19 @@ class PhotoLibraryService {
     try {
       // Generate unique ID for the photo
       final photoId = _firestore.collection(_photosCollection).doc().id;
-      
+
       // Upload image to Firebase Storage
       final imageRef = _storage
           .ref()
           .child(_storageFolder)
           .child(user.uid)
           .child('$photoId.jpg');
-      
+
       final uploadTask = await imageRef.putData(
         imageData,
         SettableMetadata(contentType: 'image/jpeg'),
       );
-      
+
       final downloadUrl = await uploadTask.ref.getDownloadURL();
 
       // Save photo metadata to Firestore
@@ -79,17 +79,17 @@ class PhotoLibraryService {
           .get();
 
       final photos = <SavedPhoto>[];
-      
+
       for (final doc in querySnapshot.docs) {
         final data = doc.data();
-        
+
         // Download image data from storage
         final imageUrl = data['imageUrl'] as String?;
         if (imageUrl != null) {
           try {
             final imageRef = _storage.refFromURL(imageUrl);
             final imageData = await imageRef.getData();
-            
+
             if (imageData != null) {
               final photo = SavedPhoto(
                 id: data['id'] ?? doc.id,
@@ -101,11 +101,11 @@ class PhotoLibraryService {
                     : DateTime.now(),
                 metadata: data['metadata'] as Map<String, dynamic>?,
               );
-              
+
               photos.add(photo);
             }
           } catch (imageError) {
-            Debug.error('PhotoLibraryService', 'getUserPhotos', 
+            Debug.error('PhotoLibraryService', 'getUserPhotos',
                 'Error loading image for photo ${doc.id}: $imageError');
             // Continue with other photos if one fails
           }
@@ -127,17 +127,15 @@ class PhotoLibraryService {
 
     try {
       // Get photo document to find the image URL
-      final photoDoc = await _firestore
-          .collection(_photosCollection)
-          .doc(photoId)
-          .get();
+      final photoDoc =
+          await _firestore.collection(_photosCollection).doc(photoId).get();
 
       if (!photoDoc.exists) {
         throw Exception('Photo not found');
       }
 
       final data = photoDoc.data()!;
-      
+
       // Verify ownership
       if (data['userId'] != user.uid) {
         throw Exception('Unauthorized to delete this photo');
@@ -150,17 +148,14 @@ class PhotoLibraryService {
           final imageRef = _storage.refFromURL(imageUrl);
           await imageRef.delete();
         } catch (storageError) {
-          Debug.error('PhotoLibraryService', 'deletePhoto', 
+          Debug.error('PhotoLibraryService', 'deletePhoto',
               'Error deleting image from storage: $storageError');
           // Continue with Firestore deletion even if storage fails
         }
       }
 
       // Delete document from Firestore
-      await _firestore
-          .collection(_photosCollection)
-          .doc(photoId)
-          .delete();
+      await _firestore.collection(_photosCollection).doc(photoId).delete();
     } catch (e) {
       throw Exception('Failed to delete photo: $e');
     }
@@ -187,7 +182,7 @@ class PhotoLibraryService {
       for (final doc in querySnapshot.docs) {
         final data = doc.data();
         batch.delete(doc.reference);
-        
+
         // Collect storage URLs for deletion
         final imageUrl = data['imageUrl'] as String?;
         if (imageUrl != null) {
@@ -204,7 +199,7 @@ class PhotoLibraryService {
           final imageRef = _storage.refFromURL(url);
           await imageRef.delete();
         } catch (storageError) {
-          Debug.error('PhotoLibraryService', 'clearAllPhotos', 
+          Debug.error('PhotoLibraryService', 'clearAllPhotos',
               'Error deleting image from storage: $storageError');
           // Continue with other images if one fails
         }
@@ -230,7 +225,7 @@ class PhotoLibraryService {
 
       return querySnapshot.count ?? 0;
     } catch (e) {
-      Debug.error('PhotoLibraryService', 'getPhotoCount', 
+      Debug.error('PhotoLibraryService', 'getPhotoCount',
           'Error getting photo count: $e');
       return 0;
     }

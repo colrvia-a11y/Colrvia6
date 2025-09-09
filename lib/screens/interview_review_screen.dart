@@ -39,13 +39,23 @@ class _InterviewReviewScreenState extends State<InterviewReviewScreen> {
 
   // Required prompts are those marked required & visible under current answers
   List<InterviewPrompt> _missingRequired() {
-    final visibleRequired = widget.engine.visiblePrompts.where((p) => p.required).toList();
+    final visibleRequired =
+        widget.engine.visiblePrompts.where((p) => p.required).toList();
     final missing = <InterviewPrompt>[];
     for (final p in visibleRequired) {
       final v = _answers[p.id];
-      if (v == null) { missing.add(p); continue; }
-      if (v is String && v.trim().isEmpty) { missing.add(p); continue; }
-      if (v is List && v.isEmpty) { missing.add(p); continue; }
+      if (v == null) {
+        missing.add(p);
+        continue;
+      }
+      if (v is String && v.trim().isEmpty) {
+        missing.add(p);
+        continue;
+      }
+      if (v is List && v.isEmpty) {
+        missing.add(p);
+        continue;
+      }
     }
     return missing;
   }
@@ -155,11 +165,18 @@ class _InterviewReviewScreenState extends State<InterviewReviewScreen> {
       if (p.options.isEmpty) {
         return value.join(', ');
       }
-      return value.map((v) => p.options.firstWhere((o) => o.value == v, orElse: () => p.options.first).label).join(', ');
+      return value
+          .map((v) => p.options
+              .firstWhere((o) => o.value == v, orElse: () => p.options.first)
+              .label)
+          .join(', ');
     }
     if (value is String) {
       if (p.options.isEmpty) return value;
-      final opt = p.options.where((o) => o.value == value).cast<InterviewPromptOption?>().firstWhere((e) => e != null, orElse: () => null);
+      final opt = p.options
+          .where((o) => o.value == value)
+          .cast<InterviewPromptOption?>()
+          .firstWhere((e) => e != null, orElse: () => null);
       return opt?.label ?? value;
     }
     return value.toString();
@@ -184,39 +201,115 @@ class _InterviewReviewScreenState extends State<InterviewReviewScreen> {
     final roomType = _answers['roomType'] as String?;
 
     final core = _rowsForIds([
-      'roomType','usage','moodWords','daytimeBrightness','bulbColor','boldDarkerSpot','brandPreference',
+      'roomType',
+      'usage',
+      'moodWords',
+      'daytimeBrightness',
+      'bulbColor',
+      'boldDarkerSpot',
+      'brandPreference',
     ]);
 
     final existing = _rowsForIds([
-      'existingElements.floorLook','existingElements.floorLookOtherNote','existingElements.bigThingsToMatch','existingElements.metals','existingElements.mustStaySame',
+      'existingElements.floorLook',
+      'existingElements.floorLookOtherNote',
+      'existingElements.bigThingsToMatch',
+      'existingElements.metals',
+      'existingElements.mustStaySame',
     ]);
 
     final comfort = _rowsForIds([
-      'colorComfort.overallVibe','colorComfort.warmCoolFeel','colorComfort.contrastLevel','colorComfort.popColor',
+      'colorComfort.overallVibe',
+      'colorComfort.warmCoolFeel',
+      'colorComfort.contrastLevel',
+      'colorComfort.popColor',
     ]);
 
     final finishes = _rowsForIds([
-      'finishes.wallsFinishPriority','finishes.trimDoorsFinish','finishes.specialNeeds',
+      'finishes.wallsFinishPriority',
+      'finishes.trimDoorsFinish',
+      'finishes.specialNeeds',
     ]);
 
     // Room-specific blocks
     final roomMap = <String, List<String>>{
-      'kitchen': ['roomSpecific.cabinets','roomSpecific.cabinetsCurrentColor','roomSpecific.island','roomSpecific.countertopsDescription','roomSpecific.backsplash','roomSpecific.backsplashDescribe','roomSpecific.appliances','roomSpecific.wallFeel','roomSpecific.darkerSpots'],
-      'bathroom': ['roomSpecific.tileMainColor','roomSpecific.tileColorWhich','roomSpecific.vanityTop','roomSpecific.showerSteamLevel','roomSpecific.fixtureMetal','roomSpecific.goal','roomSpecific.darkerVanityOrDoor'],
-      'bedroom': ['roomSpecific.sleepFeel','roomSpecific.beddingColors','roomSpecific.headboard','roomSpecific.windowTreatments','roomSpecific.darkerWallBehindBed'],
-      'livingRoom': ['roomSpecific.sofaColor','roomSpecific.rugMainColors','roomSpecific.fireplace','roomSpecific.fireplaceDetail','roomSpecific.tvWall','roomSpecific.builtInsOrDoorColor'],
-      'diningRoom': ['roomSpecific.tableWoodTone','roomSpecific.chairs','roomSpecific.lightFixtureMetal','roomSpecific.feeling','roomSpecific.darkerBelowOrOneWall'],
-      'office': ['roomSpecific.workMood','roomSpecific.screenGlare','roomSpecific.deeperLibraryWallsOk','roomSpecific.colorBookshelvesOrBuiltIns'],
-      'kidsRoom': ['roomSpecific.mood','roomSpecific.mainFabricToyColors','roomSpecific.superWipeableWalls','roomSpecific.smallColorPopOk'],
-      'laundryMudroom': ['roomSpecific.traffic','roomSpecific.cabinetsShelving','roomSpecific.cabinetsColor','roomSpecific.hideDirtOrBrightClean','roomSpecific.doorColorMomentOk'],
-      'entryHall': ['roomSpecific.naturalLight','roomSpecific.stairsBanister','roomSpecific.woodTone','roomSpecific.paintColor','roomSpecific.feel','roomSpecific.doorColorMoment'],
+      'kitchen': [
+        'roomSpecific.cabinets',
+        'roomSpecific.cabinetsCurrentColor',
+        'roomSpecific.island',
+        'roomSpecific.countertopsDescription',
+        'roomSpecific.backsplash',
+        'roomSpecific.backsplashDescribe',
+        'roomSpecific.appliances',
+        'roomSpecific.wallFeel',
+        'roomSpecific.darkerSpots'
+      ],
+      'bathroom': [
+        'roomSpecific.tileMainColor',
+        'roomSpecific.tileColorWhich',
+        'roomSpecific.vanityTop',
+        'roomSpecific.showerSteamLevel',
+        'roomSpecific.fixtureMetal',
+        'roomSpecific.goal',
+        'roomSpecific.darkerVanityOrDoor'
+      ],
+      'bedroom': [
+        'roomSpecific.sleepFeel',
+        'roomSpecific.beddingColors',
+        'roomSpecific.headboard',
+        'roomSpecific.windowTreatments',
+        'roomSpecific.darkerWallBehindBed'
+      ],
+      'livingRoom': [
+        'roomSpecific.sofaColor',
+        'roomSpecific.rugMainColors',
+        'roomSpecific.fireplace',
+        'roomSpecific.fireplaceDetail',
+        'roomSpecific.tvWall',
+        'roomSpecific.builtInsOrDoorColor'
+      ],
+      'diningRoom': [
+        'roomSpecific.tableWoodTone',
+        'roomSpecific.chairs',
+        'roomSpecific.lightFixtureMetal',
+        'roomSpecific.feeling',
+        'roomSpecific.darkerBelowOrOneWall'
+      ],
+      'office': [
+        'roomSpecific.workMood',
+        'roomSpecific.screenGlare',
+        'roomSpecific.deeperLibraryWallsOk',
+        'roomSpecific.colorBookshelvesOrBuiltIns'
+      ],
+      'kidsRoom': [
+        'roomSpecific.mood',
+        'roomSpecific.mainFabricToyColors',
+        'roomSpecific.superWipeableWalls',
+        'roomSpecific.smallColorPopOk'
+      ],
+      'laundryMudroom': [
+        'roomSpecific.traffic',
+        'roomSpecific.cabinetsShelving',
+        'roomSpecific.cabinetsColor',
+        'roomSpecific.hideDirtOrBrightClean',
+        'roomSpecific.doorColorMomentOk'
+      ],
+      'entryHall': [
+        'roomSpecific.naturalLight',
+        'roomSpecific.stairsBanister',
+        'roomSpecific.woodTone',
+        'roomSpecific.paintColor',
+        'roomSpecific.feel',
+        'roomSpecific.doorColorMoment'
+      ],
       'other': ['roomSpecific.describeRoom'],
     };
 
     final roomRows = _rowsForIds(roomMap[roomType] ?? const []);
 
     // Guardrails and Photos
-    final guardrails = _rowsForIds(['guardrails.mustHaves','guardrails.hardNos']);
+    final guardrails =
+        _rowsForIds(['guardrails.mustHaves', 'guardrails.hardNos']);
     final photos = _rowsForIds(['photos']);
 
     final missing = _missingRequired();
@@ -235,7 +328,14 @@ class _InterviewReviewScreenState extends State<InterviewReviewScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Missing required', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.onErrorContainer)),
+                      Text('Missing required',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onErrorContainer)),
                       const SizedBox(height: 8),
                       for (final p in missing)
                         ListTile(
@@ -243,15 +343,18 @@ class _InterviewReviewScreenState extends State<InterviewReviewScreen> {
                           dense: true,
                           title: Text(p.title),
                           trailing: Wrap(spacing: 8, children: [
-                            TextButton(onPressed: () => _editInline(p.id), child: const Text('Quick edit')),
-                            TextButton(onPressed: () => _editInChat(p.id), child: const Text('Edit in chat')),
+                            TextButton(
+                                onPressed: () => _editInline(p.id),
+                                child: const Text('Quick edit')),
+                            TextButton(
+                                onPressed: () => _editInChat(p.id),
+                                child: const Text('Edit in chat')),
                           ]),
                         ),
                     ],
                   ),
                 ),
               ),
-
             _section('Basics', core),
             if (roomRows.isNotEmpty) _section('Room details', roomRows),
             _section('Existing elements', existing),
@@ -259,7 +362,6 @@ class _InterviewReviewScreenState extends State<InterviewReviewScreen> {
             _section('Finishes', finishes),
             _section('Guardrails', guardrails),
             _photosSection(photos),
-
             const SizedBox(height: 16),
             FilledButton.icon(
               onPressed: missing.isNotEmpty ? null : _generate,
@@ -273,7 +375,8 @@ class _InterviewReviewScreenState extends State<InterviewReviewScreen> {
   }
 
   Widget _photosSection(List<_Row> rows) {
-    final urls = (_answers['photos'] as List?)?.cast<String>() ?? const <String>[];
+    final urls =
+        (_answers['photos'] as List?)?.cast<String>() ?? const <String>[];
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Padding(
@@ -288,7 +391,8 @@ class _InterviewReviewScreenState extends State<InterviewReviewScreen> {
               onChanged: (next) async {
                 _answers['photos'] = next;
                 widget.engine.setAnswer('photos', next);
-                await JourneyService.instance.setArtifact('answers', widget.engine.answers);
+                await JourneyService.instance
+                    .setArtifact('answers', widget.engine.answers);
                 setState(() {});
               },
             ),
@@ -297,7 +401,6 @@ class _InterviewReviewScreenState extends State<InterviewReviewScreen> {
       ),
     );
   }
-
 }
 
 class _Row {
@@ -312,7 +415,8 @@ class _PromptEditorSheet extends StatefulWidget {
   final InterviewPrompt prompt;
   final dynamic initialValue;
   final void Function(dynamic) onSave;
-  const _PromptEditorSheet({required this.prompt, required this.initialValue, required this.onSave});
+  const _PromptEditorSheet(
+      {required this.prompt, required this.initialValue, required this.onSave});
 
   @override
   State<_PromptEditorSheet> createState() => _PromptEditorSheetState();
@@ -340,20 +444,36 @@ class _PromptEditorSheetState extends State<_PromptEditorSheet> {
     Widget editor;
     switch (p.type) {
       case InterviewPromptType.singleSelect:
-        editor = _SingleSelectEditor(prompt: p, value: (_value as String?), onChanged: (v) => setState(() => _value = v));
+        editor = _SingleSelectEditor(
+            prompt: p,
+            value: (_value as String?),
+            onChanged: (v) => setState(() => _value = v));
         break;
       case InterviewPromptType.multiSelect:
         if (p.options.isEmpty) {
-          editor = _FreeListEditor(values: (_value as List?)?.cast<String>() ?? const [], onChanged: (v) => setState(() => _value = v), minItems: p.minItems, maxItems: p.maxItems);
+          editor = _FreeListEditor(
+              values: (_value as List?)?.cast<String>() ?? const [],
+              onChanged: (v) => setState(() => _value = v),
+              minItems: p.minItems,
+              maxItems: p.maxItems);
         } else {
-          editor = _MultiSelectEnumEditor(prompt: p, values: (_value as List?)?.cast<String>() ?? const [], onChanged: (v) => setState(() => _value = v), minItems: p.minItems, maxItems: p.maxItems);
+          editor = _MultiSelectEnumEditor(
+              prompt: p,
+              values: (_value as List?)?.cast<String>() ?? const [],
+              onChanged: (v) => setState(() => _value = v),
+              minItems: p.minItems,
+              maxItems: p.maxItems);
         }
         break;
       case InterviewPromptType.freeText:
-        editor = _FreeTextEditor(value: (_value as String?) ?? '', onChanged: (v) => setState(() => _value = v));
+        editor = _FreeTextEditor(
+            value: (_value as String?) ?? '',
+            onChanged: (v) => setState(() => _value = v));
         break;
       case InterviewPromptType.yesNo:
-        editor = _YesNoEditor(value: (_value as String?), onChanged: (v) => setState(() => _value = v));
+        editor = _YesNoEditor(
+            value: (_value as String?),
+            onChanged: (v) => setState(() => _value = v));
         break;
     }
 
@@ -385,7 +505,12 @@ class _PromptEditorSheetState extends State<_PromptEditorSheet> {
                 ),
                 const Spacer(),
                 FilledButton.icon(
-                  onPressed: canSave ? () { widget.onSave(_value); Navigator.of(context).maybePop(); } : null,
+                  onPressed: canSave
+                      ? () {
+                          widget.onSave(_value);
+                          Navigator.of(context).maybePop();
+                        }
+                      : null,
                   icon: const Icon(Icons.check),
                   label: const Text('Save'),
                 ),
@@ -402,7 +527,8 @@ class _SingleSelectEditor extends StatelessWidget {
   final InterviewPrompt prompt;
   final String? value;
   final ValueChanged<String?> onChanged;
-  const _SingleSelectEditor({required this.prompt, required this.value, required this.onChanged});
+  const _SingleSelectEditor(
+      {required this.prompt, required this.value, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -410,10 +536,12 @@ class _SingleSelectEditor extends StatelessWidget {
       groupValue: value,
       onChanged: onChanged,
       child: Column(
-        children: prompt.options.map((o) => RadioListTile<String>(
-          value: o.value,
-          title: Text(o.label),
-        )).toList(),
+        children: prompt.options
+            .map((o) => RadioListTile<String>(
+                  value: o.value,
+                  title: Text(o.label),
+                ))
+            .toList(),
       ),
     );
   }
@@ -425,7 +553,12 @@ class _MultiSelectEnumEditor extends StatefulWidget {
   final ValueChanged<List<String>> onChanged;
   final int? minItems;
   final int? maxItems;
-  const _MultiSelectEnumEditor({required this.prompt, required this.values, required this.onChanged, this.minItems, this.maxItems});
+  const _MultiSelectEnumEditor(
+      {required this.prompt,
+      required this.values,
+      required this.onChanged,
+      this.minItems,
+      this.maxItems});
 
   @override
   State<_MultiSelectEnumEditor> createState() => _MultiSelectEnumEditorState();
@@ -444,7 +577,8 @@ class _MultiSelectEnumEditorState extends State<_MultiSelectEnumEditor> {
               onChanged: (v) {
                 setState(() {
                   if (v == true) {
-                    if (widget.maxItems == null || _selected.length < widget.maxItems!) {
+                    if (widget.maxItems == null ||
+                        _selected.length < widget.maxItems!) {
                       _selected.add(o.value);
                     }
                   } else {
@@ -457,7 +591,8 @@ class _MultiSelectEnumEditorState extends State<_MultiSelectEnumEditor> {
             )),
         const SizedBox(height: 4),
         if (widget.maxItems != null)
-          Text('${_selected.length}/${widget.maxItems} selected', style: Theme.of(context).textTheme.bodySmall),
+          Text('${_selected.length}/${widget.maxItems} selected',
+              style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }
@@ -473,14 +608,16 @@ class _FreeTextEditor extends StatefulWidget {
 }
 
 class _FreeTextEditorState extends State<_FreeTextEditor> {
-  late final TextEditingController _c = TextEditingController(text: widget.value);
+  late final TextEditingController _c =
+      TextEditingController(text: widget.value);
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: _c,
       minLines: 1,
       maxLines: 4,
-      decoration: const InputDecoration(border: OutlineInputBorder(), hintText: 'Type your answer…'),
+      decoration: const InputDecoration(
+          border: OutlineInputBorder(), hintText: 'Type your answer…'),
       onChanged: widget.onChanged,
     );
   }
@@ -509,7 +646,11 @@ class _FreeListEditor extends StatefulWidget {
   final ValueChanged<List<String>> onChanged;
   final int? minItems;
   final int? maxItems;
-  const _FreeListEditor({required this.values, required this.onChanged, this.minItems, this.maxItems});
+  const _FreeListEditor(
+      {required this.values,
+      required this.onChanged,
+      this.minItems,
+      this.maxItems});
 
   @override
   State<_FreeListEditor> createState() => _FreeListEditorState();
@@ -523,13 +664,17 @@ class _FreeListEditorState extends State<_FreeListEditor> {
     final t = _controller.text.trim();
     if (t.isEmpty) return;
     if (widget.maxItems != null && _vals.length >= widget.maxItems!) return;
-    setState(() { _vals.add(t); });
+    setState(() {
+      _vals.add(t);
+    });
     widget.onChanged(_vals);
     _controller.clear();
   }
 
   void _remove(String v) {
-    setState(() { _vals.remove(v); });
+    setState(() {
+      _vals.remove(v);
+    });
     widget.onChanged(_vals);
   }
 
@@ -541,20 +686,30 @@ class _FreeListEditorState extends State<_FreeListEditor> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: _vals.map((v) => InputChip(
-            label: Text(v),
-            onDeleted: () => _remove(v),
-          )).toList(),
+          children: _vals
+              .map((v) => InputChip(
+                    label: Text(v),
+                    onDeleted: () => _remove(v),
+                  ))
+              .toList(),
         ),
         const SizedBox(height: 8),
         Row(children: [
-          Expanded(child: TextField(controller: _controller, decoration: const InputDecoration(hintText: 'Add item…', border: OutlineInputBorder()))),
+          Expanded(
+              child: TextField(
+                  controller: _controller,
+                  decoration: const InputDecoration(
+                      hintText: 'Add item…', border: OutlineInputBorder()))),
           const SizedBox(width: 8),
-          FilledButton.icon(onPressed: _add, icon: const Icon(Icons.add), label: const Text('Add')),
+          FilledButton.icon(
+              onPressed: _add,
+              icon: const Icon(Icons.add),
+              label: const Text('Add')),
         ]),
         const SizedBox(height: 4),
         if (widget.maxItems != null)
-          Text('${_vals.length}/${widget.maxItems} items', style: Theme.of(context).textTheme.bodySmall),
+          Text('${_vals.length}/${widget.maxItems} items',
+              style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }

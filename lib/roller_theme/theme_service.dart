@@ -12,8 +12,10 @@ class ThemeService {
   Future<void> loadFromAssetIfNeeded() async {
     if (_loaded) return;
     try {
-      final jsonString = await rootBundle.loadString('assets/themes/themes.json');
-      final Map<String, dynamic> doc = json.decode(jsonString) as Map<String, dynamic>;
+      final jsonString =
+          await rootBundle.loadString('assets/themes/themes.json');
+      final Map<String, dynamic> doc =
+          json.decode(jsonString) as Map<String, dynamic>;
       final items = (doc['themes'] as List).cast<Map<String, dynamic>>();
       for (final item in items) {
         final spec = ThemeSpec.fromJson(item);

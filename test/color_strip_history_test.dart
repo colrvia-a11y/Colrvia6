@@ -59,7 +59,7 @@ void main() {
 
     test('should add paints correctly', () {
       history.addPaint(testPaint1);
-      
+
       expect(history.current, equals(testPaint1));
       expect(history.length, equals(1));
       expect(history.canGoBack, isFalse);
@@ -72,19 +72,19 @@ void main() {
       history.addPaint(testPaint1);
       history.addPaint(testPaint2);
       history.addPaint(testPaint3);
-      
+
       expect(history.current, equals(testPaint3));
       expect(history.length, equals(3));
       expect(history.canGoBack, isTrue);
       expect(history.canGoForward, isFalse);
-      
+
       // Navigate backward
       final prev = history.goBack();
       expect(prev, equals(testPaint2));
       expect(history.current, equals(testPaint2));
       expect(history.canGoBack, isTrue);
       expect(history.canGoForward, isTrue);
-      
+
       // Navigate further back
       final first = history.goBack();
       expect(first, equals(testPaint1));
@@ -92,7 +92,7 @@ void main() {
       expect(history.canGoBack, isFalse);
       expect(history.canGoForward, isTrue);
       expect(history.isFirstColor, isTrue);
-      
+
       // Navigate forward
       final next = history.goForward();
       expect(next, equals(testPaint2));
@@ -103,11 +103,11 @@ void main() {
       // Create initial history
       history.addPaint(testPaint1);
       history.addPaint(testPaint2);
-      
+
       // Go back and add new paint (should truncate future history)
       history.goBack();
       history.addPaint(testPaint3);
-      
+
       expect(history.current, equals(testPaint3));
       expect(history.length, equals(2)); // Should have truncated
       expect(history.canGoForward, isFalse);
@@ -129,7 +129,7 @@ void main() {
         );
         history.addPaint(paint);
       }
-      
+
       expect(history.length, equals(50)); // Should be limited to 50
       expect(history.current?.name, equals('Test Paint 54')); // Most recent
     });
@@ -137,9 +137,9 @@ void main() {
     test('should clear history correctly', () {
       history.addPaint(testPaint1);
       history.addPaint(testPaint2);
-      
+
       history.clear();
-      
+
       expect(history.current, isNull);
       expect(history.length, equals(0));
       expect(history.canGoBack, isFalse);
@@ -149,7 +149,7 @@ void main() {
     test('should set current paint correctly', () {
       history.addPaint(testPaint1);
       history.setCurrent(testPaint2);
-      
+
       expect(history.current, equals(testPaint2));
       expect(history.length, equals(1)); // Should replace, not add
     });
@@ -159,7 +159,7 @@ void main() {
       history.addPaint(testPaint2);
       history.addPaint(testPaint3);
       history.goBack(); // Move to testPaint2
-      
+
       final preview = history.getHistoryPreview();
       expect(preview.length, equals(3));
       expect(preview[1], contains('→')); // Current should be marked

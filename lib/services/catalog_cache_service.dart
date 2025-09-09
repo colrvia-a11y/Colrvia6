@@ -8,7 +8,8 @@ class _CacheEntry {
   final dynamic value;
   final DateTime expiresAt;
   final int version;
-  _CacheEntry({required this.value, required this.expiresAt, required this.version});
+  _CacheEntry(
+      {required this.value, required this.expiresAt, required this.version});
 
   Map<String, dynamic> toJson() => {
         'value': value,

@@ -14,9 +14,10 @@ class VoiceTokenEndpoint {
     final projectId = opts.projectId;
     if (projectId.isEmpty) {
       // Fallback to a dummy host to make failures obvious at callsite
-      return Uri.parse('https://us-central1-INVALID.cloudfunctions.net/issueVoiceGatewayToken');
+      return Uri.parse(
+          'https://us-central1-INVALID.cloudfunctions.net/issueVoiceGatewayToken');
     }
-    return Uri.parse('https://$_region-$projectId.cloudfunctions.net/issueVoiceGatewayToken');
+    return Uri.parse(
+        'https://$_region-$projectId.cloudfunctions.net/issueVoiceGatewayToken');
   }
 }
-

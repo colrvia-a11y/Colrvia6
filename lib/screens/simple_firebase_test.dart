@@ -29,7 +29,7 @@ class _SimpleFirebaseTestState extends State<SimpleFirebaseTest> {
         _status = 'Step 1: Checking Firebase initialization...';
         _result = '';
       });
-      
+
       if (Firebase.apps.isEmpty) {
         await Firebase.initializeApp(
           options: FirebaseConfig.options,
@@ -48,13 +48,12 @@ class _SimpleFirebaseTestState extends State<SimpleFirebaseTest> {
 
       // Step 3: Test basic auth operations
       setState(() => _status = 'Step 3: Testing authentication...');
-      
+
       // Sign out first to clean state
       await auth.signOut();
       setState(() => _result += '✅ Sign out successful\n');
 
       setState(() => _status = 'Ready to test sign in/up');
-      
     } catch (e) {
       setState(() {
         _status = 'Firebase test failed';
@@ -66,20 +65,19 @@ class _SimpleFirebaseTestState extends State<SimpleFirebaseTest> {
   Future<void> _testSignUp() async {
     try {
       setState(() => _status = 'Testing sign up...');
-      
+
       final auth = FirebaseAuth.instance;
       final credential = await auth.createUserWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );
-      
+
       setState(() {
         _result += '✅ Sign up successful!\n';
         _result += 'User ID: ${credential.user?.uid}\n';
         _result += 'Email: ${credential.user?.email}\n';
         _status = 'Sign up completed';
       });
-      
     } catch (e) {
       setState(() {
         _result += '❌ Sign up failed: $e\n';
@@ -91,20 +89,19 @@ class _SimpleFirebaseTestState extends State<SimpleFirebaseTest> {
   Future<void> _testSignIn() async {
     try {
       setState(() => _status = 'Testing sign in...');
-      
+
       final auth = FirebaseAuth.instance;
       final credential = await auth.signInWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );
-      
+
       setState(() {
         _result += '✅ Sign in successful!\n';
         _result += 'User ID: ${credential.user?.uid}\n';
         _result += 'Email: ${credential.user?.email}\n';
         _status = 'Sign in completed';
       });
-      
     } catch (e) {
       setState(() {
         _result += '❌ Sign in failed: $e\n';
@@ -127,20 +124,17 @@ class _SimpleFirebaseTestState extends State<SimpleFirebaseTest> {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            
             TextField(
               controller: _emailController,
               decoration: const InputDecoration(labelText: 'Email'),
             ),
             const SizedBox(height: 8),
-            
             TextField(
               controller: _passwordController,
               decoration: const InputDecoration(labelText: 'Password'),
               obscureText: true,
             ),
             const SizedBox(height: 16),
-            
             Row(
               children: [
                 ElevatedButton(
@@ -160,7 +154,6 @@ class _SimpleFirebaseTestState extends State<SimpleFirebaseTest> {
               ],
             ),
             const SizedBox(height: 16),
-            
             Expanded(
               child: Container(
                 width: double.infinity,

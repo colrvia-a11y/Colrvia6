@@ -23,16 +23,20 @@ class InterviewSessionSummary {
     this.voice,
   });
 
-  factory InterviewSessionSummary.fromSnap(DocumentSnapshot<Map<String, dynamic>> d) {
+  factory InterviewSessionSummary.fromSnap(
+      DocumentSnapshot<Map<String, dynamic>> d) {
     final m = d.data() ?? const <String, dynamic>{};
     DateTime? tsToDate(dynamic v) {
       if (v is Timestamp) return v.toDate();
       if (v is DateTime) return v;
       if (v is String) {
-        try { return DateTime.parse(v); } catch (_) {}
+        try {
+          return DateTime.parse(v);
+        } catch (_) {}
       }
       return null;
     }
+
     return InterviewSessionSummary(
       id: d.id,
       userId: (m['userId'] as String?) ?? 'anonymous',
@@ -46,4 +50,3 @@ class InterviewSessionSummary {
     );
   }
 }
-

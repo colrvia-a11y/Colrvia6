@@ -3,7 +3,8 @@ class PaintColor {
   final String code; // hex like #F8F8F6 or brand code
   final double? lrv; // 0..100 if available
   final String? undertone; // e.g., "warm", "cool", "green-gray"
-  const PaintColor({required this.name, required this.code, this.lrv, this.undertone});
+  const PaintColor(
+      {required this.name, required this.code, this.lrv, this.undertone});
 
   factory PaintColor.fromJson(Map<String, dynamic> j) => PaintColor(
         name: j['name'] ?? '',
@@ -24,10 +25,15 @@ class PaletteRoles {
   final PaintColor anchor; // main wall
   final PaintColor secondary; // trim/ceiling or cabinets
   final PaintColor accent; // door/built-ins/one wall
-  const PaletteRoles({required this.anchor, required this.secondary, required this.accent});
+  const PaletteRoles(
+      {required this.anchor, required this.secondary, required this.accent});
 
-  PaletteRoles copyWith({PaintColor? anchor, PaintColor? secondary, PaintColor? accent}) =>
-      PaletteRoles(anchor: anchor ?? this.anchor, secondary: secondary ?? this.secondary, accent: accent ?? this.accent);
+  PaletteRoles copyWith(
+          {PaintColor? anchor, PaintColor? secondary, PaintColor? accent}) =>
+      PaletteRoles(
+          anchor: anchor ?? this.anchor,
+          secondary: secondary ?? this.secondary,
+          accent: accent ?? this.accent);
 }
 
 class Palette {
@@ -36,14 +42,19 @@ class Palette {
   final Map<String, dynamic>? rationale;
   final String? id; // optional paletteId from backend
 
-  const Palette({required this.brand, required this.roles, this.rationale, this.id});
+  const Palette(
+      {required this.brand, required this.roles, this.rationale, this.id});
 
   factory Palette.fromJson(Map<String, dynamic> j) {
     final roles = j['roles'] as Map<String, dynamic>;
-    PaintColor pc(String k) => PaintColor.fromJson((roles[k] as Map).cast<String, dynamic>());
+    PaintColor pc(String k) =>
+        PaintColor.fromJson((roles[k] as Map).cast<String, dynamic>());
     return Palette(
       brand: j['brand'] ?? 'SherwinWilliams',
-      roles: PaletteRoles(anchor: pc('anchor'), secondary: pc('secondary'), accent: pc('accent')),
+      roles: PaletteRoles(
+          anchor: pc('anchor'),
+          secondary: pc('secondary'),
+          accent: pc('accent')),
       rationale: (j['rationale'] as Map?)?.cast<String, dynamic>(),
       id: j['id'] as String?,
     );

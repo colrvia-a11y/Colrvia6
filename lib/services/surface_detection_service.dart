@@ -81,21 +81,22 @@ class SurfaceDetectionService {
   static Future<ImageAnalysisResult> analyzeImage(Uint8List imageBytes) async {
     try {
       final analysis = await GeminiAIService.analyzeSpace(imageBytes);
-      
+
       // 🐛 DEBUG: Log the raw AI analysis
       _logger.fine('🔍 RAW AI ANALYSIS: $analysis');
 
       final spaceType =
           _spaceTypeMap[analysis['space_type']] ?? SpaceType.living;
-      
+
       // 🐛 DEBUG: Log space type mapping
       _logger.fine('🏠 SPACE TYPE: ${analysis['space_type']} → $spaceType');
-          
+
       final availableSurfaces = _getAvailableSurfaces(spaceType, analysis);
-      
+
       // 🐛 DEBUG: Log surface detection
-      _logger.fine('🎨 DETECTED SURFACES: ${analysis['paintable_surfaces']} → $availableSurfaces');
-      
+      _logger.fine(
+          '🎨 DETECTED SURFACES: ${analysis['paintable_surfaces']} → $availableSurfaces');
+
       final confidence = (analysis['quality_score'] as num?)?.toDouble() ?? 0.8;
 
       final result = ImageAnalysisResult(
@@ -108,15 +109,16 @@ class SurfaceDetectionService {
         confidence: confidence,
         rawAnalysis: analysis,
       );
-      
+
       // 🐛 DEBUG: Log final result
-      _logger.fine('✅ FINAL RESULT: SpaceType=${result.spaceType}, Surfaces=${result.availableSurfaces}, Confidence=${result.confidence}');
-      
+      _logger.fine(
+          '✅ FINAL RESULT: SpaceType=${result.spaceType}, Surfaces=${result.availableSurfaces}, Confidence=${result.confidence}');
+
       return result;
     } catch (e) {
       // 🐛 DEBUG: Log fallback
       _logger.warning('❌ ANALYSIS FAILED, USING FALLBACK: $e');
-      
+
       // Fallback to default analysis
       return ImageAnalysisResult(
         spaceType: SpaceType.living,
@@ -138,10 +140,10 @@ class SurfaceDetectionService {
 
     // Convert detected surface strings to SurfaceType enums
     final availableSurfaces = <SurfaceType>[];
-    
+
     for (final detected in detectedSurfaces) {
       final detectedLower = detected.toLowerCase();
-      
+
       // Map AI surface names to our enum types
       if (detectedLower.contains('wall')) {
         availableSurfaces.add(SurfaceType.walls);
@@ -157,12 +159,12 @@ class SurfaceDetectionService {
         availableSurfaces.add(SurfaceType.doors);
       }
     }
-    
+
     // Fallback to space defaults if no surfaces detected
     if (availableSurfaces.isEmpty) {
       return _availableSurfaces[spaceType] ?? [SurfaceType.walls];
     }
-    
+
     return availableSurfaces;
   }
 

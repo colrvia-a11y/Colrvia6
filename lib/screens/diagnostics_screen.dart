@@ -39,7 +39,8 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
 
   Future<void> _share() async {
     final report = await DiagnosticsService.instance.buildReport();
-    await SharePlus.instance.share(ShareParams(text: report, subject: 'Diagnostics'));
+    await SharePlus.instance
+        .share(ShareParams(text: report, subject: 'Diagnostics'));
     AnalyticsService.instance.logEvent('diagnostics_shared');
   }
 
@@ -56,8 +57,8 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
           ),
           ListTile(
             title: const Text('Flags'),
-            subtitle:
-                Text(_flags.entries.map((e) => '${e.key}:${e.value}').join(', ')),
+            subtitle: Text(
+                _flags.entries.map((e) => '${e.key}:${e.value}').join(', ')),
           ),
           ListTile(
             title: const Text('Breadcrumbs'),

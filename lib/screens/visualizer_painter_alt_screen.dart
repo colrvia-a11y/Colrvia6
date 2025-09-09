@@ -15,10 +15,12 @@ import 'package:color_canvas/services/analytics_service.dart';
 class VisualizerPainterAltScreen extends StatefulWidget {
   const VisualizerPainterAltScreen({super.key});
   @override
-  State<VisualizerPainterAltScreen> createState() => _VisualizerPainterAltScreenState();
+  State<VisualizerPainterAltScreen> createState() =>
+      _VisualizerPainterAltScreenState();
 }
 
-class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen> {
+class _VisualizerPainterAltScreenState
+    extends State<VisualizerPainterAltScreen> {
   final _boundaryKey = GlobalKey();
 
   Palette? _pal;
@@ -42,10 +44,17 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
   Future<void> _load() async {
     final art = JourneyService.instance.state.value?.artifacts ?? {};
     final pjson = (art['palette'] as Map?)?.cast<String, dynamic>();
-    Palette? pal; if (pjson != null) pal = Palette.fromJson(pjson);
-    final photos = (art['answers']?['photos'] as List?)?.cast<String>() ?? const [];
-    setState(() { _pal = pal; _photos = photos; });
-    try { AnalyticsService.instance.visualizerOpened(); } catch (_) {}
+    Palette? pal;
+    if (pjson != null) pal = Palette.fromJson(pjson);
+    final photos =
+        (art['answers']?['photos'] as List?)?.cast<String>() ?? const [];
+    setState(() {
+      _pal = pal;
+      _photos = photos;
+    });
+    try {
+      AnalyticsService.instance.visualizerOpened();
+    } catch (_) {}
   }
 
   Color _parse(String hex) {
@@ -55,12 +64,17 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
   }
 
   Color _roleColor() {
-    final pal = _pal; if (pal == null) return Colors.blueGrey;
+    final pal = _pal;
+    if (pal == null) return Colors.blueGrey;
     switch (_role) {
-      case 'anchor': return _parse(pal.roles.anchor.code);
-      case 'secondary': return _parse(pal.roles.secondary.code);
-      case 'accent': return _parse(pal.roles.accent.code);
-      default: return Colors.blueGrey;
+      case 'anchor':
+        return _parse(pal.roles.anchor.code);
+      case 'secondary':
+        return _parse(pal.roles.secondary.code);
+      case 'accent':
+        return _parse(pal.roles.accent.code);
+      default:
+        return Colors.blueGrey;
     }
   }
 
@@ -68,7 +82,8 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
 
   void _start(Offset p) {
     final path = Path()..moveTo(p.dx, p.dy);
-    _current = _Stroke(path: path, role: _role, opacity: _opacity, width: _brush);
+    _current =
+        _Stroke(path: path, role: _role, opacity: _opacity, width: _brush);
     _strokes.add(_current!);
     _lastPt = p;
     setState(() {});
@@ -76,9 +91,10 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
 
   void _drag(Offset p) {
     // Decimate points for smoother performance on large brushes
-    final last = _lastPt; if (last == null) return;
+    final last = _lastPt;
+    if (last == null) return;
     final dx = p.dx - last.dx, dy = p.dy - last.dy;
-    final dist2 = dx*dx + dy*dy;
+    final dist2 = dx * dx + dy * dy;
     final minDist = (_brush * 0.35); // brush‑relative threshold
     if (dist2 < minDist * minDist) return;
     _current?.path.lineTo(p.dx, p.dy);
@@ -88,31 +104,45 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
 
   Future<void> _end() async {
     if (_current != null) {
-      try { AnalyticsService.instance.visualizerStroke(role: _current!.role); } catch (_) {}
+      try {
+        AnalyticsService.instance.visualizerStroke(role: _current!.role);
+      } catch (_) {}
     }
-    _current = null; _lastPt = null;
+    _current = null;
+    _lastPt = null;
   }
 
-  void _undo() { final s = _strokes; if (s.isNotEmpty) setState(() => s.removeLast()); }
-  void _clear() { setState(() => _strokesByPhoto[_index] = <_Stroke>[]); }
+  void _undo() {
+    final s = _strokes;
+    if (s.isNotEmpty) setState(() => s.removeLast());
+  }
+
+  void _clear() {
+    setState(() => _strokesByPhoto[_index] = <_Stroke>[]);
+  }
 
   Future<void> _export() async {
     try {
-      final rb = _boundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      final rb = _boundaryKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
       if (rb == null) return;
       final img = await rb.toImage(pixelRatio: 3.0);
       final data = await img.toByteData(format: ui.ImageByteFormat.png);
       final bytes = data!.buffer.asUint8List();
       final dir = await getTemporaryDirectory();
-      final f = File('${dir.path}/colrvia-overlay-${DateTime.now().millisecondsSinceEpoch}.png');
+      final f = File(
+          '${dir.path}/colrvia-overlay-${DateTime.now().millisecondsSinceEpoch}.png');
       await f.writeAsBytes(bytes);
       if (!mounted) return;
       // ignore: deprecated_member_use
       await Share.shareXFiles([XFile(f.path)], text: 'Colrvia Paint Overlay');
-      try { AnalyticsService.instance.vizExport(); } catch (_) {}
+      try {
+        AnalyticsService.instance.vizExport();
+      } catch (_) {}
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Export failed')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Export failed')));
     }
   }
 
@@ -122,11 +152,13 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
       appBar: AppBar(title: const Text('Paint Overlay (Alt Visualizer)')),
       body: _pal == null
           ? const Center(child: Text('Generate a palette first.'))
-          : (_photos.isEmpty ? _emptyState() : Column(children: [
-              _paletteHeader(),
-              Expanded(child: _canvas()),
-              _toolbar(),
-            ])),
+          : (_photos.isEmpty
+              ? _emptyState()
+              : Column(children: [
+                  _paletteHeader(),
+                  Expanded(child: _canvas()),
+                  _toolbar(),
+                ])),
     );
   }
 
@@ -134,13 +166,16 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Text('Add a room photo to start', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+        const Text('Add a room photo to start',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
         PhotoPickerInline(
           value: _photos,
           onChanged: (next) async {
             setState(() => _photos = next);
-            final answers = JourneyService.instance.state.value?.artifacts['answers'] as Map<String, dynamic>? ?? {};
+            final answers = JourneyService.instance.state.value
+                    ?.artifacts['answers'] as Map<String, dynamic>? ??
+                {};
             answers['photos'] = next;
             await JourneyService.instance.setArtifact('answers', answers);
           },
@@ -152,17 +187,29 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
   Widget _paletteHeader() {
     final pal = _pal!;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16,8,16,8),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: Row(children: [
-        _rolePill('anchor', pal.roles.anchor.name, pal.roles.anchor.code, 'Main walls'),
+        _rolePill('anchor', pal.roles.anchor.name, pal.roles.anchor.code,
+            'Main walls'),
         const SizedBox(width: 8),
-        _rolePill('secondary', pal.roles.secondary.name, pal.roles.secondary.code, 'Trim & cabinets'),
+        _rolePill('secondary', pal.roles.secondary.name,
+            pal.roles.secondary.code, 'Trim & cabinets'),
         const SizedBox(width: 8),
-        _rolePill('accent', pal.roles.accent.name, pal.roles.accent.code, 'Door/Built-ins'),
+        _rolePill('accent', pal.roles.accent.name, pal.roles.accent.code,
+            'Door/Built-ins'),
         const Spacer(),
-        IconButton(onPressed: _undo, icon: const Icon(Icons.undo), tooltip: 'Undo last stroke'),
-        IconButton(onPressed: _clear, icon: const Icon(Icons.delete_sweep_outlined), tooltip: 'Clear painting'),
-        IconButton(onPressed: _export, icon: const Icon(Icons.ios_share), tooltip: 'Share image'),
+        IconButton(
+            onPressed: _undo,
+            icon: const Icon(Icons.undo),
+            tooltip: 'Undo last stroke'),
+        IconButton(
+            onPressed: _clear,
+            icon: const Icon(Icons.delete_sweep_outlined),
+            tooltip: 'Clear painting'),
+        IconButton(
+            onPressed: _export,
+            icon: const Icon(Icons.ios_share),
+            tooltip: 'Share image'),
       ]),
     );
   }
@@ -182,9 +229,17 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
             borderRadius: BorderRadius.circular(999),
           ),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Container(width: 14, height: 14, decoration: BoxDecoration(color: _parse(hex), shape: BoxShape.circle, border: Border.all(color: Colors.black26))),
+            Container(
+                width: 14,
+                height: 14,
+                decoration: BoxDecoration(
+                    color: _parse(hex),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.black26))),
             const SizedBox(width: 6),
-            Text(name, style: TextStyle(color: selected ? Colors.white : Colors.black87)),
+            Text(name,
+                style:
+                    TextStyle(color: selected ? Colors.white : Colors.black87)),
           ]),
         ),
       ),
@@ -198,7 +253,8 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
       child: Stack(children: [
         Positioned.fill(
           child: InteractiveViewer(
-            minScale: 0.5, maxScale: 4.0,
+            minScale: 0.5,
+            maxScale: 4.0,
             child: Stack(children: [
               Positioned.fill(
                 child: Builder(builder: (context) {
@@ -211,8 +267,10 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
                     fit: BoxFit.contain,
                     memCacheWidth: memW,
                     memCacheHeight: memH,
-                    placeholder: (_, __) => const Center(child: CircularProgressIndicator()),
-                    errorWidget: (_, __, ___) => const Center(child: Icon(Icons.broken_image_outlined)),
+                    placeholder: (_, __) =>
+                        const Center(child: CircularProgressIndicator()),
+                    errorWidget: (_, __, ___) =>
+                        const Center(child: Icon(Icons.broken_image_outlined)),
                   );
                 }),
               ),
@@ -222,7 +280,9 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
                   onPanStart: (d) => _start(d.localPosition),
                   onPanUpdate: (d) => _drag(d.localPosition),
                   onPanEnd: (_) => _end(),
-                  child: CustomPaint(painter: _Painter(strokes: _strokes), child: const SizedBox.expand()),
+                  child: CustomPaint(
+                      painter: _Painter(strokes: _strokes),
+                      child: const SizedBox.expand()),
                 ),
               ),
             ]),
@@ -230,15 +290,28 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
         ),
         if (_photos.length > 1)
           Positioned(
-            bottom: 12, left: 0, right: 0,
+            bottom: 12,
+            left: 0,
+            right: 0,
             child: Center(
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(999)),
+                decoration: BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.circular(999)),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  IconButton(color: Colors.white, onPressed: () => setState(() => _index = (_index - 1 + _photos.length) % _photos.length), icon: const Icon(Icons.chevron_left)),
-                  Text('${_index + 1}/${_photos.length}', style: const TextStyle(color: Colors.white)),
-                  IconButton(color: Colors.white, onPressed: () => setState(() => _index = (_index + 1) % _photos.length), icon: const Icon(Icons.chevron_right)),
+                  IconButton(
+                      color: Colors.white,
+                      onPressed: () => setState(() => _index =
+                          (_index - 1 + _photos.length) % _photos.length),
+                      icon: const Icon(Icons.chevron_left)),
+                  Text('${_index + 1}/${_photos.length}',
+                      style: const TextStyle(color: Colors.white)),
+                  IconButton(
+                      color: Colors.white,
+                      onPressed: () => setState(
+                          () => _index = (_index + 1) % _photos.length),
+                      icon: const Icon(Icons.chevron_right)),
                 ]),
               ),
             ),
@@ -255,17 +328,41 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          border: Border(top: BorderSide(color: Theme.of(context).dividerColor)),
+          border:
+              Border(top: BorderSide(color: Theme.of(context).dividerColor)),
         ),
         child: Column(children: [
           Row(children: [
             const Text('Brush'),
-            Expanded(child: Slider(value: _brush, min: 8, max: 72, onChanged: (v) => setState(() => _brush = v))),
-            Semantics(label: 'Brush color sample', child: Container(width: 28, height: 28, decoration: BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: const [BoxShadow(blurRadius: 2, spreadRadius: 0.5, color: Colors.black26)]))),
+            Expanded(
+                child: Slider(
+                    value: _brush,
+                    min: 8,
+                    max: 72,
+                    onChanged: (v) => setState(() => _brush = v))),
+            Semantics(
+                label: 'Brush color sample',
+                child: Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                        boxShadow: const [
+                          BoxShadow(
+                              blurRadius: 2,
+                              spreadRadius: 0.5,
+                              color: Colors.black26)
+                        ]))),
           ]),
           Row(children: [
             const Text('Opacity'),
-            Expanded(child: Slider(value: _opacity, min: 0.15, max: 0.95, onChanged: (v) => setState(() => _opacity = v))),
+            Expanded(
+                child: Slider(
+                    value: _opacity,
+                    min: 0.15,
+                    max: 0.95,
+                    onChanged: (v) => setState(() => _opacity = v))),
             Text('${(_opacity * 100).round()}%'),
           ]),
         ]),
@@ -279,7 +376,11 @@ class _Stroke {
   final String role; // anchor/secondary/accent
   final double opacity;
   final double width;
-  _Stroke({required this.path, required this.role, required this.opacity, required this.width});
+  _Stroke(
+      {required this.path,
+      required this.role,
+      required this.opacity,
+      required this.width});
 }
 
 class _Painter extends CustomPainter {
@@ -302,13 +403,18 @@ class _Painter extends CustomPainter {
 
   static Color _roleColor(String role) {
     switch (role) {
-      case 'anchor': return const Color(0xFFB0BEC5);
-      case 'secondary': return const Color(0xFFE0E0E0);
-      case 'accent': return const Color(0xFF90CAF9);
-      default: return const Color(0xFFB0BEC5);
+      case 'anchor':
+        return const Color(0xFFB0BEC5);
+      case 'secondary':
+        return const Color(0xFFE0E0E0);
+      case 'accent':
+        return const Color(0xFF90CAF9);
+      default:
+        return const Color(0xFFB0BEC5);
     }
   }
 
   @override
-  bool shouldRepaint(covariant _Painter oldDelegate) => oldDelegate.strokes != strokes;
+  bool shouldRepaint(covariant _Painter oldDelegate) =>
+      oldDelegate.strokes != strokes;
 }

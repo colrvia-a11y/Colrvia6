@@ -47,7 +47,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               final it = items[i];
               return Card(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -83,7 +84,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                             Wrap(
                               spacing: 8,
                               runSpacing: 4,
-                              children: it.hexes.map((h) => Chip(label: Text(h))).toList(),
+                              children: it.hexes
+                                  .map((h) => Chip(label: Text(h)))
+                                  .toList(),
                             ),
                             const SizedBox(height: 8),
                             Text(
@@ -102,10 +105,15 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                             context: context,
                             builder: (ctx) => AlertDialog(
                               title: const Text('Delete favorite?'),
-                              content: const Text('Remove this palette from favorites?'),
+                              content: const Text(
+                                  'Remove this palette from favorites?'),
                               actions: [
-                                TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-                                TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete')),
+                                TextButton(
+                                    onPressed: () => Navigator.pop(ctx, false),
+                                    child: const Text('Cancel')),
+                                TextButton(
+                                    onPressed: () => Navigator.pop(ctx, true),
+                                    child: const Text('Delete')),
                               ],
                             ),
                           );

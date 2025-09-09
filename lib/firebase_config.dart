@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
 import 'firebase_options.dart';
 
@@ -25,7 +26,8 @@ class FirebaseConfig {
   static FirebaseOptions? _readOverrides() {
     const apiKey = String.fromEnvironment('FIREBASE_API_KEY');
     const appId = String.fromEnvironment('FIREBASE_APP_ID');
-    const messagingSenderId = String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID');
+    const messagingSenderId =
+        String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID');
     const projectId = String.fromEnvironment('FIREBASE_PROJECT_ID');
 
     // Optional values – used when provided
@@ -35,8 +37,10 @@ class FirebaseConfig {
     const iosBundleId = String.fromEnvironment('FIREBASE_IOS_BUNDLE_ID');
 
     // Require core fields to consider overrides valid
-    final hasCore =
-        apiKey.isNotEmpty && appId.isNotEmpty && messagingSenderId.isNotEmpty && projectId.isNotEmpty;
+    final hasCore = apiKey.isNotEmpty &&
+        appId.isNotEmpty &&
+        messagingSenderId.isNotEmpty &&
+        projectId.isNotEmpty;
     if (!hasCore) return null;
 
     if (kIsWeb) {
@@ -88,4 +92,3 @@ class FirebaseConfig {
     }
   }
 }
-

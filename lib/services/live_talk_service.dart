@@ -22,14 +22,19 @@ class LiveTalkService {
 
   final ValueNotifier<String> mode = ValueNotifier<String>('webrtc');
   final ValueNotifier<LiveTalkConnectionState> connectionState =
-      ValueNotifier<LiveTalkConnectionState>(LiveTalkConnectionState.disconnected);
+      ValueNotifier<LiveTalkConnectionState>(
+          LiveTalkConnectionState.disconnected);
   final ValueNotifier<bool> assistantSpeaking = ValueNotifier<bool>(false);
   final ValueNotifier<bool> muted = ValueNotifier<bool>(false);
   final ValueNotifier<bool> reconnecting = ValueNotifier<bool>(false);
-  final ValueNotifier<LiveTalkError?> lastError = ValueNotifier<LiveTalkError?>(null);
-  final StreamController<String> partialText = StreamController<String>.broadcast();
-  final StreamController<String> finalText = StreamController<String>.broadcast();
-  final StreamController<String> userUtterance = StreamController<String>.broadcast();
+  final ValueNotifier<LiveTalkError?> lastError =
+      ValueNotifier<LiveTalkError?>(null);
+  final StreamController<String> partialText =
+      StreamController<String>.broadcast();
+  final StreamController<String> finalText =
+      StreamController<String>.broadcast();
+  final StreamController<String> userUtterance =
+      StreamController<String>.broadcast();
 
   RTCPeerConnection? _pc;
   MediaStream? _mic;
@@ -140,7 +145,8 @@ class LiveTalkService {
       };
 
       // Data channel for events
-      _dc = await _pc!.createDataChannel('oai-events', RTCDataChannelInit()..ordered = true);
+      _dc = await _pc!.createDataChannel(
+          'oai-events', RTCDataChannelInit()..ordered = true);
       _dc!.onMessage = _onEventMessage;
 
       final offer = await _pc!.createOffer({});
@@ -150,22 +156,25 @@ class LiveTalkService {
       debugPrint('LiveTalkService: dialing WebRTC answer URL: $answerUrl');
       final answerResp = await http
           .post(
-        answerUrl,
-        headers: {
-          'Authorization': 'Bearer $_ephemeralKey',
-          'Content-Type': 'application/sdp',
-          'OpenAI-Beta': 'realtime=v1',
-        },
-        body: offer.sdp,
-      )
+            answerUrl,
+            headers: {
+              'Authorization': 'Bearer $_ephemeralKey',
+              'Content-Type': 'application/sdp',
+              'OpenAI-Beta': 'realtime=v1',
+            },
+            body: offer.sdp,
+          )
           .timeout(const Duration(seconds: 15));
       if (answerResp.statusCode < 200 || answerResp.statusCode >= 300) {
-        lastError.value = LiveTalkError(LiveTalkErrorCode.webrtcFailure, details: answerResp.body);
-        throw Exception('OpenAI answer error: ${answerResp.statusCode} ${answerResp.body}');
+        lastError.value = LiveTalkError(LiveTalkErrorCode.webrtcFailure,
+            details: answerResp.body);
+        throw Exception(
+            'OpenAI answer error: ${answerResp.statusCode} ${answerResp.body}');
       }
       try {
         await _pc!
-            .setRemoteDescription(RTCSessionDescription(answerResp.body, 'answer'))
+            .setRemoteDescription(
+                RTCSessionDescription(answerResp.body, 'answer'))
             .timeout(const Duration(seconds: 10));
       } on TimeoutException {
         lastError.value = LiveTalkError(LiveTalkErrorCode.negotiationTimeout);
@@ -173,7 +182,8 @@ class LiveTalkService {
       }
 
       // Send session.update to set persona/instructions + server VAD
-      final instructions = _buildInstructions(persona: persona, context: context);
+      final instructions =
+          _buildInstructions(persona: persona, context: context);
       final sessionUpdate = {
         'type': 'session.update',
         'session': {
@@ -185,10 +195,12 @@ class LiveTalkService {
 
       connectionState.value = LiveTalkConnectionState.connected;
     } catch (e, st) {
-      debugPrint('LiveTalkService WebRTC connect failed (${e.runtimeType}): $e\n$st');
+      debugPrint(
+          'LiveTalkService WebRTC connect failed (${e.runtimeType}): $e\n$st');
       debugPrint('LiveTalkService: attempting WS fallback');
       // Mark webrtc failure unless specified already
-      lastError.value = lastError.value ?? LiveTalkError(LiveTalkErrorCode.webrtcFailure);
+      lastError.value =
+          lastError.value ?? LiveTalkError(LiveTalkErrorCode.webrtcFailure);
       // Fallback to WS implementation
       try {
         final ws = _LiveTalkServiceWsBridge(this);
@@ -207,7 +219,8 @@ class LiveTalkService {
         if (e2 is TimeoutException) {
           lastError.value = LiveTalkError(LiveTalkErrorCode.network);
         } else {
-          lastError.value = lastError.value ?? LiveTalkError(LiveTalkErrorCode.unknown);
+          lastError.value =
+              lastError.value ?? LiveTalkError(LiveTalkErrorCode.unknown);
         }
         rethrow;
       }
@@ -245,20 +258,20 @@ class LiveTalkService {
 
     // Otherwise, call a generic HTTPS endpoint with Bearer Firebase ID token
     final resp = await http
-        .post(
-      tokenEndpoint,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $idToken',
-      },
-      body: jsonEncode({
-        'sessionId': sessionId,
-        'model': model,
-        'voice': voice,
-      }))
+        .post(tokenEndpoint,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $idToken',
+            },
+            body: jsonEncode({
+              'sessionId': sessionId,
+              'model': model,
+              'voice': voice,
+            }))
         .timeout(const Duration(seconds: 12));
     if (resp.statusCode < 200 || resp.statusCode >= 300) {
-      lastError.value = LiveTalkError(LiveTalkErrorCode.tokenEndpoint, details: resp.body);
+      lastError.value =
+          LiveTalkError(LiveTalkErrorCode.tokenEndpoint, details: resp.body);
       throw Exception('Token endpoint error: ${resp.statusCode} ${resp.body}');
     }
     final tok = jsonDecode(resp.body) as Map<String, dynamic>;
@@ -274,7 +287,10 @@ class LiveTalkService {
       if (type == 'response.delta') {
         assistantSpeaking.value = true;
         final delta = m['delta'] as Map<String, dynamic>?;
-        final text = (delta?['text'] ?? delta?['output_text'] ?? delta?['content'] ?? '') as String?;
+        final text = (delta?['text'] ??
+            delta?['output_text'] ??
+            delta?['content'] ??
+            '') as String?;
         if (text != null && text.isNotEmpty) {
           _accumulator += text;
           partialText.add(_accumulator);
@@ -286,12 +302,16 @@ class LiveTalkService {
         assistantSpeaking.value = false;
       } else if (type == 'response.output_tool_call') {
         // Tool call with arguments
-        final name = (m['name'] as String?) ?? (m['tool_name'] as String?) ?? '';
+        final name =
+            (m['name'] as String?) ?? (m['tool_name'] as String?) ?? '';
         dynamic args = m['arguments'];
         if (args is String) {
-          try { args = jsonDecode(args); } catch (_) {}
+          try {
+            args = jsonDecode(args);
+          } catch (_) {}
         }
-        final Map<String, dynamic> a = (args is Map<String, dynamic>) ? args : <String, dynamic>{};
+        final Map<String, dynamic> a =
+            (args is Map<String, dynamic>) ? args : <String, dynamic>{};
         if (name == 'save_answer') {
           _handleSaveAnswer(a);
         } else if (name == 'next_prompt') {
@@ -326,7 +346,8 @@ class LiveTalkService {
 
   Future<void> _handleSaveAnswer(Map<String, dynamic> args) async {
     try {
-      final questionId = (args['questionId'] as String?) ?? (args['id'] as String?) ?? '';
+      final questionId =
+          (args['questionId'] as String?) ?? (args['id'] as String?) ?? '';
       final text = (args['text'] as String?) ?? '';
       if (text.trim().isEmpty) return;
       final ref = await _ensureSessionRef();
@@ -336,7 +357,8 @@ class LiveTalkService {
         'questionId': questionId,
         'ts': Timestamp.now(),
       });
-      await ref.set({'updatedAt': FieldValue.serverTimestamp()}, SetOptions(merge: true));
+      await ref.set(
+          {'updatedAt': FieldValue.serverTimestamp()}, SetOptions(merge: true));
     } catch (_) {}
   }
 
@@ -379,13 +401,15 @@ class LiveTalkService {
   }
 
   // Legacy signature preserved for API stability; recommend using connect(tokenEndpoint: ...)
-  Future<void> connectLegacy({required String sessionId, required Uri gatewayWss}) async {
+  Future<void> connectLegacy(
+      {required String sessionId, required Uri gatewayWss}) async {
     throw UnimplementedError('Use connect(tokenEndpoint: ..., model: ...)');
   }
 
   /// Create a server-tracked talk session document via Cloud Functions.
   /// Returns the created sessionId.
-  Future<String> createSession({Map<String, dynamic>? answers, DateTime? when}) async {
+  Future<String> createSession(
+      {Map<String, dynamic>? answers, DateTime? when}) async {
     final functions = FirebaseFunctions.instanceFor(region: 'us-central1');
     final callable = functions.httpsCallable('createTalkSession');
     final data = <String, dynamic>{
@@ -402,14 +426,28 @@ class LiveTalkService {
   }
 
   Future<void> disconnect() async {
-    try { await _dc?.close(); } catch (_) {}
-    try { await _pc?.close(); } catch (_) {}
+    try {
+      await _dc?.close();
+    } catch (_) {}
+    try {
+      await _pc?.close();
+    } catch (_) {}
     try {
       final tracks = _mic?.getTracks() ?? const <MediaStreamTrack>[];
-      for (final t in tracks) { try { await t.stop(); } catch (_) {} }
+      for (final t in tracks) {
+        try {
+          await t.stop();
+        } catch (_) {}
+      }
     } catch (_) {}
-    try { await _mic?.dispose(); } catch (_) {}
-    _dc = null; _pc = null; _mic = null; _accumulator = ''; _ephemeralKey = null;
+    try {
+      await _mic?.dispose();
+    } catch (_) {}
+    _dc = null;
+    _pc = null;
+    _mic = null;
+    _accumulator = '';
+    _ephemeralKey = null;
     assistantSpeaking.value = false;
     muted.value = false;
     reconnecting.value = false;
@@ -484,11 +522,15 @@ class _LiveTalkServiceWsBridge {
     // Use the WS fallback service and wire its streams to the parent service
     final ws = LiveTalkServiceWs.instance;
     ws.mode.addListener(() => _parent.mode.value = ws.mode.value);
-    ws.connectionState.addListener(() => _parent.connectionState.value = ws.connectionState.value);
-    ws.assistantSpeaking.addListener(() => _parent.assistantSpeaking.value = ws.assistantSpeaking.value);
+    ws.connectionState.addListener(
+        () => _parent.connectionState.value = ws.connectionState.value);
+    ws.assistantSpeaking.addListener(
+        () => _parent.assistantSpeaking.value = ws.assistantSpeaking.value);
     ws.muted.addListener(() => _parent.muted.value = ws.muted.value);
-    ws.reconnecting.addListener(() => _parent.reconnecting.value = ws.reconnecting.value);
-    ws.lastError.addListener(() => _parent.lastError.value = ws.lastError.value);
+    ws.reconnecting
+        .addListener(() => _parent.reconnecting.value = ws.reconnecting.value);
+    ws.lastError
+        .addListener(() => _parent.lastError.value = ws.lastError.value);
     ws.partialText.stream.listen(_parent.partialText.add);
     ws.finalText.stream.listen(_parent.finalText.add);
     await ws.connect(

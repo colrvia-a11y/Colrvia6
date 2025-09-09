@@ -11,7 +11,6 @@ import 'package:color_canvas/services/project_service.dart';
 import 'package:color_canvas/services/user_prefs_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-
 import 'roller_screen.dart';
 import 'visualizer_screen.dart';
 import 'learn_screen.dart';
@@ -28,7 +27,8 @@ class CreateHubScreen extends StatefulWidget {
   State<CreateHubScreen> createState() => _CreateHubScreenState();
 }
 
-class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderStateMixin {
+class _CreateHubScreenState extends State<CreateHubScreen>
+    with TickerProviderStateMixin {
   /// New Design tab content
   Widget _buildDesign(BuildContext context, {ScrollController? controller}) {
     final theme = Theme.of(context);
@@ -39,16 +39,16 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const _SectionIntro(
-            title: 'Design',
-            subtitle: 'Pick your path. Two beautiful ways to start.'
-          ),
+              title: 'Design',
+              subtitle: 'Pick your path. Two beautiful ways to start.'),
           const SizedBox(height: 12),
           _FeatureGrid(
             cards: [
               _FeatureCardData(
                 semanticLabel: 'Start with AI Palette Builder',
                 title: 'AI Palette Builder',
-                subtitle: 'Answer a few quick questions. We craft a cohesive system for you.',
+                subtitle:
+                    'Answer a few quick questions. We craft a cohesive system for you.',
                 actionLabel: 'Start with AI',
                 icon: Icons.auto_awesome,
                 gradient: LinearGradient(
@@ -64,7 +64,8 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
               _FeatureCardData(
                 semanticLabel: 'Open Roller Designer',
                 title: 'Roller Designer',
-                subtitle: 'Play with tone, contrast, and harmony using tactile controls.',
+                subtitle:
+                    'Play with tone, contrast, and harmony using tactile controls.',
                 actionLabel: 'Open Roller',
                 icon: Icons.tune_rounded,
                 gradient: LinearGradient(
@@ -83,6 +84,7 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
       ),
     );
   }
+
   late TabController _tab;
   static const int _tabCount = 3;
   final JourneyService _journey = JourneyService.instance;
@@ -99,7 +101,7 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
   @override
   void initState() {
     super.initState();
-  _tab = TabController(length: _tabCount, vsync: this, initialIndex: 0);
+    _tab = TabController(length: _tabCount, vsync: this, initialIndex: 0);
     // create per-tab scroll controllers
     _scrollControllers = List.generate(_tabCount, (i) => ScrollController());
     _bootstrap();
@@ -118,7 +120,9 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
     // Use the active tab's scroll controller to compute hero collapse
     final activeIndex = (_tab.index).clamp(0, _tabCount - 1);
     final controller = _scrollControllers[activeIndex];
-    final maxHeight = (MediaQuery.of(context).size.height * _heroMaxHeightFraction).clamp(220.0, MediaQuery.of(context).size.height);
+    final maxHeight =
+        (MediaQuery.of(context).size.height * _heroMaxHeightFraction)
+            .clamp(220.0, MediaQuery.of(context).size.height);
     final minHeight = _heroMinHeight;
     final offset = controller.hasClients ? controller.offset : 0.0;
     double newHeight = (maxHeight - offset).clamp(minHeight, maxHeight);
@@ -156,18 +160,22 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
     final title = "Create Hub";
     final subtitle = "Design · Learn · Visualize";
 
-    final maxHeroHeight = (MediaQuery.of(context).size.height * _heroMaxHeightFraction).clamp(220.0, MediaQuery.of(context).size.height);
+    final maxHeroHeight =
+        (MediaQuery.of(context).size.height * _heroMaxHeightFraction)
+            .clamp(220.0, MediaQuery.of(context).size.height);
     if (_heroHeight == 0) _heroHeight = maxHeroHeight;
-  // Compute hero text opacity: fade out faster and complete before full collapse.
-  // collapseProgress: 0.0 at fully expanded, 1.0 at fully collapsed
-  final double collapseProgress = ((maxHeroHeight - _heroHeight) / (maxHeroHeight - _heroMinHeight))
-    .clamp(0.0, 1.0)
-    .toDouble();
-  // Finish fade by ~40% collapsed so text is gone before the tab bar overlaps it
-  const double fadeEndAt = 0.4; // more aggressive early fade
-  final double fadePhase = (collapseProgress / fadeEndAt).clamp(0.0, 1.0);
-  // Use easeOut so opacity drops quickly at the start of scroll
-  final double heroTextOpacity = 1.0 - Curves.easeOutQuint.transform(fadePhase);
+    // Compute hero text opacity: fade out faster and complete before full collapse.
+    // collapseProgress: 0.0 at fully expanded, 1.0 at fully collapsed
+    final double collapseProgress =
+        ((maxHeroHeight - _heroHeight) / (maxHeroHeight - _heroMinHeight))
+            .clamp(0.0, 1.0)
+            .toDouble();
+    // Finish fade by ~40% collapsed so text is gone before the tab bar overlaps it
+    const double fadeEndAt = 0.4; // more aggressive early fade
+    final double fadePhase = (collapseProgress / fadeEndAt).clamp(0.0, 1.0);
+    // Use easeOut so opacity drops quickly at the start of scroll
+    final double heroTextOpacity =
+        1.0 - Curves.easeOutQuint.transform(fadePhase);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
@@ -199,7 +207,10 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
                         padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surface.withAlpha(61),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .surface
+                                .withAlpha(61),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: _buildTabBar(),
@@ -216,9 +227,12 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
                               child: TabBarView(
                                 controller: _tab,
                                 children: [
-                                  _buildDesign(context, controller: _scrollControllers[0]),
-                                  _buildGuided(context, controller: _scrollControllers[1]),
-                                  _buildTools(context, controller: _scrollControllers[2]),
+                                  _buildDesign(context,
+                                      controller: _scrollControllers[0]),
+                                  _buildGuided(context,
+                                      controller: _scrollControllers[1]),
+                                  _buildTools(context,
+                                      controller: _scrollControllers[2]),
                                 ],
                               ),
                             ),
@@ -234,9 +248,13 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
   }
 
   /// Top hero header with curved bottom and integrated TabBar (matches Search UI)
-  Widget _topHero({required String title, required String subtitle, bool collapsed = false, double textOpacity = 1.0}) {
+  Widget _topHero(
+      {required String title,
+      required String subtitle,
+      bool collapsed = false,
+      double textOpacity = 1.0}) {
     final theme = Theme.of(context);
-  // final size = MediaQuery.of(context).size; // unused
+    // final size = MediaQuery.of(context).size; // unused
     final bgImage = widget.heroImageUrl ??
         'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1200&q=80';
     return ClipRRect(
@@ -284,21 +302,33 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
                       children: [
                         Text(
                           title,
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.w800,
-                              ) ?? const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800),
+                          style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w800,
+                                  ) ??
+                              const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w800),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 6),
                         Text(
                           subtitle,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Colors.white,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                              ) ?? const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                        color: Colors.white,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                      ) ??
+                                  const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500),
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -348,26 +378,26 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
         onHorizontalDragUpdate: _onTabBarDragUpdate,
         onHorizontalDragEnd: _onTabBarDragEnd,
         child: TabBar(
-        controller: _tab,
-        isScrollable: false,
-        dividerColor: Colors.transparent,
-        padding: EdgeInsets.zero,
-        labelPadding: const EdgeInsets.symmetric(vertical: 10),
-        indicatorPadding: EdgeInsets.zero,
-        indicatorSize: TabBarIndicatorSize.tab,
-        indicator: ShapeDecoration(
-          color: theme.colorScheme.onSurface.withAlpha(72),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+          controller: _tab,
+          isScrollable: false,
+          dividerColor: Colors.transparent,
+          padding: EdgeInsets.zero,
+          labelPadding: const EdgeInsets.symmetric(vertical: 10),
+          indicatorPadding: EdgeInsets.zero,
+          indicatorSize: TabBarIndicatorSize.tab,
+          indicator: ShapeDecoration(
+            color: theme.colorScheme.onSurface.withAlpha(72),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
-        ),
-        labelColor: theme.colorScheme.onSurface,
-        unselectedLabelColor: theme.colorScheme.onSurface.withAlpha(170),
-        tabs: const [
-          Tab(text: 'Design'),
-          Tab(text: 'AI Guided'),
-          Tab(text: 'Design Tools'),
-        ],
+          labelColor: theme.colorScheme.onSurface,
+          unselectedLabelColor: theme.colorScheme.onSurface.withAlpha(170),
+          tabs: const [
+            Tab(text: 'Design'),
+            Tab(text: 'AI Guided'),
+            Tab(text: 'Design Tools'),
+          ],
         ),
       ),
     );
@@ -379,7 +409,9 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
     final dx = event.scrollDelta.dx;
     final dy = event.scrollDelta.dy;
     final bool horizontal = dx.abs() > dy.abs();
-    final double primary = horizontal ? -dx : dy; // left is next (positive), down is next (positive)
+    final double primary = horizontal
+        ? -dx
+        : dy; // left is next (positive), down is next (positive)
 
     // Accumulate and step with a threshold to avoid overscrolling multiple tabs per tick
     _tabWheelAccum += primary;
@@ -398,7 +430,9 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
   void _animateToTab(int i) {
     final next = i.clamp(0, _tabCount - 1);
     if (next == _tab.index) return;
-    _tab.animateTo(next, duration: const Duration(milliseconds: 180), curve: Curves.easeOutCubic);
+    _tab.animateTo(next,
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic);
   }
 
   // Swipe handling over TabBar
@@ -437,8 +471,8 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
   }
 
   Widget _buildGuided(BuildContext context, {ScrollController? controller}) {
-  final journey = _journey;
-  final theme = Theme.of(context);
+    final journey = _journey;
+    final theme = Theme.of(context);
     if (!_hasProjects) {
       return Center(
         child: Semantics(
@@ -446,19 +480,19 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
           button: true,
           child: FilledButton(
             onPressed: () async {
-            final uid = FirebaseAuth.instance.currentUser?.uid;
-            if (uid == null) return;
-            final pid = await ProjectService.create(ownerId: uid);
-            await UserPrefsService.setLastProject(pid, 'create');
-            await _journey.loadForProject(pid);
-            if (mounted) {
-              setState(() {
-                _hasProjects = true;
-              });
-            }
-          },
-          child: const Text('Start your Color Story'),
-        ),
+              final uid = FirebaseAuth.instance.currentUser?.uid;
+              if (uid == null) return;
+              final pid = await ProjectService.create(ownerId: uid);
+              await UserPrefsService.setLastProject(pid, 'create');
+              await _journey.loadForProject(pid);
+              if (mounted) {
+                setState(() {
+                  _hasProjects = true;
+                });
+              }
+            },
+            child: const Text('Start your Color Story'),
+          ),
         ),
       );
     }
@@ -472,7 +506,8 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
           Card(
             elevation: 0,
             color: theme.colorScheme.surfaceContainerHighest,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -480,10 +515,7 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
                 children: [
                   Text(
                     "Your Color Story",
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w700,
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
@@ -500,16 +532,25 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
           // Sections with quick actions (read‑only for now)
           _SectionHeader(title: "Design a Palette"),
           _ToolRow(items: [
-            _ToolItem(label: "Interview", onTap: () => Navigator.of(context).pushNamed('/interview/home')),
-            _ToolItem(label: "Roller", onTap: () => _open(context, const RollerScreen())),
+            _ToolItem(
+                label: "Interview",
+                onTap: () =>
+                    Navigator.of(context).pushNamed('/interview/home')),
+            _ToolItem(
+                label: "Roller",
+                onTap: () => _open(context, const RollerScreen())),
           ]),
           _SectionHeader(title: "Refine your Palette"),
           _ToolRow(items: [
-            _ToolItem(label: "Learn", onTap: () => _open(context, const LearnScreen())),
+            _ToolItem(
+                label: "Learn",
+                onTap: () => _open(context, const LearnScreen())),
           ]),
           _SectionHeader(title: "See your Palette"),
           _ToolRow(items: [
-            _ToolItem(label: "Visualizer", onTap: () => _open(context, const VisualizerScreen())),
+            _ToolItem(
+                label: "Visualizer",
+                onTap: () => _open(context, const VisualizerScreen())),
           ]),
         ],
       ),
@@ -525,16 +566,25 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
         children: [
           _SectionHeader(title: "Design a Palette"),
           _ToolRow(items: [
-            _ToolItem(label: "Interview", onTap: () => Navigator.of(context).pushNamed('/interview/home')),
-            _ToolItem(label: "Roller", onTap: () => _open(context, const RollerScreen())),
+            _ToolItem(
+                label: "Interview",
+                onTap: () =>
+                    Navigator.of(context).pushNamed('/interview/home')),
+            _ToolItem(
+                label: "Roller",
+                onTap: () => _open(context, const RollerScreen())),
           ]),
           _SectionHeader(title: "Refine your Palette"),
           _ToolRow(items: [
-            _ToolItem(label: "Learn", onTap: () => _open(context, const LearnScreen())),
+            _ToolItem(
+                label: "Learn",
+                onTap: () => _open(context, const LearnScreen())),
           ]),
           _SectionHeader(title: "See your Palette"),
           _ToolRow(items: [
-            _ToolItem(label: "Visualizer", onTap: () => _open(context, const VisualizerScreen())),
+            _ToolItem(
+                label: "Visualizer",
+                onTap: () => _open(context, const VisualizerScreen())),
           ]),
         ],
       ),
@@ -567,13 +617,14 @@ class _CreateHubScreenState extends State<CreateHubScreen> with TickerProviderSt
         if (pid != null) {
           _open(context, ExportGuideScreen(projectId: pid));
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('No project found')));
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('No project found')));
         }
         break;
       default:
         // default to Create hub or show dialog
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('This step opens from its tool.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('This step opens from its tool.')));
     }
   }
 }
@@ -616,13 +667,13 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 18, 4, 8),
-  child: Text(
-    title,
-    style: Theme.of(context)
-    .textTheme
-    .titleSmall
-    ?.copyWith(fontSize: 15, fontWeight: FontWeight.w700),
-  ),
+      child: Text(
+        title,
+        style: Theme.of(context)
+            .textTheme
+            .titleSmall
+            ?.copyWith(fontSize: 15, fontWeight: FontWeight.w700),
+      ),
     );
   }
 }
@@ -645,7 +696,8 @@ class _ToolRow extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surfaceContainerHigh,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: theme.colorScheme.outline.withAlpha(26)),
+                    border: Border.all(
+                        color: theme.colorScheme.outline.withAlpha(26)),
                   ),
                   padding: const EdgeInsets.all(12),
                   child: Align(
@@ -670,7 +722,6 @@ class _ToolItem {
   final VoidCallback onTap;
   _ToolItem({required this.label, required this.onTap});
 }
-
 
 /// Compact section intro used at the top of the Design tab
 class _SectionIntro extends StatelessWidget {
@@ -749,7 +800,7 @@ class _FeatureGrid extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         const double spacing = 14;
-  final bool twoCols = constraints.maxWidth >= 640;
+        final bool twoCols = constraints.maxWidth >= 640;
         final double cardWidth = twoCols
             ? (constraints.maxWidth - spacing) / 2
             : constraints.maxWidth;
@@ -803,7 +854,8 @@ class _FeatureCardState extends State<_FeatureCard> {
             tween: Tween(begin: 1.0, end: scale),
             duration: const Duration(milliseconds: 140),
             curve: Curves.easeOutCubic,
-            builder: (context, s, child) => Transform.scale(scale: s, child: child),
+            builder: (context, s, child) =>
+                Transform.scale(scale: s, child: child),
             child: Material(
               color: Colors.transparent,
               elevation: elevation,
@@ -826,12 +878,14 @@ class _FeatureCardState extends State<_FeatureCard> {
                       Positioned(
                         top: -40,
                         right: -30,
-                        child: _Blob(color: Colors.white.withAlpha(38), size: 140),
+                        child:
+                            _Blob(color: Colors.white.withAlpha(38), size: 140),
                       ),
                       Positioned(
                         bottom: -30,
                         left: -20,
-                        child: _Blob(color: Colors.white.withAlpha(26), size: 120),
+                        child:
+                            _Blob(color: Colors.white.withAlpha(26), size: 120),
                       ),
                       // Content
                       Padding(
@@ -849,7 +903,8 @@ class _FeatureCardState extends State<_FeatureCard> {
                                   width: 1,
                                 ),
                               ),
-                              child: Icon(data.icon, color: Colors.white, size: 22),
+                              child: Icon(data.icon,
+                                  color: Colors.white, size: 22),
                             ),
                             const SizedBox(height: 14),
                             Text(
@@ -872,7 +927,8 @@ class _FeatureCardState extends State<_FeatureCard> {
                               children: [
                                 FilledButton.tonal(
                                   style: FilledButton.styleFrom(
-                                    backgroundColor: Colors.white.withValues(alpha: 0.12),
+                                    backgroundColor:
+                                        Colors.white.withValues(alpha: 0.12),
                                     foregroundColor: Colors.white,
                                   ),
                                   onPressed: widget.data.onTap,
@@ -881,7 +937,8 @@ class _FeatureCardState extends State<_FeatureCard> {
                                     children: [
                                       Text(data.actionLabel),
                                       const SizedBox(width: 6),
-                                      const Icon(Icons.arrow_forward_rounded, size: 18),
+                                      const Icon(Icons.arrow_forward_rounded,
+                                          size: 18),
                                     ],
                                   ),
                                 ),
@@ -925,4 +982,3 @@ class _Blob extends StatelessWidget {
     );
   }
 }
-

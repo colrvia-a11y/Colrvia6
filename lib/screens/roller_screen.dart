@@ -13,8 +13,8 @@ class RollerScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final mode = ref.watch(rollerModeProvider);
 
-  // Load themes once on open; tolerate missing assets
-  Future.microtask(() => ThemeService.instance.loadFromAssetIfNeeded());
+    // Load themes once on open; tolerate missing assets
+    Future.microtask(() => ThemeService.instance.loadFromAssetIfNeeded());
 
     return Scaffold(
       appBar: const RollerTopBar(),

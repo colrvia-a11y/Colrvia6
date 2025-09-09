@@ -4,7 +4,8 @@ class ContrastReport {
   final double ratio; // e.g., 4.5
   final String grade; // High / OK / Low
   final String hint; // guidance
-  const ContrastReport({required this.ratio, required this.grade, required this.hint});
+  const ContrastReport(
+      {required this.ratio, required this.grade, required this.hint});
 }
 
 // Parse #RRGGBB → linearized luminance
@@ -42,12 +43,24 @@ double contrastRatio(String hex1, String hex2) {
 ContrastReport assessContrast(String a, String b) {
   final r = double.parse(contrastRatio(a, b).toStringAsFixed(2));
   if (r >= 7.0) {
-    return ContrastReport(ratio: r, grade: 'High', hint: 'Crisp separation — great for trim & walls.');
+    return ContrastReport(
+        ratio: r,
+        grade: 'High',
+        hint: 'Crisp separation — great for trim & walls.');
   } else if (r >= 4.5) {
-    return ContrastReport(ratio: r, grade: 'OK', hint: 'Comfortable for most walls/trim in natural light.');
+    return ContrastReport(
+        ratio: r,
+        grade: 'OK',
+        hint: 'Comfortable for most walls/trim in natural light.');
   } else if (r >= 3.0) {
-    return ContrastReport(ratio: r, grade: 'Soft', hint: 'Soft contrast — works for calm spaces or low-gloss finishes.');
+    return ContrastReport(
+        ratio: r,
+        grade: 'Soft',
+        hint: 'Soft contrast — works for calm spaces or low-gloss finishes.');
   } else {
-    return ContrastReport(ratio: r, grade: 'Low', hint: 'Very low contrast — consider lightening/darkening one color.');
+    return ContrastReport(
+        ratio: r,
+        grade: 'Low',
+        hint: 'Very low contrast — consider lightening/darkening one color.');
   }
 }

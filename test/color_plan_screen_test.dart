@@ -42,7 +42,8 @@ class _FakeColorPlanService implements ColorPlanService {
   Future<ColorPlan?> getPlan(String projectId, String planId) async => null;
 
   @override
-  Future<void> updatePlan(String projectId, String planId, Map<String, dynamic> patch) async {}
+  Future<void> updatePlan(
+      String projectId, String planId, Map<String, dynamic> patch) async {}
 
   @override
   Future<void> deletePlan(String projectId, String planId) async {}

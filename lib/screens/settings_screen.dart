@@ -10,7 +10,6 @@ import 'package:color_canvas/services/accessibility_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'diagnostics_screen.dart';
 
-
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -54,7 +53,6 @@ class _SettingsScreenState extends State<SettingsScreen>
   int _paintCount = 0;
   int _brandCount = 0;
   String _appVersion = '';
-  
 
   @override
   void initState() {
@@ -173,8 +171,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         setState(() {
           _autoPlayStoryAudio = data['autoPlayStoryAudio'] ?? false;
           _reduceMotion = AccessibilityService.instance.reduceMotion;
-          _cbFriendlyVariant =
-              AccessibilityService.instance.cbFriendlyEnabled;
+          _cbFriendlyVariant = AccessibilityService.instance.cbFriendlyEnabled;
           _wifiOnlyForStoryAssets = data['wifiOnlyAssets'] ?? false;
           _defaultStoryVisibility = data['defaultStoryVisibility'] ?? 'private';
           _ambientAudioMode = data['ambientAudioMode'] ?? 'off';
@@ -183,8 +180,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         await AccessibilityService.instance.load();
         setState(() {
           _reduceMotion = AccessibilityService.instance.reduceMotion;
-          _cbFriendlyVariant =
-              AccessibilityService.instance.cbFriendlyEnabled;
+          _cbFriendlyVariant = AccessibilityService.instance.cbFriendlyEnabled;
         });
       }
     } catch (e) {
@@ -1223,7 +1219,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: const BoxDecoration(
-                        color: Color(0xFF2D5A3D), // _forestGreen.withValues(alpha: 0.05) - using const color
+                        color: Color(
+                            0xFF2D5A3D), // _forestGreen.withValues(alpha: 0.05) - using const color
                         borderRadius: BorderRadius.all(Radius.circular(12)),
                       ),
                       child: const Row(
@@ -1269,15 +1266,13 @@ class _SettingsScreenState extends State<SettingsScreen>
               onLongPress: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (_) => const DiagnosticsScreen()),
+                  MaterialPageRoute(builder: (_) => const DiagnosticsScreen()),
                 );
               },
               child: Text(
                 'Version $_appVersion',
                 style: TextStyle(
-                    fontSize: 12,
-                    color: _forestGreen.withValues(alpha: 0.6)),
+                    fontSize: 12, color: _forestGreen.withValues(alpha: 0.6)),
               ),
             ),
           ],

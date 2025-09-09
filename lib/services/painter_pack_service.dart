@@ -69,8 +69,7 @@ class PainterPackService {
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: plan.placementMap
                 .map((p) => pw.Bullet(
-                    text:
-                        '${p.area}: ${skuMap[p.colorId]?.name ?? p.colorId}'))
+                    text: '${p.area}: ${skuMap[p.colorId]?.name ?? p.colorId}'))
                 .toList(),
           ),
           pw.SizedBox(height: 16),
@@ -78,8 +77,8 @@ class PainterPackService {
           pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: plan.doDont
-                .map((e) => pw.Bullet(
-                    text: 'Do: ${e.doText}\nDon\'t: ${e.dontText}'))
+                .map((e) =>
+                    pw.Bullet(text: 'Do: ${e.doText}\nDon\'t: ${e.dontText}'))
                 .toList(),
           ),
           pw.SizedBox(height: 16),
@@ -103,7 +102,9 @@ class PainterPackService {
         lastPageCount = list;
       } else {
         try {
-          lastPageCount = (list as dynamic).pagesCount as int? ?? (list as dynamic).length as int? ?? 0;
+          lastPageCount = (list as dynamic).pagesCount as int? ??
+              (list as dynamic).length as int? ??
+              0;
         } catch (_) {
           try {
             lastPageCount = (list as dynamic).length as int;

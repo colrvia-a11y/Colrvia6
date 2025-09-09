@@ -43,7 +43,8 @@ class _InterviewScreenState extends State<InterviewScreen> {
 
   Future<void> _load() async {
     try {
-      final compiler = await SchemaInterviewCompiler.loadFromAsset('assets/schemas/single-room-color-intake.json');
+      final compiler = await SchemaInterviewCompiler.loadFromAsset(
+          'assets/schemas/single-room-color-intake.json');
       final prompts = compiler.compile();
       _engine = InterviewEngine.fromPrompts(prompts);
     } catch (e) {
@@ -53,7 +54,8 @@ class _InterviewScreenState extends State<InterviewScreen> {
     }
 
     _engine.addListener(_onEngine);
-    final seed = journey.state.value?.artifacts['answers'] as Map<String, dynamic>?;
+    final seed =
+        journey.state.value?.artifacts['answers'] as Map<String, dynamic>?;
     _engine.start(seedAnswers: seed, depth: _depth);
 
     final cur = _engine.current;
@@ -117,7 +119,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
 
     if (!mounted) return;
     // Navigate to Review (and await potential deep-link edit requests)
-    final result = await Navigator.of(context).push<Map<String, String>?>( 
+    final result = await Navigator.of(context).push<Map<String, String>?>(
       MaterialPageRoute(
         builder: (_) => InterviewReviewScreen(engine: _engine),
         fullscreenDialog: true,
@@ -153,7 +155,8 @@ class _InterviewScreenState extends State<InterviewScreen> {
     _enqueueUser(text);
     _engine.setAnswer(prompt.id, text);
     await _persistAnswers();
-    _transcript.add(TranscriptEvent(type: 'answer', text: text, promptId: prompt.id));
+    _transcript
+        .add(TranscriptEvent(type: 'answer', text: text, promptId: prompt.id));
 
     _engine.next();
     if (_engine.current != null) {
@@ -175,10 +178,12 @@ class _InterviewScreenState extends State<InterviewScreen> {
     if (prompt == null) return;
     _enqueueUser(label);
 
-    final opt = prompt.options.firstWhere((o) => o.label == label, orElse: () => prompt.options.first);
+    final opt = prompt.options.firstWhere((o) => o.label == label,
+        orElse: () => prompt.options.first);
     _engine.setAnswer(prompt.id, opt.value);
     await _persistAnswers();
-    _transcript.add(TranscriptEvent(type: 'answer', text: opt.value, promptId: prompt.id));
+    _transcript.add(
+        TranscriptEvent(type: 'answer', text: opt.value, promptId: prompt.id));
 
     _engine.next();
     if (_engine.current != null) {
@@ -200,7 +205,8 @@ class _InterviewScreenState extends State<InterviewScreen> {
     if (prompt == null) return;
     final heard = await _voice.listenOnce();
     if (heard == null || heard.isEmpty) return;
-    _transcript.add(TranscriptEvent(type: 'user', text: heard, promptId: prompt.id));
+    _transcript
+        .add(TranscriptEvent(type: 'user', text: heard, promptId: prompt.id));
 
     switch (prompt.type) {
       case InterviewPromptType.singleSelect:
@@ -211,15 +217,15 @@ class _InterviewScreenState extends State<InterviewScreen> {
           _enqueueUser(label);
           _engine.setAnswer(prompt.id, m.value);
           await _persistAnswers();
-          _transcript.add(
-              TranscriptEvent(type: 'answer', text: m.value, promptId: prompt.id));
+          _transcript.add(TranscriptEvent(
+              type: 'answer', text: m.value, promptId: prompt.id));
           _engine.next();
         } else {
           _enqueueSystem(
               'I heard "$heard". Could you pick one of the options?');
           _voice.speak('Please choose one of the options on screen.');
-          _transcript.add(
-              TranscriptEvent(type: 'note', text: 'low-confidence'));
+          _transcript
+              .add(TranscriptEvent(type: 'note', text: 'low-confidence'));
         }
         break;
 
@@ -241,8 +247,8 @@ class _InterviewScreenState extends State<InterviewScreen> {
           _enqueueUser(label);
           _engine.setAnswer(prompt.id, m.value);
           await _persistAnswers();
-          _transcript.add(
-              TranscriptEvent(type: 'answer', text: m.value, promptId: prompt.id));
+          _transcript.add(TranscriptEvent(
+              type: 'answer', text: m.value, promptId: prompt.id));
           _engine.next();
         } else {
           _enqueueSystem('Please say yes or no.');
@@ -259,8 +265,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
         final picks = EnumMapper.instance.mapMulti(prompt, heard);
         if (picks.isNotEmpty) {
           final labels = picks
-              .map((v) =>
-                  prompt.options.firstWhere((o) => o.value == v).label)
+              .map((v) => prompt.options.firstWhere((o) => o.value == v).label)
               .toList();
           _enqueueUser(labels.join(', '));
           _engine.setAnswer(prompt.id, picks);
@@ -297,7 +302,6 @@ class _InterviewScreenState extends State<InterviewScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     if (_loading) {
@@ -317,8 +321,14 @@ class _InterviewScreenState extends State<InterviewScreen> {
             padding: const EdgeInsets.only(right: 8.0),
             child: SegmentedButton<InterviewMode>(
               segments: [
-                ButtonSegment(value: InterviewMode.text, label: Text('Text'), icon: Icon(Icons.chat_bubble_outline)),
-                ButtonSegment(value: InterviewMode.talk, label: Text('Talk'), icon: Icon(Icons.mic_none)),
+                ButtonSegment(
+                    value: InterviewMode.text,
+                    label: Text('Text'),
+                    icon: Icon(Icons.chat_bubble_outline)),
+                ButtonSegment(
+                    value: InterviewMode.talk,
+                    label: Text('Talk'),
+                    icon: Icon(Icons.mic_none)),
               ],
               selected: {_mode},
               onSelectionChanged: (s) => setState(() => _mode = s.first),
@@ -328,7 +338,8 @@ class _InterviewScreenState extends State<InterviewScreen> {
             padding: const EdgeInsets.only(right: 8.0),
             child: SegmentedButton<InterviewDepth>(
               segments: [
-                ButtonSegment(value: InterviewDepth.quick, label: Text('Quick')),
+                ButtonSegment(
+                    value: InterviewDepth.quick, label: Text('Quick')),
                 ButtonSegment(value: InterviewDepth.full, label: Text('Full')),
               ],
               selected: {_depth},
@@ -350,11 +361,14 @@ class _InterviewScreenState extends State<InterviewScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            LinearProgressIndicator(value: _engine.progress > 0 ? _engine.progress : null),
+            LinearProgressIndicator(
+                value: _engine.progress > 0 ? _engine.progress : null),
             if (_loadError != null)
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(_loadError!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                child: Text(_loadError!,
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.error)),
               ),
             Expanded(
               child: ListView.builder(
@@ -372,13 +386,15 @@ class _InterviewScreenState extends State<InterviewScreen> {
                   final help = prompt.help != null
                       ? Padding(
                           padding: const EdgeInsets.only(top: 6.0),
-                          child: Text(prompt.help!, style: Theme.of(context).textTheme.bodySmall),
+                          child: Text(prompt.help!,
+                              style: Theme.of(context).textTheme.bodySmall),
                         )
                       : const SizedBox.shrink();
 
                   switch (prompt.type) {
                     case InterviewPromptType.singleSelect:
-                      final labels = prompt.options.map((o) => o.label).toList();
+                      final labels =
+                          prompt.options.map((o) => o.label).toList();
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -390,11 +406,14 @@ class _InterviewScreenState extends State<InterviewScreen> {
                       );
                     case InterviewPromptType.multiSelect:
                       if (prompt.id == 'photos') {
-                        final urls = (_engine.answers['photos'] as List?)?.cast<String>() ?? const <String>[];
+                        final urls = (_engine.answers['photos'] as List?)
+                                ?.cast<String>() ??
+                            const <String>[];
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ChatBubble(isUser: false, child: Text(prompt.title)),
+                            ChatBubble(
+                                isUser: false, child: Text(prompt.title)),
                             const SizedBox(height: 8),
                             PhotoPickerInline(
                               value: urls,
@@ -416,7 +435,8 @@ class _InterviewScreenState extends State<InterviewScreen> {
                                         type: 'question',
                                         text: _engine.current!.title,
                                         promptId: _engine.current!.id));
-                                    if (_mode == InterviewMode.talk) _voice.speak(_engine.current!.title);
+                                    if (_mode == InterviewMode.talk)
+                                      _voice.speak(_engine.current!.title);
                                   } else {
                                     await _finish();
                                   }
@@ -428,7 +448,8 @@ class _InterviewScreenState extends State<InterviewScreen> {
                           ],
                         );
                       }
-                      final labels = prompt.options.map((o) => o.label).toList();
+                      final labels =
+                          prompt.options.map((o) => o.label).toList();
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -440,7 +461,9 @@ class _InterviewScreenState extends State<InterviewScreen> {
                             maxItems: prompt.maxItems,
                             onChanged: (vals) {
                               final values = vals
-                                  .map((l) => prompt.options.firstWhere((o) => o.label == l).value)
+                                  .map((l) => prompt.options
+                                      .firstWhere((o) => o.label == l)
+                                      .value)
                                   .toList();
                               _engine.setAnswer(prompt.id, values);
                               _persistAnswers();
@@ -459,7 +482,8 @@ class _InterviewScreenState extends State<InterviewScreen> {
                                       type: 'question',
                                       text: _engine.current!.title,
                                       promptId: _engine.current!.id));
-                                  if (_mode == InterviewMode.talk) _voice.speak(_engine.current!.title);
+                                  if (_mode == InterviewMode.talk)
+                                    _voice.speak(_engine.current!.title);
                                 } else {
                                   await _finish();
                                 }
@@ -476,7 +500,9 @@ class _InterviewScreenState extends State<InterviewScreen> {
                         children: [
                           ChatBubble(isUser: false, child: Text(prompt.title)),
                           const SizedBox(height: 8),
-                          OptionChips(options: const ['Yes','No'], onTap: (val) => _selectSingle(val)),
+                          OptionChips(
+                              options: const ['Yes', 'No'],
+                              onTap: (val) => _selectSingle(val)),
                           help,
                         ],
                       );
@@ -490,7 +516,10 @@ class _InterviewScreenState extends State<InterviewScreen> {
                           const SizedBox(height: 8),
                           _mode == InterviewMode.text
                               ? _TextComposer(onSubmit: _submitFreeText)
-                              : _TalkComposer(onMic: _handleTalkTap, isListening: _voice.isListening, isSpeaking: _voice.isSpeaking),
+                              : _TalkComposer(
+                                  onMic: _handleTalkTap,
+                                  isListening: _voice.isListening,
+                                  isSpeaking: _voice.isSpeaking),
                         ],
                       );
                   }
@@ -546,6 +575,7 @@ class _TextComposerState extends State<_TextComposer> {
       ],
     );
   }
+
   Future<void> _submit() async {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
@@ -560,7 +590,10 @@ class _TalkComposer extends StatelessWidget {
   final VoidCallback onMic;
   final bool isListening;
   final bool isSpeaking;
-  const _TalkComposer({required this.onMic, required this.isListening, required this.isSpeaking});
+  const _TalkComposer(
+      {required this.onMic,
+      required this.isListening,
+      required this.isSpeaking});
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -574,7 +607,9 @@ class _TalkComposer extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Theme.of(context).dividerColor),
             ),
-            child: Text(isListening ? 'Listening…' : (isSpeaking ? 'Speaking…' : 'Tap the mic and answer')),
+            child: Text(isListening
+                ? 'Listening…'
+                : (isSpeaking ? 'Speaking…' : 'Tap the mic and answer')),
           ),
         ),
         const SizedBox(width: 8),

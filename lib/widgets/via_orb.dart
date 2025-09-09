@@ -44,8 +44,8 @@ class _ViaOrbState extends State<ViaOrb> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return ScaleTransition(
-      scale: Tween(begin: 1.0, end: 1.2)
-          .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut)),
+      scale: Tween(begin: 1.0, end: 1.2).animate(
+          CurvedAnimation(parent: _controller, curve: Curves.easeInOut)),
       child: Container(
         width: 120,
         height: 120,

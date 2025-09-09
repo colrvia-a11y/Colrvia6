@@ -21,7 +21,6 @@ import 'package:color_canvas/utils/color_utils.dart';
 import 'package:color_canvas/widgets/colr_via_icon_button.dart' as app;
 // REGION: CODEX-ADD user-prefs-import
 
-
 import 'package:color_canvas/services/analytics_service.dart';
 // END REGION: CODEX-ADD user-prefs-import
 
@@ -35,7 +34,8 @@ class ProjectsScreen extends ConsumerStatefulWidget {
   ConsumerState<ProjectsScreen> createState() => _ProjectsScreenState();
 }
 
-class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProviderStateMixin {
+class _ProjectsScreenState extends ConsumerState<ProjectsScreen>
+    with TickerProviderStateMixin {
   // Hero and tab state
   static const double _heroMaxHeightFraction = 0.32;
   static const double _heroMinHeight = 72.0;
@@ -70,17 +70,15 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
   String? _lastScreen;
   bool _bannerVisible = false;
 
-
-
 // --- Place this at the very end of the file ---
 
-
-
   void _onScroll() {
-    final maxHeight = (MediaQuery.of(context).size.height * _heroMaxHeightFraction)
-        .clamp(220.0, MediaQuery.of(context).size.height);
+    final maxHeight =
+        (MediaQuery.of(context).size.height * _heroMaxHeightFraction)
+            .clamp(220.0, MediaQuery.of(context).size.height);
     final minHeight = _heroMinHeight;
-    final offset = _scrollController.hasClients ? _scrollController.offset : 0.0;
+    final offset =
+        _scrollController.hasClients ? _scrollController.offset : 0.0;
     double newHeight = (maxHeight - offset).clamp(minHeight, maxHeight);
     if ((newHeight - _heroHeight).abs() > 1) {
       setState(() => _heroHeight = newHeight);
@@ -112,19 +110,24 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
     );
   }
 
-  Widget _topHero({required String title, required String subtitle, required double textOpacity, required bool collapsed}) {
-  final theme = Theme.of(context);
-  const bgImage =
-    'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1200&q=80';
-  return ClipRRect(
-    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
+  Widget _topHero(
+      {required String title,
+      required String subtitle,
+      required double textOpacity,
+      required bool collapsed}) {
+    final theme = Theme.of(context);
+    const bgImage =
+        'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1200&q=80';
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
       child: Stack(
         fit: StackFit.expand,
         children: [
           // Background image
           const DecoratedBox(
             decoration: BoxDecoration(
-              image: DecorationImage(image: NetworkImage(bgImage), fit: BoxFit.cover),
+              image: DecorationImage(
+                  image: NetworkImage(bgImage), fit: BoxFit.cover),
             ),
           ),
           // Overlay gradient for readability
@@ -158,17 +161,33 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
                       children: [
                         Text(
                           title,
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                    color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800) ??
-                                const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800),
+                          style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w800) ??
+                              const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w800),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 6),
                         Text(
                           subtitle,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500) ??
-                                const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                          style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500) ??
+                              const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500),
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -194,7 +213,9 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
                         color: theme.colorScheme.surface.withAlpha(61),
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Align(alignment: Alignment.centerLeft, child: _buildTabBar()),
+                      child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: _buildTabBar()),
                     ),
                   ),
                 ),
@@ -213,19 +234,22 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
     if (_filter == LibraryFilter.stories) {
       children.add(Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-        child: m.Text('Palettes', style: Theme.of(context).textTheme.titleLarge),
+        child:
+            m.Text('Palettes', style: Theme.of(context).textTheme.titleLarge),
       ));
       children.add(_PalettesSection());
     } else if (_filter == LibraryFilter.palettes) {
       children.add(Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: m.Text('Color Stories', style: Theme.of(context).textTheme.titleLarge),
+        child: m.Text('Color Stories',
+            style: Theme.of(context).textTheme.titleLarge),
       ));
       children.add(StreamBuilder<List<ProjectDoc>>(
         stream: projectsStream,
         builder: (context, snap) {
           final list = (snap.data ?? <ProjectDoc>[])
-              .where((p) => p.colorStoryId != null && p.colorStoryId!.isNotEmpty)
+              .where(
+                  (p) => p.colorStoryId != null && p.colorStoryId!.isNotEmpty)
               .toList();
           if (list.isEmpty) {
             return const m.SizedBox.shrink();
@@ -238,7 +262,8 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
     } else if (_filter == LibraryFilter.colors) {
       children.add(Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-        child: m.Text('Saved Colors', style: Theme.of(context).textTheme.titleLarge),
+        child: m.Text('Saved Colors',
+            style: Theme.of(context).textTheme.titleLarge),
       ));
       children.add(
         Consumer(
@@ -255,7 +280,8 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
                 return GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
                     childAspectRatio: 0.7,
@@ -277,7 +303,8 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: m.Text('Error loading colors: $e')),
+              error: (e, _) =>
+                  Center(child: m.Text('Error loading colors: $e')),
             );
           },
         ),
@@ -285,9 +312,10 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
     } else if (_filter == LibraryFilter.images) {
       children.add(Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-        child: m.Text('Saved Images', style: Theme.of(context).textTheme.titleLarge),
+        child: m.Text('Saved Images',
+            style: Theme.of(context).textTheme.titleLarge),
       ));
-  children.add(const ImagesSection());
+      children.add(const ImagesSection());
     }
     if (children.isEmpty) {
       return const SliverToBoxAdapter(child: m.SizedBox.shrink());
@@ -296,7 +324,6 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
       delegate: SliverChildListDelegate(children),
     );
   }
-
 
   // REGION: CODEX-ADD resume-banner
   Widget _resumeBanner() {
@@ -339,8 +366,7 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
       case 'roller':
         await roller.loadLibrary();
         if (!mounted || !nav.mounted) return;
-        nav.push(MaterialPageRoute(
-            builder: (_) => roller.RollerScreen()));
+        nav.push(MaterialPageRoute(builder: (_) => roller.RollerScreen()));
         break;
       case 'plan':
         await plan.loadLibrary();
@@ -387,7 +413,8 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
             .toDouble();
     const double fadeEndAt = 0.4;
     final double fadePhase = (collapseProgress / fadeEndAt).clamp(0.0, 1.0);
-    final double heroTextOpacity = 1.0 - Curves.easeOutQuint.transform(fadePhase);
+    final double heroTextOpacity =
+        1.0 - Curves.easeOutQuint.transform(fadePhase);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
@@ -420,7 +447,10 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
                         padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surface.withAlpha(61),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .surface
+                                .withAlpha(61),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: _buildTabBar(),
@@ -439,16 +469,19 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
                             if (_hasPermissionError)
                               SliverToBoxAdapter(
                                 child: Container(
-                                  margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                                  margin:
+                                      const EdgeInsets.fromLTRB(16, 12, 16, 8),
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
                                     color: Colors.orange.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                                    border: Border.all(
+                                        color: Colors.orange.withOpacity(0.3)),
                                   ),
                                   child: const Row(
                                     children: [
-                                      Icon(Icons.warning_amber_outlined, color: Colors.orange),
+                                      Icon(Icons.warning_amber_outlined,
+                                          color: Colors.orange),
                                       SizedBox(width: 8),
                                       Expanded(
                                         child: m.Text(
@@ -473,7 +506,6 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
       ),
     );
   }
-
 }
 
 // Project Card for the new filter system
@@ -569,13 +601,14 @@ class _ProjectCard extends ConsumerWidget {
     return '${d.inDays}d ago';
   }
 
-  static Future<void> _openStage(BuildContext context, ProjectDoc project) async {
+  static Future<void> _openStage(
+      BuildContext context, ProjectDoc project) async {
     switch (project.funnelStage) {
       case FunnelStage.build:
         await roller.loadLibrary();
         // ignore: use_build_context_synchronously
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => roller.RollerScreen()));
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (_) => roller.RollerScreen()));
         break;
       case FunnelStage.story:
         await plan.loadLibrary();
@@ -616,7 +649,6 @@ class _PalettesSection extends ConsumerWidget {
         ),
       );
     }
-
 
     final palettesAsync = ref.watch(userPalettesProvider);
 
@@ -684,7 +716,8 @@ class _PalettesSection extends ConsumerWidget {
     );
   }
 
-  Future<void> _openPaletteInRoller(BuildContext context, UserPalette palette) async {
+  Future<void> _openPaletteInRoller(
+      BuildContext context, UserPalette palette) async {
     final nav = Navigator.of(context);
     await roller.loadLibrary();
     if (!(nav.mounted)) return;
@@ -808,171 +841,172 @@ class EnhancedPaletteCard extends StatelessWidget {
             child: m.Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-            // Large color preview (top half)
-            Expanded(
-              flex: 3,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(12),
-                  topRight: Radius.circular(12),
-                ),
-                child: Row(
-                  children: palette.colors.map((paletteColor) {
-                    final color = ColorUtils.hexToColor(paletteColor.hex);
+                // Large color preview (top half)
+                Expanded(
+                  flex: 3,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      topRight: Radius.circular(12),
+                    ),
+                    child: Row(
+                      children: palette.colors.map((paletteColor) {
+                        final color = ColorUtils.hexToColor(paletteColor.hex);
 
-                    return Expanded(
-                      child: m.Container(
-                        height: double.infinity,
-                        color: color,
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
-
-            // Content section (bottom half) - Made more flexible
-            Flexible(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: m.Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Title and menu
-                    Row(
-                      children: [
-                        Expanded(
-                          child: m.Text(
-                            palette.name,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                        return Expanded(
+                          child: m.Container(
+                            height: double.infinity,
+                            color: color,
                           ),
-                        ),
-                        PopupMenuButton<String>(
-                          padding: EdgeInsets.zero,
-                          iconSize: 18,
-                          onSelected: (value) {
-                            switch (value) {
-                              case 'roller':
-                                onOpenInRoller();
-                                break;
-                              case 'visualize':
-                                onVisualize();
-                                break;
-                              case 'edit':
-                                onEdit();
-                                break;
-                              case 'delete':
-                                onDelete();
-                                break;
-                            }
-                          },
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(
-                              value: 'roller',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.casino, size: 16),
-                                  m.SizedBox(width: 8),
-                                  m.Text('Open in Roller'),
-                                ],
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+
+                // Content section (bottom half) - Made more flexible
+                Flexible(
+                  flex: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: m.Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Title and menu
+                        Row(
+                          children: [
+                            Expanded(
+                              child: m.Text(
+                                palette.name,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            const PopupMenuItem(
-                              value: 'visualize',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.auto_fix_high, size: 16),
-                                  m.SizedBox(width: 8),
-                                  m.Text('Visualize'),
-                                ],
-                              ),
-                            ),
-                            const PopupMenuItem(
-                              value: 'edit',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.edit, size: 16),
-                                  m.SizedBox(width: 8),
-                                  m.Text('Edit Tags'),
-                                ],
-                              ),
-                            ),
-                            const PopupMenuItem(
-                              value: 'delete',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.delete,
-                                      size: 16, color: Colors.red),
-                                  m.SizedBox(width: 8),
-                                  m.Text('Delete',
-                                      style: TextStyle(color: Colors.red)),
-                                ],
-                              ),
+                            PopupMenuButton<String>(
+                              padding: EdgeInsets.zero,
+                              iconSize: 18,
+                              onSelected: (value) {
+                                switch (value) {
+                                  case 'roller':
+                                    onOpenInRoller();
+                                    break;
+                                  case 'visualize':
+                                    onVisualize();
+                                    break;
+                                  case 'edit':
+                                    onEdit();
+                                    break;
+                                  case 'delete':
+                                    onDelete();
+                                    break;
+                                }
+                              },
+                              itemBuilder: (context) => [
+                                const PopupMenuItem(
+                                  value: 'roller',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.casino, size: 16),
+                                      m.SizedBox(width: 8),
+                                      m.Text('Open in Roller'),
+                                    ],
+                                  ),
+                                ),
+                                const PopupMenuItem(
+                                  value: 'visualize',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.auto_fix_high, size: 16),
+                                      m.SizedBox(width: 8),
+                                      m.Text('Visualize'),
+                                    ],
+                                  ),
+                                ),
+                                const PopupMenuItem(
+                                  value: 'edit',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.edit, size: 16),
+                                      m.SizedBox(width: 8),
+                                      m.Text('Edit Tags'),
+                                    ],
+                                  ),
+                                ),
+                                const PopupMenuItem(
+                                  value: 'delete',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.delete,
+                                          size: 16, color: Colors.red),
+                                      m.SizedBox(width: 8),
+                                      m.Text('Delete',
+                                          style: TextStyle(color: Colors.red)),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
+
+                        const m.SizedBox(height: 4),
+
+                        // Metadata
+                        m.Text(
+                          '${palette.colors.length} colors - ${_formatDate(palette.createdAt)}',
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Colors.grey[600],
+                                  ),
+                        ),
+                        if (palette.tags.isNotEmpty) ...[
+                          const m.SizedBox(height: 4),
+                          Wrap(
+                            spacing: 4,
+                            runSpacing: 2,
+                            children: palette.tags
+                                .take(2)
+                                .map((tag) => m.Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primaryContainer
+                                            .withValues(alpha: 0.7),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: m.Text(
+                                        tag,
+                                        style: TextStyle(
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimaryContainer,
+                                        ),
+                                      ),
+                                    ))
+                                .toList(),
+                          ),
+                        ],
                       ],
                     ),
-
-                    const m.SizedBox(height: 4),
-
-                    // Metadata
-                    m.Text(
-                      '${palette.colors.length} colors - ${_formatDate(palette.createdAt)}',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[600],
-                          ),
-                    ),
-                    if (palette.tags.isNotEmpty) ...[
-                      const m.SizedBox(height: 4),
-                      Wrap(
-                        spacing: 4,
-                        runSpacing: 2,
-                        children: palette.tags
-                            .take(2)
-                            .map((tag) => m.Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .primaryContainer
-                                        .withValues(alpha: 0.7),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: m.Text(
-                                    tag,
-                                    style: TextStyle(
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w500,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimaryContainer,
-                                    ),
-                                  ),
-                                ))
-                            .toList(),
-                      ),
-                    ],
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
-    ),
-  ),
-);
+    );
   }
 
   // No longer needed - using stored color info directly

@@ -14,7 +14,8 @@ Future<void> main() async {
       final stories = await p.reference.collection('colorStories').get();
       for (final s in stories.docs) {
         // Use a compound key to avoid ID conflicts: "${p.id}_${s.id}"
-        final planRef = p.reference.collection('colorPlans').doc('${p.id}_${s.id}');
+        final planRef =
+            p.reference.collection('colorPlans').doc('${p.id}_${s.id}');
         final exists = await planRef.get();
         if (exists.exists) continue;
 
@@ -29,8 +30,7 @@ Future<void> main() async {
           'cohesionTips': (data['cohesionTips'] ?? data['tips'] ?? []),
           'accentRules': (data['accentRules'] ?? data['accents'] ?? []),
           'doDont': (data['doDont'] ?? []),
-          'sampleSequence':
-              (data['sampleSequence'] ?? data['sequence'] ?? []),
+          'sampleSequence': (data['sampleSequence'] ?? data['sequence'] ?? []),
           'roomPlaybook': (data['roomPlaybook'] ?? data['rooms'] ?? []),
           'createdAt': data['createdAt'] ?? Timestamp.now(),
           'updatedAt': data['updatedAt'] ?? Timestamp.now(),

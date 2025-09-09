@@ -59,4 +59,3 @@ void main() {
     skip: true, // Needs mocking of FirebaseService.getPaintsByIds static call
   );
 }
-

@@ -302,10 +302,13 @@ class _StoryPlayerScreenState extends State<StoryPlayerScreen>
     final colors = _currentChapter.revealedColors.isNotEmpty
         ? _currentChapter.revealedColors
             .take(2)
-            .map((hex) =>
-                Color(int.parse(hex.replaceAll('#', '0xFF'))).withValues(alpha: 0.3))
+            .map((hex) => Color(int.parse(hex.replaceAll('#', '0xFF')))
+                .withValues(alpha: 0.3))
             .toList()
-        : [Colors.indigo.withValues(alpha: 0.3), Colors.purple.withValues(alpha: 0.3)];
+        : [
+            Colors.indigo.withValues(alpha: 0.3),
+            Colors.purple.withValues(alpha: 0.3)
+          ];
 
     return AnimatedBuilder(
       animation: _fadeAnimation,

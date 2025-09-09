@@ -31,4 +31,3 @@ LightingProfile lightingProfileFromString(String? value) {
 extension LightingProfileX on LightingProfile {
   String get label => lightingProfileLabels[this] ?? name;
 }
-

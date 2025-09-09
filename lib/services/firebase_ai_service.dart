@@ -47,7 +47,7 @@ class FirebaseAIService {
 
       final callable = _functions.httpsCallable('generateColorStory');
       final result = await callable.call(data);
-      
+
       if (result.data != null && result.data['story'] != null) {
         _logger.info('Successfully generated color story');
         return result.data['story'] as String;
@@ -65,7 +65,7 @@ class FirebaseAIService {
     try {
       // Convert image to base64 for transmission
       final base64Image = base64Encode(imageBytes);
-      
+
       final data = {
         'image': base64Image,
         'mimeType': 'image/jpeg',
@@ -73,7 +73,7 @@ class FirebaseAIService {
 
       final callable = _functions.httpsCallable('analyzeSpace');
       final result = await callable.call(data);
-      
+
       if (result.data != null && result.data['analysis'] != null) {
         _logger.info('Successfully analyzed space image');
         return Map<String, dynamic>.from(result.data['analysis']);
@@ -103,7 +103,7 @@ class FirebaseAIService {
 
       final callable = _functions.httpsCallable('suggestColors');
       final result = await callable.call(data);
-      
+
       if (result.data != null && result.data['suggestions'] != null) {
         _logger.info('Successfully generated color suggestions');
         return List<String>.from(result.data['suggestions']);
@@ -140,9 +140,10 @@ class FirebaseAIService {
     try {
       final callable = _functions.httpsCallable('testConnection');
       final result = await callable.call();
-      
+
       final success = result.data != null && result.data['success'] == true;
-      _logger.info('Firebase AI connection test: ${success ? 'PASSED' : 'FAILED'}');
+      _logger.info(
+          'Firebase AI connection test: ${success ? 'PASSED' : 'FAILED'}');
       return success;
     } catch (e) {
       _logger.severe('Firebase AI connection test failed: $e');
@@ -169,7 +170,7 @@ class FirebaseAIService {
 
       final callable = _functions.httpsCallable('generateDesignInspiration');
       final result = await callable.call(data);
-      
+
       if (result.data != null && result.data['inspiration'] != null) {
         _logger.info('Successfully generated design inspiration');
         return result.data['inspiration'] as String;

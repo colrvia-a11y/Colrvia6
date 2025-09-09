@@ -4,10 +4,12 @@ import 'package:color_canvas/models/palette_models.dart';
 /// Replace this with your Cloud Function / AI endpoint later.
 /// For now we create 2–3 accent variants by nudging lightness while preserving undertone label.
 class PaletteSuggestionsService {
-  static final PaletteSuggestionsService instance = PaletteSuggestionsService._();
+  static final PaletteSuggestionsService instance =
+      PaletteSuggestionsService._();
   PaletteSuggestionsService._();
 
-  Future<List<PaintColor>> suggestAccentAlternatives({required Palette base, Map<String, dynamic>? answers}) async {
+  Future<List<PaintColor>> suggestAccentAlternatives(
+      {required Palette base, Map<String, dynamic>? answers}) async {
     final accent = base.roles.accent;
     final List<PaintColor> out = [];
     // Generate light/dark neighbors
@@ -28,9 +30,12 @@ class PaletteSuggestionsService {
   PaintColor _nudgeLightness(PaintColor c, double delta) {
     final hsl = _hexToHsl(c.code);
     final l = (hsl.lightness + delta).clamp(0.05, 0.95);
-    final hex = _hslToHex(HSLColor(hue: hsl.hue, saturation: hsl.saturation, lightness: l));
-    final lrv = c.lrv == null ? null : (c.lrv! * (1 + delta * 0.6)).clamp(0, 100);
-    return PaintColor(name: c.name, code: hex, lrv: lrv?.toDouble(), undertone: c.undertone);
+    final hex = _hslToHex(
+        HSLColor(hue: hsl.hue, saturation: hsl.saturation, lightness: l));
+    final lrv =
+        c.lrv == null ? null : (c.lrv! * (1 + delta * 0.6)).clamp(0, 100);
+    return PaintColor(
+        name: c.name, code: hex, lrv: lrv?.toDouble(), undertone: c.undertone);
   }
 
   // --- tiny HSL helpers ---
@@ -106,5 +111,6 @@ class HSLColor {
   final double hue; // 0..360
   final double saturation; // 0..1
   final double lightness; // 0..1
-  HSLColor({required this.hue, required this.saturation, required this.lightness});
+  HSLColor(
+      {required this.hue, required this.saturation, required this.lightness});
 }

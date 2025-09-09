@@ -1,4 +1,3 @@
-
 /// Error codes representing common voice session failures.
 enum LiveTalkErrorCode {
   micPermission,
@@ -67,6 +66,6 @@ class LiveTalkErrorMessages {
   }
 
   /// Whether showing an extra action to open app settings makes sense.
-  static bool showOpenSettings(LiveTalkError e) => e.code == LiveTalkErrorCode.micPermission;
+  static bool showOpenSettings(LiveTalkError e) =>
+      e.code == LiveTalkErrorCode.micPermission;
 }
-

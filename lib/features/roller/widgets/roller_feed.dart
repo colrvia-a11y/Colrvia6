@@ -19,7 +19,8 @@ class _RollerFeedState extends ConsumerState<RollerFeed> {
   void initState() {
     super.initState();
     // ensure first page exists
-    Future.microtask(() => ref.read(rollerControllerProvider.notifier).initIfNeeded());
+    Future.microtask(
+        () => ref.read(rollerControllerProvider.notifier).initIfNeeded());
   }
 
   @override
@@ -36,14 +37,16 @@ class _RollerFeedState extends ConsumerState<RollerFeed> {
   Widget _buildBody(BuildContext context, RollerState s) {
     if (!s.hasPages && s.status == RollerStatus.idle) {
       // Kick first roll
-      Future.microtask(() => ref.read(rollerControllerProvider.notifier).rollNext());
+      Future.microtask(
+          () => ref.read(rollerControllerProvider.notifier).rollNext());
       return const Center(child: CircularProgressIndicator());
     }
 
     return PageView.builder(
       controller: _pageCtrl,
       scrollDirection: Axis.vertical,
-      onPageChanged: (i) => ref.read(rollerControllerProvider.notifier).onPageChanged(i),
+      onPageChanged: (i) =>
+          ref.read(rollerControllerProvider.notifier).onPageChanged(i),
       itemCount: s.pages.length,
       itemBuilder: (context, index) {
         final page = s.pages[index];
@@ -62,21 +65,27 @@ class _RollerFeedState extends ConsumerState<RollerFeed> {
                             .read(rollerControllerProvider.notifier)
                             .useNextAlternateForStrip(i),
                         child: Semantics(
-                          label: 'Strip ${i + 1}: ${page.locks[i] ? 'locked' : 'unlocked'}',
+              label:
+                'Strip ${i + 1}: ${(i < page.locks.length && page.locks[i]) ? 'locked' : 'unlocked'}',
                           button: true,
                           child: Tooltip(
-                            message: 'Tap to lock/unlock · Double-tap for alternate',
+                            message:
+                                'Tap to lock/unlock · Double-tap for alternate',
                             child: Stack(
                               children: [
                                 Positioned.fill(
                                   child: PaintStripe(
                                     paint: page.strips[i],
-                                    isLocked: page.locks[i],
-                                    onTap: () => ref.read(rollerControllerProvider.notifier).toggleLock(i),
-                                    onLongPress: () => ref.read(rollerControllerProvider.notifier).toggleLock(i),
+                                    isLocked: (i < page.locks.length && page.locks[i]),
+                                    onTap: () => ref
+                                        .read(rollerControllerProvider.notifier)
+                                        .toggleLock(i),
+                                    onLongPress: () => ref
+                                        .read(rollerControllerProvider.notifier)
+                                        .toggleLock(i),
                                   ),
                                 ),
-                                if (page.locks[i])
+                                if (i < page.locks.length && page.locks[i])
                                   const Positioned(
                                     top: 8,
                                     right: 8,
@@ -113,13 +122,17 @@ class _BottomBar extends ConsumerWidget {
       child: Row(
         children: [
           ElevatedButton.icon(
-            onPressed: isBusy ? null : () => ref.read(rollerControllerProvider.notifier).rerollCurrent(),
+            onPressed: isBusy
+                ? null
+                : () =>
+                    ref.read(rollerControllerProvider.notifier).rerollCurrent(),
             icon: const Icon(Icons.casino),
             label: Text(isBusy ? 'Rolling…' : 'Roll'),
           ),
           const SizedBox(width: 12),
           OutlinedButton.icon(
-            onPressed: () => ref.read(rollerControllerProvider.notifier).rollNext(),
+            onPressed: () =>
+                ref.read(rollerControllerProvider.notifier).rollNext(),
             icon: const Icon(Icons.arrow_downward),
             label: const Text('Next'),
           ),
@@ -148,7 +161,8 @@ class _BottomBar extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Brand IDs (comma-separated)', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('Brand IDs (comma-separated)',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               TextField(controller: brandsCtrl),
               const SizedBox(height: 16),
@@ -188,7 +202,8 @@ class _ErrorView extends ConsumerWidget {
           children: [
             const Icon(Icons.error_outline, size: 40),
             const SizedBox(height: 12),
-            Text('Something went wrong', style: Theme.of(context).textTheme.titleMedium),
+            Text('Something went wrong',
+                style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 16),

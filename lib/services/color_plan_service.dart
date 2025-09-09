@@ -31,8 +31,14 @@ class ColorPlanService {
     });
   }
 
-  CollectionReference<Map<String, dynamic>> _plansCol(String uid, String projectId) =>
-      _db.collection('users').doc(uid).collection('projects').doc(projectId).collection('colorPlans');
+  CollectionReference<Map<String, dynamic>> _plansCol(
+          String uid, String projectId) =>
+      _db
+          .collection('users')
+          .doc(uid)
+          .collection('projects')
+          .doc(projectId)
+          .collection('colorPlans');
 
   // REGION: CODEX-ADD color-plan-service
   /// Creates a new color plan by invoking the generateColorPlanV2 cloud function
@@ -53,16 +59,16 @@ class ColorPlanService {
     final now = DateTime.now();
 
     try {
-      final profile = FeatureFlags.instance
-              .isEnabled(FeatureFlags.lightingProfiles)
-          ? await LightingService().getProfile(projectId)
-          : null;
+      final profile =
+          FeatureFlags.instance.isEnabled(FeatureFlags.lightingProfiles)
+              ? await LightingService().getProfile(projectId)
+              : null;
 
-      final elements = FeatureFlags.instance
-              .isEnabled(FeatureFlags.fixedElementAssist)
-          ? (fixedElements ??
-              await FixedElementService().listElements(projectId))
-          : <FixedElement>[];
+      final elements =
+          FeatureFlags.instance.isEnabled(FeatureFlags.fixedElementAssist)
+              ? (fixedElements ??
+                  await FixedElementService().listElements(projectId))
+              : <FixedElement>[];
 
       final callable = _functions.httpsCallable('generateColorPlanV2');
       final resp = await callable.call({
@@ -87,11 +93,12 @@ class ColorPlanService {
 
       await doc.set(plan.toJson());
       AnalyticsService.instance.planGenerated(projectId, doc.id);
-      DiagnosticsService.instance
-          .logBreadcrumb('plan_generated:${doc.id}');
+      DiagnosticsService.instance.logBreadcrumb('plan_generated:${doc.id}');
       NotificationsService.instance.scheduleNudge(
-          'resume_project', 'Resume your project',
-          'Jump back into your project', const Duration(days: 3));
+          'resume_project',
+          'Resume your project',
+          'Jump back into your project',
+          const Duration(days: 3));
       return plan;
     } catch (e) {
       await SyncQueueService.instance.enqueue('createPlan', {
@@ -129,7 +136,9 @@ class ColorPlanService {
       throw Exception('Must be logged in to list color plans');
     }
 
-    final snap = await _plansCol(uid, projectId).orderBy('createdAt', descending: true).get();
+    final snap = await _plansCol(uid, projectId)
+        .orderBy('createdAt', descending: true)
+        .get();
     return snap.docs.map((d) => ColorPlan.fromJson(d.id, d.data())).toList();
   }
 
@@ -146,7 +155,8 @@ class ColorPlanService {
   }
 
   /// Updates specific fields of a color plan.
-  Future<void> updatePlan(String projectId, String planId, Map<String, dynamic> patch) async {
+  Future<void> updatePlan(
+      String projectId, String planId, Map<String, dynamic> patch) async {
     final uid = _auth.currentUser?.uid;
     if (uid == null) {
       throw Exception('Must be logged in to update a color plan');

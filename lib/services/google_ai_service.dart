@@ -11,11 +11,12 @@ import '../firestore/firestore_data_schema.dart';
 class GoogleAIService {
   static final _logger = Logger('GoogleAIService');
   static final _functions = FirebaseFunctions.instance;
-  
+
   // Initialize Google AI service via Firebase Cloud Functions
   static Future<void> initialize() async {
     try {
-      _logger.info('Google AI service initialized - using Firebase Cloud Functions');
+      _logger.info(
+          'Google AI service initialized - using Firebase Cloud Functions');
       // Google AI logic will be handled through Firebase Cloud Functions
       // No direct model initialization needed
     } catch (e) {
@@ -48,7 +49,7 @@ class GoogleAIService {
 
       final callable = _functions.httpsCallable('generateColorStoryGoogle');
       final result = await callable.call(data);
-      
+
       if (result.data != null && result.data['story'] != null) {
         _logger.info('Successfully generated color story via Google AI');
         return result.data['story'] as String;
@@ -66,7 +67,7 @@ class GoogleAIService {
     try {
       // Convert image to base64 for transmission
       final base64Image = base64Encode(imageBytes);
-      
+
       final data = {
         'image': base64Image,
         'mimeType': 'image/jpeg',
@@ -75,7 +76,7 @@ class GoogleAIService {
 
       final callable = _functions.httpsCallable('analyzeSpaceGoogle');
       final result = await callable.call(data);
-      
+
       if (result.data != null && result.data['analysis'] != null) {
         _logger.info('Successfully analyzed space image via Google AI');
         return Map<String, dynamic>.from(result.data['analysis']);
@@ -106,7 +107,7 @@ class GoogleAIService {
 
       final callable = _functions.httpsCallable('suggestColorsGoogle');
       final result = await callable.call(data);
-      
+
       if (result.data != null && result.data['suggestions'] != null) {
         _logger.info('Successfully generated color suggestions via Google AI');
         return List<String>.from(result.data['suggestions']);
@@ -143,9 +144,10 @@ class GoogleAIService {
     try {
       final callable = _functions.httpsCallable('testConnectionGoogle');
       final result = await callable.call({'provider': 'google'});
-      
+
       final success = result.data != null && result.data['success'] == true;
-      _logger.info('Google AI connection test: ${success ? 'PASSED' : 'FAILED'}');
+      _logger
+          .info('Google AI connection test: ${success ? 'PASSED' : 'FAILED'}');
       return success;
     } catch (e) {
       _logger.severe('Google AI connection test failed: $e');

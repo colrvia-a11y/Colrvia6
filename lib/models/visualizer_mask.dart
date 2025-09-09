@@ -39,8 +39,7 @@ class VisualizerMask {
         'id': id,
         'surface': surface,
         'polygons': polygons
-            .map((poly) =>
-                poly.map((p) => {'x': p.dx, 'y': p.dy}).toList())
+            .map((poly) => poly.map((p) => {'x': p.dx, 'y': p.dy}).toList())
             .toList(),
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),

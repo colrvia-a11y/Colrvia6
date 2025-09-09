@@ -45,30 +45,47 @@ class PaintQueryService {
     final temp = ColorUtils.getColorTemperature(color); // Warm/Cool/Neutral
     final lrv = p.computedLrv;
     final lab = p.lab;
-    final tags = ColorUtils.undertoneTags(lab).map((e) => e.toLowerCase()).toList();
-    final hue = HSLColor.fromColor(ColorUtils.getPaintColor(p.hex)).hue; // 0..360
+    final tags =
+        ColorUtils.undertoneTags(lab).map((e) => e.toLowerCase()).toList();
+    final hue =
+        HSLColor.fromColor(ColorUtils.getPaintColor(p.hex)).hue; // 0..360
     String family;
     // Coarse family from hue (simplified buckets)
-    if (hue >= 0 && hue < 15) { family = 'Red'; }
-    else if (hue < 45) { family = 'Orange'; }
-    else if (hue < 70) { family = 'Yellow'; }
-    else if (hue < 160) { family = 'Green'; }
-    else if (hue < 250) { family = 'Blue'; }
-    else if (hue < 290) { family = 'Purple'; }
-    else { family = 'Red'; }
+    if (hue >= 0 && hue < 15) {
+      family = 'Red';
+    } else if (hue < 45) {
+      family = 'Orange';
+    } else if (hue < 70) {
+      family = 'Yellow';
+    } else if (hue < 160) {
+      family = 'Green';
+    } else if (hue < 250) {
+      family = 'Blue';
+    } else if (hue < 290) {
+      family = 'Purple';
+    } else {
+      family = 'Red';
+    }
     // Override to neutrals if saturation is very low
     final hslColor = HSLColor.fromColor(ColorUtils.getPaintColor(p.hex));
     final sat = hslColor.saturation;
     if (sat < 0.08) {
       // neutral lane
-      if (lrv > 85) { family = 'White'; }
-      else if (lrv < 10) { family = 'Black'; }
-      else { family = 'Neutral'; }
+      if (lrv > 85) {
+        family = 'White';
+      } else if (lrv < 10) {
+        family = 'Black';
+      } else {
+        family = 'Neutral';
+      }
     }
     // Undertone family from tags
     String? undertone;
     for (final k in ['green', 'blue', 'violet', 'yellow', 'red']) {
-      if (tags.any((t) => t.contains(k))) { undertone = k; break; }
+      if (tags.any((t) => t.contains(k))) {
+        undertone = k;
+        break;
+      }
     }
     return _Derived(
       temperature: temp,
@@ -90,13 +107,19 @@ class PaintQueryService {
   }) {
     return paints.where((p) {
       final d = _derive(p);
-      if (colorFamily != null && d.family.toLowerCase() != colorFamily.toLowerCase()) return false;
-      if (undertone != null && (d.undertone ?? '').toLowerCase() != undertone.toLowerCase()) return false;
-      if (temperature != null && d.temperature.toLowerCase() != temperature.toLowerCase()) return false;
+      if (colorFamily != null &&
+          d.family.toLowerCase() != colorFamily.toLowerCase()) return false;
+      if (undertone != null &&
+          (d.undertone ?? '').toLowerCase() != undertone.toLowerCase())
+        return false;
+      if (temperature != null &&
+          d.temperature.toLowerCase() != temperature.toLowerCase())
+        return false;
       if (lrvRange != null) {
         if (d.lrv < lrvRange.start || d.lrv > lrvRange.end) return false;
       }
-      if (brandName != null && p.brandName.toLowerCase() != brandName.toLowerCase()) return false;
+      if (brandName != null &&
+          p.brandName.toLowerCase() != brandName.toLowerCase()) return false;
       return true;
     }).toList();
   }
@@ -135,7 +158,8 @@ class PaintQueryService {
     PaintSort sort = PaintSort.hue,
   }) async {
     final all = await getAllPaints(hardLimit: 1500); // guardrail for perf
-    var filtered = applyFilters(all,
+    var filtered = applyFilters(
+      all,
       colorFamily: colorFamily,
       undertone: undertone,
       temperature: temperature,
@@ -145,7 +169,8 @@ class PaintQueryService {
     return filtered;
   }
 
-  List<Paint> sortList(List<Paint> list, PaintSort sort) => applySort(List.from(list), sort);
+  List<Paint> sortList(List<Paint> list, PaintSort sort) =>
+      applySort(List.from(list), sort);
 }
 
 class _Derived {
@@ -154,5 +179,10 @@ class _Derived {
   final String family;
   final double hue;
   final String? undertone;
-  _Derived({required this.temperature, required this.lrv, required this.family, required this.hue, required this.undertone});
+  _Derived(
+      {required this.temperature,
+      required this.lrv,
+      required this.family,
+      required this.hue,
+      required this.undertone});
 }

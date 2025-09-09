@@ -113,8 +113,8 @@ class AccessibilityService extends ChangeNotifier {
     _loaded = true;
     notifyListeners();
     await _persist();
-    AnalyticsService.instance.logEvent(
-        'accessibility_setting_changed', {'name': 'reduce_motion', 'value': value});
+    AnalyticsService.instance.logEvent('accessibility_setting_changed',
+        {'name': 'reduce_motion', 'value': value});
   }
 
   Future<void> setCbFriendly(bool value) async {
@@ -122,8 +122,8 @@ class AccessibilityService extends ChangeNotifier {
     _loaded = true;
     notifyListeners();
     await _persist();
-    AnalyticsService.instance.logEvent(
-        'accessibility_setting_changed', {'name': 'cb_friendly', 'value': value});
+    AnalyticsService.instance.logEvent('accessibility_setting_changed',
+        {'name': 'cb_friendly', 'value': value});
   }
 
   Future<void> _persist() async {

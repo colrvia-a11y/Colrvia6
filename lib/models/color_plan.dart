@@ -12,16 +12,16 @@ class PlanPlacement {
   });
 
   factory PlanPlacement.fromJson(Map<String, dynamic> j) => PlanPlacement(
-    area: j['area'] as String,
-    colorId: j['colorId'] as String,
-    sheen: j['sheen'] as String,
-  );
+        area: j['area'] as String,
+        colorId: j['colorId'] as String,
+        sheen: j['sheen'] as String,
+      );
 
   Map<String, dynamic> toJson() => {
-    'area': area,
-    'colorId': colorId,
-    'sheen': sheen,
-  };
+        'area': area,
+        'colorId': colorId,
+        'sheen': sheen,
+      };
 }
 
 class AccentRule {
@@ -34,14 +34,14 @@ class AccentRule {
   });
 
   factory AccentRule.fromJson(Map<String, dynamic> j) => AccentRule(
-    context: j['context'] as String,
-    guidance: j['guidance'] as String,
-  );
+        context: j['context'] as String,
+        guidance: j['guidance'] as String,
+      );
 
   Map<String, dynamic> toJson() => {
-    'context': context,
-    'guidance': guidance,
-  };
+        'context': context,
+        'guidance': guidance,
+      };
 }
 
 class DoDontEntry {
@@ -54,14 +54,14 @@ class DoDontEntry {
   });
 
   factory DoDontEntry.fromJson(Map<String, dynamic> j) => DoDontEntry(
-    doText: j['do'] as String,
-    dontText: j['dont'] as String,
-  );
+        doText: j['do'] as String,
+        dontText: j['dont'] as String,
+      );
 
   Map<String, dynamic> toJson() => {
-    'do': doText,
-    'dont': dontText,
-  };
+        'do': doText,
+        'dont': dontText,
+      };
 }
 
 class RoomPlaybookItem {
@@ -76,18 +76,18 @@ class RoomPlaybookItem {
   });
 
   factory RoomPlaybookItem.fromJson(Map<String, dynamic> j) => RoomPlaybookItem(
-    roomType: j['roomType'] as String,
-    placements: (j['placements'] as List<dynamic>? ?? [])
-        .map((e) => PlanPlacement.fromJson(Map<String, dynamic>.from(e)))
-        .toList(),
-    notes: j['notes'] as String? ?? '',
-  );
+        roomType: j['roomType'] as String,
+        placements: (j['placements'] as List<dynamic>? ?? [])
+            .map((e) => PlanPlacement.fromJson(Map<String, dynamic>.from(e)))
+            .toList(),
+        notes: j['notes'] as String? ?? '',
+      );
 
   Map<String, dynamic> toJson() => {
-    'roomType': roomType,
-    'placements': placements.map((e) => e.toJson()).toList(),
-    'notes': notes,
-  };
+        'roomType': roomType,
+        'placements': placements.map((e) => e.toJson()).toList(),
+        'notes': notes,
+      };
 }
 
 class ColorPlan {
@@ -124,45 +124,48 @@ class ColorPlan {
   });
 
   factory ColorPlan.fromJson(String id, Map<String, dynamic> j) => ColorPlan(
-    id: id,
-    projectId: j['projectId'] as String,
-    name: j['name'] as String,
-    vibe: j['vibe'] as String? ?? '',
-    paletteColorIds: (j['paletteColorIds'] as List<dynamic>? ?? []).cast<String>(),
-    placementMap: (j['placementMap'] as List<dynamic>? ?? [])
-        .map((e) => PlanPlacement.fromJson(Map<String, dynamic>.from(e)))
-        .toList(),
-    cohesionTips: (j['cohesionTips'] as List<dynamic>? ?? []).cast<String>(),
-    accentRules: (j['accentRules'] as List<dynamic>? ?? [])
-        .map((e) => AccentRule.fromJson(Map<String, dynamic>.from(e)))
-        .toList(),
-    doDont: (j['doDont'] as List<dynamic>? ?? [])
-        .map((e) => DoDontEntry.fromJson(Map<String, dynamic>.from(e)))
-        .toList(),
-    sampleSequence: (j['sampleSequence'] as List<dynamic>? ?? []).cast<String>(),
-    roomPlaybook: (j['roomPlaybook'] as List<dynamic>? ?? [])
-        .map((e) => RoomPlaybookItem.fromJson(Map<String, dynamic>.from(e)))
-        .toList(),
-    createdAt: (j['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-    updatedAt: (j['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-    isFallback: j['isFallback'] == true,
-  );
+        id: id,
+        projectId: j['projectId'] as String,
+        name: j['name'] as String,
+        vibe: j['vibe'] as String? ?? '',
+        paletteColorIds:
+            (j['paletteColorIds'] as List<dynamic>? ?? []).cast<String>(),
+        placementMap: (j['placementMap'] as List<dynamic>? ?? [])
+            .map((e) => PlanPlacement.fromJson(Map<String, dynamic>.from(e)))
+            .toList(),
+        cohesionTips:
+            (j['cohesionTips'] as List<dynamic>? ?? []).cast<String>(),
+        accentRules: (j['accentRules'] as List<dynamic>? ?? [])
+            .map((e) => AccentRule.fromJson(Map<String, dynamic>.from(e)))
+            .toList(),
+        doDont: (j['doDont'] as List<dynamic>? ?? [])
+            .map((e) => DoDontEntry.fromJson(Map<String, dynamic>.from(e)))
+            .toList(),
+        sampleSequence:
+            (j['sampleSequence'] as List<dynamic>? ?? []).cast<String>(),
+        roomPlaybook: (j['roomPlaybook'] as List<dynamic>? ?? [])
+            .map((e) => RoomPlaybookItem.fromJson(Map<String, dynamic>.from(e)))
+            .toList(),
+        createdAt: (j['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+        updatedAt: (j['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+        isFallback: j['isFallback'] == true,
+      );
 
   Map<String, dynamic> toJson() => {
-    'projectId': projectId,
-    'name': name,
-    'vibe': vibe,
-    'paletteColorIds': paletteColorIds,
-    'placementMap': placementMap.map((e) => e.toJson()).toList(),
-    'cohesionTips': cohesionTips,
-    'accentRules': accentRules.map((e) => e.toJson()).toList(),
-    'doDont': doDont.map((e) => e.toJson()).toList(),
-    'sampleSequence': sampleSequence,
-    'roomPlaybook': roomPlaybook.map((e) => e.toJson()).toList(),
-    'createdAt': Timestamp.fromDate(createdAt),
-    'updatedAt': Timestamp.fromDate(updatedAt),
-    if (isFallback) 'isFallback': true,
-  };
+        'projectId': projectId,
+        'name': name,
+        'vibe': vibe,
+        'paletteColorIds': paletteColorIds,
+        'placementMap': placementMap.map((e) => e.toJson()).toList(),
+        'cohesionTips': cohesionTips,
+        'accentRules': accentRules.map((e) => e.toJson()).toList(),
+        'doDont': doDont.map((e) => e.toJson()).toList(),
+        'sampleSequence': sampleSequence,
+        'roomPlaybook': roomPlaybook.map((e) => e.toJson()).toList(),
+        'createdAt': Timestamp.fromDate(createdAt),
+        'updatedAt': Timestamp.fromDate(updatedAt),
+        if (isFallback) 'isFallback': true,
+      };
 
   ColorPlan copyWith({
     String? id,

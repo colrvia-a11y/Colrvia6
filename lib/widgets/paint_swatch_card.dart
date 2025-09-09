@@ -54,12 +54,14 @@ class _PaintSwatchCardState extends State<PaintSwatchCard> {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.20)),
+        border: Border.all(
+            color: theme.colorScheme.outline.withValues(alpha: 0.20)),
       ),
     );
 
     if (widget.useHero) {
-      swatch = Hero(tag: 'paint:${p.id}', flightShuttleBuilder: _flight, child: swatch);
+      swatch = Hero(
+          tag: 'paint:${p.id}', flightShuttleBuilder: _flight, child: swatch);
     }
 
     Widget card = AnimatedScale(
@@ -99,9 +101,11 @@ class _PaintSwatchCardState extends State<PaintSwatchCard> {
                     swatch,
                     if (widget.showQuickRoller && widget.onQuickRoller != null)
                       Positioned(
-                        top: 8, right: 8,
+                        top: 8,
+                        right: 8,
                         child: Material(
-                          color: theme.colorScheme.surface.withValues(alpha: 0.92),
+                          color:
+                              theme.colorScheme.surface.withValues(alpha: 0.92),
                           elevation: 3,
                           borderRadius: BorderRadius.circular(999),
                           child: InkWell(
@@ -116,11 +120,14 @@ class _PaintSwatchCardState extends State<PaintSwatchCard> {
                       ),
                     if (widget.selected)
                       Positioned(
-                        top: 8, left: 8,
+                        top: 8,
+                        left: 8,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.primary.withValues(alpha: .90),
+                            color: theme.colorScheme.primary
+                                .withValues(alpha: .90),
                             borderRadius: BorderRadius.circular(999),
                           ),
                           child: Row(
@@ -128,7 +135,11 @@ class _PaintSwatchCardState extends State<PaintSwatchCard> {
                             children: const [
                               Icon(Icons.check, size: 14, color: Colors.white),
                               SizedBox(width: 4),
-                              Text('Selected', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700)),
+                              Text('Selected',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700)),
                             ],
                           ),
                         ),
@@ -142,38 +153,51 @@ class _PaintSwatchCardState extends State<PaintSwatchCard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(p.name,
+                      Text(
+                        p.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                        style: theme.textTheme.titleSmall
+                            ?.copyWith(fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(height: 4),
                       Row(
                         children: [
                           Expanded(
-                            child: Text('${p.brandName} • ${p.code}',
-                              maxLines: 1, overflow: TextOverflow.ellipsis,
+                            child: Text(
+                              '${p.brandName} • ${p.code}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                                color: theme.colorScheme.onSurface
+                                    .withValues(alpha: 0.6),
                               ),
                             ),
                           ),
                           const SizedBox(width: 6),
                           GestureDetector(
                             onTap: () {
-                              Clipboard.setData(ClipboardData(text: p.hex.toUpperCase()));
+                              Clipboard.setData(
+                                  ClipboardData(text: p.hex.toUpperCase()));
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Copied ${p.hex.toUpperCase()}')),
+                                SnackBar(
+                                    content:
+                                        Text('Copied ${p.hex.toUpperCase()}')),
                               );
                             },
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: theme.colorScheme.surfaceContainerHighest,
+                                color:
+                                    theme.colorScheme.surfaceContainerHighest,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(p.hex.toUpperCase(),
-                                  style: const TextStyle(fontFamily: 'monospace', fontSize: 11, fontWeight: FontWeight.w700)),
+                                  style: const TextStyle(
+                                      fontFamily: 'monospace',
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700)),
                             ),
                           ),
                         ],
@@ -202,8 +226,15 @@ class _PaintSwatchCardState extends State<PaintSwatchCard> {
   }
 
   // slightly smoother hero flight
-  Widget _flight(BuildContext _, Animation<double> anim, HeroFlightDirection dir, BuildContext from, BuildContext to) {
-    return ScaleTransition(scale: Tween(begin: 1.0, end: dir == HeroFlightDirection.push ? 1.03 : 0.98).animate(CurvedAnimation(parent: anim, curve: Curves.easeOutCubic)),
-      child: FadeTransition(opacity: CurvedAnimation(parent: anim, curve: Curves.easeInOutCubic), child: to.widget));
+  Widget _flight(BuildContext _, Animation<double> anim,
+      HeroFlightDirection dir, BuildContext from, BuildContext to) {
+    return ScaleTransition(
+        scale: Tween(
+                begin: 1.0, end: dir == HeroFlightDirection.push ? 1.03 : 0.98)
+            .animate(CurvedAnimation(parent: anim, curve: Curves.easeOutCubic)),
+        child: FadeTransition(
+            opacity:
+                CurvedAnimation(parent: anim, curve: Curves.easeInOutCubic),
+            child: to.widget));
   }
 }

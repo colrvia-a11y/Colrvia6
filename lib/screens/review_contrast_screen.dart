@@ -67,7 +67,8 @@ class _SwatchRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = Color(int.parse(hex.replaceAll('#', ''), radix: 16) | 0xFF000000);
+    final color =
+        Color(int.parse(hex.replaceAll('#', ''), radix: 16) | 0xFF000000);
     return ListTile(
       leading: Semantics(
         label: 'Color swatch $hex',

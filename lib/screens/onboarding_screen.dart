@@ -33,7 +33,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                   _OnboardPage(
                     title: 'Create First',
-                    text: 'Start by designing palettes then plan and visualize.',
+                    text:
+                        'Start by designing palettes then plan and visualize.',
                   ),
                   _OnboardPage(
                     title: 'Your Privacy',

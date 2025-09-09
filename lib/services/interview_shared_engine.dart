@@ -69,16 +69,18 @@ class InterviewEngine {
     TranscriptRecorder.instance.addAssistant(prompt);
     _isListening = true;
     _sub?.cancel();
-    _sub = Stream.periodic(const Duration(milliseconds: 300), (i) => 'Partial response $i')
+    _sub = Stream.periodic(
+            const Duration(milliseconds: 300), (i) => 'Partial response $i')
         .take(5)
         .map((s) => s as String?)
         .listen((text) {
-          _liveTranscript.add(text);
-          if (text != null && text.isNotEmpty) {
-            TranscriptRecorder.instance.addPartial(text);
-          }
-        });
+      _liveTranscript.add(text);
+      if (text != null && text.isNotEmpty) {
+        TranscriptRecorder.instance.addPartial(text);
+      }
+    });
   }
+
   void pause() {
     if (!_isListening) return;
     _log('pause');
@@ -92,7 +94,8 @@ class InterviewEngine {
     _log('resume');
     _isListening = true;
     _sub?.cancel();
-    _sub = Stream.periodic(const Duration(milliseconds: 300), (i) => 'Partial response $i')
+    _sub = Stream.periodic(
+            const Duration(milliseconds: 300), (i) => 'Partial response $i')
         .take(5)
         .map((s) => s as String?)
         .listen((text) => _liveTranscript.add(text));
@@ -133,7 +136,8 @@ class InterviewEngine {
     bool uploadJson = true,
   }) async {
     final uid = FirebaseAuth.instance.currentUser?.uid ?? 'anonymous';
-    final docRef = FirebaseFirestore.instance.collection('interviewSessions').doc();
+    final docRef =
+        FirebaseFirestore.instance.collection('interviewSessions').doc();
     final dur = endedAt.difference(startedAt).inSeconds;
     await docRef.set({
       'userId': uid,

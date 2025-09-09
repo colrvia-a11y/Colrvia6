@@ -12,7 +12,15 @@ import '../services/analytics_service.dart';
 import 'photo_library_screen.dart';
 import 'package:color_canvas/widgets/colr_via_icon_button.dart';
 
-enum VisualizerMode { welcome, upload, analyze, selectSurfaces, generate, results, refine }
+enum VisualizerMode {
+  welcome,
+  upload,
+  analyze,
+  selectSurfaces,
+  generate,
+  results,
+  refine
+}
 
 class VisualizerScreen extends StatefulWidget {
   final List<String>? initialPalette;
@@ -65,7 +73,8 @@ class _VisualizerScreenState extends State<VisualizerScreen>
   void initState() {
     super.initState();
     AnalyticsService.instance.logEvent('journey_step_view', {
-      'step_id': JourneyService.instance.state.value?.currentStepId ?? 'visualizer.photo',
+      'step_id': JourneyService.instance.state.value?.currentStepId ??
+          'visualizer.photo',
     });
     _initializeAnimations();
     _loadInitialData();
@@ -555,7 +564,9 @@ class _VisualizerScreenState extends State<VisualizerScreen>
                     child: Icon(
                       Icons.add_photo_alternate,
                       size: 60,
-                      color: Theme.of(context).colorScheme.secondary, // Brand peach
+                      color: Theme.of(context)
+                          .colorScheme
+                          .secondary, // Brand peach
                     ),
                   ),
                 );
@@ -881,8 +892,8 @@ class _VisualizerScreenState extends State<VisualizerScreen>
   Widget _buildSurfaceSelectionScreen() {
     if (_analysisResult == null) {
       return const Center(
-        child: Text('No analysis results available', 
-          style: TextStyle(color: Colors.white)),
+        child: Text('No analysis results available',
+            style: TextStyle(color: Colors.white)),
       );
     }
 
@@ -896,24 +907,24 @@ class _VisualizerScreenState extends State<VisualizerScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  
+
                   // Compact Analysis Header (now part of scrollable content)
                   _buildCompactAnalysisHeader(),
                   const SizedBox(height: 24),
-                  
+
                   // Dynamic surface selection based on detected surfaces
                   _buildDetectedSurfacesSelection(),
                   const SizedBox(height: 24),
-                  
+
                   // Lighting and style context
                   _buildAnalysisContext(),
-                  
-                  const SizedBox(height: 100), // Extra space for bottom action button
+
+                  const SizedBox(
+                      height: 100), // Extra space for bottom action button
                 ],
               ),
             ),
           ),
-          
           const SizedBox(height: 20),
           if (_selectedColors.isNotEmpty) _buildAnalysisActions(),
         ],
@@ -925,11 +936,11 @@ class _VisualizerScreenState extends State<VisualizerScreen>
     final spaceType = _analysisResult!.spaceType;
     final surfaceCount = _analysisResult!.availableSurfaces.length;
     final confidence = (_analysisResult!.confidence * 100).round();
-    
+
     // Get space-specific emoji and description
     final spaceEmoji = _getSpaceEmoji(spaceType);
     final spaceDescription = _getSpaceDescription(spaceType);
-    
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16), // Reduced from 20
@@ -951,7 +962,8 @@ class _VisualizerScreenState extends State<VisualizerScreen>
               color: Colors.green.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8), // Smaller radius
             ),
-            child: Text(spaceEmoji, style: const TextStyle(fontSize: 20)), // Smaller emoji
+            child: Text(spaceEmoji,
+                style: const TextStyle(fontSize: 20)), // Smaller emoji
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -977,7 +989,8 @@ class _VisualizerScreenState extends State<VisualizerScreen>
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(Icons.format_paint, color: Colors.green[300], size: 14),
+                    Icon(Icons.format_paint,
+                        color: Colors.green[300], size: 14),
                     const SizedBox(width: 4),
                     Text(
                       '$surfaceCount surfaces detected',
@@ -992,7 +1005,8 @@ class _VisualizerScreenState extends State<VisualizerScreen>
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Smaller padding
+            padding: const EdgeInsets.symmetric(
+                horizontal: 8, vertical: 4), // Smaller padding
             decoration: BoxDecoration(
               color: Colors.green.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(16), // Smaller radius
@@ -1032,7 +1046,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
           ),
         ),
         const SizedBox(height: 16),
-        
+
         // Dynamic surface grid based on actual detection
         ...(_analysisResult!.availableSurfaces.map((surface) {
           return _buildSurfaceCard(surface);
@@ -1045,7 +1059,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
     final isSelected = _selectedColors.containsKey(surface);
     final selectedColor = _selectedColors[surface];
     final surfaceInfo = _getSurfaceInfo(surface, _analysisResult!.spaceType);
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -1070,9 +1084,9 @@ class _VisualizerScreenState extends State<VisualizerScreen>
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: isSelected 
-                    ? Colors.blue.withValues(alpha: 0.2)
-                    : Colors.white.withValues(alpha: 0.1),
+                  color: isSelected
+                      ? Colors.blue.withValues(alpha: 0.2)
+                      : Colors.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -1124,8 +1138,9 @@ class _VisualizerScreenState extends State<VisualizerScreen>
 
   Widget _buildSmartColorSelection(SurfaceType surface, String? selectedColor) {
     // Get intelligent color suggestions based on space type and surface
-    final suggestedColors = _getSmartColorSuggestions(surface, _analysisResult!.spaceType);
-    
+    final suggestedColors =
+        _getSmartColorSuggestions(surface, _analysisResult!.spaceType);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1196,7 +1211,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
     final lighting = _analysisResult!.lightingConditions;
     final style = _analysisResult!.style;
     final dominantColors = _analysisResult!.dominantColors;
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1216,11 +1231,12 @@ class _VisualizerScreenState extends State<VisualizerScreen>
             ),
           ),
           const SizedBox(height: 12),
-          
+
           // Lighting info
           Row(
             children: [
-              Icon(_getLightingIcon(lighting), color: Colors.amber[300], size: 16),
+              Icon(_getLightingIcon(lighting),
+                  color: Colors.amber[300], size: 16),
               const SizedBox(width: 8),
               Text(
                 'Lighting: ${lighting.replaceAll('_', ' ').toUpperCase()}',
@@ -1229,8 +1245,8 @@ class _VisualizerScreenState extends State<VisualizerScreen>
             ],
           ),
           const SizedBox(height: 8),
-          
-          // Style info  
+
+          // Style info
           Row(
             children: [
               Icon(Icons.style, color: Colors.purple[300], size: 16),
@@ -1242,7 +1258,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
             ],
           ),
           const SizedBox(height: 8),
-          
+
           // Existing colors
           Row(
             children: [
@@ -1337,13 +1353,16 @@ class _VisualizerScreenState extends State<VisualizerScreen>
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 800),
             child: Text(
-              _currentDescriptiveAction.isEmpty 
-                ? descriptiveActions[0]
-                : _currentDescriptiveAction,
+              _currentDescriptiveAction.isEmpty
+                  ? descriptiveActions[0]
+                  : _currentDescriptiveAction,
               key: ValueKey(_currentDescriptiveAction),
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.8), // Brand peach
+                color: Theme.of(context)
+                    .colorScheme
+                    .secondary
+                    .withValues(alpha: 0.8), // Brand peach
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -1663,7 +1682,9 @@ class _VisualizerScreenState extends State<VisualizerScreen>
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: Theme.of(context).colorScheme.secondary
+                    color: Theme.of(context)
+                        .colorScheme
+                        .secondary
                         .withValues(alpha: 0.3), // Brand peach glow
                     blurRadius: 15,
                     offset: const Offset(0, 8),
@@ -1676,7 +1697,8 @@ class _VisualizerScreenState extends State<VisualizerScreen>
           child: Stack(
             children: [
               GestureDetector(
-                onTap: () => _showFullscreenImage(variant.imageData, variant.description),
+                onTap: () => _showFullscreenImage(
+                    variant.imageData, variant.description),
                 child: Image.memory(
                   variant.imageData,
                   width: double.infinity,
@@ -1804,11 +1826,13 @@ class _VisualizerScreenState extends State<VisualizerScreen>
                   children: [
                     Expanded(
                       child: ElevatedButton.icon(
-                        onPressed: () => _saveToPhotoLibrary(imageData, description),
+                        onPressed: () =>
+                            _saveToPhotoLibrary(imageData, description),
                         icon: const Icon(Icons.save_alt),
                         label: const Text('Save to Library'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.secondary,
+                          backgroundColor:
+                              Theme.of(context).colorScheme.secondary,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
@@ -1846,10 +1870,11 @@ class _VisualizerScreenState extends State<VisualizerScreen>
     );
   }
 
-  Future<void> _saveToPhotoLibrary(Uint8List imageData, String description) async {
+  Future<void> _saveToPhotoLibrary(
+      Uint8List imageData, String description) async {
     try {
       debugPrint('💾 Saving image to photo library: $description');
-      
+
       // Save image using PhotoLibraryService
       final photoId = await PhotoLibraryService.savePhoto(
         imageData: imageData,
@@ -1860,9 +1885,9 @@ class _VisualizerScreenState extends State<VisualizerScreen>
           'mode': _currentMode.toString(),
         },
       );
-      
+
       debugPrint('✅ Image saved successfully with ID: $photoId');
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -2024,7 +2049,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
         _currentStep = '';
         _currentDescriptiveAction = '';
       });
-      
+
       // Navigate to surface selection screen after analysis completes
       _navigateToMode(VisualizerMode.selectSurfaces);
     } catch (e) {
@@ -2053,12 +2078,13 @@ class _VisualizerScreenState extends State<VisualizerScreen>
       _currentDescriptiveAction = descriptiveActions[actionIndex];
     });
 
-    _descriptiveActionTimer = Timer.periodic(const Duration(milliseconds: 1200), (timer) {
+    _descriptiveActionTimer =
+        Timer.periodic(const Duration(milliseconds: 1200), (timer) {
       if (!_isAnalyzing) {
         timer.cancel();
         return;
       }
-      
+
       actionIndex = (actionIndex + 1) % descriptiveActions.length;
       setState(() {
         _currentDescriptiveAction = descriptiveActions[actionIndex];
@@ -2299,25 +2325,29 @@ class _VisualizerScreenState extends State<VisualizerScreen>
     }
   }
 
-  List<Map<String, String>> _getSmartColorSuggestions(SurfaceType surface, SpaceType spaceType) {
+  List<Map<String, String>> _getSmartColorSuggestions(
+      SurfaceType surface, SpaceType spaceType) {
     // Get base colors for the surface type
     final baseColors = _getBaseSurfaceColors(surface);
-    
+
     // Get space-specific modifications
     final spaceColors = _getSpaceSpecificColors(spaceType);
-    
+
     // Combine and prioritize based on surface and space
     final smartSuggestions = <Map<String, String>>[];
-    
+
     // Add space-appropriate colors first
     smartSuggestions.addAll(spaceColors);
-    
+
     // Add surface-appropriate colors
     smartSuggestions.addAll(baseColors);
-    
+
     // Remove duplicates and limit to 8 suggestions
     final seen = <String>{};
-    return smartSuggestions.where((color) => seen.add(color['hex']!)).take(8).toList();
+    return smartSuggestions
+        .where((color) => seen.add(color['hex']!))
+        .take(8)
+        .toList();
   }
 
   List<Map<String, String>> _getBaseSurfaceColors(SurfaceType surface) {

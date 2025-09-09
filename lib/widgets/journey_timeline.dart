@@ -36,7 +36,8 @@ class _StepPill extends StatelessWidget {
   final String label;
   final bool isCurrent;
   final bool isDone;
-  const _StepPill({required this.label, required this.isCurrent, required this.isDone});
+  const _StepPill(
+      {required this.label, required this.isCurrent, required this.isDone});
 
   @override
   Widget build(BuildContext context) {
@@ -45,14 +46,16 @@ class _StepPill extends StatelessWidget {
     final bg = isCurrent
         ? peach.withAlpha((255 * 0.15).round())
         : Colors.white.withAlpha((255 * 0.06).round());
-    final border =
-        isDone ? peach : (isCurrent ? peach.withAlpha((255 * 0.7).round()) : Colors.white24);
-    final fg =
-        isDone ? peach : (isCurrent ? peach : Colors.white.withAlpha((255 * 0.9).round()));
+    final border = isDone
+        ? peach
+        : (isCurrent ? peach.withAlpha((255 * 0.7).round()) : Colors.white24);
+    final fg = isDone
+        ? peach
+        : (isCurrent ? peach : Colors.white.withAlpha((255 * 0.9).round()));
 
     return Container(
-      padding:
-          const EdgeInsets.symmetric(horizontal: AppDims.gap * 2, vertical: AppDims.gap),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppDims.gap * 2, vertical: AppDims.gap),
       decoration: BoxDecoration(
         color: bg,
         border: Border.all(color: border, width: 1.25),
@@ -61,8 +64,14 @@ class _StepPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(isDone ? Icons.check_circle : (isCurrent ? Icons.timelapse : Icons.radio_button_unchecked),
-              size: 16, color: fg),
+          Icon(
+              isDone
+                  ? Icons.check_circle
+                  : (isCurrent
+                      ? Icons.timelapse
+                      : Icons.radio_button_unchecked),
+              size: 16,
+              color: fg),
           const SizedBox(width: 8),
           Text(label,
               style: Theme.of(context)

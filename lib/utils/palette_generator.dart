@@ -10,12 +10,15 @@ String paintIdentity(Paint p) {
   return '$brand|$collection|$code';
 }
 
-bool isCompatibleUndertone(String paintUndertone, List<String> fixedUndertones) {
+bool isCompatibleUndertone(
+    String paintUndertone, List<String> fixedUndertones) {
   if (fixedUndertones.isEmpty) return true;
   if (fixedUndertones.contains('neutral')) return true;
   if (paintUndertone == 'neutral') return true;
-  if (fixedUndertones.contains('warm') && paintUndertone == 'cool') return false;
-  if (fixedUndertones.contains('cool') && paintUndertone == 'warm') return false;
+  if (fixedUndertones.contains('warm') && paintUndertone == 'cool')
+    return false;
+  if (fixedUndertones.contains('cool') && paintUndertone == 'warm')
+    return false;
   return true;
 }
 
@@ -36,12 +39,114 @@ List<Paint> filterByFixedUndertones(
   return filtered.isNotEmpty ? filtered : paints;
 }
 
+class _ColrViaRole {
+  final String name;
+  final double minL;
+  final double maxL; // LRV band
+  final double? maxC; // optional chroma cap (muted neutrals)
+  final double? minC; // optional chroma floor (accents)
+  _ColrViaRole(this.name, this.minL, this.maxL, {this.maxC, this.minC});
+}
+
+// Scales the "universal" role plan across sizes 1..9
+List<_ColrViaRole> _colrviaPlanForSize(int size) {
+  // Bands inspired by the PDF’s guidance:
+  // Anchor <10–15, Midtones ~30–60, Support neutrals ~50–70 (low C),
+  // Off-white 70–82 (low C), Bright white 82–92 (very low C).
+  // Refs: value spacing & role breakdown.
+
+  final roles = <_ColrViaRole>[];
+  switch (size) {
+    case 1:
+      roles.add(_ColrViaRole('Dominant', 45, 60, maxC: 30));
+      break;
+    case 2:
+      roles.add(_ColrViaRole('Anchor', 0, 15, maxC: 40));
+      roles.add(_ColrViaRole('Light', 72, 90, maxC: 12));
+      break;
+    case 3:
+      roles.addAll([
+        _ColrViaRole('Anchor', 0, 15, maxC: 40),
+        _ColrViaRole('Dominant', 45, 60),
+        _ColrViaRole('Light', 72, 90, maxC: 12),
+      ]);
+      break;
+    case 4:
+      roles.addAll([
+        _ColrViaRole('Anchor', 0, 15, maxC: 40),
+        _ColrViaRole('Primary', 35, 50, minC: 16),
+        _ColrViaRole('Support Neutral', 55, 70, maxC: 14),
+        _ColrViaRole('Off-White', 72, 82, maxC: 10),
+      ]);
+      break;
+    case 5:
+      roles.addAll([
+        _ColrViaRole('Anchor', 0, 15, maxC: 40),
+        _ColrViaRole('Primary', 35, 50, minC: 16),
+        _ColrViaRole('Secondary', 45, 60, minC: 16),
+        _ColrViaRole('Support Neutral', 55, 70, maxC: 14),
+        _ColrViaRole('Off-White', 72, 82, maxC: 10),
+      ]);
+      break;
+    case 6:
+      roles.addAll([
+        _ColrViaRole('Anchor', 0, 15, maxC: 40),
+        _ColrViaRole('Primary', 35, 50, minC: 16),
+        _ColrViaRole('Secondary', 45, 60, minC: 16),
+        _ColrViaRole('Support Neutral A', 55, 70, maxC: 14),
+        _ColrViaRole('Support Neutral B', 55, 70, maxC: 14),
+        _ColrViaRole('Off-White', 72, 82, maxC: 10),
+      ]);
+      break;
+    case 7:
+      roles.addAll([
+        _ColrViaRole('Anchor', 0, 15, maxC: 40),
+        _ColrViaRole('Primary', 35, 50, minC: 16),
+        _ColrViaRole('Secondary', 45, 60, minC: 16),
+        _ColrViaRole('Support Neutral A', 55, 70, maxC: 14),
+        _ColrViaRole('Support Neutral B', 55, 70, maxC: 14),
+        _ColrViaRole('Off-White', 72, 82, maxC: 10),
+        _ColrViaRole('Bright White', 83, 92, maxC: 8),
+      ]);
+      break;
+    case 8:
+      roles.addAll([
+        _ColrViaRole('Anchor', 0, 15, maxC: 40),
+        _ColrViaRole('Primary', 35, 50, minC: 16),
+        _ColrViaRole('Secondary', 45, 60, minC: 16),
+        _ColrViaRole('Support Neutral A', 55, 70, maxC: 14),
+        _ColrViaRole('Support Neutral B', 55, 70, maxC: 14),
+        _ColrViaRole('Support Neutral C', 55, 70, maxC: 14),
+        _ColrViaRole('Off-White', 72, 82, maxC: 10),
+        _ColrViaRole('Bright White', 83, 92, maxC: 8),
+      ]);
+      break;
+    default: // 9
+      roles.addAll([
+        _ColrViaRole('Anchor', 0, 15, maxC: 40),
+        _ColrViaRole('Primary', 35, 50, minC: 16),
+        _ColrViaRole('Secondary', 45, 60, minC: 16),
+        _ColrViaRole('Support Neutral A', 55, 70, maxC: 14),
+        _ColrViaRole('Support Neutral B', 55, 70, maxC: 14),
+        _ColrViaRole('Support Neutral C', 55, 70, maxC: 14),
+        _ColrViaRole('Off-White', 72, 82, maxC: 10),
+        _ColrViaRole('Bright White', 83, 92, maxC: 8),
+        _ColrViaRole('Bridge Mid', 30, 45), // extra mid bridge if 9 slots
+      ]);
+      break;
+  }
+  return roles;
+}
+
+bool _within(double v, double min, double max) => v >= min && v <= max;
+
 enum HarmonyMode {
   neutral,
   analogous,
   complementary,
   triad,
   designer,
+  colrvia, // NEW: ColrVia universal recipe
 }
 
 class PaletteGenerator {
@@ -58,9 +163,19 @@ class PaletteGenerator {
   }) {
     if (availablePaints.isEmpty) return [];
 
+    if (mode == HarmonyMode.colrvia) {
+      return _rollColrvia(
+        availablePaints: availablePaints,
+        anchors: anchors,
+        diversifyBrands: diversifyBrands,
+        fixedUndertones: fixedUndertones ?? const [],
+      );
+    }
+
     final undertones = fixedUndertones ?? const [];
-    final List<Paint> paints =
-        undertones.isNotEmpty ? filterByFixedUndertones(availablePaints, undertones) : availablePaints;
+    final List<Paint> paints = undertones.isNotEmpty
+        ? filterByFixedUndertones(availablePaints, undertones)
+        : availablePaints;
     if (paints.isEmpty) return [];
 
     final int size = anchors.length;
@@ -174,9 +289,8 @@ class PaletteGenerator {
 
       List<Paint> candidates = paints;
       if (diversifyBrands && usedBrands.isNotEmpty) {
-        final unused = paints
-            .where((p) => !usedBrands.contains(p.brandName))
-            .toList();
+        final unused =
+            paints.where((p) => !usedBrands.contains(p.brandName)).toList();
         if (unused.isNotEmpty) candidates = unused;
       }
 
@@ -238,6 +352,129 @@ class PaletteGenerator {
     return result.whereType<Paint>().toList(growable: false);
   }
 
+  static List<Paint> _rollColrvia({
+    required List<Paint> availablePaints,
+    required List<Paint?> anchors,
+    required bool diversifyBrands,
+    required List<String> fixedUndertones,
+  }) {
+    final size = anchors.length.clamp(1, 9);
+    final roles = _colrviaPlanForSize(size);
+
+    // Undertone discipline: optional narrowing by fixed undertones or muted chroma.
+    final base = fixedUndertones.isNotEmpty
+        ? filterByFixedUndertones(availablePaints, fixedUndertones)
+        : availablePaints;
+    if (base.isEmpty) return [];
+
+    // Choose a seed hue from any unlocked non-neutral paint to steer analogous bias.
+    final rnd = _random;
+    Paint seed = base[rnd.nextInt(base.length)];
+    for (final a in anchors) {
+      if (a != null) {
+        seed = a;
+        break;
+      }
+    }
+    final seedLch = ColorUtils.labToLch(seed.lab);
+    final seedHue = seedLch[2];
+
+    final result = List<Paint?>.filled(size, null);
+    final used = <String>{};
+    final usedBrands = <String>{};
+
+    for (int i = 0; i < size; i++) {
+      if (anchors[i] != null) {
+        result[i] = anchors[i];
+        used.add(paintIdentity(anchors[i]!));
+        usedBrands.add(anchors[i]!.brandName);
+        continue;
+      }
+      final role = roles[i];
+      // Candidate pool by LRV band (computedLrv) and chroma cap if provided
+      final candidates = base.where((p) {
+        final l = p.computedLrv;
+        final lch = ColorUtils.labToLch(p.lab);
+        final c = lch[1];
+        final okL = _within(l, role.minL, role.maxL);
+        final okC = (role.maxC == null || c <= role.maxC!) &&
+            (role.minC == null || c >= role.minC!);
+        if (!okL || !okC) return false;
+        if (used.contains(paintIdentity(p))) return false;
+        if (diversifyBrands && usedBrands.contains(p.brandName)) return false;
+        return true;
+      }).toList();
+
+      // Hue bias: keep analogous cluster for Primary/Secondary; neutrals are free.
+      candidates.sort((a, b) {
+        final ha = ColorUtils.labToLch(a.lab)[2];
+        final hb = ColorUtils.labToLch(b.lab)[2];
+        double dh(double h) {
+          final d = (h - seedHue).abs();
+          return d > 180 ? 360 - d : d;
+        }
+
+        final dA = dh(ha);
+        final dB = dh(hb);
+        return dA.compareTo(dB);
+      });
+
+      Paint? pick;
+      // Try nearest-by-hue within same brand diversity rules and not-yet-used
+      if (candidates.isNotEmpty) {
+        pick = candidates.first;
+      } else {
+        // Widen strategy: drop brand diversity first, then widen LRV band a bit
+        final wide = base.where((p) {
+          if (used.contains(paintIdentity(p))) return false;
+          final l = p.computedLrv;
+          return _within(l, role.minL - 3, role.maxL + 3);
+        }).toList();
+        if (wide.isNotEmpty) {
+          wide.sort((a, b) {
+            final da = ColorUtils.deltaE2000(seed.lab, a.lab);
+            final db = ColorUtils.deltaE2000(seed.lab, b.lab);
+            return da.compareTo(db);
+          });
+          pick = wide.first;
+        }
+      }
+
+      if (pick != null) {
+        result[i] = pick;
+        used.add(paintIdentity(pick));
+        usedBrands.add(pick.brandName);
+      }
+    }
+
+    // If any slot failed, backfill globally nearest by LRV band to maintain size
+    for (int i = 0; i < size; i++) {
+      if (result[i] != null) continue;
+      final role = roles[i];
+      final targetL = ((role.minL + role.maxL) / 2.0);
+      Paint? nearest;
+      double best = double.infinity;
+      for (final p in base) {
+        final key = paintIdentity(p);
+        if (used.contains(key)) continue;
+        final d = (p.computedLrv - targetL).abs();
+        if (d < best) {
+          best = d;
+          nearest = p;
+        }
+      }
+      result[i] = nearest ?? base.first;
+      if (result[i] != null) used.add(paintIdentity(result[i]!));
+    }
+
+    final out = result.whereType<Paint>().toList(growable: false);
+    // Sort by LRV desc iff there were no locks (fits your existing UX)
+    if (anchors.every((a) => a == null)) {
+      out.sort((a, b) => b.computedLrv.compareTo(a.computedLrv));
+    }
+    return out;
+  }
+
   // Generate target LAB values based on harmony mode
   static List<List<double>> _generateHarmonyTargets(
       List<double> seedLab, HarmonyMode mode,
@@ -268,6 +505,11 @@ class PaletteGenerator {
       case HarmonyMode.designer:
         // Designer mode handled separately in rollPalette() - should not reach here
         assert(false, 'Designer mode should not use _generateHarmonyTargets');
+        break;
+      case HarmonyMode.colrvia:
+        // ColrVia universal recipe: map to neutral-style targets by default.
+        targets.addAll(
+            _generateNeutralTargets(baseLightness, baseChroma, baseHue));
         break;
     }
 
@@ -514,8 +756,9 @@ class PaletteGenerator {
     List<String>? fixedUndertones,
   }) {
     final undertones = fixedUndertones ?? const [];
-    final List<Paint> paints =
-        undertones.isNotEmpty ? filterByFixedUndertones(availablePaints, undertones) : availablePaints;
+    final List<Paint> paints = undertones.isNotEmpty
+        ? filterByFixedUndertones(availablePaints, undertones)
+        : availablePaints;
 
     final size = anchors.length;
     if (size <= 0 || paints.isEmpty) return [];
@@ -542,8 +785,9 @@ class PaletteGenerator {
 
     // Generate size-based Designer targets (no roles): N evenly spaced values,
     // gentle bias to keep one light anchor and one deep anchor.
-    final seedPaint = anchors.firstWhere((p) => p != null, orElse: () => null) ??
-        paints[_random.nextInt(paints.length)];
+    final seedPaint =
+        anchors.firstWhere((p) => p != null, orElse: () => null) ??
+            paints[_random.nextInt(paints.length)];
     final seedLch = ColorUtils.labToLch(seedPaint.lab);
     final List<List<double>> targetLabs = _designerTargetsForSize(
         size: size, seedL: seedLch[0], seedC: seedLch[1], seedH: seedLch[2]);
@@ -568,8 +812,8 @@ class PaletteGenerator {
         continue;
       }
       final low = minLrv[i], high = maxLrv[i];
-      final nearest = ColorUtils.nearestByDeltaEMultipleHueWindow(
-          targetLabs[i], paints);
+      final nearest =
+          ColorUtils.nearestByDeltaEMultipleHueWindow(targetLabs[i], paints);
       final band = (nearest != null)
           ? [nearest].where((p) {
               final l = p.computedLrv;
@@ -589,8 +833,7 @@ class PaletteGenerator {
           widened = paints
               .where((p) => p.computedLrv >= wLow && p.computedLrv <= wHigh)
               .toList()
-            ..sort((a, b) => ColorUtils
-                .deltaE2000(targetLabs[i], a.lab)
+            ..sort((a, b) => ColorUtils.deltaE2000(targetLabs[i], a.lab)
                 .compareTo(ColorUtils.deltaE2000(targetLabs[i], b.lab)));
           widen += 5.0;
         }
@@ -598,10 +841,9 @@ class PaletteGenerator {
         if (widened.isNotEmpty) {
           slotCandidates.add(widened.take(24).toList());
         } else {
-          final sorted = [...paints]
-            ..sort((a, b) => ColorUtils
-                .deltaE2000(targetLabs[i], a.lab)
-                .compareTo(ColorUtils.deltaE2000(targetLabs[i], b.lab)));
+          final sorted = [...paints]..sort((a, b) =>
+              ColorUtils.deltaE2000(targetLabs[i], a.lab)
+                  .compareTo(ColorUtils.deltaE2000(targetLabs[i], b.lab)));
           slotCandidates.add(sorted.take(24).toList());
         }
       }
@@ -686,12 +928,13 @@ class PaletteGenerator {
             : (baseCands
                 .where((p) => !usedKeys.contains(paintIdentity(p)))
                 .toList()
-              ..sort((a, b) => ColorUtils
-                  .deltaE2000(targetLabs[slot], a.lab)
+              ..sort((a, b) => ColorUtils.deltaE2000(targetLabs[slot], a.lab)
                   .compareTo(ColorUtils.deltaE2000(targetLabs[slot], b.lab))));
         for (final p in cands) {
           // Optional: light brand diversification
-          if (!isLockedSlot && diversifyBrands && usedBrands.contains(p.brandName)) {
+          if (!isLockedSlot &&
+              diversifyBrands &&
+              usedBrands.contains(p.brandName)) {
             continue;
           }
 

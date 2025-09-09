@@ -177,13 +177,15 @@ class SamplePaints {
   }
 
   /// Get paints by brand
-  static Future<List<Map<String, dynamic>>> getPaintsByBrand(String brand) async {
+  static Future<List<Map<String, dynamic>>> getPaintsByBrand(
+      String brand) async {
     final allPaints = await _loadPaintData();
     return allPaints.where((paint) => paint['brandName'] == brand).toList();
   }
 
   /// Get paints by family
-  static Future<List<Map<String, dynamic>>> getPaintsByFamily(String family) async {
+  static Future<List<Map<String, dynamic>>> getPaintsByFamily(
+      String family) async {
     final allPaints = await _loadPaintData();
     return allPaints.where((paint) => paint['family'] == family).toList();
   }
@@ -197,8 +199,8 @@ class SamplePaints {
       final code = paint['code'].toString().toLowerCase();
       final brand = paint['brandName'].toString().toLowerCase();
       return name.contains(lowerQuery) ||
-             code.contains(lowerQuery) ||
-             brand.contains(lowerQuery);
+          code.contains(lowerQuery) ||
+          brand.contains(lowerQuery);
     }).toList();
   }
 

@@ -13,8 +13,7 @@ final userPalettesProvider = FutureProvider<List<UserPalette>>((ref) async {
   return FirebaseService.getUserPalettes(user.uid);
 });
 
-final favoriteColorsProvider =
-    FutureProvider<List<Paint>>((ref) async {
+final favoriteColorsProvider = FutureProvider<List<Paint>>((ref) async {
   final user = FirebaseService.currentUser;
   if (user == null) return [];
   return FirebaseService.getUserFavoriteColors(user.uid);

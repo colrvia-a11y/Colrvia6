@@ -25,8 +25,8 @@ class TranscriptViewerScreen extends StatelessWidget {
           return ListTile(
             dense: true,
             title: Text(e.text),
-            subtitle:
-                Text('${e.type}${e.promptId != null ? ' • ${e.promptId}' : ''}'),
+            subtitle: Text(
+                '${e.type}${e.promptId != null ? ' • ${e.promptId}' : ''}'),
             leading: Icon(
               switch (e.type) {
                 'question' => Icons.help_outline,

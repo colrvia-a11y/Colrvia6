@@ -24,10 +24,16 @@ class ProjectOverviewScreen extends StatelessWidget {
         ),
         body: const TabBarView(
           children: [
-            Center(child: Text('Color Stories tab')), // TODO: Replace with actual content
-            Center(child: Text('Palettes tab')),     // TODO: Replace with actual content
-            Center(child: Text('Colors tab')),       // TODO: Replace with actual content
-            Center(child: Text('Images tab')),       // TODO: Replace with actual content
+            Center(
+                child: Text(
+                    'Color Stories tab')), // TODO: Replace with actual content
+            Center(
+                child:
+                    Text('Palettes tab')), // TODO: Replace with actual content
+            Center(
+                child: Text('Colors tab')), // TODO: Replace with actual content
+            Center(
+                child: Text('Images tab')), // TODO: Replace with actual content
           ],
         ),
       ),

@@ -7,7 +7,8 @@ import '../services/fixed_element_service.dart';
 class FixedElementsSheet extends StatefulWidget {
   final String projectId;
   final List<FixedElement> elements;
-  const FixedElementsSheet({super.key, required this.projectId, required this.elements});
+  const FixedElementsSheet(
+      {super.key, required this.projectId, required this.elements});
 
   @override
   State<FixedElementsSheet> createState() => _FixedElementsSheetState();
@@ -52,8 +53,11 @@ class _FixedElementsSheetState extends State<FixedElementsSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Fixed Elements', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              IconButton(onPressed: () => Navigator.of(context).pop(), icon: const Icon(Icons.close)),
+              const Text('Fixed Elements',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.close)),
             ],
           ),
           const SizedBox(height: 12),
@@ -82,9 +86,11 @@ class _FixedElementsSheetState extends State<FixedElementsSheet> {
                                 value: e.type,
                                 isExpanded: true,
                                 items: _types
-                                    .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                                    .map((t) => DropdownMenuItem(
+                                        value: t, child: Text(t)))
                                     .toList(),
-                                onChanged: (v) => setState(() => _elements[i] = e.copyWith(type: v)),
+                                onChanged: (v) => setState(
+                                    () => _elements[i] = e.copyWith(type: v)),
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -93,14 +99,17 @@ class _FixedElementsSheetState extends State<FixedElementsSheet> {
                                 value: e.undertone,
                                 isExpanded: true,
                                 items: _undertones
-                                    .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                                    .map((t) => DropdownMenuItem(
+                                        value: t, child: Text(t)))
                                     .toList(),
-                                onChanged: (v) => setState(() => _elements[i] = e.copyWith(undertone: v)),
+                                onChanged: (v) => setState(() =>
+                                    _elements[i] = e.copyWith(undertone: v)),
                               ),
                             ),
                             IconButton(
                               icon: const Icon(Icons.delete_outline),
-                              onPressed: () => setState(() => _elements.removeAt(i)),
+                              onPressed: () =>
+                                  setState(() => _elements.removeAt(i)),
                             ),
                           ],
                         ),

@@ -6,12 +6,12 @@ import 'package:color_canvas/services/analytics_service.dart';
 
 // ---------- Internal helpers (pure functions) ----------
 List<Paint> _rehydrate(List<Map<String, dynamic>> maps) => [
-  for (final m in maps) Paint.fromJson(m, m['id'] as String),
-];
+      for (final m in maps) Paint.fromJson(m, m['id'] as String),
+    ];
 
 List<Map<String, dynamic>> _dehydrate(List<Paint> paints) => [
-  for (final p in paints) (p.toJson()..['id'] = p.id),
-];
+      for (final p in paints) (p.toJson()..['id'] = p.id),
+    ];
 
 class _PipelineArgs {
   _PipelineArgs({
@@ -37,28 +37,33 @@ class _PipelineArgs {
   final int? attempts;
 
   Map<String, dynamic> toMap() => {
-    'available': available,
-    'anchors': anchors,
-    'modeIndex': modeIndex,
-    'diversify': diversify,
-    'slotLrvHints': slotLrvHints,
-    'fixedUndertones': fixedUndertones,
-    'themeSpec': themeSpec,
-    'themeThreshold': themeThreshold,
-    'attempts': attempts,
-  };
+        'available': available,
+        'anchors': anchors,
+        'modeIndex': modeIndex,
+        'diversify': diversify,
+        'slotLrvHints': slotLrvHints,
+        'fixedUndertones': fixedUndertones,
+        'themeSpec': themeSpec,
+        'themeThreshold': themeThreshold,
+        'attempts': attempts,
+      };
 
   static _PipelineArgs from(Map<String, dynamic> m) => _PipelineArgs(
-    available: List<Map<String, dynamic>>.from(m['available'] as List),
-    anchors: List<Map<String, dynamic>?>.from(m['anchors'] as List),
-    modeIndex: m['modeIndex'] as int? ?? 0,
-    diversify: m['diversify'] as bool? ?? true,
-    slotLrvHints: m['slotLrvHints'] == null ? null : List<List<double>>.from((m['slotLrvHints'] as List).map((e) => List<double>.from(e))),
-    fixedUndertones: m['fixedUndertones'] == null ? null : List<String>.from(m['fixedUndertones'] as List),
-    themeSpec: m['themeSpec'] as Map<String, dynamic>?,
-    themeThreshold: (m['themeThreshold'] as num?)?.toDouble(),
-    attempts: m['attempts'] as int?,
-  );
+        available: List<Map<String, dynamic>>.from(m['available'] as List),
+        anchors: List<Map<String, dynamic>?>.from(m['anchors'] as List),
+        modeIndex: m['modeIndex'] as int? ?? 0,
+        diversify: m['diversify'] as bool? ?? true,
+        slotLrvHints: m['slotLrvHints'] == null
+            ? null
+            : List<List<double>>.from(
+                (m['slotLrvHints'] as List).map((e) => List<double>.from(e))),
+        fixedUndertones: m['fixedUndertones'] == null
+            ? null
+            : List<String>.from(m['fixedUndertones'] as List),
+        themeSpec: m['themeSpec'] as Map<String, dynamic>?,
+        themeThreshold: (m['themeThreshold'] as num?)?.toDouble(),
+        attempts: m['attempts'] as int?,
+      );
 }
 
 List<Paint> _pipeRollBase({
@@ -103,7 +108,8 @@ List<Paint> _pipeMaybeScoreTheme({
       anchors: anchors,
       mode: HarmonyMode.values[modeIndex],
       diversifyBrands: diversify,
-      slotLrvHints: slotLrvHints ?? ThemeEngine.slotLrvHintsFor(anchors.length, spec),
+      slotLrvHints:
+          slotLrvHints ?? ThemeEngine.slotLrvHintsFor(anchors.length, spec),
       fixedUndertones: fixedUndertones,
     );
     final score = ThemeEngine.scorePalette(rolled, spec);
@@ -130,11 +136,16 @@ List<Paint> _pipeMaybeScoreTheme({
 List<Map<String, dynamic>> rollPipelineInIsolate(Map<String, dynamic> argsMap) {
   final args = _PipelineArgs.from(argsMap);
   final themedOrBrandOnly = _rehydrate(args.available);
-  final anchors = [for (final m in args.anchors) (m == null ? null : Paint.fromJson(m, m['id'] as String))];
+  final anchors = [
+    for (final m in args.anchors)
+      (m == null ? null : Paint.fromJson(m, m['id'] as String))
+  ];
 
   // Optional wider brand-only pool for auto-relax fallback
-  final brandOnlyRaw = (argsMap['availableBrandOnly'] as List?)?.cast<Map<String, dynamic>>();
-  final brandOnly = brandOnlyRaw == null ? themedOrBrandOnly : _rehydrate(brandOnlyRaw);
+  final brandOnlyRaw =
+      (argsMap['availableBrandOnly'] as List?)?.cast<Map<String, dynamic>>();
+  final brandOnly =
+      brandOnlyRaw == null ? themedOrBrandOnly : _rehydrate(brandOnlyRaw);
 
   if (args.themeSpec == null) {
     final rolled = _pipeRollBase(
@@ -153,7 +164,8 @@ List<Map<String, dynamic>> rollPipelineInIsolate(Map<String, dynamic> argsMap) {
   final pre = ThemeEngine.prefilter(brandOnly, spec);
   final pool = pre.length < 120 ? brandOnly : pre; // auto-relax if too small
 
-  final maxAttempts = args.attempts ?? 10; // service should default, but enforce here
+  final maxAttempts =
+      args.attempts ?? 10; // service should default, but enforce here
   final threshold = args.themeThreshold ?? 0.6;
 
   double best = -1.0;
@@ -164,7 +176,8 @@ List<Map<String, dynamic>> rollPipelineInIsolate(Map<String, dynamic> argsMap) {
       anchors: anchors,
       mode: HarmonyMode.values[args.modeIndex],
       diversifyBrands: args.diversify,
-      slotLrvHints: args.slotLrvHints ?? ThemeEngine.slotLrvHintsFor(anchors.length, spec),
+      slotLrvHints: args.slotLrvHints ??
+          ThemeEngine.slotLrvHintsFor(anchors.length, spec),
       fixedUndertones: args.fixedUndertones,
     );
     final score = ThemeEngine.scorePalette(rolled, spec);
@@ -197,22 +210,35 @@ List<Map<String, dynamic>> rollPipelineInIsolate(Map<String, dynamic> argsMap) {
 }
 
 /// Produce distinct alternates for a single [slotIndex] while keeping other slots fixed.
-List<Map<String, dynamic>> alternatesForSlotInIsolate(Map<String, dynamic> args) {
-  final available = _rehydrate(List<Map<String, dynamic>>.from(args['available'] as List));
+List<Map<String, dynamic>> alternatesForSlotInIsolate(
+    Map<String, dynamic> args) {
+  final available =
+      _rehydrate(List<Map<String, dynamic>>.from(args['available'] as List));
   final anchors = [
     for (final m in List<Map<String, dynamic>?>.from(args['anchors'] as List))
       (m == null ? null : Paint.fromJson(m, m['id'] as String))
   ];
   final slotIndex = args['slotIndex'] as int;
   final diversify = args['diversify'] as bool? ?? true;
-  final fixedUndertones = args['fixedUndertones'] == null ? null : List<String>.from(args['fixedUndertones'] as List);
+  final fixedUndertones = args['fixedUndertones'] == null
+      ? null
+      : List<String>.from(args['fixedUndertones'] as List);
   final themeSpecMap = args['themeSpec'] as Map<String, dynamic>?;
   final targetCount = args['targetCount'] as int? ?? 5;
   final attemptsPerRound = args['attemptsPerRound'] as int? ?? 3;
 
   // Lock all other slots; leave only [slotIndex] as null
   for (var i = 0; i < anchors.length; i++) {
-    if (i != slotIndex) anchors[i] = anchors[i] ?? Paint.fromJson({'hex': '#000000','lab':[0,0,0],'lch':[0,0,0],'rgb':[0,0,0],'brandName':'','brandId':''}, 'LOCK');
+    if (i != slotIndex)
+      anchors[i] = anchors[i] ??
+          Paint.fromJson({
+            'hex': '#000000',
+            'lab': [0, 0, 0],
+            'lch': [0, 0, 0],
+            'rgb': [0, 0, 0],
+            'brandName': '',
+            'brandId': ''
+          }, 'LOCK');
   }
   anchors[slotIndex] = null; // ensure target slot is unlocked
 
@@ -221,7 +247,11 @@ List<Map<String, dynamic>> alternatesForSlotInIsolate(Map<String, dynamic> args)
 
   ThemeSpec? spec;
   if (themeSpecMap != null) {
-    try { spec = ThemeSpec.fromJson(themeSpecMap); } catch (_) { spec = null; }
+    try {
+      spec = ThemeSpec.fromJson(themeSpecMap);
+    } catch (_) {
+      spec = null;
+    }
   }
 
   while (out.length < targetCount) {
@@ -272,11 +302,11 @@ class _RollArgs {
     required this.anchors,
     required this.modeIndex,
     required this.diversify,
-  this.slotLrvHints,
-  this.fixedUndertones,
-  this.themeSpec,
-  this.themeThreshold,
-  this.attempts,
+    this.slotLrvHints,
+    this.fixedUndertones,
+    this.themeSpec,
+    this.themeThreshold,
+    this.attempts,
   });
 
   Map<String, dynamic> toMap() => {
@@ -286,9 +316,9 @@ class _RollArgs {
         'diversify': diversify,
         'slotLrvHints': slotLrvHints,
         'fixedUndertones': fixedUndertones,
-  'themeSpec': themeSpec,
-  'themeThreshold': themeThreshold,
-  'attempts': attempts,
+        'themeSpec': themeSpec,
+        'themeThreshold': themeThreshold,
+        'attempts': attempts,
       };
 
   static _RollArgs fromMap(Map<String, dynamic> m) => _RollArgs(
@@ -303,9 +333,11 @@ class _RollArgs {
         fixedUndertones: m['fixedUndertones'] != null
             ? List<String>.from(m['fixedUndertones'] as List)
             : null,
-  themeSpec: m['themeSpec'] as Map<String, dynamic>?,
-  themeThreshold: m['themeThreshold'] == null ? null : (m['themeThreshold'] as num).toDouble(),
-  attempts: m['attempts'] as int?,
+        themeSpec: m['themeSpec'] as Map<String, dynamic>?,
+        themeThreshold: m['themeThreshold'] == null
+            ? null
+            : (m['themeThreshold'] as num).toDouble(),
+        attempts: m['attempts'] as int?,
       );
 }
 

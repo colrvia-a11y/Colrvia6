@@ -66,9 +66,8 @@ class _DashboardScreenState extends State<DashboardScreen>
     final maxH = (MediaQuery.of(context).size.height * _heroMaxHeightFraction)
         .clamp(220.0, MediaQuery.of(context).size.height);
     final minH = _heroMinHeight;
-    final scroll = _scrollController.hasClients
-        ? _scrollController.position.pixels
-        : 0.0;
+    final scroll =
+        _scrollController.hasClients ? _scrollController.position.pixels : 0.0;
     final h = (maxH - scroll).clamp(minH, maxH);
     if (h != _heroHeight) setState(() => _heroHeight = h);
   }
@@ -122,25 +121,26 @@ class _DashboardScreenState extends State<DashboardScreen>
                     Text(
                       title,
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                          ) ??
-                          const TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w800,
-                          ),
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w800,
+                                  ) ??
+                              const TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w800,
+                              ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       subtitle,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                          ) ??
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ) ??
                           const TextStyle(
                             color: Colors.white,
                             fontSize: 13,
@@ -215,12 +215,13 @@ class _DashboardScreenState extends State<DashboardScreen>
     if (_heroHeight == 0) _heroHeight = maxHeroHeight;
 
     final double collapseProgress =
-      ((maxHeroHeight - _heroHeight) / (maxHeroHeight - _heroMinHeight))
-        .clamp(0.0, 1.0)
-        .toDouble();
+        ((maxHeroHeight - _heroHeight) / (maxHeroHeight - _heroMinHeight))
+            .clamp(0.0, 1.0)
+            .toDouble();
     const double fadeEndAt = 0.4;
     final double fadePhase = (collapseProgress / fadeEndAt).clamp(0.0, 1.0);
-    final double heroTextOpacity = 1.0 - Curves.easeOutQuint.transform(fadePhase);
+    final double heroTextOpacity =
+        1.0 - Curves.easeOutQuint.transform(fadePhase);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
@@ -252,7 +253,10 @@ class _DashboardScreenState extends State<DashboardScreen>
                         padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surface.withAlpha(61),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .surface
+                                .withAlpha(61),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: _buildTabBar(),
@@ -328,7 +332,8 @@ class _AccountTab extends StatelessWidget {
               return _SignInCard(onSignIn: () => _showSignInPrompt(context));
             }
             final items = snapshot.data ?? const <ProjectDoc>[];
-            if (snapshot.connectionState == ConnectionState.waiting && items.isEmpty) {
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                items.isEmpty) {
               return const _ProjectsSkeleton();
             }
             if (items.isEmpty) return const _EmptyProjects();
@@ -341,9 +346,11 @@ class _AccountTab extends StatelessWidget {
           },
         ),
         const SizedBox(height: 24),
-        const _RowHeader(title: 'Library', icon: Icons.collections_bookmark_rounded),
+        const _RowHeader(
+            title: 'Library', icon: Icons.collections_bookmark_rounded),
         const SizedBox(height: 12),
-        _LibraryPanel(photoCount: photoCount, onPhotoCountRefresh: onPhotoCountRefresh),
+        _LibraryPanel(
+            photoCount: photoCount, onPhotoCountRefresh: onPhotoCountRefresh),
         const SizedBox(height: 24),
         const _RowHeader(title: 'Support & Info', icon: Icons.help_outline),
         const SizedBox(height: 12),
@@ -399,7 +406,8 @@ class _WelcomeCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Welcome back, $displayName!',
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700, fontSize: 16)),
                 const SizedBox(height: 4),
                 const Text('Ready to create something beautiful?',
                     style: TextStyle(fontSize: 13)),
@@ -420,7 +428,6 @@ class _QuickActionsGridCompact extends StatelessWidget {
   }
 }
 
-
 class _RowHeader extends StatelessWidget {
   final String title;
   final IconData icon;
@@ -439,7 +446,9 @@ class _RowHeader extends StatelessWidget {
       const SizedBox(width: 10),
       Text(title,
           style: const TextStyle(
-              fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF404934))),
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF404934))),
     ]);
   }
 }
@@ -452,12 +461,14 @@ class _SignInCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-  color: const Color(0xFF404934).withValues(alpha: 0.05),
+        color: const Color(0xFF404934).withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-  border: Border.all(color: const Color(0xFF404934).withValues(alpha: 0.15)),
+        border:
+            Border.all(color: const Color(0xFF404934).withValues(alpha: 0.15)),
       ),
       child: Column(children: [
-        const Icon(Icons.account_circle_rounded, color: Color(0xFF404934), size: 32),
+        const Icon(Icons.account_circle_rounded,
+            color: Color(0xFF404934), size: 32),
         const SizedBox(height: 12),
         const Text('Sign in to see your projects',
             style: TextStyle(fontWeight: FontWeight.w700)),
@@ -505,7 +516,7 @@ class _EmptyProjects extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-  color: const Color(0xFF404934).withValues(alpha: 0.04),
+        color: const Color(0xFF404934).withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -536,8 +547,9 @@ class _ProjectListTile extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       tileColor: const Color(0xFFFFFBF7),
       leading: CircleAvatar(
-  backgroundColor: const Color(0xFFf2b897).withValues(alpha: 0.25),
-        child: Icon(_iconForStage(p.funnelStage), color: const Color(0xFF404934)),
+        backgroundColor: const Color(0xFFf2b897).withValues(alpha: 0.25),
+        child:
+            Icon(_iconForStage(p.funnelStage), color: const Color(0xFF404934)),
       ),
       title: Text(p.title, style: const TextStyle(fontWeight: FontWeight.w700)),
       subtitle: Text('Updated ${_ago(p.updatedAt)}'),
@@ -574,8 +586,8 @@ class _ProjectListTile extends StatelessWidget {
             .push(MaterialPageRoute(builder: (_) => const RollerScreen()));
         break;
       case FunnelStage.story:
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (_) => ColorPlanScreen(projectId: p.id)));
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => ColorPlanScreen(projectId: p.id)));
         break;
       case FunnelStage.visualize:
       case FunnelStage.share:
@@ -589,7 +601,8 @@ class _ProjectListTile extends StatelessWidget {
 class _LibraryPanel extends StatelessWidget {
   final int photoCount;
   final VoidCallback onPhotoCountRefresh;
-  const _LibraryPanel({required this.photoCount, required this.onPhotoCountRefresh});
+  const _LibraryPanel(
+      {required this.photoCount, required this.onPhotoCountRefresh});
 
   void _openLibrary(BuildContext context, LibraryFilter filter) {
     Navigator.of(context).push(
@@ -677,7 +690,10 @@ class _LibraryButton extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [color.withValues(alpha: 0.15), color.withValues(alpha: 0.08)],
+              colors: [
+                color.withValues(alpha: 0.15),
+                color.withValues(alpha: 0.08)
+              ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: color.withValues(alpha: 0.2)),
@@ -690,7 +706,8 @@ class _LibraryButton extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title,
-                      style: TextStyle(color: color, fontWeight: FontWeight.w600)),
+                      style:
+                          TextStyle(color: color, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 2),
                   Text('Items: $count', style: const TextStyle(fontSize: 12)),
                 ],
@@ -702,7 +719,8 @@ class _LibraryButton extends StatelessWidget {
                 color: color.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(count, style: const TextStyle(fontWeight: FontWeight.w700)),
+              child: Text(count,
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
             ),
           ]),
         ),
@@ -714,8 +732,10 @@ class _LibraryButton extends StatelessWidget {
 class _SupportList extends StatelessWidget {
   const _SupportList();
   void _snack(BuildContext c, String t) {
-    ScaffoldMessenger.of(c).showSnackBar(SnackBar(content: Text('$t coming soon!')));
+    ScaffoldMessenger.of(c)
+        .showSnackBar(SnackBar(content: Text('$t coming soon!')));
   }
+
   @override
   Widget build(BuildContext context) {
     return Column(children: [
@@ -798,7 +818,8 @@ class _UserPanel extends StatelessWidget {
             const Color(0xFFf2b897).withValues(alpha: 0.08),
           ]),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFF404934).withValues(alpha: 0.12)),
+          border: Border.all(
+              color: const Color(0xFF404934).withValues(alpha: 0.12)),
         ),
         child: Column(
           children: [
@@ -815,7 +836,8 @@ class _UserPanel extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(email, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    Text(email,
+                        style: const TextStyle(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 2),
                     const Text('Signed in', style: TextStyle(fontSize: 12)),
                   ],
@@ -855,7 +877,8 @@ class _UserPanel extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFF404934).withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFF404934).withValues(alpha: 0.12)),
+          border: Border.all(
+              color: const Color(0xFF404934).withValues(alpha: 0.12)),
         ),
         child: Row(children: [
           const Icon(Icons.person_outline_rounded, color: Color(0xFF404934)),
@@ -889,7 +912,8 @@ class _SettingsTab extends StatelessWidget {
               const Color(0xFF404934).withValues(alpha: 0.03),
             ]),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF404934).withValues(alpha: 0.12)),
+            border: Border.all(
+                color: const Color(0xFF404934).withValues(alpha: 0.12)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -897,19 +921,21 @@ class _SettingsTab extends StatelessWidget {
               const Text('Settings',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
               const SizedBox(height: 8),
-              const Text('Manage preferences, accessibility, account, and app info.'),
+              const Text(
+                  'Manage preferences, accessibility, account, and app info.'),
               const SizedBox(height: 16),
               Row(
                 children: [
                   const Icon(Icons.tune, color: Color(0xFF404934)),
                   const SizedBox(width: 8),
                   const Expanded(
-                    child:
-                        Text('Open the full settings panel for advanced options.'),
+                    child: Text(
+                        'Open the full settings panel for advanced options.'),
                   ),
                   FilledButton(
-                    onPressed: () => Navigator.of(context)
-                        .push(MaterialPageRoute(builder: (_) => const SettingsScreen())),
+                    onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const SettingsScreen())),
                     child: const Text('Open Settings'),
                   ),
                 ],

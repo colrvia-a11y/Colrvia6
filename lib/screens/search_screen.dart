@@ -31,7 +31,8 @@ class SearchScreen extends StatefulWidget {
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMixin {
+class _SearchScreenState extends State<SearchScreen>
+    with TickerProviderStateMixin {
   // Controllers
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
@@ -64,22 +65,21 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
   final Map<int, double> _lastPixelsByTab = <int, double>{};
 
   bool get _compareTrayVisible => _selectedForCompare.isNotEmpty;
-  List<Paint> get _selectedPaintsList => _selectedForCompare
-      .map((id) => _byId[id])
-      .whereType<Paint>()
-      .toList();
+  List<Paint> get _selectedPaintsList =>
+      _selectedForCompare.map((id) => _byId[id]).whereType<Paint>().toList();
 
   @override
   void initState() {
     super.initState();
-    _topTabController = TabController(length: 4, vsync: this, initialIndex: _tabIndex)
-      ..addListener(() {
-        if (_tabIndex != _topTabController!.index) {
-          setState(() {
-            _tabIndex = _topTabController!.index;
+    _topTabController =
+        TabController(length: 4, vsync: this, initialIndex: _tabIndex)
+          ..addListener(() {
+            if (_tabIndex != _topTabController!.index) {
+              setState(() {
+                _tabIndex = _topTabController!.index;
+              });
+            }
           });
-        }
-      });
 
     _scrollController.addListener(_updateToTopVisibility);
     _gridController.addListener(_updateToTopVisibility);
@@ -93,7 +93,8 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
   }
 
   void _updateToTopVisibility() {
-    final activeOffset = _tabIndex == 1 ? _gridController.offset : _scrollController.offset;
+    final activeOffset =
+        _tabIndex == 1 ? _gridController.offset : _scrollController.offset;
     final show = activeOffset > 600;
     if (show != _showToTop) setState(() => _showToTop = show);
   }
@@ -112,10 +113,11 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
   // Search
   Future<void> _performSearch(String query) async {
     final q = query.trim();
-  setState(() => _showClearButton = q.isNotEmpty);
+    setState(() => _showClearButton = q.isNotEmpty);
     if (q.isEmpty) return;
     try {
-      final results = await PaintQueryService.instance.textSearch(q, limit: 160);
+      final results =
+          await PaintQueryService.instance.textSearch(q, limit: 160);
       if (!mounted) return;
       setState(() {
         _cached
@@ -127,7 +129,7 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
       });
     } catch (_) {
       if (!mounted) return;
-  // swallow
+      // swallow
     }
   }
 
@@ -160,7 +162,8 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
     final media = MediaQuery.of(context);
     final maxHeroHeight = media.size.height * _heroMaxHeightFraction;
     final h = _heroHeight == 0 ? maxHeroHeight : _heroHeight;
-    final collapse = ((maxHeroHeight - h) / (maxHeroHeight - _heroMinHeight)).clamp(0.0, 1.0);
+    final collapse = ((maxHeroHeight - h) / (maxHeroHeight - _heroMinHeight))
+        .clamp(0.0, 1.0);
     // Make search fade early and finish fast (~40% collapse)
     final fadeEnd = 0.4;
     final normalized = (collapse / fadeEnd).clamp(0.0, 1.0);
@@ -173,11 +176,13 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
         children: [
           NotificationListener<ScrollNotification>(
             onNotification: (n) {
-              if (n is ScrollUpdateNotification && n.metrics.axis == Axis.vertical) {
+              if (n is ScrollUpdateNotification &&
+                  n.metrics.axis == Axis.vertical) {
                 final delta = n.scrollDelta ?? 0.0;
                 if (delta == 0) return false;
                 setState(() {
-                  _heroHeight = (_heroHeight - delta).clamp(_heroMinHeight, maxHeroHeight);
+                  _heroHeight = (_heroHeight - delta)
+                      .clamp(_heroMinHeight, maxHeroHeight);
                 });
               }
               if (n is ScrollEndNotification) {
@@ -193,7 +198,10 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                   curve: Curves.easeOutCubic,
                   height: h,
                   width: double.infinity,
-                  child: _topHero(theme: theme, searchOpacity: searchOpacity, collapsed: collapsed),
+                  child: _topHero(
+                      theme: theme,
+                      searchOpacity: searchOpacity,
+                      collapsed: collapsed),
                 ),
                 if (collapsed)
                   Container(
@@ -201,7 +209,8 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                     decoration: BoxDecoration(
                       color: theme.colorScheme.surface,
                       border: Border(
-                        bottom: BorderSide(color: theme.colorScheme.outline.withAlpha(18)),
+                        bottom: BorderSide(
+                            color: theme.colorScheme.outline.withAlpha(18)),
                       ),
                     ),
                     child: Align(
@@ -234,10 +243,12 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
               child: SafeArea(
                 top: false,
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 12, right: 12, bottom: 8),
+                  padding:
+                      const EdgeInsets.only(left: 12, right: 12, bottom: 8),
                   child: CompareTray(
                     items: _selectedPaintsList,
-                    onRemoveOne: (p) => setState(() => _selectedForCompare.remove(p.id)),
+                    onRemoveOne: (p) =>
+                        setState(() => _selectedForCompare.remove(p.id)),
                     onClear: () => setState(() => _selectedForCompare.clear()),
                     onCompare: () {
                       AnalyticsService.instance.logEvent('compare_opened', {
@@ -292,10 +303,14 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
   Widget _buildExplore() {
     final bottomInset = MediaQuery.of(context).padding.bottom;
     return ListView(
-      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      physics:
+          const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       controller: _scrollController,
       padding: EdgeInsets.only(
-        bottom: 24 + kBottomNavigationBarHeight + (_compareTrayVisible ? CompareTray.height + 12 : 0) + bottomInset,
+        bottom: 24 +
+            kBottomNavigationBarHeight +
+            (_compareTrayVisible ? CompareTray.height + 12 : 0) +
+            bottomInset,
       ),
       children: [
         const SizedBox(height: 6),
@@ -344,12 +359,15 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
         if (!snapshot.hasData) {
           return ShimmerGrid(
             crossAxisCount: 2,
-            mainAxisExtent: MediaQuery.textScalerOf(context).scale(1.0) > 1.1 ? 232 : 220,
+            mainAxisExtent:
+                MediaQuery.textScalerOf(context).scale(1.0) > 1.1 ? 232 : 220,
             padding: EdgeInsets.fromLTRB(
               16,
               8,
               16,
-              24 + (_compareTrayVisible ? CompareTray.height + 12 : 0) + bottomInset,
+              24 +
+                  (_compareTrayVisible ? CompareTray.height + 12 : 0) +
+                  bottomInset,
             ),
           );
         }
@@ -378,13 +396,19 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                     thumbVisibility: true,
                     controller: _gridController,
                     child: GridView.builder(
-                      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                      physics: const BouncingScrollPhysics(
+                          parent: AlwaysScrollableScrollPhysics()),
                       controller: _gridController,
                       padding: EdgeInsets.fromLTRB(
                         kScreenPaddingH,
                         8,
                         kScreenPaddingH,
-                        24 + kBottomNavigationBarHeight + (_compareTrayVisible ? CompareTray.height + 12 : 0) + bottomInset,
+                        24 +
+                            kBottomNavigationBarHeight +
+                            (_compareTrayVisible
+                                ? CompareTray.height + 12
+                                : 0) +
+                            bottomInset,
                       ),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: cols,
@@ -398,7 +422,9 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                         _byId[p.id] = p;
                         final selected = _selectedForCompare.contains(p.id);
                         return StaggeredEntrance(
-                          delay: Duration(milliseconds: 40 + (i ~/ cols) * 70 + (i % cols) * 50),
+                          delay: Duration(
+                              milliseconds:
+                                  40 + (i ~/ cols) * 70 + (i % cols) * 50),
                           child: FancyPaintTile(
                             paint: p,
                             dense: false,
@@ -426,7 +452,8 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(
-          bottom: BorderSide(color: Theme.of(context).colorScheme.outline.withAlpha(12)),
+          bottom: BorderSide(
+              color: Theme.of(context).colorScheme.outline.withAlpha(12)),
         ),
       ),
       child: Row(
@@ -458,10 +485,13 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
           PopupMenuButton<PaintSort>(
             onSelected: (s) => setState(() => sort = s),
             itemBuilder: (_) => const [
-              PopupMenuItem(value: PaintSort.relevance, child: Text('Sort: Relevance')),
+              PopupMenuItem(
+                  value: PaintSort.relevance, child: Text('Sort: Relevance')),
               PopupMenuItem(value: PaintSort.hue, child: Text('Sort: Hue')),
-              PopupMenuItem(value: PaintSort.lrvAsc, child: Text('Sort: LRV ↑')),
-              PopupMenuItem(value: PaintSort.lrvDesc, child: Text('Sort: LRV ↓')),
+              PopupMenuItem(
+                  value: PaintSort.lrvAsc, child: Text('Sort: LRV ↑')),
+              PopupMenuItem(
+                  value: PaintSort.lrvDesc, child: Text('Sort: LRV ↓')),
             ],
             child: OutlinedButton.icon(
               onPressed: null,
@@ -474,11 +504,13 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
             message: _denseGrid ? 'Comfort grid' : 'Dense grid',
             child: IconButton.filledTonal(
               onPressed: () => setState(() => _denseGrid = !_denseGrid),
-              icon: Icon(_denseGrid ? Icons.grid_view_rounded : Icons.grid_on_rounded),
+              icon: Icon(
+                  _denseGrid ? Icons.grid_view_rounded : Icons.grid_on_rounded),
             ),
           ),
           const Spacer(),
-          if (_selectedForCompare.isNotEmpty) Text('${_selectedForCompare.length} selected'),
+          if (_selectedForCompare.isNotEmpty)
+            Text('${_selectedForCompare.length} selected'),
         ],
       ),
     );
@@ -504,9 +536,16 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
   Widget _buildRoomsCombos() {
     final bottomInset = MediaQuery.of(context).padding.bottom;
     final cards = [
-      _roomCard('Bedroom Starter Packs', Icons.bed, 'Warm Bedroom Neutrals', 'High-Contrast Retreat', 'Calming Blue-Greens'),
-      _roomCard('Kitchen Combinations', Icons.kitchen, 'Classic White + Soft Black', 'Greige + Brass Friendly', 'Fresh Coastal'),
-      _roomCard('Exterior Winners', Icons.house, 'Light + Charcoal Trim', 'Moody Modern', 'Warm Cream + Slate'),
+      _roomCard('Bedroom Starter Packs', Icons.bed, 'Warm Bedroom Neutrals',
+          'High-Contrast Retreat', 'Calming Blue-Greens'),
+      _roomCard(
+          'Kitchen Combinations',
+          Icons.kitchen,
+          'Classic White + Soft Black',
+          'Greige + Brass Friendly',
+          'Fresh Coastal'),
+      _roomCard('Exterior Winners', Icons.house, 'Light + Charcoal Trim',
+          'Moody Modern', 'Warm Cream + Slate'),
     ];
     return ListView.separated(
       controller: _scrollController,
@@ -529,7 +568,15 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(children: [Icon(icon), const SizedBox(width: 8), Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700))]),
+            Row(children: [
+              Icon(icon),
+              const SizedBox(width: 8),
+              Text(title,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w700))
+            ]),
             const SizedBox(height: 8),
             Wrap(
               spacing: 12,
@@ -546,7 +593,8 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
               child: TextButton.icon(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Coming soon: curated combos')),
+                    const SnackBar(
+                        content: Text('Coming soon: curated combos')),
                   );
                 },
                 icon: const Icon(Icons.chevron_right),
@@ -583,7 +631,8 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
         width: 20,
         height: 20,
         margin: const EdgeInsets.only(right: 4),
-        decoration: BoxDecoration(color: c, borderRadius: BorderRadius.circular(4)),
+        decoration:
+            BoxDecoration(color: c, borderRadius: BorderRadius.circular(4)),
       );
 
   Widget _buildBrands() {
@@ -592,7 +641,9 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
     return ListView.builder(
       controller: _scrollController,
       padding: EdgeInsets.only(
-        bottom: 24 + (_compareTrayVisible ? CompareTray.height + 12 : 0) + bottomInset,
+        bottom: 24 +
+            (_compareTrayVisible ? CompareTray.height + 12 : 0) +
+            bottomInset,
       ),
       itemCount: brands.length,
       itemBuilder: (_, i) => ListTile(
@@ -613,7 +664,10 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
   // (Search results list integrated into All tab for now; no separate body)
 
   // Top hero and tabs
-  Widget _topHero({required ThemeData theme, required double searchOpacity, required bool collapsed}) {
+  Widget _topHero(
+      {required ThemeData theme,
+      required double searchOpacity,
+      required bool collapsed}) {
     final images = [
       'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1200&q=80',
       'https://images.pexels.com/photos/1571172/pexels-photo-1571172.jpeg?auto=compress&cs=tinysrgb&w=1200&q=80',
@@ -629,7 +683,8 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
         children: [
           DecoratedBox(
             decoration: BoxDecoration(
-              image: DecorationImage(image: NetworkImage(bgImage), fit: BoxFit.cover),
+              image: DecorationImage(
+                  image: NetworkImage(bgImage), fit: BoxFit.cover),
             ),
           ),
           DecoratedBox(
@@ -727,12 +782,14 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
         onSubmitted: _performSearch,
         onChanged: (v) {
           _debounceTimer?.cancel();
-          _debounceTimer = Timer(const Duration(milliseconds: 350), () => _performSearch(v));
+          _debounceTimer =
+              Timer(const Duration(milliseconds: 350), () => _performSearch(v));
         },
         decoration: InputDecoration(
           hintText: 'Search colors…',
           prefixIcon: const Icon(Icons.search, size: 18),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           filled: true,
           fillColor: theme.colorScheme.surfaceContainerHighest.withAlpha(55),
           border: OutlineInputBorder(
@@ -759,5 +816,3 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
     );
   }
 }
-
-

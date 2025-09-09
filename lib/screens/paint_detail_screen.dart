@@ -17,6 +17,7 @@ import 'package:color_canvas/widgets/color_swatch_card.dart';
 
 // ===== Enums for view options (kept simple/optional) =====
 enum LightingMode { d65, incandescent, north }
+
 enum CbMode { none, deuter, protan, tritan }
 
 // ===== Main Screen =====
@@ -73,7 +74,8 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
     final user = FirebaseService.currentUser;
     if (user == null) return;
     try {
-      final fav = await FirebaseService.isPaintFavorited(widget.paint.id, user.uid);
+      final fav =
+          await FirebaseService.isPaintFavorited(widget.paint.id, user.uid);
       if (!mounted) return;
       setState(() => _isFavorite = fav);
     } catch (_) {}
@@ -140,11 +142,13 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
                 automaticallyImplyLeading: false,
                 centerTitle: false,
                 systemOverlayStyle:
-                    ThemeData.estimateBrightnessForColor(_display) == Brightness.dark
+                    ThemeData.estimateBrightnessForColor(_display) ==
+                            Brightness.dark
                         ? SystemUiOverlayStyle.light
                         : SystemUiOverlayStyle.dark,
                 shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
+                  borderRadius:
+                      BorderRadius.vertical(bottom: Radius.circular(28)),
                 ),
                 leadingWidth: 64,
                 leading: Padding(
@@ -167,14 +171,17 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(right: 12, top: 8, bottom: 8),
+                    padding:
+                        const EdgeInsets.only(right: 12, top: 8, bottom: 8),
                     child: ColrViaIconButton(
-                      icon: _isFavorite ? Icons.bookmark : Icons.bookmark_border,
+                      icon:
+                          _isFavorite ? Icons.bookmark : Icons.bookmark_border,
                       color: fg,
                       busy: _favBusy,
                       onPressed: _toggleFavorite,
-                      semanticLabel:
-                          _isFavorite ? 'Remove from favorites' : 'Save to favorites',
+                      semanticLabel: _isFavorite
+                          ? 'Remove from favorites'
+                          : 'Save to favorites',
                     ),
                   ),
                 ],
@@ -184,12 +191,15 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 flexibleSpace: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
+                  borderRadius:
+                      const BorderRadius.vertical(bottom: Radius.circular(28)),
                   child: FlexibleSpaceBar(
                     background: Stack(
                       fit: StackFit.expand,
                       children: [
-                        Hero(tag: 'swatch_${widget.paint.id}', child: Container(color: _display)),
+                        Hero(
+                            tag: 'swatch_${widget.paint.id}',
+                            child: Container(color: _display)),
                         IgnorePointer(
                           child: DecoratedBox(
                             decoration: BoxDecoration(
@@ -221,7 +231,9 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
                                   style: Theme.of(context)
                                       .textTheme
                                       .labelLarge
-                                      ?.copyWith(color: fg.withAlpha(220), fontWeight: FontWeight.w600),
+                                      ?.copyWith(
+                                          color: fg.withAlpha(220),
+                                          fontWeight: FontWeight.w600),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
@@ -229,7 +241,9 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
                                   style: Theme.of(context)
                                       .textTheme
                                       .headlineMedium
-                                      ?.copyWith(color: fg, fontWeight: FontWeight.w800),
+                                      ?.copyWith(
+                                          color: fg,
+                                          fontWeight: FontWeight.w800),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
@@ -310,8 +324,6 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
     );
   }
 
-  
-
   void _showAddMenu() {
     showModalBottomSheet(
       context: context,
@@ -379,7 +391,8 @@ class _HeroTabs extends StatelessWidget {
             padding: EdgeInsets.zero,
             labelPadding: const EdgeInsets.symmetric(vertical: 10),
             indicatorPadding: EdgeInsets.zero,
-            indicatorSize: TabBarIndicatorSize.tab, // indicator matches each tab's full width
+            indicatorSize: TabBarIndicatorSize
+                .tab, // indicator matches each tab's full width
             indicator: ShapeDecoration(
               color: sc.onSurface.withAlpha(72),
               shape: RoundedRectangleBorder(
@@ -410,8 +423,10 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style:
-          Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+      style: Theme.of(context)
+          .textTheme
+          .titleMedium
+          ?.copyWith(fontWeight: FontWeight.w800),
     );
   }
 }
@@ -482,7 +497,8 @@ class _VisualsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = ColorUtils.getPaintColor(paint.hex);
-    final onDark = ThemeData.estimateBrightnessForColor(color) == Brightness.dark;
+    final onDark =
+        ThemeData.estimateBrightnessForColor(color) == Brightness.dark;
     final fg = onDark ? Colors.white : Colors.black;
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
@@ -497,8 +513,10 @@ class _VisualsTab extends StatelessWidget {
             child: Center(
               child: Text(
                 'Room preview placeholder',
-                style:
-                    Theme.of(context).textTheme.titleMedium?.copyWith(color: fg),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(color: fg),
               ),
             ),
           ),
@@ -571,8 +589,7 @@ class _PairingsTabState extends State<_PairingsTab> {
       children: [
         const _SectionTitle('Suggested pairings'),
         const SizedBox(height: 8),
-        if (_pairings.isEmpty)
-          const Text('No pairings available.'),
+        if (_pairings.isEmpty) const Text('No pairings available.'),
         if (_pairings.isNotEmpty)
           Wrap(
             spacing: 12,
@@ -635,7 +652,9 @@ class _SimilarTabState extends State<_SimilarTab> {
     final off = _sc!.offset;
     final top = off > 4;
     final bottom = off < (max - 4);
-    if (top != _showTopGlow || bottom != _showBottomGlow || off != _scrollOffset) {
+    if (top != _showTopGlow ||
+        bottom != _showBottomGlow ||
+        off != _scrollOffset) {
       setState(() {
         _showTopGlow = top;
         _showBottomGlow = bottom;
@@ -697,6 +716,7 @@ class _SimilarTabState extends State<_SimilarTab> {
         c.jumpTo(0);
       }
     }
+
     WidgetsBinding.instance.addPostFrameCallback((_) => attempt());
   }
 
@@ -773,7 +793,8 @@ class _SimilarTabState extends State<_SimilarTab> {
             final addSpacer = selected && (actualIndex == displayTopIndex);
             final spacerHeight = addSpacer ? (expandedH - baseH + 12) : 0.0;
 
-            final itemKey = _itemKeys.putIfAbsent(actualIndex, () => GlobalKey());
+            final itemKey =
+                _itemKeys.putIfAbsent(actualIndex, () => GlobalKey());
 
             final card = StackedChipCard(
               key: itemKey,
@@ -804,7 +825,8 @@ class _SimilarTabState extends State<_SimilarTab> {
               },
               onOpenDetail: (p) {
                 Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => PaintDetailScreen(paint: p)),
+                  MaterialPageRoute(
+                      builder: (_) => PaintDetailScreen(paint: p)),
                 );
               },
             );
@@ -940,19 +962,24 @@ class _UsageTab extends StatelessWidget {
   List<String> _tipsFor(double lrv, String undertones) {
     final tips = <String>[];
     if (lrv >= 70) {
-      tips.add('High LRV (${lrv.toStringAsFixed(0)}%) keeps spaces bright; pair with soft contrast on trim.');
+      tips.add(
+          'High LRV (${lrv.toStringAsFixed(0)}%) keeps spaces bright; pair with soft contrast on trim.');
     }
     if (lrv < 30) {
-      tips.add('Low LRV adds mood; balance with lighter textiles and ample lighting.');
+      tips.add(
+          'Low LRV adds mood; balance with lighter textiles and ample lighting.');
     }
     if (undertones.contains('warm')) {
-      tips.add('Warm undertones feel cozy under incandescent or warm LED bulbs.');
+      tips.add(
+          'Warm undertones feel cozy under incandescent or warm LED bulbs.');
     }
     if (undertones.contains('cool')) {
-      tips.add('Cool undertones read crisp in north-facing rooms; consider warmer lighting.');
+      tips.add(
+          'Cool undertones read crisp in north-facing rooms; consider warmer lighting.');
     }
     if (tips.isEmpty) {
-      tips.add('Versatile tone; test large samples across different walls and times of day.');
+      tips.add(
+          'Versatile tone; test large samples across different walls and times of day.');
     }
     return tips;
   }
@@ -1008,8 +1035,8 @@ class _InActionTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  // Keep a harmless reference to _UsageTab so the class isn't flagged as unused
-  // by aggressive static analysis in some environments.
+    // Keep a harmless reference to _UsageTab so the class isn't flagged as unused
+    // by aggressive static analysis in some environments.
     final _usageRef = _UsageTab(paint: paint);
     final _visualsRef = _VisualsTab(paint: paint);
     // reference in debug-only closure to avoid unused-variable lint
@@ -1019,7 +1046,7 @@ class _InActionTab extends StatelessWidget {
       return true;
     }());
 
-  // Compose the existing Visuals and Usage widgets inside a single scrollable
+    // Compose the existing Visuals and Usage widgets inside a single scrollable
     // view. We'll stack them vertically so users can scroll through both sections.
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
@@ -1066,19 +1093,24 @@ class _InActionTab extends StatelessWidget {
           final undertones = ColorUtils.undertoneTags(paint.lab).join(', ');
           final tips = <String>[];
           if (lrv >= 70) {
-            tips.add('High LRV (${lrv.toStringAsFixed(0)}%) keeps spaces bright; pair with soft contrast on trim.');
+            tips.add(
+                'High LRV (${lrv.toStringAsFixed(0)}%) keeps spaces bright; pair with soft contrast on trim.');
           }
           if (lrv < 30) {
-            tips.add('Low LRV adds mood; balance with lighter textiles and ample lighting.');
+            tips.add(
+                'Low LRV adds mood; balance with lighter textiles and ample lighting.');
           }
           if (undertones.contains('warm')) {
-            tips.add('Warm undertones feel cozy under incandescent or warm LED bulbs.');
+            tips.add(
+                'Warm undertones feel cozy under incandescent or warm LED bulbs.');
           }
           if (undertones.contains('cool')) {
-            tips.add('Cool undertones read crisp in north-facing rooms; consider warmer lighting.');
+            tips.add(
+                'Cool undertones read crisp in north-facing rooms; consider warmer lighting.');
           }
           if (tips.isEmpty) {
-            tips.add('Versatile tone; test large samples across different walls and times of day.');
+            tips.add(
+                'Versatile tone; test large samples across different walls and times of day.');
           }
 
           return Column(
@@ -1126,11 +1158,13 @@ class _InActionTab extends StatelessWidget {
             children: unique.map((r) {
               final t = Theme.of(ctx);
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
                   color: t.colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: t.colorScheme.outline.withAlpha(60)),
+                  border:
+                      Border.all(color: t.colorScheme.outline.withAlpha(60)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -1157,8 +1191,8 @@ class _InActionTab extends StatelessWidget {
                   width: double.infinity,
                   child: FilledButton.icon(
                     onPressed: () {
-                      ScaffoldMessenger.of(ctx).showSnackBar(
-                          const SnackBar(content: Text('Opening order page...')));
+                      ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(
+                          content: Text('Opening order page...')));
                     },
                     icon: const Icon(Icons.shopping_bag_outlined),
                     label: const Text('Order Sample'),
@@ -1200,8 +1234,8 @@ class _ViewModes extends StatelessWidget {
         selected: sel,
         onSelected: (_) => on(value),
         selectedColor: t.colorScheme.primary.withAlpha(36),
-        labelStyle:
-            TextStyle(color: sel ? t.colorScheme.primary : t.colorScheme.onSurface),
+        labelStyle: TextStyle(
+            color: sel ? t.colorScheme.primary : t.colorScheme.onSurface),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       );
@@ -1220,16 +1254,19 @@ class _ViewModes extends StatelessWidget {
           Row(
             children: [
               Text('Modes',
-                  style: t.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                  style: t.textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w800)),
               const Spacer(),
               Tooltip(
                 message: 'Approximate color difference',
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
                     color: t.colorScheme.surface,
                     borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: t.colorScheme.outline.withAlpha(38)),
+                    border:
+                        Border.all(color: t.colorScheme.outline.withAlpha(38)),
                   ),
                   child: Text('ΔE $deltaE', style: t.textTheme.labelMedium),
                 ),
@@ -1243,7 +1280,8 @@ class _ViewModes extends StatelessWidget {
           const SizedBox(height: 6),
           Wrap(spacing: 8, runSpacing: 8, children: [
             chip('D65', LightingMode.d65, lighting, onLighting),
-            chip('Incandescent', LightingMode.incandescent, lighting, onLighting),
+            chip('Incandescent', LightingMode.incandescent, lighting,
+                onLighting),
             chip('North', LightingMode.north, lighting, onLighting),
           ]),
           const SizedBox(height: 12),

@@ -22,6 +22,7 @@ class _FakePaint extends Paint {
 }
 
 class MockRepo extends Mock implements PaintRepository {}
+
 class MockSvc extends Mock implements PaletteService {}
 
 void main() {
@@ -40,39 +41,47 @@ void main() {
         paletteServiceProvider.overrideWithValue(svc),
       ]);
 
-  // Default stub for alternates to avoid null during _primeAlternatesForVisible()
-  when(() => svc.alternatesForSlot(
-    available: any(named: 'available'),
-    anchors: any(named: 'anchors'),
-    slotIndex: any(named: 'slotIndex'),
-    diversifyBrands: any(named: 'diversifyBrands'),
-    slotLrvHints: any(named: 'slotLrvHints'),
-    fixedUndertones: any(named: 'fixedUndertones'),
-    themeSpec: any(named: 'themeSpec'),
-    targetCount: any(named: 'targetCount'),
-    attemptsPerRound: any(named: 'attemptsPerRound'),
-      )).thenAnswer((_) async => <Paint>[]);
+      // Default stub for alternates to avoid null during _primeAlternatesForVisible()
+      when(() => svc.alternatesForSlot(
+            available: any(named: 'available'),
+            anchors: any(named: 'anchors'),
+            slotIndex: any(named: 'slotIndex'),
+            diversifyBrands: any(named: 'diversifyBrands'),
+            slotLrvHints: any(named: 'slotLrvHints'),
+            fixedUndertones: any(named: 'fixedUndertones'),
+            themeSpec: any(named: 'themeSpec'),
+            targetCount: any(named: 'targetCount'),
+            attemptsPerRound: any(named: 'attemptsPerRound'),
+          )).thenAnswer((_) async => <Paint>[]);
     });
 
     tearDown(() => container.dispose());
 
     test('initIfNeeded triggers first roll and populates a page', () async {
-      when(() => repo.getAll()).thenAnswer((_) async => List.generate(20, (i) => _FakePaint('p$i', '#000000')));
-      when(() => repo.filterByBrands(any(), any())).thenAnswer((inv) => inv.positionalArguments[0] as List<Paint>);
-      when(() => repo.getPool(brandIds: any(named: 'brandIds'), theme: any(named: 'theme')))
-          .thenAnswer((_) async => List.generate(20, (i) => _FakePaint('p$i', '#000000')));
+      when(() => repo.getAll()).thenAnswer(
+          (_) async => List.generate(20, (i) => _FakePaint('p$i', '#000000')));
+      when(() => repo.filterByBrands(any(), any()))
+          .thenAnswer((inv) => inv.positionalArguments[0] as List<Paint>);
+      when(() =>
+          repo.getPool(
+              brandIds: any(named: 'brandIds'),
+              theme: any(named: 'theme'))).thenAnswer(
+          (_) async => List.generate(20, (i) => _FakePaint('p$i', '#000000')));
 
       when(() => svc.generate(
-            available: any(named: 'available'),
-            anchors: any(named: 'anchors'),
-            diversifyBrands: any(named: 'diversifyBrands'),
-            slotLrvHints: any(named: 'slotLrvHints'),
-            fixedUndertones: any(named: 'fixedUndertones'),
-            themeSpec: any(named: 'themeSpec'),
-            themeThreshold: any(named: 'themeThreshold'),
-            attempts: any(named: 'attempts'),
-            availableBrandOnly: any(named: 'availableBrandOnly'),
-          )).thenAnswer((_) async => List.generate(5, (i) => _FakePaint('r$i', '#ABCDEF')));
+                available: any(named: 'available'),
+                anchors: any(named: 'anchors'),
+                diversifyBrands: any(named: 'diversifyBrands'),
+                slotLrvHints: any(named: 'slotLrvHints'),
+                fixedUndertones: any(named: 'fixedUndertones'),
+                themeSpec: any(named: 'themeSpec'),
+                themeThreshold: any(named: 'themeThreshold'),
+                attempts: any(named: 'attempts'),
+                mode: any(named: 'mode'),
+                availableBrandOnly: any(named: 'availableBrandOnly'),
+              ))
+          .thenAnswer((_) async =>
+              List.generate(5, (i) => _FakePaint('r$i', '#ABCDEF')));
 
       final ctrl = container.read(rollerControllerProvider.notifier);
       await ctrl.initIfNeeded();
@@ -82,10 +91,15 @@ void main() {
     });
 
     test('rerollStrip changes only that strip', () async {
-      when(() => repo.getAll()).thenAnswer((_) async => List.generate(20, (i) => _FakePaint('p$i', '#000000')));
-      when(() => repo.filterByBrands(any(), any())).thenReturn(List.generate(20, (i) => _FakePaint('p$i', '#000000')));
-      when(() => repo.getPool(brandIds: any(named: 'brandIds'), theme: any(named: 'theme')))
-          .thenAnswer((_) async => List.generate(20, (i) => _FakePaint('p$i', '#000000')));
+      when(() => repo.getAll()).thenAnswer(
+          (_) async => List.generate(20, (i) => _FakePaint('p$i', '#000000')));
+      when(() => repo.filterByBrands(any(), any()))
+          .thenReturn(List.generate(20, (i) => _FakePaint('p$i', '#000000')));
+      when(() =>
+          repo.getPool(
+              brandIds: any(named: 'brandIds'),
+              theme: any(named: 'theme'))).thenAnswer(
+          (_) async => List.generate(20, (i) => _FakePaint('p$i', '#000000')));
 
       when(() => svc.generate(
             available: any(named: 'available'),
@@ -96,13 +110,16 @@ void main() {
             themeSpec: any(named: 'themeSpec'),
             themeThreshold: any(named: 'themeThreshold'),
             attempts: any(named: 'attempts'),
+            mode: any(named: 'mode'),
             availableBrandOnly: any(named: 'availableBrandOnly'),
           )).thenAnswer((inv) async {
         final anchors = inv.namedArguments[#anchors] as List<Paint?>;
         // ignore: avoid_print
-        print('stub generate called; anchors any? ${anchors.any((e) => e != null)}');
+        print(
+            'stub generate called; anchors any? ${anchors.any((e) => e != null)}');
         // Return anchors + one changed slot at index 2 only when this is a partial reroll
-        final out = List<Paint>.generate(5, (i) => anchors[i] ?? _FakePaint('new$i', '#123456'));
+        final out = List<Paint>.generate(
+            5, (i) => anchors[i] ?? _FakePaint('new$i', '#123456'));
         final anyAnchored = anchors.any((e) => e != null);
         if (anyAnchored) {
           // ignore: avoid_print
@@ -114,15 +131,29 @@ void main() {
 
       final ctrl = container.read(rollerControllerProvider.notifier);
       await ctrl.rollNext();
-      final before = container.read(rollerControllerProvider).value!.pages.first.strips.map((e) => e.id).toList();
-  // debug
-  // ignore: avoid_print
-  print('before ids: $before');
+      final before = container
+          .read(rollerControllerProvider)
+          .value!
+          .pages
+          .first
+          .strips
+          .map((e) => e.id)
+          .toList();
+      // debug
+      // ignore: avoid_print
+      print('before ids: $before');
       await ctrl.rerollStrip(2);
-      final after = container.read(rollerControllerProvider).value!.pages.first.strips.map((e) => e.id).toList();
-  // debug
-  // ignore: avoid_print
-  print('after ids:  $after');
+      final after = container
+          .read(rollerControllerProvider)
+          .value!
+          .pages
+          .first
+          .strips
+          .map((e) => e.id)
+          .toList();
+      // debug
+      // ignore: avoid_print
+      print('after ids:  $after');
       expect(before[2] != after[2], true);
       for (var i = 0; i < before.length; i++) {
         if (i == 2) continue;
@@ -140,7 +171,8 @@ void main() {
           ]);
       when(() => repo.filterByBrands(any(), any()))
           .thenReturn(List.generate(20, (i) => _FakePaint('p$i', '#AAAAAA')));
-      when(() => repo.getPool(brandIds: any(named: 'brandIds'), theme: any(named: 'theme')))
+      when(() => repo.getPool(
+              brandIds: any(named: 'brandIds'), theme: any(named: 'theme')))
           .thenAnswer((_) async => [
                 _FakePaint('p1', '#111111'),
                 _FakePaint('p2', '#EEEEEE'),
@@ -157,6 +189,7 @@ void main() {
             themeSpec: any(named: 'themeSpec'),
             themeThreshold: any(named: 'themeThreshold'),
             attempts: any(named: 'attempts'),
+            mode: any(named: 'mode'),
             availableBrandOnly: any(named: 'availableBrandOnly'),
           )).thenAnswer((_) async => [
             _FakePaint('L0', '#101010'),
@@ -182,4 +215,3 @@ void main() {
     });
   });
 }
-

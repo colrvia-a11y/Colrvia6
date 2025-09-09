@@ -19,7 +19,8 @@ import 'package:color_canvas/screens/login_screen.dart';
 import 'package:color_canvas/screens/color_plan_detail_screen.dart';
 import 'package:color_canvas/screens/visualizer_screen.dart' deferred as viz;
 import 'package:color_canvas/screens/color_plan_screen.dart' deferred as plan;
-import 'package:color_canvas/screens/compare_colors_screen.dart' deferred as cmpc;
+import 'package:color_canvas/screens/compare_colors_screen.dart'
+    deferred as cmpc;
 import 'package:color_canvas/screens/interview_home_screen.dart';
 import 'package:color_canvas/screens/interview_voice_setup_screen.dart';
 import 'package:color_canvas/screens/interview_voice_screen.dart';
@@ -31,7 +32,6 @@ import 'package:color_canvas/utils/debug_logger.dart';
 import 'package:color_canvas/models/user_palette.dart';
 import 'package:color_canvas/services/analytics_service.dart';
 import 'platform/audio_session.dart';
-
 
 // Global Firebase state
 bool isFirebaseInitialized = false;
@@ -57,14 +57,16 @@ Future<void> main() async {
       FlutterError.presentError(details);
       FirebaseCrashlytics.instance.recordFlutterFatalError(details);
     };
-    Debug.info('App', 'main', "Firebase project: '${Firebase.app().options.projectId}'");
+    Debug.info('App', 'main',
+        "Firebase project: '${Firebase.app().options.projectId}'");
 
     isFirebaseInitialized = true;
 
     Debug.info('App', 'main', 'Running app');
     // Configure iOS audio session for live voice chat (no-op on other platforms)
     await configureAudioSessionForVoiceChat();
-    runApp(const ProviderScope(child: MyApp())); // <- same zone as ensureInitialized()
+    runApp(const ProviderScope(
+        child: MyApp())); // <- same zone as ensureInitialized()
 
     // Non-critical setup after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -72,13 +74,18 @@ Future<void> main() async {
         const bool enableAppCheck =
             bool.fromEnvironment('ENABLE_APPCHECK', defaultValue: true);
         if (enableAppCheck) {
-          const String recaptchaSiteKey = '6LfLm7grAAAAALy7wXUidR9yilxtIggw4SJNfci4';
+          const String recaptchaSiteKey =
+              '6LfLm7grAAAAALy7wXUidR9yilxtIggw4SJNfci4';
           await FirebaseAppCheck.instance.activate(
             webProvider: ReCaptchaV3Provider(recaptchaSiteKey),
-            androidProvider: kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
-            appleProvider: kDebugMode ? AppleProvider.debug : AppleProvider.deviceCheck,
+            androidProvider: kDebugMode
+                ? AndroidProvider.debug
+                : AndroidProvider.playIntegrity,
+            appleProvider:
+                kDebugMode ? AppleProvider.debug : AppleProvider.deviceCheck,
           );
-          Debug.info('App', 'main', 'Firebase App Check activated with PRODUCTION reCAPTCHA key');
+          Debug.info('App', 'main',
+              'Firebase App Check activated with PRODUCTION reCAPTCHA key');
         }
       } catch (e, st) {
         FirebaseCrashlytics.instance.recordError(e, st, fatal: false);
@@ -151,7 +158,8 @@ class MyApp extends StatelessWidget {
             '/home': (context) => const HomeScreen(),
             '/login': (context) => const LoginScreen(),
             '/interview/home': (context) => const InterviewHomeScreen(),
-            '/interview/voice-setup': (context) => const InterviewVoiceSetupScreen(),
+            '/interview/voice-setup': (context) =>
+                const InterviewVoiceSetupScreen(),
             '/interview/voice': (context) => const InterviewVoiceScreen(),
             '/interview/text': (context) => const InterviewTextScreen(),
             '/interview/wizard': (context) => const InterviewWizardScreen(),
@@ -207,10 +215,9 @@ class MyApp extends StatelessWidget {
               );
             },
             '/compare': (context) {
-              final args = ModalRoute.of(context)!.settings.arguments as Map<String, UserPalette>?;
-              return CompareScreen(
-                comparePalette: args?['palette']
-              );
+              final args = ModalRoute.of(context)!.settings.arguments
+                  as Map<String, UserPalette>?;
+              return CompareScreen(comparePalette: args?['palette']);
             },
             // REGION: CODEX-ADD compare-colors-route
             '/compareColors': (context) {
@@ -237,7 +244,6 @@ class MyApp extends StatelessWidget {
                   '🐛 Route: NavigatingTo ColorPlanDetailScreen with storyId = $storyId');
               return ColorPlanDetailScreen(storyId: storyId);
             },
-            
           },
         ),
       ),
@@ -340,4 +346,3 @@ class _AuthCheckScreenState extends State<AuthCheckScreen> {
     );
   }
 }
-

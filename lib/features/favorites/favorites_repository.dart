@@ -15,18 +15,19 @@ class FavoritePalette {
   }) : createdAt = createdAt ?? DateTime.now();
 
   Map<String, dynamic> toJson() => {
-    'key': key,
-    'paintIds': paintIds,
-    'hexes': hexes,
-    'createdAt': createdAt.toIso8601String(),
-  };
+        'key': key,
+        'paintIds': paintIds,
+        'hexes': hexes,
+        'createdAt': createdAt.toIso8601String(),
+      };
 
   static FavoritePalette fromJson(Map<String, dynamic> m) => FavoritePalette(
-    key: m['key'] as String,
-    paintIds: List<String>.from(m['paintIds'] as List),
-    hexes: List<String>.from(m['hexes'] as List),
-    createdAt: DateTime.tryParse(m['createdAt'] as String? ?? '') ?? DateTime.now(),
-  );
+        key: m['key'] as String,
+        paintIds: List<String>.from(m['paintIds'] as List),
+        hexes: List<String>.from(m['hexes'] as List),
+        createdAt: DateTime.tryParse(m['createdAt'] as String? ?? '') ??
+            DateTime.now(),
+      );
 }
 
 class FavoritesRepository {

@@ -14,29 +14,32 @@ class ColorStoryMainScreen extends StatefulWidget {
   State<ColorStoryMainScreen> createState() => _ColorStoryMainScreenState();
 }
 
-class _ColorStoryMainScreenState extends State<ColorStoryMainScreen> with TickerProviderStateMixin {
+class _ColorStoryMainScreenState extends State<ColorStoryMainScreen>
+    with TickerProviderStateMixin {
   // Brand colors matching visualizer and theme
-  static const Color _forestGreen = Color(0xFF404934);      // Primary brand green
-  static const Color _peachGradient = Color(0xFFE5A177);    // Deeper peach for gradients
+  static const Color _forestGreen = Color(0xFF404934); // Primary brand green
+  static const Color _peachGradient =
+      Color(0xFFE5A177); // Deeper peach for gradients
   Color get _brandPeach => Theme.of(context).colorScheme.secondary;
-  static const Color _deepForest = Color(0xFF2F3728);       // Deeper forest green
-  static const Color _warmWhite = Color(0xFFFAFAFA);        // Brand white/cream
+  static const Color _deepForest = Color(0xFF2F3728); // Deeper forest green
+  static const Color _warmWhite = Color(0xFFFAFAFA); // Brand white/cream
   static const Color _warmWhite90 = Color.fromRGBO(250, 250, 250, 0.9);
   static const Color _warmWhite80 = Color.fromRGBO(250, 250, 250, 0.8);
-  static const Color _darkText = Color(0xFF1C1C1C);         // Main text color
-  static const Color _brownAccent = Color(0xFFD8936B);      // From visualizer palette
-  static const Color _sageGreen = Color(0xFF6B7A5A);        // From visualizer palette
-  
+  static const Color _darkText = Color(0xFF1C1C1C); // Main text color
+  static const Color _brownAccent =
+      Color(0xFFD8936B); // From visualizer palette
+  static const Color _sageGreen = Color(0xFF6B7A5A); // From visualizer palette
+
   // Animation controllers
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late AnimationController _pulseController;
-  
+
   // Animations
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _pulseAnimation;
-  
+
   // State
   bool _isLoading = false;
   List<StoryExperience> _recentStories = [];
@@ -54,12 +57,12 @@ class _ColorStoryMainScreenState extends State<ColorStoryMainScreen> with Ticker
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    
+
     _pulseController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
@@ -105,7 +108,7 @@ class _ColorStoryMainScreenState extends State<ColorStoryMainScreen> with Ticker
 
   Future<void> _loadStoryData() async {
     setState(() => _isLoading = true);
-    
+
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
@@ -260,7 +263,7 @@ class _ColorStoryMainScreenState extends State<ColorStoryMainScreen> with Ticker
 
   Widget _buildWelcomeSection() {
     final user = FirebaseAuth.instance.currentUser;
-    
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -516,7 +519,7 @@ class _ColorStoryMainScreenState extends State<ColorStoryMainScreen> with Ticker
   Widget _buildRecentSection() {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return const SizedBox.shrink();
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -779,9 +782,9 @@ class _ColorStoryMainScreenState extends State<ColorStoryMainScreen> with Ticker
 
   void _createImmersiveStory() async {
     final user = FirebaseAuth.instance.currentUser;
-    
+
     setState(() => _isLoading = true);
-    
+
     try {
       // Create sample palette for demo
       final samplePalette = [
@@ -819,18 +822,20 @@ class _ColorStoryMainScreenState extends State<ColorStoryMainScreen> with Ticker
         context: storyContext,
         personalTouch: personalTouch,
         category: StoryCategory.emotionalJourney,
-        userId: user?.uid ?? 'demo_user_${DateTime.now().millisecondsSinceEpoch}',
+        userId:
+            user?.uid ?? 'demo_user_${DateTime.now().millisecondsSinceEpoch}',
       );
 
       if (mounted) {
         Navigator.of(context).push(
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => 
+            pageBuilder: (context, animation, secondaryAnimation) =>
                 ImmersiveStoryPlayerScreen(
-                  storyExperience: experience,
-                  context: storyContext,
-                ),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              storyExperience: experience,
+              context: storyContext,
+            ),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
               return FadeTransition(opacity: animation, child: child);
             },
             transitionDuration: const Duration(milliseconds: 1500),
@@ -853,7 +858,7 @@ class _ColorStoryMainScreenState extends State<ColorStoryMainScreen> with Ticker
 
   void _viewMyStories() {
     final user = FirebaseAuth.instance.currentUser;
-    
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => StoryGalleryScreen(

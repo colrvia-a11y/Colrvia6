@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
-
 import 'dart:async';
 import '../models/color_story.dart' as model;
 import '../firestore/firestore_data_schema.dart';
@@ -121,20 +120,23 @@ class FirebaseService {
     try {
       debugPrint('🔐 FirebaseService: Attempting sign in for email: $email');
       debugPrint('🔐 FirebaseService: Auth instance app: ${_auth.app.name}');
-      debugPrint('🔐 FirebaseService: Project ID: ${_auth.app.options.projectId}');
-      
+      debugPrint(
+          '🔐 FirebaseService: Project ID: ${_auth.app.options.projectId}');
+
       final result = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
 
-      debugPrint('🔐 FirebaseService: Sign in successful for user: ${result.user?.uid}');
-      FirebaseCrashlytics.instance
-          .setUserIdentifier(result.user?.uid ?? '');
+      debugPrint(
+          '🔐 FirebaseService: Sign in successful for user: ${result.user?.uid}');
+      FirebaseCrashlytics.instance.setUserIdentifier(result.user?.uid ?? '');
       return result;
     } catch (e) {
       debugPrint('🔐 FirebaseService: Sign in failed with error: $e');
       if (e.toString().contains('API key not valid')) {
-        debugPrint('🔐 FirebaseService: API key issue detected. Check SHA-1 fingerprint in Firebase Console.');
-        debugPrint('🔐 FirebaseService: Debug SHA-1: A4:DA:E3:7A:D1:EA:DA:3C:9C:E4:62:0F:53:CA:86:0A:E1:22:60:11');
+        debugPrint(
+            '🔐 FirebaseService: API key issue detected. Check SHA-1 fingerprint in Firebase Console.');
+        debugPrint(
+            '🔐 FirebaseService: Debug SHA-1: A4:DA:E3:7A:D1:EA:DA:3C:9C:E4:62:0F:53:CA:86:0A:E1:22:60:11');
       }
       rethrow;
     }
@@ -143,21 +145,24 @@ class FirebaseService {
   static Future<UserCredential> createUserWithEmailAndPassword(
       String email, String password) async {
     try {
-      debugPrint('🔐 FirebaseService: Attempting user creation for email: $email');
-      
+      debugPrint(
+          '🔐 FirebaseService: Attempting user creation for email: $email');
+
       final result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
 
-      debugPrint('🔐 FirebaseService: User creation successful for user: ${result.user?.uid}');
-      FirebaseCrashlytics.instance
-          .setUserIdentifier(result.user?.uid ?? '');
-      
+      debugPrint(
+          '🔐 FirebaseService: User creation successful for user: ${result.user?.uid}');
+      FirebaseCrashlytics.instance.setUserIdentifier(result.user?.uid ?? '');
+
       return result;
     } catch (e) {
       debugPrint('🔐 FirebaseService: User creation failed with error: $e');
       if (e.toString().contains('API key not valid')) {
-        debugPrint('🔐 FirebaseService: API key issue detected. Check SHA-1 fingerprint in Firebase Console.');
-        debugPrint('🔐 FirebaseService: Debug SHA-1: A4:DA:E3:7A:D1:EA:DA:3C:9C:E4:62:0F:53:CA:86:0A:E1:22:60:11');
+        debugPrint(
+            '🔐 FirebaseService: API key issue detected. Check SHA-1 fingerprint in Firebase Console.');
+        debugPrint(
+            '🔐 FirebaseService: Debug SHA-1: A4:DA:E3:7A:D1:EA:DA:3C:9C:E4:62:0F:53:CA:86:0A:E1:22:60:11');
       }
       rethrow;
     }
@@ -322,7 +327,8 @@ class FirebaseService {
       // Enable offline persistence for Firestore (only on mobile platforms)
       if (!kIsWeb) {
         // On mobile platforms, persistence is enabled by default
-        debugPrint('Firestore offline persistence is enabled by default on mobile');
+        debugPrint(
+            'Firestore offline persistence is enabled by default on mobile');
       } else {
         debugPrint('Firestore offline persistence not available on web');
       }
@@ -338,7 +344,8 @@ class FirebaseService {
       'isAuthenticated': user != null,
       'userId': user?.uid,
       'userEmail': user?.email,
-      'isFirestoreOnline': true, // Simplified - in real app would check connectivity
+      'isFirestoreOnline':
+          true, // Simplified - in real app would check connectivity
       'error': null,
       'projectId': _auth.app.options.projectId,
       'appId': _auth.app.options.appId,
@@ -347,7 +354,10 @@ class FirebaseService {
 
     // Test basic Firebase connectivity
     try {
-      await _db.collection('_test').limit(1).get(const GetOptions(source: Source.server));
+      await _db
+          .collection('_test')
+          .limit(1)
+          .get(const GetOptions(source: Source.server));
       status['firestoreConnected'] = true;
     } catch (e) {
       status['firestoreConnected'] = false;

@@ -18,8 +18,8 @@ class ViaOverlay extends StatefulWidget {
   final VoidCallback? onVisualize;
   final String? userDisplayName;
   final bool startOpen;
-  final Future<String> Function(String message, {String? contextLabel, Map<String, dynamic>? state})?
-      onAsk;
+  final Future<String> Function(String message,
+      {String? contextLabel, Map<String, dynamic>? state})? onAsk;
 
   const ViaOverlay({
     super.key,
@@ -89,7 +89,8 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
         ? 'Hi ${widget.userDisplayName}'
         : 'Hi there';
     final msg = "$hi — how can I help today?";
-    _msgs.add(_ChatBubble(text: msg, fromUser: false, timestamp: DateTime.now()));
+    _msgs.add(
+        _ChatBubble(text: msg, fromUser: false, timestamp: DateTime.now()));
   }
 
   void _scrollToBottomSoon() {
@@ -104,7 +105,8 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
   }
 
   void _close() {
-    AnalyticsService.instance.logEvent('via_close', {'context': widget.contextLabel});
+    AnalyticsService.instance
+        .logEvent('via_close', {'context': widget.contextLabel});
     Navigator.of(context).maybePop();
   }
 
@@ -136,14 +138,16 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
         _voiceActive = true;
         _voicePartial = '';
       });
-      _voicePartialSub = LiveTalkService.instance.partialText.stream.listen((t) {
+      _voicePartialSub =
+          LiveTalkService.instance.partialText.stream.listen((t) {
         setState(() => _voicePartial = t);
       });
       _voiceFinalSub = LiveTalkService.instance.finalText.stream.listen((t) {
         final text = t.trim();
         if (text.isEmpty) return;
         setState(() {
-          _msgs.add(_ChatBubble(text: text, fromUser: false, timestamp: DateTime.now()));
+          _msgs.add(_ChatBubble(
+              text: text, fromUser: false, timestamp: DateTime.now()));
           _voicePartial = '';
         });
       });
@@ -171,16 +175,21 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
     if (trimmed.isEmpty || _sending) return;
     setState(() {
       _sending = true;
-      _msgs.insert(0, _ChatBubble(text: trimmed, fromUser: true, timestamp: DateTime.now()));
+      _msgs.insert(
+          0,
+          _ChatBubble(
+              text: trimmed, fromUser: true, timestamp: DateTime.now()));
     });
     _composer.clear();
     _scrollToBottomSoon();
 
-    AnalyticsService.instance.logEvent('via_send', {'context': widget.contextLabel, 'chars': trimmed.length});
+    AnalyticsService.instance.logEvent(
+        'via_send', {'context': widget.contextLabel, 'chars': trimmed.length});
 
     Future<String> ask(String q) async {
       if (widget.onAsk != null) {
-        return widget.onAsk!(q, contextLabel: widget.contextLabel, state: widget.state);
+        return widget.onAsk!(q,
+            contextLabel: widget.contextLabel, state: widget.state);
       }
       try {
         // Default path: use cloud function based reply using context + state.
@@ -193,7 +202,8 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
     final reply = await ask(trimmed);
     if (!mounted) return;
     setState(() {
-      _msgs.insert(0, _ChatBubble(text: reply, fromUser: false, timestamp: DateTime.now()));
+      _msgs.insert(0,
+          _ChatBubble(text: reply, fromUser: false, timestamp: DateTime.now()));
       _sending = false;
     });
     _scrollToBottomSoon();
@@ -215,8 +225,10 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
         ];
       default:
         return [
-          const _Suggestion('Name my palette', 'Can you suggest names for this palette?'),
-          const _Suggestion('Lighting advice', 'How will these colors look at night?'),
+          const _Suggestion(
+              'Name my palette', 'Can you suggest names for this palette?'),
+          const _Suggestion(
+              'Lighting advice', 'How will these colors look at night?'),
           const _Suggestion('Next steps', 'What should I do next?'),
         ];
     }
@@ -230,7 +242,8 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
 
     final double peekHeight = media.height * 0.58;
     final double expandedHeight = media.height * 0.96;
-    final double bottomOffset = insets > 0 ? 0 : (_kSideGutter + _kBottomNavGuard);
+    final double bottomOffset =
+        insets > 0 ? 0 : (_kSideGutter + _kBottomNavGuard);
 
     return Material(
       type: MaterialType.transparency,
@@ -243,7 +256,8 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
                 curve: Curves.easeOutCubic,
-                color: Colors.black.withAlpha((255 * _kBackdropOpacity).round()),
+                color:
+                    Colors.black.withAlpha((255 * _kBackdropOpacity).round()),
               ),
             ),
           ),
@@ -300,8 +314,11 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                                           : 'Hi — how can I help today?',
                                       suggestions: _suggestions(),
                                       onChip: (s) {
-                                        AnalyticsService.instance
-                                            .logEvent('via_chip', {'label': s.label, 'context': widget.contextLabel});
+                                        AnalyticsService.instance.logEvent(
+                                            'via_chip', {
+                                          'label': s.label,
+                                          'context': widget.contextLabel
+                                        });
                                         _send(s.prompt);
                                         _expand();
                                       },
@@ -316,15 +333,20 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                                           icon: Icons.keyboard_rounded,
                                           onTap: () {
                                             _expand();
-                                            Future.delayed(const Duration(milliseconds: 50), () => _focus.requestFocus());
+                                            Future.delayed(
+                                                const Duration(
+                                                    milliseconds: 50),
+                                                () => _focus.requestFocus());
                                           },
                                         ),
                                         const SizedBox(width: 8),
                                         _OutlinedSquareIcon(
                                           icon: Icons.mic_none_rounded,
                                           onTap: () {
-                                            AnalyticsService.instance
-                                                .logEvent('via_mic', {'context': widget.contextLabel});
+                                            AnalyticsService.instance.logEvent(
+                                                'via_mic', {
+                                              'context': widget.contextLabel
+                                            });
                                             _expand();
                                           },
                                         ),
@@ -340,7 +362,8 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: AppDims.gap * 2),
-                              child: _ChatList(messages: _msgs, controller: _list),
+                              child:
+                                  _ChatList(messages: _msgs, controller: _list),
                             ),
                           ),
                           _ComposerBar(
@@ -349,7 +372,8 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                             sending: _sending,
                             onSend: _send,
                             onMic: () {
-                              AnalyticsService.instance.logEvent('via_mic', {'context': widget.contextLabel});
+                              AnalyticsService.instance.logEvent(
+                                  'via_mic', {'context': widget.contextLabel});
                               if (_voiceActive) {
                                 _stopMiniVoice();
                               } else {
@@ -357,14 +381,17 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                               }
                             },
                             onAttachImage: () => AnalyticsService.instance
-                                .logEvent('via_attach_image', {'context': widget.contextLabel}),
+                                .logEvent('via_attach_image',
+                                    {'context': widget.contextLabel}),
                             onAttachDoc: () => AnalyticsService.instance
-                                .logEvent('via_attach_doc', {'context': widget.contextLabel}),
+                                .logEvent('via_attach_doc',
+                                    {'context': widget.contextLabel}),
                           ),
                           const SizedBox(height: AppDims.gap),
                           if (_voiceActive) ...[
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: AppDims.gap * 2),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: AppDims.gap * 2),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
@@ -373,18 +400,23 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodySmall
-                                            ?.copyWith(color: Colors.grey[700], fontStyle: FontStyle.italic)),
+                                            ?.copyWith(
+                                                color: Colors.grey[700],
+                                                fontStyle: FontStyle.italic)),
                                   const SizedBox(height: 4),
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text('Voice',
                                           style: Theme.of(context)
                                               .textTheme
                                               .labelMedium
-                                              ?.copyWith(fontWeight: FontWeight.w600)),
+                                              ?.copyWith(
+                                                  fontWeight: FontWeight.w600)),
                                       TextButton.icon(
-                                        icon: const Icon(Icons.stop, color: Colors.red),
+                                        icon: const Icon(Icons.stop,
+                                            color: Colors.red),
                                         label: const Text('Stop'),
                                         onPressed: _stopMiniVoice,
                                       ),
@@ -392,7 +424,11 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                                   ),
                                   // 1x1 video to play audio
                                   const SizedBox(height: 2),
-                                  SizedBox(height: 1, width: 1, child: RTCVideoView(LiveTalkService.instance.remoteRenderer)),
+                                  SizedBox(
+                                      height: 1,
+                                      width: 1,
+                                      child: RTCVideoView(LiveTalkService
+                                          .instance.remoteRenderer)),
                                 ],
                               ),
                             ),
@@ -467,7 +503,10 @@ class _GreetingAndChips extends StatelessWidget {
   final String greeting;
   final List<_Suggestion> suggestions;
   final ValueChanged<_Suggestion> onChip;
-  const _GreetingAndChips({required this.greeting, required this.suggestions, required this.onChip});
+  const _GreetingAndChips(
+      {required this.greeting,
+      required this.suggestions,
+      required this.onChip});
 
   @override
   Widget build(BuildContext context) {
@@ -530,7 +569,10 @@ class _ChatList extends StatelessWidget {
               color: bg,
               borderRadius: BorderRadius.circular(16),
               boxShadow: const [
-                BoxShadow(color: Color(0x0F000000), blurRadius: 14, offset: Offset(0, 6)),
+                BoxShadow(
+                    color: Color(0x0F000000),
+                    blurRadius: 14,
+                    offset: Offset(0, 6)),
               ],
             ),
             child: Text(m.text, style: TextStyle(color: fg, height: 1.35)),
@@ -602,7 +644,12 @@ class _ComposerBarState extends State<_ComposerBar> {
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(AppDims.radiusLarge),
-                boxShadow: const [BoxShadow(color: Color(0x0F000000), blurRadius: 10, offset: Offset(0, 2))],
+                boxShadow: const [
+                  BoxShadow(
+                      color: Color(0x0F000000),
+                      blurRadius: 10,
+                      offset: Offset(0, 2))
+                ],
               ),
               child: TextField(
                 controller: widget.controller,
@@ -616,7 +663,8 @@ class _ComposerBarState extends State<_ComposerBar> {
                   isDense: true,
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(
-                      horizontal: AppDims.gap * 1.25, vertical: AppDims.gap * 1.25),
+                      horizontal: AppDims.gap * 1.25,
+                      vertical: AppDims.gap * 1.25),
                   prefixIcon: Builder(
                     builder: (ctx) => IconButton(
                       tooltip: 'Attach',
@@ -624,7 +672,8 @@ class _ComposerBarState extends State<_ComposerBar> {
                       onPressed: () => _showAttachMenu(ctx),
                     ),
                   ),
-                  prefixIconConstraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                  prefixIconConstraints:
+                      const BoxConstraints(minWidth: 40, minHeight: 40),
                   suffixIcon: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -636,7 +685,11 @@ class _ComposerBarState extends State<_ComposerBar> {
                       widget.sending
                           ? const Padding(
                               padding: EdgeInsets.only(right: 8),
-                              child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                              child: SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2)),
                             )
                           : IconButton(
                               tooltip: 'Send',
@@ -646,7 +699,8 @@ class _ComposerBarState extends State<_ComposerBar> {
                       const SizedBox(width: 4),
                     ],
                   ),
-                  suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+                  suffixIconConstraints:
+                      const BoxConstraints(minWidth: 0, minHeight: 0),
                 ),
               ),
             ),
@@ -657,13 +711,16 @@ class _ComposerBarState extends State<_ComposerBar> {
   }
 }
 
-
 class _SolidSurface extends StatelessWidget {
   final double blurSigma;
   final Color color;
   final Widget child;
   final double? topFadeStart; // 0..1 from bottom to top (e.g., 0.5)
-  const _SolidSurface({required this.blurSigma, required this.color, required this.child, this.topFadeStart});
+  const _SolidSurface(
+      {required this.blurSigma,
+      required this.color,
+      required this.child,
+      this.topFadeStart});
 
   @override
   Widget build(BuildContext context) {
@@ -679,7 +736,11 @@ class _SolidSurface extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(_ViaOverlayState._kPanelRadius),
             boxShadow: const [
-              BoxShadow(color: Color(0x1A000000), blurRadius: 30, spreadRadius: -8, offset: Offset(0, 16)),
+              BoxShadow(
+                  color: Color(0x1A000000),
+                  blurRadius: 30,
+                  spreadRadius: -8,
+                  offset: Offset(0, 16)),
             ],
           ),
         ),
@@ -689,7 +750,8 @@ class _SolidSurface extends StatelessWidget {
 
     if (topFadeStart != null) {
       final double s = topFadeStart!.clamp(0.0, 1.0);
-      const double topAlpha = 0.88; // keep ~88% opacity at top for a subtle fade
+      const double topAlpha =
+          0.88; // keep ~88% opacity at top for a subtle fade
       surface = ShaderMask(
         shaderCallback: (Rect bounds) => LinearGradient(
           begin: Alignment.bottomCenter,
@@ -711,7 +773,9 @@ class _SolidSurface extends StatelessWidget {
       child: surface,
     );
   }
-}class _ChipButton extends StatelessWidget {
+}
+
+class _ChipButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
   const _ChipButton({required this.label, required this.onTap});
@@ -722,8 +786,8 @@ class _SolidSurface extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppDims.radiusMedium),
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: AppDims.gap * 2, vertical: AppDims.gap),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppDims.gap * 2, vertical: AppDims.gap),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(AppDims.radiusMedium),
@@ -763,7 +827,6 @@ class _Suggestion {
   const _Suggestion(this.label, this.prompt);
 }
 
-
 class _OutlinedSquareIcon extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
@@ -780,17 +843,11 @@ class _OutlinedSquareIcon extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(AppDims.radiusMedium),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.35), width: 1),
+          border:
+              Border.all(color: Colors.white.withValues(alpha: 0.35), width: 1),
         ),
         child: Icon(icon, size: 20, color: Colors.white),
       ),
     );
   }
 }
-
-
-
-
-
-
-

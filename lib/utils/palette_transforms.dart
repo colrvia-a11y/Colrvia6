@@ -19,19 +19,17 @@ List<ColorId> softer(
   LabLookup labOf,
   NearestId nearestId,
 ) {
-  return ids
-      .map((id) {
-        final lab = labOf(id);
-        final nearest = nearestId(
-          Lab(
-            math.min(100.0, lab.l + 5.0),
-            lab.a * 0.9,
-            lab.b * 0.9,
-          ),
-        );
-        return nearest ?? id;
-      })
-      .toList(growable: false);
+  return ids.map((id) {
+    final lab = labOf(id);
+    final nearest = nearestId(
+      Lab(
+        math.min(100.0, lab.l + 5.0),
+        lab.a * 0.9,
+        lab.b * 0.9,
+      ),
+    );
+    return nearest ?? id;
+  }).toList(growable: false);
 }
 
 List<ColorId> brighter(
@@ -39,19 +37,17 @@ List<ColorId> brighter(
   LabLookup labOf,
   NearestId nearestId,
 ) {
-  return ids
-      .map((id) {
-        final lab = labOf(id);
-        final nearest = nearestId(
-          Lab(
-            math.min(100.0, lab.l + 10.0),
-            lab.a,
-            lab.b,
-          ),
-        );
-        return nearest ?? id;
-      })
-      .toList(growable: false);
+  return ids.map((id) {
+    final lab = labOf(id);
+    final nearest = nearestId(
+      Lab(
+        math.min(100.0, lab.l + 10.0),
+        lab.a,
+        lab.b,
+      ),
+    );
+    return nearest ?? id;
+  }).toList(growable: false);
 }
 
 List<ColorId> moodier(
@@ -59,19 +55,17 @@ List<ColorId> moodier(
   LabLookup labOf,
   NearestId nearestId,
 ) {
-  return ids
-      .map((id) {
-        final lab = labOf(id);
-        final nearest = nearestId(
-          Lab(
-            math.max(0.0, lab.l - 10.0),
-            lab.a,
-            lab.b,
-          ),
-        );
-        return nearest ?? id;
-      })
-      .toList(growable: false);
+  return ids.map((id) {
+    final lab = labOf(id);
+    final nearest = nearestId(
+      Lab(
+        math.max(0.0, lab.l - 10.0),
+        lab.a,
+        lab.b,
+      ),
+    );
+    return nearest ?? id;
+  }).toList(growable: false);
 }
 
 List<ColorId> warmer(
@@ -79,19 +73,17 @@ List<ColorId> warmer(
   LabLookup labOf,
   NearestId nearestId,
 ) {
-  return ids
-      .map((id) {
-        final lab = labOf(id);
-        final nearest = nearestId(
-          Lab(
-            lab.l,
-            lab.a + 4.0,
-            lab.b - 2.0,
-          ),
-        );
-        return nearest ?? id;
-      })
-      .toList(growable: false);
+  return ids.map((id) {
+    final lab = labOf(id);
+    final nearest = nearestId(
+      Lab(
+        lab.l,
+        lab.a + 4.0,
+        lab.b - 2.0,
+      ),
+    );
+    return nearest ?? id;
+  }).toList(growable: false);
 }
 
 List<ColorId> cooler(
@@ -99,19 +91,17 @@ List<ColorId> cooler(
   LabLookup labOf,
   NearestId nearestId,
 ) {
-  return ids
-      .map((id) {
-        final lab = labOf(id);
-        final nearest = nearestId(
-          Lab(
-            lab.l,
-            lab.a - 4.0,
-            lab.b + 2.0,
-          ),
-        );
-        return nearest ?? id;
-      })
-      .toList(growable: false);
+  return ids.map((id) {
+    final lab = labOf(id);
+    final nearest = nearestId(
+      Lab(
+        lab.l,
+        lab.a - 4.0,
+        lab.b + 2.0,
+      ),
+    );
+    return nearest ?? id;
+  }).toList(growable: false);
 }
 
 /// Generate a color-blind-friendly variant by increasing luminance contrast
@@ -121,15 +111,13 @@ List<ColorId> cbFriendlyVariant(
   LabLookup labOf,
   NearestId nearestId,
 ) {
-  return ids
-      .map((id) {
-        final lab = labOf(id);
-        final l = lab.l < 50.0
-            ? math.min(100.0, lab.l + 15.0)
-            : math.max(0.0, lab.l - 15.0);
-        final adjusted = Lab(l, lab.a * 0.5, lab.b);
-        final nearest = nearestId(adjusted);
-        return nearest ?? id;
-      })
-      .toList(growable: false);
+  return ids.map((id) {
+    final lab = labOf(id);
+    final l = lab.l < 50.0
+        ? math.min(100.0, lab.l + 15.0)
+        : math.max(0.0, lab.l - 15.0);
+    final adjusted = Lab(l, lab.a * 0.5, lab.b);
+    final nearest = nearestId(adjusted);
+    return nearest ?? id;
+  }).toList(growable: false);
 }

@@ -219,8 +219,8 @@ class _LuxeColorPickerState extends State<LuxeColorPicker>
             decoration: BoxDecoration(
               color: color,
               borderRadius: BorderRadius.circular(16),
-              border:
-                  Border.all(color: Colors.white.withValues(alpha: 0.2), width: 2),
+              border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.2), width: 2),
               boxShadow: [
                 BoxShadow(
                   color: color.withValues(alpha: 0.3),

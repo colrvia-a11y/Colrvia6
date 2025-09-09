@@ -210,7 +210,9 @@ class JourneyService {
   }
 
   FunnelStage? _deriveFunnelStage(String stepId) {
-    if (stepId.startsWith('roller.') || stepId.startsWith('build.') || stepId.startsWith('interview.')) {
+    if (stepId.startsWith('roller.') ||
+        stepId.startsWith('build.') ||
+        stepId.startsWith('interview.')) {
       return FunnelStage.build;
     }
     if (stepId.startsWith('review.') || stepId.startsWith('plan.')) {

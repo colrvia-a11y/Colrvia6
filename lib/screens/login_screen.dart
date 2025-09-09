@@ -70,8 +70,10 @@ class _LoginScreenState extends State<LoginScreen> {
       String message = 'An error occurred. Please try again.';
 
       final emsg = (e.message ?? e.code).toLowerCase();
-      if (emsg.contains('api key not valid') || emsg.contains('api key') && emsg.contains('not valid')) {
-        message = 'Sign-in is unavailable: invalid Firebase API key. Please update the app\'s Firebase configuration.';
+      if (emsg.contains('api key not valid') ||
+          emsg.contains('api key') && emsg.contains('not valid')) {
+        message =
+            'Sign-in is unavailable: invalid Firebase API key. Please update the app\'s Firebase configuration.';
       }
 
       switch (e.code) {

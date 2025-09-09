@@ -23,13 +23,17 @@ class LiveTalkServiceWs {
 
   final ValueNotifier<String> mode = ValueNotifier<String>('ws-fallback');
   final ValueNotifier<LiveTalkConnectionState> connectionState =
-      ValueNotifier<LiveTalkConnectionState>(LiveTalkConnectionState.disconnected);
+      ValueNotifier<LiveTalkConnectionState>(
+          LiveTalkConnectionState.disconnected);
   final ValueNotifier<bool> assistantSpeaking = ValueNotifier<bool>(false);
   final ValueNotifier<bool> muted = ValueNotifier<bool>(false);
   final ValueNotifier<bool> reconnecting = ValueNotifier<bool>(false);
-  final ValueNotifier<LiveTalkError?> lastError = ValueNotifier<LiveTalkError?>(null);
-  final StreamController<String> partialText = StreamController<String>.broadcast();
-  final StreamController<String> finalText = StreamController<String>.broadcast();
+  final ValueNotifier<LiveTalkError?> lastError =
+      ValueNotifier<LiveTalkError?>(null);
+  final StreamController<String> partialText =
+      StreamController<String>.broadcast();
+  final StreamController<String> finalText =
+      StreamController<String>.broadcast();
 
   WebSocket? _ws;
   String _acc = '';
@@ -123,7 +127,8 @@ class LiveTalkServiceWs {
       });
 
       // Send session.update
-      final instructions = _buildInstructions(persona: persona, context: context);
+      final instructions =
+          _buildInstructions(persona: persona, context: context);
       _sendJson({
         'type': 'session.update',
         'session': {
@@ -142,7 +147,8 @@ class LiveTalkServiceWs {
       if (e is TimeoutException) {
         lastError.value = LiveTalkError(LiveTalkErrorCode.network);
       } else {
-        lastError.value = lastError.value ?? LiveTalkError(LiveTalkErrorCode.unknown);
+        lastError.value =
+            lastError.value ?? LiveTalkError(LiveTalkErrorCode.unknown);
       }
       rethrow;
     }
@@ -177,20 +183,20 @@ class LiveTalkServiceWs {
     }
 
     final resp = await http
-        .post(
-      tokenEndpoint,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $idToken',
-      },
-      body: jsonEncode({
-        'sessionId': sessionId,
-        'model': model,
-        'voice': voice,
-      }))
+        .post(tokenEndpoint,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $idToken',
+            },
+            body: jsonEncode({
+              'sessionId': sessionId,
+              'model': model,
+              'voice': voice,
+            }))
         .timeout(const Duration(seconds: 12));
     if (resp.statusCode < 200 || resp.statusCode >= 300) {
-      lastError.value = LiveTalkError(LiveTalkErrorCode.tokenEndpoint, details: resp.body);
+      lastError.value =
+          LiveTalkError(LiveTalkErrorCode.tokenEndpoint, details: resp.body);
       throw Exception('Token endpoint error: ${resp.statusCode} ${resp.body}');
     }
     final tok = jsonDecode(resp.body) as Map<String, dynamic>;
@@ -206,7 +212,10 @@ class LiveTalkServiceWs {
       if (type == 'response.delta') {
         assistantSpeaking.value = true;
         final delta = m['delta'] as Map<String, dynamic>?;
-        final text = (delta?['text'] ?? delta?['output_text'] ?? delta?['content'] ?? '') as String?;
+        final text = (delta?['text'] ??
+            delta?['output_text'] ??
+            delta?['content'] ??
+            '') as String?;
         if (text != null && text.isNotEmpty) {
           _acc += text;
           partialText.add(_acc);
@@ -223,7 +232,9 @@ class LiveTalkServiceWs {
   }
 
   void _sendJson(Map<String, dynamic> m) {
-    try { _ws?.add(jsonEncode(m)); } catch (_) {}
+    try {
+      _ws?.add(jsonEncode(m));
+    } catch (_) {}
   }
 
   String _buildInstructions({String? persona, Map<String, dynamic>? context}) {
@@ -246,8 +257,12 @@ class LiveTalkServiceWs {
   }
 
   Future<void> disconnect() async {
-    try { await _ws?.close(); } catch (_) {}
-    _ws = null; _acc = ''; _ephemeralKey = null;
+    try {
+      await _ws?.close();
+    } catch (_) {}
+    _ws = null;
+    _acc = '';
+    _ephemeralKey = null;
     connectionState.value = LiveTalkConnectionState.disconnected;
     muted.value = false;
     reconnecting.value = false;

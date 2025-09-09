@@ -6,4 +6,3 @@ class Lab {
   final double b;
   const Lab(this.l, this.a, this.b);
 }
-

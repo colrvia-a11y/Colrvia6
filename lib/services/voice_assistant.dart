@@ -30,9 +30,11 @@ class VoiceAssistant extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String?> listenOnce({Duration timeout = const Duration(seconds: 8)}) async {
+  Future<String?> listenOnce(
+      {Duration timeout = const Duration(seconds: 8)}) async {
     if (!_available) return null;
-    _listening = true; notifyListeners();
+    _listening = true;
+    notifyListeners();
 
     final completer = Completer<String?>();
     String last = '';
@@ -44,7 +46,8 @@ class VoiceAssistant extends ChangeNotifier {
           completer.complete(last.trim().isEmpty ? null : last.trim());
         }
       },
-      listenOptions: stt.SpeechListenOptions(listenMode: stt.ListenMode.dictation),
+      listenOptions:
+          stt.SpeechListenOptions(listenMode: stt.ListenMode.dictation),
     );
 
     Future.delayed(timeout, () {
@@ -55,22 +58,27 @@ class VoiceAssistant extends ChangeNotifier {
 
     final text = await completer.future;
     await _speech.stop();
-    _listening = false; notifyListeners();
+    _listening = false;
+    notifyListeners();
     return text;
   }
 
   Future<void> speak(String text) async {
-    _speaking = true; notifyListeners();
+    _speaking = true;
+    notifyListeners();
     await _tts.stop();
     await _tts.speak(text);
     await _tts.awaitSpeakCompletion(true);
-    _speaking = false; notifyListeners();
+    _speaking = false;
+    notifyListeners();
   }
 
   Future<void> stop() async {
     await _speech.stop();
     await _tts.stop();
-    _listening = false; _speaking = false; notifyListeners();
+    _listening = false;
+    _speaking = false;
+    notifyListeners();
   }
 
   @override

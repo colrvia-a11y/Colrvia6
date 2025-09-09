@@ -54,7 +54,8 @@ class _PaletteRevealScreenState extends State<PaletteRevealScreen> {
 
   Future<void> _loadAlternates() async {
     if (_palette == null) return;
-    final answers = JourneyService.instance.state.value?.artifacts['answers'] as Map<String, dynamic>?;
+    final answers = JourneyService.instance.state.value?.artifacts['answers']
+        as Map<String, dynamic>?;
     final alts = await PaletteSuggestionsService.instance
         .suggestAccentAlternatives(base: _palette!, answers: answers);
     setState(() => _accentAlternates = alts);
@@ -66,7 +67,8 @@ class _PaletteRevealScreenState extends State<PaletteRevealScreen> {
       _accentPreview = c;
       _saving = true;
     });
-    final updated = _palette!.copyWith(roles: _palette!.roles.copyWith(accent: c));
+    final updated =
+        _palette!.copyWith(roles: _palette!.roles.copyWith(accent: c));
     await JourneyService.instance.setArtifact('palette', updated.toJson());
     setState(() {
       _palette = updated;
@@ -94,7 +96,9 @@ class _PaletteRevealScreenState extends State<PaletteRevealScreen> {
       );
     }
     if (_error != null) {
-      return Scaffold(appBar: AppBar(title: const Text('Palette')), body: Center(child: Text(_error!)));
+      return Scaffold(
+          appBar: AppBar(title: const Text('Palette')),
+          body: Center(child: Text(_error!)));
     }
     final pal = _palette!;
 
@@ -136,7 +140,8 @@ class _PaletteRevealScreenState extends State<PaletteRevealScreen> {
                 OutlinedButton.icon(
                   onPressed: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const VisualizerPainterAltScreen()),
+                      MaterialPageRoute(
+                          builder: (_) => const VisualizerPainterAltScreen()),
                     );
                   },
                   icon: const Icon(Icons.brush_outlined),
@@ -169,7 +174,8 @@ class _PaletteRevealScreenState extends State<PaletteRevealScreen> {
     );
   }
 
-  Widget _contrastCard(String title, String aHex, String bHex, ContrastReport r) {
+  Widget _contrastCard(
+      String title, String aHex, String bHex, ContrastReport r) {
     final a = _parseColor(aHex), b = _parseColor(bHex);
     return Card(
       child: Padding(
@@ -205,7 +211,8 @@ class _PaletteRevealScreenState extends State<PaletteRevealScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Why this works', style: Theme.of(context).textTheme.titleMedium),
+            Text('Why this works',
+                style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 4),
             if (r['lighting'] != null) Text('Lighting: ${r['lighting']}'),
             if (r['mood'] != null) Text('Mood: ${r['mood']}'),
@@ -216,7 +223,8 @@ class _PaletteRevealScreenState extends State<PaletteRevealScreen> {
     );
   }
 
-  Widget _swapAccentSection(BuildContext context, Palette pal, PaintColor current) {
+  Widget _swapAccentSection(
+      BuildContext context, Palette pal, PaintColor current) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppDims.gap * 2),
@@ -224,17 +232,22 @@ class _PaletteRevealScreenState extends State<PaletteRevealScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
-              Text('Try a different accent', style: Theme.of(context).textTheme.titleMedium),
+              Text('Try a different accent',
+                  style: Theme.of(context).textTheme.titleMedium),
               const Spacer(),
               if (_saving)
                 const Padding(
                     padding: EdgeInsets.only(right: 8),
-                    child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))),
+                    child: SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2))),
             ]),
             const SizedBox(height: 8),
             Wrap(spacing: 8, runSpacing: 8, children: [
               _accentChip(current, label: 'Current', onTap: null),
-              for (final c in _accentAlternates) _accentChip(c, onTap: () => _applyAccent(c)),
+              for (final c in _accentAlternates)
+                _accentChip(c, onTap: () => _applyAccent(c)),
             ]),
           ],
         ),
@@ -281,7 +294,8 @@ class _PaletteRevealScreenState extends State<PaletteRevealScreen> {
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
+      decoration:
+          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
       child: Text(grade, style: TextStyle(color: fg)),
     );
   }

@@ -62,7 +62,8 @@ class ColorPlanDetailScreen extends StatefulWidget {
   final String storyId;
   // REGION: CODEX-ADD color-plan-detail-screen
   final String? projectId;
-  const ColorPlanDetailScreen({super.key, required this.storyId, this.projectId});
+  const ColorPlanDetailScreen(
+      {super.key, required this.storyId, this.projectId});
   // END REGION: CODEX-ADD color-plan-detail-screen
   @override
   State<ColorPlanDetailScreen> createState() => _ColorPlanDetailScreenState();
@@ -159,7 +160,8 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
     try {
       // plan.paletteColorIds are paint document IDs
       final paints = await FirebaseService.getPaintsByIds(plan.paletteColorIds);
-      final hexCodes = paints.map((p) => p.hex).where((h) => h.isNotEmpty).toList();
+      final hexCodes =
+          paints.map((p) => p.hex).where((h) => h.isNotEmpty).toList();
 
       if (!mounted) return;
       Navigator.push(
@@ -657,7 +659,8 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
                   debugPrint('ColorPlan fallback error: ${planSnap.error}');
                   return Scaffold(
                     appBar: AppBar(title: const Text('Color Plan')),
-                    body: Center(child: Text('Error loading plan: ${planSnap.error}')),
+                    body: Center(
+                        child: Text('Error loading plan: ${planSnap.error}')),
                   );
                 }
 
@@ -670,7 +673,8 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
                         children: [
                           const CircularProgressIndicator(),
                           const SizedBox(height: 16),
-                          Text('Loading...', style: Theme.of(context).textTheme.titleMedium),
+                          Text('Loading...',
+                              style: Theme.of(context).textTheme.titleMedium),
                         ],
                       ),
                     ),
@@ -685,11 +689,14 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.search_off, size: 64, color: Colors.grey),
+                          const Icon(Icons.search_off,
+                              size: 64, color: Colors.grey),
                           const SizedBox(height: 16),
-                          Text('No color story or plan found', style: Theme.of(context).textTheme.titleLarge),
+                          Text('No color story or plan found',
+                              style: Theme.of(context).textTheme.titleLarge),
                           const SizedBox(height: 8),
-                          Text('The requested item may have been removed.', style: Theme.of(context).textTheme.bodyMedium),
+                          Text('The requested item may have been removed.',
+                              style: Theme.of(context).textTheme.bodyMedium),
                         ],
                       ),
                     ),
@@ -702,22 +709,36 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
                   body: ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
-                      Text(plan.name, style: Theme.of(context).textTheme.headlineSmall),
+                      Text(plan.name,
+                          style: Theme.of(context).textTheme.headlineSmall),
                       const SizedBox(height: 8),
-                      Text(plan.vibe, style: Theme.of(context).textTheme.bodyMedium),
+                      Text(plan.vibe,
+                          style: Theme.of(context).textTheme.bodyMedium),
                       const SizedBox(height: 16),
-                      _PlanSection(title: 'Palette', child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: plan.paletteColorIds.map((c) => Text('• $c')).toList(),
-                      )),
-                      _PlanSection(title: 'Placement', child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: plan.placementMap.map((p) => Text('${p.area}: ${p.colorId}')).toList(),
-                      )),
-                      _PlanSection(title: 'Cohesion Tips', child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: plan.cohesionTips.map((t) => Text('• $t')).toList(),
-                      )),
+                      _PlanSection(
+                          title: 'Palette',
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: plan.paletteColorIds
+                                .map((c) => Text('• $c'))
+                                .toList(),
+                          )),
+                      _PlanSection(
+                          title: 'Placement',
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: plan.placementMap
+                                .map((p) => Text('${p.area}: ${p.colorId}'))
+                                .toList(),
+                          )),
+                      _PlanSection(
+                          title: 'Cohesion Tips',
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: plan.cohesionTips
+                                .map((t) => Text('• $t'))
+                                .toList(),
+                          )),
                       const SizedBox(height: 20),
                       FilledButton.tonal(
                         onPressed: () => _applyPlanToVisualizer(plan),
@@ -805,8 +826,7 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
 
                     final service = PainterPackService();
                     final pdfBytes = await service.buildPdf(plan, skuMap);
-                    await Printing.layoutPdf(
-                        onLayout: (_) async => pdfBytes);
+                    await Printing.layoutPdf(onLayout: (_) async => pdfBytes);
                     await AnalyticsService.instance.painterPackExported(
                       service.lastPageCount,
                       plan.paletteColorIds.length,
@@ -1116,517 +1136,533 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
             body: Stack(
               children: [
                 SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children: [
-                  // Step-by-step progress indicator when generating
-                  if (story.status != 'complete')
-                    StoryGenerationProgress(
-                      story: story,
-                      onRetryCompleted: () {
-                        // The StreamBuilder will automatically update when Firestore data changes
-                        // No additional action needed here
-                      },
-                    ),
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    children: [
+                      // Step-by-step progress indicator when generating
+                      if (story.status != 'complete')
+                        StoryGenerationProgress(
+                          story: story,
+                          onRetryCompleted: () {
+                            // The StreamBuilder will automatically update when Firestore data changes
+                            // No additional action needed here
+                          },
+                        ),
 
-                  // Hero image with gradient fallback and parallax
-                  MotionAwareParallax(
-                    reduceMotion: _reduceMotion,
-                    child: Container(
-                      margin: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: GradientFallbackHero(
-                        heroImageUrl: story.heroImageUrl?.isNotEmpty == true
-                            ? story.heroImageUrl
-                            : null,
-                        fallbackSvgDataUri: story.fallbackHero,
-                        height: 280,
-                        borderRadius: BorderRadius.circular(20),
-                        wifiOnlyPref: _wifiOnlyAssets,
-                      ),
-                    ),
-                  ),
-
-                  // Narration section - show if story text exists OR if processing timed out
-                  if (story.narration.isNotEmpty ||
-                      (_processingTimedOut && story.storyText.isNotEmpty))
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .outline
-                                .withValues(alpha: 0.1)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primary
-                                      .withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  Icons.auto_stories,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  size: 24,
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Your Color Story',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                    ),
-                                    Builder(builder: (context) {
-                                      final hasStyle =
-                                          story.style.isNotEmpty == true;
-                                      final hasRoom =
-                                          story.room.isNotEmpty == true;
-                                      String subtitle;
-                                      if (hasStyle && hasRoom) {
-                                        subtitle =
-                                            'Palette based on ${story.style} style for ${story.room}.';
-                                      } else if (hasStyle) {
-                                        subtitle =
-                                            'Palette based on ${story.style} style preferences.';
-                                      } else if (hasRoom) {
-                                        subtitle =
-                                            'Palette tailored for your ${story.room}.';
-                                      } else {
-                                        subtitle =
-                                            'This palette is tailored to your style preferences.';
-                                      }
-                                      return Text(
-                                        subtitle,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.copyWith(
-                                              fontStyle: FontStyle.italic,
-                                            ),
-                                      );
-                                    }),
-                                  ],
-                                ),
+                      // Hero image with gradient fallback and parallax
+                      MotionAwareParallax(
+                        reduceMotion: _reduceMotion,
+                        child: Container(
+                          margin: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.1),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 20),
+                          child: GradientFallbackHero(
+                            heroImageUrl: story.heroImageUrl?.isNotEmpty == true
+                                ? story.heroImageUrl
+                                : null,
+                            fallbackSvgDataUri: story.fallbackHero,
+                            height: 280,
+                            borderRadius: BorderRadius.circular(20),
+                            wifiOnlyPref: _wifiOnlyAssets,
+                          ),
+                        ),
+                      ),
 
-                          // Audio controls
-                          if (story.audioUrl.isNotEmpty == true)
-                            FutureBuilder<bool>(
-                              future: NetworkGuard.isWifi(),
-                              builder: (c, wifiSnap) {
-                                final isWifi = wifiSnap.data ?? false;
-                                if (_wifiOnlyAssets && !isWifi) {
-                                  return Container(
-                                    margin: const EdgeInsets.only(bottom: 16),
-                                    child: OutlinedButton.icon(
-                                      onPressed: () async {
-                                        await _maybeLoadAudio(story.audioUrl);
-                                        await _player.play();
-                                      },
-                                      icon: const Icon(Icons.download),
-                                      label:
-                                          const Text('Load Audio (Cellular)'),
-                                      style: OutlinedButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 20, vertical: 12),
-                                      ),
+                      // Narration section - show if story text exists OR if processing timed out
+                      if (story.narration.isNotEmpty ||
+                          (_processingTimedOut && story.storyText.isNotEmpty))
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surface,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outline
+                                    .withValues(alpha: 0.1)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                  );
-                                }
-                                return Container(
-                                  margin: const EdgeInsets.only(bottom: 16),
-                                  child: FilledButton.icon(
-                                    onPressed: _loadingAudio
-                                        ? null
-                                        : () async {
-                                            if (_player.playing) {
-                                              await _player.pause();
-                                            } else {
-                                              if (_player.duration == null) {
-                                                await _maybeLoadAudio(
-                                                    story.audioUrl);
-                                              }
-                                              await _player.play();
-                                            }
-                                            setState(() {});
-                                          },
-                                    icon: _loadingAudio
-                                        ? const SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircularProgressIndicator(
-                                                strokeWidth: 2))
-                                        : Icon(_player.playing
-                                            ? Icons.pause
-                                            : Icons.play_arrow),
-                                    label: Text(_loadingAudio
-                                        ? 'Loading...'
-                                        : (_player.playing
-                                            ? 'Pause Audio'
-                                            : 'Play Audio')),
-                                    style: FilledButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 20, vertical: 12),
+                                    child: Icon(
+                                      Icons.auto_stories,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      size: 24,
                                     ),
                                   ),
-                                );
-                              },
-                            ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Your Color Story',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleLarge
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                        ),
+                                        Builder(builder: (context) {
+                                          final hasStyle =
+                                              story.style.isNotEmpty == true;
+                                          final hasRoom =
+                                              story.room.isNotEmpty == true;
+                                          String subtitle;
+                                          if (hasStyle && hasRoom) {
+                                            subtitle =
+                                                'Palette based on ${story.style} style for ${story.room}.';
+                                          } else if (hasStyle) {
+                                            subtitle =
+                                                'Palette based on ${story.style} style preferences.';
+                                          } else if (hasRoom) {
+                                            subtitle =
+                                                'Palette tailored for your ${story.room}.';
+                                          } else {
+                                            subtitle =
+                                                'This palette is tailored to your style preferences.';
+                                          }
+                                          return Text(
+                                            subtitle,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium
+                                                ?.copyWith(
+                                                  fontStyle: FontStyle.italic,
+                                                ),
+                                          );
+                                        }),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
 
-                          // Story text (use narration if available, otherwise raw story text)
-                          Text(
-                            story.narration.isNotEmpty
-                                ? story.narration
-                                : story.storyText,
-                            style:
-                                Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              // Audio controls
+                              if (story.audioUrl.isNotEmpty == true)
+                                FutureBuilder<bool>(
+                                  future: NetworkGuard.isWifi(),
+                                  builder: (c, wifiSnap) {
+                                    final isWifi = wifiSnap.data ?? false;
+                                    if (_wifiOnlyAssets && !isWifi) {
+                                      return Container(
+                                        margin:
+                                            const EdgeInsets.only(bottom: 16),
+                                        child: OutlinedButton.icon(
+                                          onPressed: () async {
+                                            await _maybeLoadAudio(
+                                                story.audioUrl);
+                                            await _player.play();
+                                          },
+                                          icon: const Icon(Icons.download),
+                                          label: const Text(
+                                              'Load Audio (Cellular)'),
+                                          style: OutlinedButton.styleFrom(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 20, vertical: 12),
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                    return Container(
+                                      margin: const EdgeInsets.only(bottom: 16),
+                                      child: FilledButton.icon(
+                                        onPressed: _loadingAudio
+                                            ? null
+                                            : () async {
+                                                if (_player.playing) {
+                                                  await _player.pause();
+                                                } else {
+                                                  if (_player.duration ==
+                                                      null) {
+                                                    await _maybeLoadAudio(
+                                                        story.audioUrl);
+                                                  }
+                                                  await _player.play();
+                                                }
+                                                setState(() {});
+                                              },
+                                        icon: _loadingAudio
+                                            ? const SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                        strokeWidth: 2))
+                                            : Icon(_player.playing
+                                                ? Icons.pause
+                                                : Icons.play_arrow),
+                                        label: Text(_loadingAudio
+                                            ? 'Loading...'
+                                            : (_player.playing
+                                                ? 'Pause Audio'
+                                                : 'Play Audio')),
+                                        style: FilledButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 20, vertical: 12),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+
+                              // Story text (use narration if available, otherwise raw story text)
+                              Text(
+                                story.narration.isNotEmpty
+                                    ? story.narration
+                                    : story.storyText,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.copyWith(
                                       height: 1.6,
                                       fontSize: 17,
                                     ),
-                          ),
-
-                          // Show transcript toggle
-                          const SizedBox(height: 16),
-                          TextButton.icon(
-                            onPressed: () => setState(
-                                () => _showTranscript = !_showTranscript),
-                            icon: Icon(_showTranscript
-                                ? Icons.visibility_off
-                                : Icons.subtitles),
-                            label: Text(_showTranscript
-                                ? 'Hide Full Text'
-                                : 'Show Full Text'),
-                            style: TextButton.styleFrom(
-                              padding: EdgeInsets.zero,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                  // Usage guide section
-                  if (story.usageGuide.isNotEmpty)
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .outline
-                                .withValues(alpha: 0.1)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .secondary
-                                      .withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  Icons.palette,
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                  size: 24,
-                                ),
                               ),
-                              const SizedBox(width: 16),
-                              Text(
-                                'Paint Application Guide',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                    ),
+
+                              // Show transcript toggle
+                              const SizedBox(height: 16),
+                              TextButton.icon(
+                                onPressed: () => setState(
+                                    () => _showTranscript = !_showTranscript),
+                                icon: Icon(_showTranscript
+                                    ? Icons.visibility_off
+                                    : Icons.subtitles),
+                                label: Text(_showTranscript
+                                    ? 'Hide Full Text'
+                                    : 'Show Full Text'),
+                                style: TextButton.styleFrom(
+                                  padding: EdgeInsets.zero,
+                                ),
                               ),
                             ],
-                          ),
-                          const SizedBox(height: 16),
-                          ...story.usageGuide.map((u) {
-                            final m = {
-                              'role': u.role,
-                              'hex': u.hex,
-                              'name': u.name,
-                              'brandName': u.brandName,
-                              'code': u.code,
-                              'surface': u.surface,
-                              'finishRecommendation': u.finishRecommendation,
-                              'sheen': u.sheen,
-                              'howToUse': u.howToUse
-                            };
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: UsageGuideCard(item: m),
-                            );
-                          }),
-                        ],
-                      ),
-                    ),
-                  // REGION: CODEX-ADD color-plan-detail-screen
-                  if (_plan != null) ...[
-                    _buildPlacementMapSection(_plan!),
-                    _buildCohesionTipsSection(_plan!),
-                    _buildAccentRulesSection(_plan!),
-                    _buildDoDontSection(_plan!),
-                    _buildSampleSequenceSection(_plan!),
-                    _buildFlowHealthSection(),
-                    _buildRoomPlaybookSection(_plan!),
-                  ],
-                  // END REGION: CODEX-ADD color-plan-detail-screen
-                  // Contrast Coaching section
-                  if (story.status == 'complete' && story.usageGuide.isNotEmpty)
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .outline
-                                .withValues(alpha: 0.1)),
-                      ),
-                      child: ContrastCoachingSection(
-                        story: story,
-                        onApplySwap: _applyContrastSwap,
-                      ),
-                    ),
-
-                  // Roll Variations section
-                  if (story.status == 'complete')
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .outline
-                                .withValues(alpha: 0.1)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .tertiary
-                                      .withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  Icons.casino,
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                  size: 24,
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Text(
-                                'Roll Variations',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-
-                          // Preset buttons
-                          Row(
-                            children: _variationPresets.map((preset) {
-                              final presetId = preset['id']!;
-                              final label = preset['label']!;
-                              final emphasis = preset['emphasis']!;
-                              final isLoading =
-                                  _variantLoading[presetId] ?? false;
-                              final hasError = _variantErrors[presetId] != null;
-
-                              return Expanded(
-                                child: Padding(
-                                  padding: EdgeInsets.only(
-                                    right: preset == _variationPresets.last
-                                        ? 0
-                                        : 8,
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      OutlinedButton(
-                                        onPressed: isLoading
-                                            ? null
-                                            : () => _generateVariant(
-                                                presetId, emphasis),
-                                        style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 12),
-                                          side: BorderSide(
-                                            color: hasError
-                                                ? Colors.red
-                                                : Theme.of(context)
-                                                    .colorScheme
-                                                    .outline,
-                                          ),
-                                        ),
-                                        child: isLoading
-                                            ? const SizedBox(
-                                                width: 16,
-                                                height: 16,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                        strokeWidth: 2),
-                                              )
-                                            : Text(
-                                                label,
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: hasError
-                                                      ? Colors.red
-                                                      : null,
-                                                ),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                      ),
-                                      if (hasError)
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 4),
-                                          child: const Icon(
-                                            Icons.error_outline,
-                                            size: 16,
-                                            color: Colors.red,
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-
-                          // Variants carousel
-                          if (_variants.isNotEmpty) ...[
-                            const SizedBox(height: 16),
-                            SizedBox(
-                              height: 120,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: _variants.length,
-                                itemBuilder: (context, index) {
-                                  final variant = _variants[index];
-                                  return _buildVariantCard(variant, index);
-                                },
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-
-                  // Action buttons
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-                    child: Column(
-                      children: [
-                        // Primary action
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton.icon(
-                            onPressed: () => _applyStoryToVisualizer(story),
-                            icon: const Icon(Icons.auto_fix_high),
-                            label: const Text('Visualize Palette'),
-                            style: FilledButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                            ),
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        // Secondary actions
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () => _openRemixWizard(story),
-                                icon: const Icon(Icons.tune),
-                                label: const Text('Remix'),
-                                style: OutlinedButton.styleFrom(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 12),
-                                ),
-                              ),
-                            ),
-                            if (story.access != 'private') ...[
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: OutlinedButton.icon(
-                                  onPressed: () => _shareStory(story),
-                                  icon: const Icon(Icons.share),
-                                  label: const Text('Share'),
-                                  style: OutlinedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 12),
+
+                      // Usage guide section
+                      if (story.usageGuide.isNotEmpty)
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surface,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outline
+                                    .withValues(alpha: 0.1)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary
+                                          .withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Icon(
+                                      Icons.palette,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
+                                      size: 24,
+                                    ),
                                   ),
-                                ),
+                                  const SizedBox(width: 16),
+                                  Text(
+                                    'Paint Application Guide',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                  ),
+                                ],
                               ),
+                              const SizedBox(height: 16),
+                              ...story.usageGuide.map((u) {
+                                final m = {
+                                  'role': u.role,
+                                  'hex': u.hex,
+                                  'name': u.name,
+                                  'brandName': u.brandName,
+                                  'code': u.code,
+                                  'surface': u.surface,
+                                  'finishRecommendation':
+                                      u.finishRecommendation,
+                                  'sheen': u.sheen,
+                                  'howToUse': u.howToUse
+                                };
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: UsageGuideCard(item: m),
+                                );
+                              }),
                             ],
-                          ],
+                          ),
                         ),
+                      // REGION: CODEX-ADD color-plan-detail-screen
+                      if (_plan != null) ...[
+                        _buildPlacementMapSection(_plan!),
+                        _buildCohesionTipsSection(_plan!),
+                        _buildAccentRulesSection(_plan!),
+                        _buildDoDontSection(_plan!),
+                        _buildSampleSequenceSection(_plan!),
+                        _buildFlowHealthSection(),
+                        _buildRoomPlaybookSection(_plan!),
                       ],
-                    ),
+                      // END REGION: CODEX-ADD color-plan-detail-screen
+                      // Contrast Coaching section
+                      if (story.status == 'complete' &&
+                          story.usageGuide.isNotEmpty)
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surface,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outline
+                                    .withValues(alpha: 0.1)),
+                          ),
+                          child: ContrastCoachingSection(
+                            story: story,
+                            onApplySwap: _applyContrastSwap,
+                          ),
+                        ),
+
+                      // Roll Variations section
+                      if (story.status == 'complete')
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surface,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outline
+                                    .withValues(alpha: 0.1)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary
+                                          .withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Icon(
+                                      Icons.casino,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary,
+                                      size: 24,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Text(
+                                    'Roll Variations',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+
+                              // Preset buttons
+                              Row(
+                                children: _variationPresets.map((preset) {
+                                  final presetId = preset['id']!;
+                                  final label = preset['label']!;
+                                  final emphasis = preset['emphasis']!;
+                                  final isLoading =
+                                      _variantLoading[presetId] ?? false;
+                                  final hasError =
+                                      _variantErrors[presetId] != null;
+
+                                  return Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                        right: preset == _variationPresets.last
+                                            ? 0
+                                            : 8,
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          OutlinedButton(
+                                            onPressed: isLoading
+                                                ? null
+                                                : () => _generateVariant(
+                                                    presetId, emphasis),
+                                            style: OutlinedButton.styleFrom(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 12),
+                                              side: BorderSide(
+                                                color: hasError
+                                                    ? Colors.red
+                                                    : Theme.of(context)
+                                                        .colorScheme
+                                                        .outline,
+                                              ),
+                                            ),
+                                            child: isLoading
+                                                ? const SizedBox(
+                                                    width: 16,
+                                                    height: 16,
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                            strokeWidth: 2),
+                                                  )
+                                                : Text(
+                                                    label,
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: hasError
+                                                          ? Colors.red
+                                                          : null,
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                          ),
+                                          if (hasError)
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.only(top: 4),
+                                              child: const Icon(
+                                                Icons.error_outline,
+                                                size: 16,
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+
+                              // Variants carousel
+                              if (_variants.isNotEmpty) ...[
+                                const SizedBox(height: 16),
+                                SizedBox(
+                                  height: 120,
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: _variants.length,
+                                    itemBuilder: (context, index) {
+                                      final variant = _variants[index];
+                                      return _buildVariantCard(variant, index);
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+
+                      // Action buttons
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+                        child: Column(
+                          children: [
+                            // Primary action
+                            SizedBox(
+                              width: double.infinity,
+                              child: FilledButton.icon(
+                                onPressed: () => _applyStoryToVisualizer(story),
+                                icon: const Icon(Icons.auto_fix_high),
+                                label: const Text('Visualize Palette'),
+                                style: FilledButton.styleFrom(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            // Secondary actions
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    onPressed: () => _openRemixWizard(story),
+                                    icon: const Icon(Icons.tune),
+                                    label: const Text('Remix'),
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 12),
+                                    ),
+                                  ),
+                                ),
+                                if (story.access != 'private') ...[
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      onPressed: () => _shareStory(story),
+                                      icon: const Icon(Icons.share),
+                                      label: const Text('Share'),
+                                      style: OutlinedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 12),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
                 if (FeatureFlags.instance.isEnabled(FeatureFlags.viaMvp))
                   ViaOverlay(
                     contextLabel: 'color_plan_detail',
@@ -1659,8 +1695,7 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color:
-              Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
         ),
       ),
       child: Column(
@@ -1702,9 +1737,7 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
     if (plan.accentRules.isEmpty) return const SizedBox.shrink();
     return _section(
       'Accent Rules',
-      plan.accentRules
-          .map((a) => Text('${a.context}: ${a.guidance}'))
-          .toList(),
+      plan.accentRules.map((a) => Text('${a.context}: ${a.guidance}')).toList(),
     );
   }
 
@@ -1713,8 +1746,7 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
     return _section(
       'Do & Don\'t',
       plan.doDont
-          .map((d) =>
-              Text('Do: ${d.doText}\nDon\'t: ${d.dontText}'))
+          .map((d) => Text('Do: ${d.doText}\nDon\'t: ${d.dontText}'))
           .toList(),
     );
   }
@@ -1730,8 +1762,8 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
   Widget _buildFlowHealthSection() {
     if (widget.projectId == null) return const SizedBox.shrink();
     if (_flowWarnings.isEmpty) {
-      return _section('Flow Health',
-          [const Text('No adjacency issues detected.')]);
+      return _section(
+          'Flow Health', [const Text('No adjacency issues detected.')]);
     }
     return _section(
       'Flow Health',
@@ -1797,13 +1829,16 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
                         final dpr = MediaQuery.of(context).devicePixelRatio;
                         // Approximate the displayed size using container width
                         // If you know exact dimensions, pass them instead.
-                        final int memW = (MediaQuery.of(context).size.width * dpr).round();
+                        final int memW =
+                            (MediaQuery.of(context).size.width * dpr).round();
                         return CachedNetworkImage(
                           imageUrl: variant.heroImageUrl!,
                           fit: BoxFit.cover,
                           memCacheWidth: memW,
-                          placeholder: (_, __) => _buildGradientFallback(variant),
-                          errorWidget: (_, __, ___) => _buildGradientFallback(variant),
+                          placeholder: (_, __) =>
+                              _buildGradientFallback(variant),
+                          errorWidget: (_, __, ___) =>
+                              _buildGradientFallback(variant),
                         );
                       })
                     : _buildGradientFallback(variant),
@@ -2135,8 +2170,7 @@ class _ColorPlanDetailScreenState extends State<ColorPlanDetailScreen> {
         contextInfo =
             '\n\n${story.style.toUpperCase()} ${story.room.toUpperCase()}';
       }
-      final shareText =
-          '$shareTitle$contextInfo\n\n$excerpt';
+      final shareText = '$shareTitle$contextInfo\n\n$excerpt';
 
       // Share the story (share_plus ^11 uses SharePlus.instance with ShareParams)
       await SharePlus.instance.share(

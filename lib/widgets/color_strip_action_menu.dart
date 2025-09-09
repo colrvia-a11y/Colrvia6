@@ -39,7 +39,7 @@ class _ColorStripActionMenuState extends State<ColorStripActionMenu>
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    
+
     _scaleAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -47,7 +47,7 @@ class _ColorStripActionMenuState extends State<ColorStripActionMenu>
       parent: _controller,
       curve: Curves.elasticOut,
     ));
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -101,7 +101,10 @@ class _ColorStripActionMenuState extends State<ColorStripActionMenu>
                               Container(
                                 height: 60,
                                 decoration: BoxDecoration(
-                                  color: Color(int.parse(widget.paint.hex.replaceAll('#', ''), radix: 16) | 0xFF000000),
+                                  color: Color(int.parse(
+                                          widget.paint.hex.replaceAll('#', ''),
+                                          radix: 16) |
+                                      0xFF000000),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Center(
@@ -117,7 +120,7 @@ class _ColorStripActionMenuState extends State<ColorStripActionMenu>
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              
+
                               // Action buttons in a grid
                               Wrap(
                                 spacing: 8,
@@ -171,7 +174,7 @@ class _ColorStripActionMenuState extends State<ColorStripActionMenu>
                                     ),
                                 ],
                               ),
-                              
+
                               const SizedBox(height: 12),
                               TextButton(
                                 onPressed: _dismissWithAnimation,
@@ -193,7 +196,8 @@ class _ColorStripActionMenuState extends State<ColorStripActionMenu>
   }
 
   Color _getTextColor() {
-    final colorValue = int.parse(widget.paint.hex.replaceAll('#', ''), radix: 16);
+    final colorValue =
+        int.parse(widget.paint.hex.replaceAll('#', ''), radix: 16);
     final color = Color(0xFF000000 | colorValue);
     final brightness = ThemeData.estimateBrightnessForColor(color);
     return brightness == Brightness.dark ? Colors.white : Colors.black;
@@ -216,7 +220,7 @@ class _ActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isDestructive ? Colors.red : Theme.of(context).primaryColor;
-    
+
     return SizedBox(
       width: 80,
       child: Material(

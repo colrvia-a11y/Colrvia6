@@ -47,7 +47,8 @@ class SchemaInterviewCompiler {
 
       // Visibility rules from def.allOf
       final allOf = (def['allOf'] as List?)?.cast<dynamic>() ?? const [];
-      final visRules = _extractVisibilityRules(allOf, scopePrefix: 'roomSpecific.');
+      final visRules =
+          _extractVisibilityRules(allOf, scopePrefix: 'roomSpecific.');
       _applyVisibility(out, visRules);
     }
 
@@ -77,8 +78,10 @@ class SchemaInterviewCompiler {
       final isRequired = required.contains(key);
 
       if (type == 'object') {
-        final childProps = (schema['properties'] as Map?)?.cast<String, dynamic>() ?? {};
-        final childReq = (schema['required'] as List?)?.cast<String>() ?? const [];
+        final childProps =
+            (schema['properties'] as Map?)?.cast<String, dynamic>() ?? {};
+        final childReq =
+            (schema['required'] as List?)?.cast<String>() ?? const [];
         _compileObject('$id.', childProps, childReq, out);
         continue;
       }
@@ -92,7 +95,9 @@ class SchemaInterviewCompiler {
             help: desc,
             type: InterviewPromptType.singleSelect,
             required: isRequired,
-            options: enums.map((e) => InterviewPromptOption(e, _labelize(e))).toList(),
+            options: enums
+                .map((e) => InterviewPromptOption(e, _labelize(e)))
+                .toList(),
           ));
         } else {
           out.add(InterviewPrompt(
@@ -138,7 +143,9 @@ class SchemaInterviewCompiler {
             required: isRequired,
             minItems: minItems,
             maxItems: maxItems,
-            options: itemEnums.map((e) => InterviewPromptOption(e, _labelize(e))).toList(),
+            options: itemEnums
+                .map((e) => InterviewPromptOption(e, _labelize(e)))
+                .toList(),
           ));
         } else {
           // Free-form list captured into chips; UI can render a text field → "Add" to chips.
@@ -162,7 +169,8 @@ class SchemaInterviewCompiler {
   // --- Visibility extraction from allOf if/then blocks ---
 
   /// Returns list of (targetId, dependsOnId, constValue)
-  List<_VisRule> _extractVisibilityRules(List<dynamic> allOf, {String scopePrefix = ''}) {
+  List<_VisRule> _extractVisibilityRules(List<dynamic> allOf,
+      {String scopePrefix = ''}) {
     final rules = <_VisRule>[];
     for (final raw in allOf) {
       final block = (raw as Map?)?.cast<String, dynamic>() ?? const {};
@@ -185,14 +193,16 @@ class SchemaInterviewCompiler {
         final condVal = c['const'];
         for (final t in requiredTargets) {
           final targetId = scopePrefix + t;
-          rules.add(_VisRule(targetId: targetId, dependsOn: condPath, equalsValue: condVal));
+          rules.add(_VisRule(
+              targetId: targetId, dependsOn: condPath, equalsValue: condVal));
         }
       }
     }
     return rules;
   }
 
-  void _collectConstConditions(Map<String, dynamic> node, String prefix, List<Map<String, dynamic>> out) {
+  void _collectConstConditions(Map<String, dynamic> node, String prefix,
+      List<Map<String, dynamic>> out) {
     if (node.containsKey('const')) {
       out.add({'path': prefix, 'const': node['const']});
       return;
@@ -205,7 +215,8 @@ class SchemaInterviewCompiler {
     }
   }
 
-  void _collectRequiredTargets(Map<String, dynamic> node, String prefix, List<String> out) {
+  void _collectRequiredTargets(
+      Map<String, dynamic> node, String prefix, List<String> out) {
     final req = (node['required'] as List?)?.cast<String>() ?? const [];
     for (final r in req) {
       out.add(prefix.isEmpty ? r : '$prefix.$r');
@@ -232,6 +243,7 @@ class SchemaInterviewCompiler {
         }
         return hit;
       }
+
       // Replace with a new prompt instance carrying visibleIf
       byId[r.targetId] = InterviewPrompt(
         id: p.id,
@@ -259,7 +271,10 @@ class _VisRule {
   final String targetId;
   final String dependsOn;
   final dynamic equalsValue;
-  _VisRule({required this.targetId, required this.dependsOn, required this.equalsValue});
+  _VisRule(
+      {required this.targetId,
+      required this.dependsOn,
+      required this.equalsValue});
 }
 
 String _labelize(String v) {
@@ -270,4 +285,3 @@ String _labelize(String v) {
       .replaceAll('kinda', 'kind of')
       .trim();
 }
-

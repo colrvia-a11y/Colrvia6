@@ -16,4 +16,3 @@ Future<void> configureAudioSessionForVoiceChat() async {
     // Ignore if platform side is not implemented; mic capture will still work.
   }
 }
-

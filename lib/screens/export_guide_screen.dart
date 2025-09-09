@@ -24,7 +24,8 @@ class _ExportGuideScreenState extends State<ExportGuideScreen> {
   void initState() {
     super.initState();
     AnalyticsService.instance.logEvent('journey_step_view', {
-      'step_id': JourneyService.instance.state.value?.currentStepId ?? 'guide.export',
+      'step_id':
+          JourneyService.instance.state.value?.currentStepId ?? 'guide.export',
     });
     _load();
 
@@ -34,7 +35,8 @@ class _ExportGuideScreenState extends State<ExportGuideScreen> {
 
   Future<void> _load() async {
     try {
-      final url = await DeliverableService.instance.exportGuide(widget.projectId);
+      final url =
+          await DeliverableService.instance.exportGuide(widget.projectId);
       if (mounted) {
         setState(() {
           _url = url;

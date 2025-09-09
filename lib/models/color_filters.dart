@@ -30,11 +30,19 @@ class ColorFilters {
     Object? brandName = _unset,
   }) {
     return ColorFilters(
-      colorFamily: identical(colorFamily, _unset) ? this.colorFamily : colorFamily as String?,
-      undertone: identical(undertone, _unset) ? this.undertone : undertone as String?,
-      temperature: identical(temperature, _unset) ? this.temperature : temperature as String?,
-      lrvRange: identical(lrvRange, _unset) ? this.lrvRange : lrvRange as RangeValues?,
-      brandName: identical(brandName, _unset) ? this.brandName : brandName as String?,
+      colorFamily: identical(colorFamily, _unset)
+          ? this.colorFamily
+          : colorFamily as String?,
+      undertone:
+          identical(undertone, _unset) ? this.undertone : undertone as String?,
+      temperature: identical(temperature, _unset)
+          ? this.temperature
+          : temperature as String?,
+      lrvRange: identical(lrvRange, _unset)
+          ? this.lrvRange
+          : lrvRange as RangeValues?,
+      brandName:
+          identical(brandName, _unset) ? this.brandName : brandName as String?,
     );
   }
 
@@ -46,5 +54,6 @@ class ColorFilters {
       brandName == null;
 
   @override
-  String toString() => 'ColorFilters(colorFamily: $colorFamily, undertone: $undertone, temperature: $temperature, lrvRange: $lrvRange, brandName: $brandName)';
+  String toString() =>
+      'ColorFilters(colorFamily: $colorFamily, undertone: $undertone, temperature: $temperature, lrvRange: $lrvRange, brandName: $brandName)';
 }

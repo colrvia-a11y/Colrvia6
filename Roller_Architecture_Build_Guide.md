@@ -124,13 +124,16 @@ RollerController (AsyncNotifier<RollerState>)
    │ orchestrates state, prefetch, alternates, filters, favorites
    ▼
 PaletteService (facade)
-   │ marshals args to isolate
-   ▼
+  │ marshals args to isolate
+  ▼
 Isolate entrypoints (rollPipelineInIsolate / alternatesForSlotInIsolate)
-   │ call PaletteGenerator + ThemeEngine
+  │ call PaletteGenerator + ThemeEngine
    ▼
 Results (List<Paint>) → Controller → RollerState → UI
 ```
+
+Isolate integration: extends _RollArgs to optionally include `themeSpec` and `modeIndex`.
+HarmonyMode and ThemeSpec combine: ThemeSpec prefilters & scores; HarmonyMode constructs.
 
 **Providers for DI:**
 - `paintRepositoryProvider : Provider<PaintRepository>`

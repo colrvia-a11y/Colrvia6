@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart' show compute;
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
 import 'package:color_canvas/roller_theme/theme_spec.dart';
+import 'package:color_canvas/utils/palette_generator.dart';
 import 'package:color_canvas/utils/palette_isolate.dart' as isolate;
 
 class PaletteService {
@@ -14,6 +15,7 @@ class PaletteService {
     double? themeThreshold,
     int attempts = 6,
     List<Paint>? availableBrandOnly,
+    HarmonyMode mode = HarmonyMode.colrvia,
   }) async {
     final isThemed = themeSpec != null;
     final threshold = isThemed ? (themeThreshold ?? 0.6) : themeThreshold;
@@ -21,8 +23,11 @@ class PaletteService {
 
     final args = {
       'available': [for (final p in available) (p.toJson()..['id'] = p.id)],
-      'anchors': [for (final p in anchors) (p == null ? null : (p.toJson()..['id'] = p.id))],
-      'modeIndex': 0,
+      'anchors': [
+        for (final p in anchors)
+          (p == null ? null : (p.toJson()..['id'] = p.id))
+      ],
+      'modeIndex': mode.index, // NEW
       'diversify': diversifyBrands,
       'slotLrvHints': slotLrvHints,
       'fixedUndertones': fixedUndertones,
@@ -32,7 +37,8 @@ class PaletteService {
       // Provide a wider brand-only pool for auto-relax in the isolate.
       // Callers may pass a distinct brand-only pool via availableBrandOnly; fallback to 'available' otherwise.
       'availableBrandOnly': [
-        for (final p in (availableBrandOnly ?? available)) (p.toJson()..['id'] = p.id)
+        for (final p in (availableBrandOnly ?? available))
+          (p.toJson()..['id'] = p.id)
       ],
     };
     final result = await compute(isolate.rollPipelineInIsolate, args);
@@ -53,7 +59,10 @@ class PaletteService {
   }) async {
     final args = {
       'available': [for (final p in available) (p.toJson()..['id'] = p.id)],
-      'anchors': [for (final p in anchors) (p == null ? null : (p.toJson()..['id'] = p.id))],
+      'anchors': [
+        for (final p in anchors)
+          (p == null ? null : (p.toJson()..['id'] = p.id))
+      ],
       'slotIndex': slotIndex,
       'diversify': diversifyBrands,
       'slotLrvHints': slotLrvHints,

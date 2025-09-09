@@ -15,4 +15,3 @@ class ColorService {
     return color;
   }
 }
-

@@ -9,7 +9,9 @@ double _lin(double c) =>
     c <= 0.04045 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4).toDouble();
 
 double luminance(Color c) {
-  final r = _lin(((c.r * 255.0).round() & 0xff) / 255), g = _lin(((c.g * 255.0).round() & 0xff) / 255), b = _lin(((c.b * 255.0).round() & 0xff) / 255);
+  final r = _lin(((c.r * 255.0).round() & 0xff) / 255),
+      g = _lin(((c.g * 255.0).round() & 0xff) / 255),
+      b = _lin(((c.b * 255.0).round() & 0xff) / 255);
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
@@ -24,19 +26,25 @@ Color bestTextOn(Color bg) =>
 
 // Approximate simulations
 Color simulateProtanopia(Color c) {
-  final r = ((c.r * 255.0).round() & 0xff).toDouble(), g = ((c.g * 255.0).round() & 0xff).toDouble(), b = ((c.b * 255.0).round() & 0xff).toDouble();
+  final r = ((c.r * 255.0).round() & 0xff).toDouble(),
+      g = ((c.g * 255.0).round() & 0xff).toDouble(),
+      b = ((c.b * 255.0).round() & 0xff).toDouble();
   final nr = 0.567 * r + 0.433 * g;
   final ng = 0.558 * r + 0.442 * g;
   final nb = 0.0 * r + 0.242 * g + 0.758 * b;
-  return Color.fromARGB(((c.a * 255.0).round() & 0xff), nr.toInt(), ng.toInt(), nb.toInt());
+  return Color.fromARGB(
+      ((c.a * 255.0).round() & 0xff), nr.toInt(), ng.toInt(), nb.toInt());
 }
 
 Color simulateDeuteranopia(Color c) {
-  final r = ((c.r * 255.0).round() & 0xff).toDouble(), g = ((c.g * 255.0).round() & 0xff).toDouble(), b = ((c.b * 255.0).round() & 0xff).toDouble();
+  final r = ((c.r * 255.0).round() & 0xff).toDouble(),
+      g = ((c.g * 255.0).round() & 0xff).toDouble(),
+      b = ((c.b * 255.0).round() & 0xff).toDouble();
   final nr = 0.625 * r + 0.375 * g;
   final ng = 0.7 * r + 0.3 * g;
   final nb = 0.0 * r + 0.3 * g + 0.7 * b;
-  return Color.fromARGB(((c.a * 255.0).round() & 0xff), nr.toInt(), ng.toInt(), nb.toInt());
+  return Color.fromARGB(
+      ((c.a * 255.0).round() & 0xff), nr.toInt(), ng.toInt(), nb.toInt());
 }
 
 // Additional utility class for compatibility with existing code
@@ -131,7 +139,8 @@ class ColorUtils {
     return [l, a, b];
   }
 
-  static Paint? nearestToTargetLab(List<double> targetLab, List<Paint> candidates) {
+  static Paint? nearestToTargetLab(
+      List<double> targetLab, List<Paint> candidates) {
     Paint? best;
     double bestDe = double.infinity;
     for (final p in candidates) {
@@ -240,8 +249,8 @@ class ColorUtils {
     final sw = Stopwatch()..start();
     final result = await AsyncCompute.run(_computeLrvList, hexes);
     sw.stop();
-    AnalyticsService.instance
-        .logEvent('perf_isolate_used', {'task': 'batch_lrv', 'ms': sw.elapsedMilliseconds});
+    AnalyticsService.instance.logEvent('perf_isolate_used',
+        {'task': 'batch_lrv', 'ms': sw.elapsedMilliseconds});
     return result;
   }
 
@@ -253,7 +262,9 @@ class ColorUtils {
     final count = min(a.length, b.length);
     final flat = <int>[];
     for (var i = 0; i < count; i++) {
-      flat..add(a[i].toARGB32())..add(b[i].toARGB32());
+      flat
+        ..add(a[i].toARGB32())
+        ..add(b[i].toARGB32());
     }
     if (count <= threshold) {
       return _contrastList(flat);
@@ -261,8 +272,8 @@ class ColorUtils {
     final sw = Stopwatch()..start();
     final result = await AsyncCompute.run(_contrastList, flat);
     sw.stop();
-    AnalyticsService.instance.logEvent(
-        'perf_isolate_used', {'task': 'batch_contrast', 'ms': sw.elapsedMilliseconds});
+    AnalyticsService.instance.logEvent('perf_isolate_used',
+        {'task': 'batch_contrast', 'ms': sw.elapsedMilliseconds});
     return result;
   }
 
@@ -299,36 +310,40 @@ class ColorUtils {
   }
 
   // Get color temperature description
-    static String getColorTemperature(Color color) {
-      final rgb = [((color.r * 255.0).round() & 0xff), ((color.g * 255.0).round() & 0xff), ((color.b * 255.0).round() & 0xff)];
-      final r = rgb[0];
-      final g = rgb[1];
-      final b = rgb[2];
+  static String getColorTemperature(Color color) {
+    final rgb = [
+      ((color.r * 255.0).round() & 0xff),
+      ((color.g * 255.0).round() & 0xff),
+      ((color.b * 255.0).round() & 0xff)
+    ];
+    final r = rgb[0];
+    final g = rgb[1];
+    final b = rgb[2];
 
     // Simple temperature analysis
-      if ((r + g) > (b * 1.3)) {
-        return 'Warm';
-      } else if ((g + b) > (r * 1.3)) {
-        return 'Cool';
-      } else {
-        return 'Neutral';
-      }
-    }
-
-    /// Placeholder for future image-based undertone inference.
-    /// Currently unimplemented and always returns `null`.
-    ///
-    /// TODO: Implement real undertone analysis from an image.
-    /// This would require:
-    /// - Image processing to extract dominant colors
-    /// - Color analysis algorithms to determine undertones
-    /// - Possibly machine learning models for accurate undertone detection
-    /// - Integration with image processing libraries (e.g., image package)
-    static Future<String?> inferUndertoneFromImage(dynamic image) async {
-      // TODO: Implement real undertone analysis from an image.
-      return null;
+    if ((r + g) > (b * 1.3)) {
+      return 'Warm';
+    } else if ((g + b) > (r * 1.3)) {
+      return 'Cool';
+    } else {
+      return 'Neutral';
     }
   }
+
+  /// Placeholder for future image-based undertone inference.
+  /// Currently unimplemented and always returns `null`.
+  ///
+  /// TODO: Implement real undertone analysis from an image.
+  /// This would require:
+  /// - Image processing to extract dominant colors
+  /// - Color analysis algorithms to determine undertones
+  /// - Possibly machine learning models for accurate undertone detection
+  /// - Integration with image processing libraries (e.g., image package)
+  static Future<String?> inferUndertoneFromImage(dynamic image) async {
+    // TODO: Implement real undertone analysis from an image.
+    return null;
+  }
+}
 
 // LRV helper function for paint data
 double lrvForPaint({double? paintLrv, required String hex}) {

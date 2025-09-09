@@ -34,8 +34,7 @@ class EnumMapper {
     if (prompt.options.isEmpty) return const [];
     final parts = utterance
         .replaceAll(RegExp(r"[/&]|plus"), ',')
-        .split(RegExp(r"\s*,\s*|\s+and\s+|\s+or\s+",
-            caseSensitive: false))
+        .split(RegExp(r"\s*,\s*|\s+and\s+|\s+or\s+", caseSensitive: false))
         .map(_norm)
         .where((s) => s.isNotEmpty)
         .toList();
@@ -92,8 +91,11 @@ class EnumMapper {
     return out;
   }
 
-  String _norm(String s) =>
-      s.toLowerCase().replaceAll(RegExp(r"[^a-z0-9+\s]"), ' ').replaceAll(RegExp(r"\s+"), ' ').trim();
+  String _norm(String s) => s
+      .toLowerCase()
+      .replaceAll(RegExp(r"[^a-z0-9+\s]"), ' ')
+      .replaceAll(RegExp(r"\s+"), ' ')
+      .trim();
 
   Set<String> _expandCamel(String v) {
     var s = v.replaceAll('_', ' ').replaceAll('+', ' plus ');
@@ -113,11 +115,22 @@ class EnumMapper {
       case 'veryBright':
         return {'very bright', 'tons of light', 'super bright', 'flooded'};
       case 'kindaBright':
-        return {'pretty bright', 'fairly bright', 'some light', 'medium bright'};
+        return {
+          'pretty bright',
+          'fairly bright',
+          'some light',
+          'medium bright'
+        };
       case 'dim':
         return {'dim', 'dark', 'little light', 'not much light'};
       case 'cozyYellow_2700K':
-        return {'warm bulbs', 'yellow light', '2700', 'cozy', 'soft white warm'};
+        return {
+          'warm bulbs',
+          'yellow light',
+          '2700',
+          'cozy',
+          'soft white warm'
+        };
       case 'neutral_3000_3500K':
         return {'neutral', '3000', '3500', 'soft white'};
       case 'brightWhite_4000KPlus':

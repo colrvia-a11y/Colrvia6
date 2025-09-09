@@ -3,7 +3,8 @@
 // If your ProjectService already persists history, you can
 // replace these helpers with calls into that implementation.
 
-final List<Map<String, dynamic>> _variantHistoryInMemory = <Map<String, dynamic>>[];
+final List<Map<String, dynamic>> _variantHistoryInMemory =
+    <Map<String, dynamic>>[];
 
 Future<void> addPaletteHistory(String kind, List<String> palette) async {
   // Append to in-memory log; replace with real persistence as needed.
@@ -14,5 +15,5 @@ Future<void> addPaletteHistory(String kind, List<String> palette) async {
   });
 }
 
-List<Map<String, dynamic>> getVariantHistory() => List.unmodifiable(_variantHistoryInMemory);
-
+List<Map<String, dynamic>> getVariantHistory() =>
+    List.unmodifiable(_variantHistoryInMemory);

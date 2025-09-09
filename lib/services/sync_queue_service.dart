@@ -37,8 +37,7 @@ class SyncQueueService {
       'payload': payload,
       'retries': 0,
     });
-    AnalyticsService.instance
-        .logEvent('offline_enqueued', {'opType': opType});
+    AnalyticsService.instance.logEvent('offline_enqueued', {'opType': opType});
     final context = MyApp.navigatorKey.currentContext;
     if (context != null && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -66,8 +65,8 @@ class SyncQueueService {
           'retries': retries,
           'lastError': err.toString(),
         });
-        AnalyticsService.instance.logEvent(
-            'offline_replayed', {'opType': opType, 'success': false});
+        AnalyticsService.instance
+            .logEvent('offline_replayed', {'opType': opType, 'success': false});
       }
     }
   }

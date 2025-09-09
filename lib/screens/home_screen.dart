@@ -18,7 +18,6 @@ import '../theme.dart';
 /// Index in the bottom nav where the Via bubble lives (center slot).
 const int kViaNavIndex = 2;
 
-
 /// Home scaffold with bottom tabs: Create, Projects, (Via), Search, Account.
 /// Floating glass dock, adaptive labels on long-press, Via radial quick actions,
 /// and a progress tick for Create flow (Interview/Roller/etc.).
@@ -79,7 +78,8 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  int get _bodyIndex => _currentIndex > kViaNavIndex ? _currentIndex - 1 : _currentIndex;
+  int get _bodyIndex =>
+      _currentIndex > kViaNavIndex ? _currentIndex - 1 : _currentIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -142,14 +142,12 @@ class _GlassDockNavBarState extends State<GlassDockNavBar> {
   // 0: Create, 1: Projects, 2: Search, 3: Account
   static const _icons = <IconData>[
     Icons.add_circle_outline, // Create
-    Icons.folder,             // Projects
-    Icons.search,             // Search
-    Icons.person,             // Account
+    Icons.folder, // Projects
+    Icons.search, // Search
+    Icons.person, // Account
   ];
 
-  static const _labels = <String>[
-    'Create', 'Projects', 'Search', 'Account'
-  ];
+  static const _labels = <String>['Create', 'Projects', 'Search', 'Account'];
 
   @override
   Widget build(BuildContext context) {
@@ -175,11 +173,13 @@ class _GlassDockNavBarState extends State<GlassDockNavBar> {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 220),
                   curve: Curves.easeOut,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.12), width: 1),
+                    border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.12), width: 1),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.18),
@@ -198,7 +198,8 @@ class _GlassDockNavBarState extends State<GlassDockNavBar> {
                         );
                       }
 
-                      final iconIndex = index > kViaNavIndex ? index - 1 : index;
+                      final iconIndex =
+                          index > kViaNavIndex ? index - 1 : index;
                       final selected = widget.currentIndex == index;
 
                       return ValueListenableBuilder<double>(
@@ -250,7 +251,8 @@ class _GlassDockNavBarState extends State<GlassDockNavBar> {
           CurvedAnimation(parent: anim, curve: Curves.easeOutBack),
         );
         final fade = CurvedAnimation(parent: anim, curve: Curves.easeOut);
-        return FadeTransition(opacity: fade, child: ScaleTransition(scale: scale, child: child));
+        return FadeTransition(
+            opacity: fade, child: ScaleTransition(scale: scale, child: child));
       },
     );
   }
@@ -278,8 +280,11 @@ class _NavSquareButton extends StatelessWidget {
     const double size = 56;
     final Color bgColor = Colors.black.withValues(alpha: (0.20 * 255));
     final colorScheme = Theme.of(context).colorScheme;
-    final Color iconColor = selected ? colorScheme.secondary : Colors.white.withValues(alpha: (0.90 * 255));
-    final Color borderColor = selected ? colorScheme.secondary : Colors.transparent;
+    final Color iconColor = selected
+        ? colorScheme.secondary
+        : Colors.white.withValues(alpha: (0.90 * 255));
+    final Color borderColor =
+        selected ? colorScheme.secondary : Colors.transparent;
 
     final button = SizedBox(
       width: size,
@@ -315,7 +320,8 @@ class _NavSquareButton extends StatelessWidget {
                   if (selected && progress > 0)
                     Positioned.fill(
                       child: CustomPaint(
-                        painter: _TopTickPainter(progress: progress, color: colorScheme.secondary),
+                        painter: _TopTickPainter(
+                            progress: progress, color: colorScheme.secondary),
                       ),
                     ),
                 ],
@@ -414,7 +420,8 @@ class ViaBubble extends StatefulWidget {
   State<ViaBubble> createState() => _ViaBubbleState();
 }
 
-class _ViaBubbleState extends State<ViaBubble> with SingleTickerProviderStateMixin {
+class _ViaBubbleState extends State<ViaBubble>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _breath;
   bool _pressed = false;
 
@@ -463,7 +470,9 @@ class _ViaBubbleState extends State<ViaBubble> with SingleTickerProviderStateMix
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Theme.of(context).colorScheme.secondary
+                          color: Theme.of(context)
+                              .colorScheme
+                              .secondary
                               .withValues(alpha: 0.32 + t * 0.10),
                           blurRadius: 28 + t * 10,
                           spreadRadius: 1,
@@ -507,12 +516,12 @@ class _ViaBubbleState extends State<ViaBubble> with SingleTickerProviderStateMix
               Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                border: Border.all(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .secondary
-                        .withValues(alpha: 0.55),
-                    width: 1),
+                  border: Border.all(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .secondary
+                          .withValues(alpha: 0.55),
+                      width: 1),
                 ),
               ),
             ],
@@ -559,7 +568,9 @@ class _ViaRadialActions extends StatelessWidget {
               color: Colors.black.withValues(alpha: 0.22),
               border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
               boxShadow: [
-                BoxShadow(color: Colors.black.withValues(alpha: 0.25), blurRadius: 28),
+                BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.25),
+                    blurRadius: 28),
               ],
             ),
             child: Stack(
@@ -573,7 +584,8 @@ class _ViaRadialActions extends StatelessWidget {
                     label: actions[i].$3,
                     onTap: () => onAction(actions[i].$1),
                   ),
-                Icon(Icons.bolt_rounded, color: Colors.white.withValues(alpha: 0.7), size: 36),
+                Icon(Icons.bolt_rounded,
+                    color: Colors.white.withValues(alpha: 0.7), size: 36),
               ],
             ),
           ),
@@ -606,7 +618,8 @@ class _ViaRadialActions extends StatelessWidget {
 }
 
 class _FrostedChip extends StatelessWidget {
-  const _FrostedChip({required this.icon, required this.label, required this.onTap});
+  const _FrostedChip(
+      {required this.icon, required this.label, required this.onTap});
   final IconData icon;
   final String label;
   final VoidCallback onTap;
@@ -630,10 +643,8 @@ class _FrostedChip extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     label,
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelSmall
-                        ?.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: Colors.white, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -683,4 +694,3 @@ enum ViaQuickAction {
   suggestComplements,
   openVisualizer,
 }
-

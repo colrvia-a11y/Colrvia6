@@ -53,7 +53,11 @@ class VisualizerJob {
   final String status;
   final String? previewUrl;
   final String? resultUrl;
-  VisualizerJob({required this.jobId, required this.status, this.previewUrl, this.resultUrl});
+  VisualizerJob(
+      {required this.jobId,
+      required this.status,
+      this.previewUrl,
+      this.resultUrl});
   factory VisualizerJob.fromMap(Map<String, dynamic> m) => VisualizerJob(
         jobId: m['jobId'],
         status: m['status'],
@@ -80,11 +84,8 @@ class VisualizerService {
           VisualizerMask.fromJson(Map<String, dynamic>.from(p['mask'] as Map)));
     });
     SyncQueueService.instance.registerHandler('deleteMask', (p) async {
-      await deleteMask(
-          p['uid'] as String,
-          p['projectId'] as String,
-          p['photoId'] as String,
-          p['maskId'] as String);
+      await deleteMask(p['uid'] as String, p['projectId'] as String,
+          p['photoId'] as String, p['maskId'] as String);
     });
   }
 
@@ -99,8 +100,10 @@ class VisualizerService {
           .doc(photoId)
           .collection('masks');
 
-  static Future<String> uploadInputBytes(String uid, String fileName, List<int> bytes) async {
-  final callable = _firebaseFunctionsShimInstance.httpsCallable('uploadInputBytes');
+  static Future<String> uploadInputBytes(
+      String uid, String fileName, List<int> bytes) async {
+    final callable =
+        _firebaseFunctionsShimInstance.httpsCallable('uploadInputBytes');
     final resp = await callable.call({
       'uid': uid,
       'fileName': fileName,
@@ -117,7 +120,8 @@ class VisualizerService {
     String? storyId,
     String? lightingProfile,
   }) async {
-  final callable = _firebaseFunctionsShimInstance.httpsCallable('generateFromPhoto');
+    final callable =
+        _firebaseFunctionsShimInstance.httpsCallable('generateFromPhoto');
     final resp = await callable.call({
       'inputGsPath': inputGsPath,
       'roomType': roomType,
@@ -135,7 +139,8 @@ class VisualizerService {
     required int variants,
     String? lightingProfile,
   }) async {
-  final callable = _firebaseFunctionsShimInstance.httpsCallable('generateMockup');
+    final callable =
+        _firebaseFunctionsShimInstance.httpsCallable('generateMockup');
     final resp = await callable.call({
       'roomType': roomType,
       'style': style,
@@ -155,8 +160,8 @@ class VisualizerService {
             .toList());
   }
 
-  Future<void> saveMask(String uid, String projectId, String photoId,
-      VisualizerMask mask) async {
+  Future<void> saveMask(
+      String uid, String projectId, String photoId, VisualizerMask mask) async {
     try {
       await _maskCollection(uid, projectId, photoId)
           .doc(mask.id)
@@ -193,13 +198,14 @@ class VisualizerService {
         k,
         (v as List)
             .map<List<Offset>>((poly) => (poly as List)
-                .map<Offset>((p) =>
-                    Offset((p['x'] as num).toDouble(), (p['y'] as num).toDouble()))
+                .map<Offset>((p) => Offset(
+                    (p['x'] as num).toDouble(), (p['y'] as num).toDouble()))
                 .toList())
             .toList()));
   }
 
-  Future<VisualizerJob> renderFast(String imageUrl, List<String> paletteColorIds,
+  Future<VisualizerJob> renderFast(
+      String imageUrl, List<String> paletteColorIds,
       {String? lightingProfile, List<VisualizerMask>? masks}) async {
     final callable = _functions.httpsCallable('renderFast');
     final resp = await callable.call({
@@ -221,7 +227,8 @@ class VisualizerService {
       if (lightingProfile != null) 'lightingProfile': lightingProfile,
       if (masks != null) 'masks': masks.map((m) => m.toJson()).toList(),
     });
-    final job = VisualizerJob.fromMap(Map<String, dynamic>.from(resp.data as Map));
+    final job =
+        VisualizerJob.fromMap(Map<String, dynamic>.from(resp.data as Map));
     await _storeJob(job);
     return job;
   }
@@ -270,4 +277,3 @@ class VisualizerService {
 
   Future<void> clearJob(String jobId) => _removeJob(jobId);
 }
-

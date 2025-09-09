@@ -285,13 +285,15 @@ class _MoreMenuSheetState extends State<MoreMenuSheet>
                                       onTap: () => _showComingSoon('Support'),
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                                      padding: const EdgeInsets.fromLTRB(
+                                          16, 24, 16, 8),
                                       child: Text(
                                         'LABS',
                                         style: TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w500,
-                                          color: Colors.black.withValues(alpha: 0.7),
+                                          color: Colors.black
+                                              .withValues(alpha: 0.7),
                                           letterSpacing: 0.5,
                                         ),
                                       ),
@@ -301,7 +303,8 @@ class _MoreMenuSheetState extends State<MoreMenuSheet>
                                       value: _labsVoiceEnabled,
                                       onChanged: (v) async {
                                         setState(() => _labsVoiceEnabled = v);
-                                        await UserPrefsService.setFeatureVoiceInterview(v);
+                                        await UserPrefsService
+                                            .setFeatureVoiceInterview(v);
                                       },
                                     ),
                                     ListTile(
@@ -309,14 +312,21 @@ class _MoreMenuSheetState extends State<MoreMenuSheet>
                                       trailing: DropdownButton<String>(
                                         value: _labsVoice,
                                         items: const [
-                                          DropdownMenuItem(value: 'alloy', child: Text('alloy')),
-                                          DropdownMenuItem(value: 'verse', child: Text('verse')),
-                                          DropdownMenuItem(value: 'aria', child: Text('aria')),
+                                          DropdownMenuItem(
+                                              value: 'alloy',
+                                              child: Text('alloy')),
+                                          DropdownMenuItem(
+                                              value: 'verse',
+                                              child: Text('verse')),
+                                          DropdownMenuItem(
+                                              value: 'aria',
+                                              child: Text('aria')),
                                         ],
                                         onChanged: (v) async {
                                           if (v == null) return;
                                           setState(() => _labsVoice = v);
-                                          await UserPrefsService.setVoicePrefs(voice: v);
+                                          await UserPrefsService.setVoicePrefs(
+                                              voice: v);
                                         },
                                       ),
                                     ),

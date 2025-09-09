@@ -66,13 +66,16 @@ class Paint {
   });
 
   /// Optional list of similar paint IDs stored in metadata under 'similarIds'
-  List<String>? get similarIds => (metadata?['similarIds'] as List?)?.cast<String>();
+  List<String>? get similarIds =>
+      (metadata?['similarIds'] as List?)?.cast<String>();
 
   /// Optional list of companion paint IDs stored in metadata under 'companionIds'
-  List<String>? get companionIds => (metadata?['companionIds'] as List?)?.cast<String>();
+  List<String>? get companionIds =>
+      (metadata?['companionIds'] as List?)?.cast<String>();
 
   /// Computed temperature based on color
-  String? get temperature => ColorUtils.getColorTemperature(ColorUtils.getPaintColor(hex));
+  String? get temperature =>
+      ColorUtils.getColorTemperature(ColorUtils.getPaintColor(hex));
 
   /// Computed undertone based on RGB values
   String? get undertone {
@@ -131,7 +134,8 @@ class Paint {
     // LAB: use provided; else compute from RGB
     List<double> lab;
     try {
-      final rawLab = (json['lab'] as List?)?.cast<num>().map((e) => e.toDouble()).toList();
+      final rawLab =
+          (json['lab'] as List?)?.cast<num>().map((e) => e.toDouble()).toList();
       if (rawLab != null && rawLab.length == 3) {
         lab = rawLab;
       } else {
@@ -149,7 +153,8 @@ class Paint {
     // LCH: use provided; else compute from LAB
     List<double> lch;
     try {
-      final rawLch = (json['lch'] as List?)?.cast<num>().map((e) => e.toDouble()).toList();
+      final rawLch =
+          (json['lch'] as List?)?.cast<num>().map((e) => e.toDouble()).toList();
       if (rawLch != null && rawLch.length == 3) {
         lch = rawLch;
       } else {

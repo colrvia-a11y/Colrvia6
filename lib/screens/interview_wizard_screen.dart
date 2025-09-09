@@ -26,8 +26,8 @@ class _InterviewWizardScreenState extends State<InterviewWizardScreen> {
 
   Future<void> _init() async {
     try {
-      final compiler = await SchemaInterviewCompiler
-          .loadFromAsset('assets/schemas/single-room-color-intake.json');
+      final compiler = await SchemaInterviewCompiler.loadFromAsset(
+          'assets/schemas/single-room-color-intake.json');
       final prompts = compiler.compile();
       _engine = InterviewEngine.fromPrompts(prompts);
       final seed = JourneyService.instance.state.value?.artifacts['answers']
@@ -56,8 +56,7 @@ class _InterviewWizardScreenState extends State<InterviewWizardScreen> {
   void _syncTextToPrompt() {
     final p = _engine.current;
     if (p?.type == InterviewPromptType.freeText) {
-      _textController.text =
-          (_engine.answers[p!.id] as String?)?.trim() ?? '';
+      _textController.text = (_engine.answers[p!.id] as String?)?.trim() ?? '';
       _textController.selection = TextSelection.fromPosition(
         TextPosition(offset: _textController.text.length),
       );
@@ -268,8 +267,8 @@ class _InterviewWizardScreenState extends State<InterviewWizardScreen> {
           },
         );
       case InterviewPromptType.multiSelect:
-        final picked =
-            (_engine.answers[p.id] as List?)?.cast<String>() ?? const <String>[];
+        final picked = (_engine.answers[p.id] as List?)?.cast<String>() ??
+            const <String>[];
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -350,7 +349,11 @@ class _ChoiceCard extends StatelessWidget {
             width: selected ? 2 : 1,
           ),
           boxShadow: selected
-              ? [BoxShadow(color: theme.primary.withValues(alpha: .25), blurRadius: 10)]
+              ? [
+                  BoxShadow(
+                      color: theme.primary.withValues(alpha: .25),
+                      blurRadius: 10)
+                ]
               : const [],
         ),
         child: Text(
@@ -366,7 +369,8 @@ class _ChipCard extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback onTap;
-  const _ChipCard({required this.label, required this.selected, required this.onTap});
+  const _ChipCard(
+      {required this.label, required this.selected, required this.onTap});
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context).colorScheme;
@@ -391,4 +395,3 @@ class _ChipCard extends StatelessWidget {
     );
   }
 }
-

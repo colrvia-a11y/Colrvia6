@@ -16,7 +16,8 @@ class InterviewVoiceSetupScreen extends StatefulWidget {
   const InterviewVoiceSetupScreen({super.key});
 
   @override
-  State<InterviewVoiceSetupScreen> createState() => _InterviewVoiceSetupScreenState();
+  State<InterviewVoiceSetupScreen> createState() =>
+      _InterviewVoiceSetupScreenState();
 }
 
 class _InterviewVoiceSetupScreenState extends State<InterviewVoiceSetupScreen> {
@@ -37,8 +38,7 @@ class _InterviewVoiceSetupScreenState extends State<InterviewVoiceSetupScreen> {
     final status = await Permission.microphone.request();
     setState(() {
       micGranted = status.isGranted;
-      micStatusText =
-          micGranted ? 'Listening...' : 'Mic permission required.';
+      micStatusText = micGranted ? 'Listening...' : 'Mic permission required.';
     });
 
     if (micGranted) {
@@ -48,8 +48,7 @@ class _InterviewVoiceSetupScreenState extends State<InterviewVoiceSetupScreen> {
 
   void _startListening() {
     AudioService().start();
-    _micSubscription =
-        AudioService().micLevelStream.listen((level) {
+    _micSubscription = AudioService().micLevelStream.listen((level) {
       setState(() => micLevel = level);
     });
   }
@@ -65,7 +64,8 @@ class _InterviewVoiceSetupScreenState extends State<InterviewVoiceSetupScreen> {
   // For now this returns a minimal placeholder; can be extended to pull from
   // InterviewEngine/Journey state or Firestore.
   Future<(String, Map<String, dynamic>)> _buildPersonaAndContext() async {
-    final persona = 'Friendly, practical color coach with great follow-up questions.';
+    final persona =
+        'Friendly, practical color coach with great follow-up questions.';
     final ctx = <String, dynamic>{
       'timestamp': DateTime.now().toIso8601String(),
       'screen': 'interview_voice_setup',
@@ -92,7 +92,8 @@ class _InterviewVoiceSetupScreenState extends State<InterviewVoiceSetupScreen> {
       final q = await FirebaseFirestore.instance
           .collection('interviewSessions')
           .where('userId', isEqualTo: uid)
-          .where('startedAt', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+          .where('startedAt',
+              isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
           .get();
       int totalSec = 0;
       for (final d in q.docs) {
@@ -141,13 +142,15 @@ class _InterviewVoiceSetupScreenState extends State<InterviewVoiceSetupScreen> {
                       // Store context before async operations
                       final scaffoldMessenger = ScaffoldMessenger.of(context);
                       final navigator = Navigator.of(context);
-                      
+
                       // Ensure permission again and start realtime connect
                       final ok = await ensureMicPermission();
                       if (!ok) {
                         if (!mounted) return;
                         scaffoldMessenger.showSnackBar(
-                          const SnackBar(content: Text('Microphone permission is required')),
+                          const SnackBar(
+                              content:
+                                  Text('Microphone permission is required')),
                         );
                         return;
                       }
@@ -158,7 +161,9 @@ class _InterviewVoiceSetupScreenState extends State<InterviewVoiceSetupScreen> {
                       if (!okMinutes) {
                         if (!mounted) return;
                         scaffoldMessenger.showSnackBar(
-                          const SnackBar(content: Text('Daily Live Talk limit reached. Please try again tomorrow.')),
+                          const SnackBar(
+                              content: Text(
+                                  'Daily Live Talk limit reached. Please try again tomorrow.')),
                         );
                         return;
                       }
@@ -166,13 +171,15 @@ class _InterviewVoiceSetupScreenState extends State<InterviewVoiceSetupScreen> {
                       final prefs = await UserPrefsService.fetch();
                       try {
                         await LiveTalkService.instance.connect(
-                          tokenEndpoint: VoiceTokenEndpoint.issueVoiceGatewayToken(),
+                          tokenEndpoint:
+                              VoiceTokenEndpoint.issueVoiceGatewayToken(),
                           persona: personaAndCtx.$1,
                           context: personaAndCtx.$2,
                           voice: prefs.voiceVoice,
                           model: prefs.voiceModel,
                         );
-                        final uid = FirebaseAuth.instance.currentUser?.uid ?? 'anon';
+                        final uid =
+                            FirebaseAuth.instance.currentUser?.uid ?? 'anon';
                         final path = LiveTalkService.instance.mode.value;
                         await AnalyticsService.instance.voiceSessionStart(
                           uid: uid,
@@ -185,7 +192,9 @@ class _InterviewVoiceSetupScreenState extends State<InterviewVoiceSetupScreen> {
                       } catch (e) {
                         if (!mounted) return;
                         scaffoldMessenger.showSnackBar(
-                          SnackBar(content: Text('Failed to start voice session: $e')),
+                          SnackBar(
+                              content:
+                                  Text('Failed to start voice session: $e')),
                         );
                       }
                     }

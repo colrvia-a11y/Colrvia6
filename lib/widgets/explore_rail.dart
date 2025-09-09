@@ -37,9 +37,9 @@ class ExploreRail extends StatefulWidget {
     required this.onSelect,
     this.onLongPress,
     this.onSeeAll,
-    this.tileAspect = 0.72,        // same as All
+    this.tileAspect = 0.72, // same as All
     this.horizontalPadding = 16.0, // same as page padding
-    this.tileSpacing = AppDims.gap * 2,       // same as grid spacing
+    this.tileSpacing = AppDims.gap * 2, // same as grid spacing
   });
 
   @override
@@ -66,7 +66,10 @@ class _ExploreRailState extends State<ExploreRail> {
       limit: 16,
     );
     if (!mounted) return;
-    setState(() { items = list; loading = false; });
+    setState(() {
+      items = list;
+      loading = false;
+    });
   }
 
   @override
@@ -82,7 +85,11 @@ class _ExploreRailState extends State<ExploreRail> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              Text(widget.title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+              Text(widget.title,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(fontWeight: FontWeight.w700)),
               const Spacer(),
               IconButton(
                 onPressed: () {
@@ -104,7 +111,8 @@ class _ExploreRailState extends State<ExploreRail> {
           builder: (context, constraints) {
             // Mirror a 2-column grid width to get identical sizes
             const cols = 2;
-            final usableW = constraints.maxWidth - (widget.horizontalPadding * 2);
+            final usableW =
+                constraints.maxWidth - (widget.horizontalPadding * 2);
             final tileW = (usableW - (cols - 1) * widget.tileSpacing) / cols;
             final tileH = tileW / widget.tileAspect;
 
@@ -112,22 +120,26 @@ class _ExploreRailState extends State<ExploreRail> {
               height: tileH, // same height as All
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.symmetric(horizontal: widget.horizontalPadding),
+                padding:
+                    EdgeInsets.symmetric(horizontal: widget.horizontalPadding),
                 itemCount: items!.length,
-                separatorBuilder: (_, __) => SizedBox(width: widget.tileSpacing),
+                separatorBuilder: (_, __) =>
+                    SizedBox(width: widget.tileSpacing),
                 itemBuilder: (_, i) {
                   final p = items![i];
                   return SizedBox(
-                    width: tileW,  // same width as All
+                    width: tileW, // same width as All
                     height: tileH, // same height as All
                     child: StaggeredEntrance(
                       delay: Duration(milliseconds: 40 + i * 55),
                       child: FancyPaintTile(
                         paint: p,
-                        dense: false,                 // matches All
+                        dense: false, // matches All
                         selected: false,
                         onOpen: () => widget.onSelect(p),
-                        onLongPress: widget.onLongPress == null ? null : () => widget.onLongPress!(p),
+                        onLongPress: widget.onLongPress == null
+                            ? null
+                            : () => widget.onLongPress!(p),
                         onQuickRoller: null,
                       ),
                     ),
@@ -153,18 +165,29 @@ class _ExploreRailState extends State<ExploreRail> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(height: 22, width: 140, margin: EdgeInsets.symmetric(horizontal: widget.horizontalPadding, vertical: 10), decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(6))),
+            Container(
+                height: 22,
+                width: 140,
+                margin: EdgeInsets.symmetric(
+                    horizontal: widget.horizontalPadding, vertical: 10),
+                decoration: BoxDecoration(
+                    color:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(6))),
             SizedBox(
               height: tileH,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.symmetric(horizontal: widget.horizontalPadding),
+                padding:
+                    EdgeInsets.symmetric(horizontal: widget.horizontalPadding),
                 itemCount: 8,
-                separatorBuilder: (_, __) => SizedBox(width: widget.tileSpacing),
+                separatorBuilder: (_, __) =>
+                    SizedBox(width: widget.tileSpacing),
                 itemBuilder: (_, __) => Container(
                   width: tileW,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(AppDims.radiusMedium),
                   ),
                 ),

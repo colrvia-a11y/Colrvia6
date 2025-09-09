@@ -24,7 +24,8 @@ class FeatureFlags {
       ));
       await _rc.setDefaults({
         viaMvp: kDebugMode,
-        voiceInterview: kDebugMode, // default true on dev, can be disabled in prod
+        voiceInterview:
+            kDebugMode, // default true on dev, can be disabled in prod
         lightingProfiles: kDebugMode,
         fixedElementAssist: kDebugMode,
         maskAssist: kDebugMode,
@@ -47,7 +48,13 @@ class FeatureFlags {
   Map<String, bool> get flagStates => Map.unmodifiable(_cache);
 
   void _updateCache() {
-    for (final key in [viaMvp, voiceInterview, lightingProfiles, fixedElementAssist, maskAssist]) {
+    for (final key in [
+      viaMvp,
+      voiceInterview,
+      lightingProfiles,
+      fixedElementAssist,
+      maskAssist
+    ]) {
       _cache[key] = _rc.getBool(key);
     }
   }

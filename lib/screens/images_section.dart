@@ -17,14 +17,23 @@ class _ImagesSectionState extends State<ImagesSection> {
     super.initState();
     _loadPhotos();
   }
+
   Future<void> _loadPhotos() async {
     try {
       final photos = await PhotoLibraryService.getUserPhotos();
-      if (mounted) setState(() { _photos = photos; _isLoading = false; });
+      if (mounted)
+        setState(() {
+          _photos = photos;
+          _isLoading = false;
+        });
     } catch (e) {
-      if (mounted) setState(() { _isLoading = false; });
+      if (mounted)
+        setState(() {
+          _isLoading = false;
+        });
     }
   }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -51,7 +60,8 @@ class _ImagesSectionState extends State<ImagesSection> {
         final photo = _photos[i];
         return Card(
           elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Image.memory(

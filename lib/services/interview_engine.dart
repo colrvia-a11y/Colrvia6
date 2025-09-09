@@ -26,7 +26,8 @@ class InterviewPrompt {
   final int? maxItems;
   final bool isArray; // if the answer is a list
   final String? dependsOn; // optional parent id for visibility
-  final bool Function(Map<String, dynamic> answers)? visibleIf; // runtime predicate
+  final bool Function(Map<String, dynamic> answers)?
+      visibleIf; // runtime predicate
 
   const InterviewPrompt({
     required this.id,
@@ -45,7 +46,8 @@ class InterviewPrompt {
 
 class InterviewEngine extends ChangeNotifier {
   InterviewEngine._(this._allPrompts);
-  factory InterviewEngine.fromPrompts(List<InterviewPrompt> prompts) => InterviewEngine._(prompts);
+  factory InterviewEngine.fromPrompts(List<InterviewPrompt> prompts) =>
+      InterviewEngine._(prompts);
   static InterviewEngine demo() => InterviewEngine._(_buildDemoPrompts());
 
   final List<InterviewPrompt> _allPrompts;
@@ -55,7 +57,8 @@ class InterviewEngine extends ChangeNotifier {
 
   InterviewDepth _depth = InterviewDepth.quick;
 
-  UnmodifiableMapView<String, dynamic> get answers => UnmodifiableMapView(_answers);
+  UnmodifiableMapView<String, dynamic> get answers =>
+      UnmodifiableMapView(_answers);
   int get index => _index;
   int get total => _sequence.length;
   double get progress => total == 0 ? 0 : (_index / total).clamp(0, 1);
@@ -70,9 +73,7 @@ class InterviewEngine extends ChangeNotifier {
       .map((id) => _allPrompts.firstWhere(
             (p) => p.id == id,
             orElse: () => InterviewPrompt(
-                id: id,
-                title: id,
-                type: InterviewPromptType.freeText),
+                id: id, title: id, type: InterviewPromptType.freeText),
           ))
       .toList();
 
@@ -103,7 +104,9 @@ class InterviewEngine extends ChangeNotifier {
     notifyListeners();
   }
 
-  void start({Map<String, dynamic>? seedAnswers, InterviewDepth depth = InterviewDepth.quick}) {
+  void start(
+      {Map<String, dynamic>? seedAnswers,
+      InterviewDepth depth = InterviewDepth.quick}) {
     _answers.clear();
     if (seedAnswers != null) _answers.addAll(seedAnswers);
     _depth = depth;
@@ -139,7 +142,9 @@ class InterviewEngine extends ChangeNotifier {
     }
 
     // Recompute order when branching inputs change
-    if (id == 'roomType' || id.startsWith('roomSpecific.') || id.startsWith('existingElements.')) {
+    if (id == 'roomType' ||
+        id.startsWith('roomSpecific.') ||
+        id.startsWith('existingElements.')) {
       final curId = current?.id;
       _recomputeSequence();
       if (curId != null) {
@@ -307,7 +312,8 @@ class InterviewEngine extends ChangeNotifier {
   bool _isVisible(String id) {
     final p = _allPrompts.firstWhere(
       (e) => e.id == id,
-      orElse: () => InterviewPrompt(id: id, title: id, type: InterviewPromptType.freeText),
+      orElse: () => InterviewPrompt(
+          id: id, title: id, type: InterviewPromptType.freeText),
     );
 
     // conditional rules per schema
@@ -337,7 +343,8 @@ class InterviewEngine extends ChangeNotifier {
   // ---- prompts ----
 
   static List<InterviewPrompt> _buildDemoPrompts() {
-    List<InterviewPromptOption> opt(List<String> vs) => vs.map((v) => InterviewPromptOption(v, _labelize(v))).toList();
+    List<InterviewPromptOption> opt(List<String> vs) =>
+        vs.map((v) => InterviewPromptOption(v, _labelize(v))).toList();
 
     return [
       InterviewPrompt(
@@ -345,7 +352,18 @@ class InterviewEngine extends ChangeNotifier {
         title: 'Which room are we doing?',
         type: InterviewPromptType.singleSelect,
         required: true,
-        options: opt(['kitchen','bathroom','bedroom','livingRoom','diningRoom','office','kidsRoom','laundryMudroom','entryHall','other']),
+        options: opt([
+          'kitchen',
+          'bathroom',
+          'bedroom',
+          'livingRoom',
+          'diningRoom',
+          'office',
+          'kidsRoom',
+          'laundryMudroom',
+          'entryHall',
+          'other'
+        ]),
       ),
       InterviewPrompt(
         id: 'usage',
@@ -362,35 +380,40 @@ class InterviewEngine extends ChangeNotifier {
         isArray: true,
         minItems: 1,
         maxItems: 3,
-        options: opt(['calm','cozy','happy','fresh','focused','moody','bright']),
+        options: opt(
+            ['calm', 'cozy', 'happy', 'fresh', 'focused', 'moody', 'bright']),
         required: true,
       ),
       InterviewPrompt(
         id: 'daytimeBrightness',
         title: 'How bright is it in the day?',
         type: InterviewPromptType.singleSelect,
-        options: opt(['veryBright','kindaBright','dim']),
+        options: opt(['veryBright', 'kindaBright', 'dim']),
         required: true,
       ),
       InterviewPrompt(
         id: 'bulbColor',
         title: 'At night, what kind of bulbs?',
         type: InterviewPromptType.singleSelect,
-        options: opt(['cozyYellow_2700K','neutral_3000_3500K','brightWhite_4000KPlus']),
+        options: opt([
+          'cozyYellow_2700K',
+          'neutral_3000_3500K',
+          'brightWhite_4000KPlus'
+        ]),
         required: true,
       ),
       InterviewPrompt(
         id: 'boldDarkerSpot',
         title: 'Do you like a bold darker spot in this room?',
         type: InterviewPromptType.singleSelect,
-        options: opt(['loveIt','maybe','noThanks']),
+        options: opt(['loveIt', 'maybe', 'noThanks']),
         required: true,
       ),
       InterviewPrompt(
         id: 'brandPreference',
         title: 'Pick one paint brand (or let us choose)',
         type: InterviewPromptType.singleSelect,
-        options: opt(['SherwinWilliams','BenjaminMoore','Behr','pickForMe']),
+        options: opt(['SherwinWilliams', 'BenjaminMoore', 'Behr', 'pickForMe']),
         required: true,
       ),
 
@@ -399,7 +422,7 @@ class InterviewEngine extends ChangeNotifier {
         id: 'roomSpecific.cabinets',
         title: 'Kitchen cabinets',
         type: InterviewPromptType.singleSelect,
-        options: opt(['allNewColor','keepCurrentColor']),
+        options: opt(['allNewColor', 'keepCurrentColor']),
       ),
       InterviewPrompt(
         id: 'roomSpecific.cabinetsCurrentColor',
@@ -410,7 +433,7 @@ class InterviewEngine extends ChangeNotifier {
         id: 'roomSpecific.island',
         title: 'Island',
         type: InterviewPromptType.singleSelect,
-        options: opt(['noIsland','hasIsland_okDarker','hasIsland_keepLight']),
+        options: opt(['noIsland', 'hasIsland_okDarker', 'hasIsland_keepLight']),
       ),
       InterviewPrompt(
         id: 'roomSpecific.countertopsDescription',
@@ -422,7 +445,8 @@ class InterviewEngine extends ChangeNotifier {
         id: 'roomSpecific.backsplash',
         title: 'Backsplash',
         type: InterviewPromptType.singleSelect,
-        options: opt(['white','cream','color','pattern','none','describe']),
+        options:
+            opt(['white', 'cream', 'color', 'pattern', 'none', 'describe']),
       ),
       InterviewPrompt(
         id: 'roomSpecific.backsplashDescribe',
@@ -433,20 +457,20 @@ class InterviewEngine extends ChangeNotifier {
         id: 'roomSpecific.appliances',
         title: 'Appliances',
         type: InterviewPromptType.singleSelect,
-        options: opt(['stainless','black','white','mixed']),
+        options: opt(['stainless', 'black', 'white', 'mixed']),
       ),
       InterviewPrompt(
         id: 'roomSpecific.wallFeel',
         title: 'Walls should feel…',
         type: InterviewPromptType.singleSelect,
-        options: opt(['lightAiry','aBitCozier']),
+        options: opt(['lightAiry', 'aBitCozier']),
       ),
       InterviewPrompt(
         id: 'roomSpecific.darkerSpots',
         title: 'Good spots for a darker moment',
         type: InterviewPromptType.multiSelect,
         isArray: true,
-        options: opt(['island','lowerCabinets','doors','none']),
+        options: opt(['island', 'lowerCabinets', 'doors', 'none']),
       ),
 
       // Existing Elements
@@ -454,7 +478,15 @@ class InterviewEngine extends ChangeNotifier {
         id: 'existingElements.floorLook',
         title: 'Floors look mostly…',
         type: InterviewPromptType.singleSelect,
-        options: opt(['yellowGoldWood','orangeWood','redBrownWood','brownNeutral','grayBrown','tileOrStone','other']),
+        options: opt([
+          'yellowGoldWood',
+          'orangeWood',
+          'redBrownWood',
+          'brownNeutral',
+          'grayBrown',
+          'tileOrStone',
+          'other'
+        ]),
       ),
       InterviewPrompt(
         id: 'existingElements.floorLookOtherNote',
@@ -466,13 +498,24 @@ class InterviewEngine extends ChangeNotifier {
         title: 'Big things to match (pick all that apply)',
         type: InterviewPromptType.multiSelect,
         isArray: true,
-        options: opt(['countertops','backsplash','tile','bigFurniture','rug','curtains','builtIns','appliances','fireplace','none']),
+        options: opt([
+          'countertops',
+          'backsplash',
+          'tile',
+          'bigFurniture',
+          'rug',
+          'curtains',
+          'builtIns',
+          'appliances',
+          'fireplace',
+          'none'
+        ]),
       ),
       InterviewPrompt(
         id: 'existingElements.metals',
         title: 'If metal shows, what is it?',
         type: InterviewPromptType.singleSelect,
-        options: opt(['black','silver','goldWarm','mixed','none']),
+        options: opt(['black', 'silver', 'goldWarm', 'mixed', 'none']),
       ),
       InterviewPrompt(
         id: 'existingElements.mustStaySame',
@@ -486,7 +529,11 @@ class InterviewEngine extends ChangeNotifier {
         id: 'colorComfort.overallVibe',
         title: 'Overall vibe for color',
         type: InterviewPromptType.singleSelect,
-        options: opt(['mostlySoftNeutrals', 'neutralsPlusGentleColors', 'confidentColorMoments']),
+        options: opt([
+          'mostlySoftNeutrals',
+          'neutralsPlusGentleColors',
+          'confidentColorMoments'
+        ]),
       ),
       InterviewPrompt(
         id: 'colorComfort.warmCoolFeel',
@@ -498,13 +545,13 @@ class InterviewEngine extends ChangeNotifier {
         id: 'colorComfort.contrastLevel',
         title: 'Contrast level',
         type: InterviewPromptType.singleSelect,
-        options: opt(['verySoft','medium','crisp']),
+        options: opt(['verySoft', 'medium', 'crisp']),
       ),
       InterviewPrompt(
         id: 'colorComfort.popColor',
         title: 'Would you enjoy one small “pop” color?',
         type: InterviewPromptType.singleSelect,
-        options: opt(['yes','maybe','no']),
+        options: opt(['yes', 'maybe', 'no']),
       ),
 
       // Finishes
@@ -512,20 +559,26 @@ class InterviewEngine extends ChangeNotifier {
         id: 'finishes.wallsFinishPriority',
         title: 'Walls — what matters most?',
         type: InterviewPromptType.singleSelect,
-        options: opt(['easierToWipeClean','softerFlatterLook']),
+        options: opt(['easierToWipeClean', 'softerFlatterLook']),
       ),
       InterviewPrompt(
         id: 'finishes.trimDoorsFinish',
         title: 'Trim/doors finish',
         type: InterviewPromptType.singleSelect,
-        options: opt(['aLittleShiny','softerShine']),
+        options: opt(['aLittleShiny', 'softerShine']),
       ),
       InterviewPrompt(
         id: 'finishes.specialNeeds',
         title: 'Any special needs?',
         type: InterviewPromptType.multiSelect,
         isArray: true,
-        options: opt(['kids','pets','steamyShowers','greaseHeavyCooking','rentalRules']),
+        options: opt([
+          'kids',
+          'pets',
+          'steamyShowers',
+          'greaseHeavyCooking',
+          'rentalRules'
+        ]),
       ),
 
       // Guardrails + Photos

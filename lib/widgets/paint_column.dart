@@ -12,6 +12,9 @@ class _RollerEnhancements {
   // Master feature flag - change to false to instantly revert all enhancements
   static const bool enableAllEnhancements = true;
 
+  // Dev-only visual aids
+  static const bool showColrViaRoleBadges = true;
+
   // Individual feature flags (only active if master toggle is true)
   static bool get enableRoundedStrips => enableAllEnhancements && true;
   static bool get enableDragReordering => enableAllEnhancements && true;
@@ -20,7 +23,8 @@ class _RollerEnhancements {
   static bool get enableSubtleBorders => enableAllEnhancements && true;
 
   // Enhanced styling constants
-  static const double stripBorderRadius = AppDims.radiusMedium; // Matching your CTA buttons
+  static const double stripBorderRadius =
+      AppDims.radiusMedium; // Matching your CTA buttons
   static const double enhancedElevation = 4.0;
   static const double dragElevation = 8.0;
   static const double lockIndicatorRadius = 8.0;
@@ -116,101 +120,137 @@ class _PaintStripeState extends State<PaintStripe> {
           ),
           child: Stack(
             children: [
-            // Lock indicator
-            if (widget.isLocked)
-              Positioned(
-                left: 16,
-                top: 0,
-                bottom: 0,
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.7),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Icon(
-                      Icons.lock,
-                      color: Colors.white,
-                      size: 16,
+              // Lock indicator
+              if (widget.isLocked)
+                Positioned(
+                  left: 16,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.7),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Icon(
+                        Icons.lock,
+                        color: Colors.white,
+                        size: 16,
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-            // Paint information
-            if (widget.paint != null)
-              Positioned(
-                left: widget.isLocked ? 60 : 16,
-                right: 16,
-                bottom: 12,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    // Brand information (roles removed)
-                    Text(
-                      widget.paint!.brandName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withOpacity(0.18),
-                            blurRadius: 2,
-                            offset: Offset(0, 1),
-                          ),
-                        ],
+              // Paint information and optional dev badge
+              if (widget.paint != null) ...[
+                Positioned(
+                  left: widget.isLocked ? 60 : 16,
+                  right: 16,
+                  bottom: 12,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      // Brand information (roles removed)
+                      Text(
+                        widget.paint!.brandName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.18),
+                              blurRadius: 2,
+                              offset: Offset(0, 1),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 2),
-                    // Paint name
-                    Text(
-                      widget.paint!.name,
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withOpacity(0.18),
-                            blurRadius: 2,
-                            offset: Offset(0, 1),
-                          ),
-                        ],
+                      const SizedBox(height: 2),
+                      // Paint name
+                      Text(
+                        widget.paint!.name,
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.18),
+                              blurRadius: 2,
+                              offset: Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              )
-            else
-              // Empty state
-              Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.palette_outlined,
-                      size: 32,
-                      color: Colors.grey[600],
+                // Optional ColrVia role badge for debugging/dev
+                if (_RollerEnhancements.showColrViaRoleBadges)
+                  Positioned(
+                    left: 8,
+                    bottom: 8,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.28),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        child: Text(
+                          // Simple heuristic by LRV for display only
+                          () {
+                            try {
+                              final l = widget.paint!.computedLrv;
+                              if (l < 16) return 'Anchor';
+                              if (l > 82) return 'Bright';
+                              if (l > 72) return 'Off-White';
+                              if (l >= 55) return 'Neutral';
+                              if (l >= 45) return 'Secondary';
+                              return 'Primary';
+                            } catch (_) {
+                              return '';
+                            }
+                          }(),
+                          style: const TextStyle(
+                              fontSize: 10,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ),
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Tap to roll',
-                      style: TextStyle(
+                  ),
+              ] else
+                // Empty state
+                Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.palette_outlined,
+                        size: 32,
                         color: Colors.grey[600],
-                        fontSize: 14,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 12),
+                      Text(
+                        'Tap to roll',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
         ),
@@ -251,7 +291,7 @@ class AnimatedPaintStripe extends StatefulWidget {
   final bool fullBleed; // New: remove side margins/borders for edge-to-edge
 
   const AnimatedPaintStripe({
-  super.key,
+    super.key,
     this.paint,
     this.previousPaint,
     required this.isLocked,
@@ -262,9 +302,9 @@ class AnimatedPaintStripe extends StatefulWidget {
     this.onSwipeLeft,
     this.onRefine,
     this.onDelete,
-  this.index,
-  this.onReorder,
-  this.fullBleed = false,
+    this.index,
+    this.onReorder,
+    this.fullBleed = false,
   });
 
   @override
@@ -387,23 +427,23 @@ class _AnimatedPaintStripeState extends State<AnimatedPaintStripe>
 
     // Consider both id and hex; in sample mode ids may collide or be missing
     final oldKey = oldWidget.paint == null
-      ? null
-      : '${oldWidget.paint!.id}|${oldWidget.paint!.hex}';
+        ? null
+        : '${oldWidget.paint!.id}|${oldWidget.paint!.hex}';
     final newKey = widget.paint == null
-      ? null
-      : '${widget.paint!.id}|${widget.paint!.hex}';
+        ? null
+        : '${widget.paint!.id}|${widget.paint!.hex}';
 
     // Only animate if effective identity changed and we have a real paint change
-    if (oldKey != newKey && 
-        _lastPaintId != widget.paint?.id && 
+    if (oldKey != newKey &&
+        _lastPaintId != widget.paint?.id &&
         widget.paint != null) {
-        Debug.info('AnimatedPaintStripe', 'didUpdateWidget',
-            'Paint changed, starting animation');
-        _updateColorAnimation();
-        _animateColorChange();
-        _lastPaintId = widget.paint?.id;
-      }
-    
+      Debug.info('AnimatedPaintStripe', 'didUpdateWidget',
+          'Paint changed, starting animation');
+      _updateColorAnimation();
+      _animateColorChange();
+      _lastPaintId = widget.paint?.id;
+    }
+
     // Update last paint ID even if we don't animate to prevent future unnecessary animations
     if (widget.paint?.id != null) {
       _lastPaintId = widget.paint?.id;
@@ -497,7 +537,8 @@ class _AnimatedPaintStripeState extends State<AnimatedPaintStripe>
   @override
   Widget build(BuildContext context) {
     // Only log debug info for significant changes to reduce rapid build noise
-    if (widget.paint?.id != _lastPaintId || widget.isLocked != (_lockController.value > 0.5)) {
+    if (widget.paint?.id != _lastPaintId ||
+        widget.isLocked != (_lockController.value > 0.5)) {
       Debug.build('AnimatedPaintStripe', 'build',
           details:
               'paint: ${widget.paint?.id}, isLocked: ${widget.isLocked}, isRolling: ${widget.isRolling}');
@@ -534,19 +575,24 @@ class _AnimatedPaintStripeState extends State<AnimatedPaintStripe>
                       : 'Empty color slot',
                   onTap: widget.onTap,
                   child: Container(
-          margin: widget.fullBleed
+                    margin: widget.fullBleed
                         ? EdgeInsets.zero
-            : (_RollerEnhancements.enableRoundedStrips && !isTopStripe
-                            ? const EdgeInsets.symmetric(horizontal: 8, vertical: 2)
+                        : (_RollerEnhancements.enableRoundedStrips &&
+                                !isTopStripe
+                            ? const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2)
                             : EdgeInsets.zero),
-          decoration: _RollerEnhancements.enableGradientBackdrops && !isTopStripe
+                    decoration: _RollerEnhancements.enableGradientBackdrops &&
+                            !isTopStripe
                         ? BoxDecoration(
                             gradient: _createBackdropGradient(color),
-              borderRadius: _RollerEnhancements.enableRoundedStrips && !isTopStripe
-                                ? BorderRadius.circular(
-                                    _RollerEnhancements.stripBorderRadius)
-                                : null,
-              boxShadow: _createEnhancedShadows(color),
+                            borderRadius:
+                                _RollerEnhancements.enableRoundedStrips &&
+                                        !isTopStripe
+                                    ? BorderRadius.circular(
+                                        _RollerEnhancements.stripBorderRadius)
+                                    : null,
+                            boxShadow: _createEnhancedShadows(color),
                           )
                         : null,
                     child: GestureDetector(
@@ -581,135 +627,178 @@ class _AnimatedPaintStripeState extends State<AnimatedPaintStripe>
                       child: Container(
                         decoration: BoxDecoration(
                           color: color,
-                          borderRadius: _RollerEnhancements.enableRoundedStrips && !isTopStripe
-                              ? BorderRadius.circular(
-                                  _RollerEnhancements.stripBorderRadius - 2)
-                              : null,
+                          borderRadius:
+                              _RollerEnhancements.enableRoundedStrips &&
+                                      !isTopStripe
+                                  ? BorderRadius.circular(
+                                      _RollerEnhancements.stripBorderRadius - 2)
+                                  : null,
                           border: widget.fullBleed
                               ? null
                               : (_RollerEnhancements.enableSubtleBorders
                                   ? Border.all(
-                                      color: Colors.white.withValues(alpha: 0.3),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.3),
                                       width: 0.5,
                                     )
                                   : null),
                         ),
                         child: Stack(
                           children: [
-                          // Subtle gradient overlay for depth
-                          if (_RollerEnhancements.enableRoundedStrips && !isTopStripe)
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(
-                                    _RollerEnhancements.stripBorderRadius - 2),
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Colors.white.withValues(alpha: 0.1),
-                                    Colors.transparent,
-                                    Colors.black.withValues(alpha: 0.05),
+                            // Subtle gradient overlay for depth
+                            if (_RollerEnhancements.enableRoundedStrips &&
+                                !isTopStripe)
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(
+                                      _RollerEnhancements.stripBorderRadius -
+                                          2),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.white.withValues(alpha: 0.1),
+                                      Colors.transparent,
+                                      Colors.black.withValues(alpha: 0.05),
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                            // Enhanced lock indicator with animation - NO BRAND COLORS!
+                            AnimatedBuilder(
+                              animation: _lockAnimation,
+                              builder: (context, child) {
+                                if (!widget.isLocked ||
+                                    _lockAnimation.value == 0) {
+                                  return const SizedBox.shrink();
+                                }
+
+                                return Positioned(
+                                  left: 16,
+                                  top: 0,
+                                  bottom: 0,
+                                  child: Center(
+                                    child: Transform.scale(
+                                      scale: _lockAnimation.value,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black
+                                              .withValues(alpha: 0.8),
+                                          borderRadius: BorderRadius.circular(
+                                              _RollerEnhancements
+                                                  .lockIndicatorRadius),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black
+                                                  .withValues(alpha: 0.3),
+                                              blurRadius: 4,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: const Icon(
+                                          Icons.lock_rounded,
+                                          color: Colors.white,
+                                          size: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+
+                            // Paint information with enhanced typography
+                            if (widget.paint != null)
+                              Positioned(
+                                left: widget.isLocked ? 60 : 16,
+                                top: 0,
+                                bottom: 0,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    // Enhanced brand information
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: textColor.withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        widget.paint!.brandName,
+                                        style: TextStyle(
+                                          color: textColor,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    // Paint name with enhanced styling
+                                    Text(
+                                      widget.paint!.name,
+                                      style: TextStyle(
+                                        color: textColor,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ],
                                 ),
                               ),
-                            ),
 
-                          // Enhanced lock indicator with animation - NO BRAND COLORS!
-                          AnimatedBuilder(
-                            animation: _lockAnimation,
-                            builder: (context, child) {
-                              if (!widget.isLocked ||
-                                  _lockAnimation.value == 0) {
-                                return const SizedBox.shrink();
-                              }
-
-                              return Positioned(
-                                left: 16,
-                                top: 0,
-                                bottom: 0,
-                                child: Center(
-                                  child: Transform.scale(
-                                    scale: _lockAnimation.value,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(6),
-                                      decoration: BoxDecoration(
-                                        color: Colors.black.withValues(alpha: 0.8),
-                                        borderRadius: BorderRadius.circular(
-                                            _RollerEnhancements
-                                                .lockIndicatorRadius),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                Colors.black.withValues(alpha: 0.3),
-                                            blurRadius: 4,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
-                                      ),
-                                      child: const Icon(
-                                        Icons.lock_rounded,
-                                        color: Colors.white,
-                                        size: 14,
-                                      ),
+                            // Optional dev-only ColrVia role badge
+                            if (_RollerEnhancements.showColrViaRoleBadges &&
+                                widget.paint != null)
+                              Positioned(
+                                left: 8,
+                                bottom: 8,
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.28),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 2),
+                                    child: Text(
+                                      () {
+                                        try {
+                                          final l = widget.paint!.computedLrv;
+                                          if (l < 16) return 'Anchor';
+                                          if (l > 82) return 'Bright';
+                                          if (l > 72) return 'Off-White';
+                                          if (l >= 55) return 'Neutral';
+                                          if (l >= 45) return 'Secondary';
+                                          return 'Primary';
+                                        } catch (_) {
+                                          return '';
+                                        }
+                                      }(),
+                                      style: const TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600),
                                     ),
                                   ),
                                 ),
-                              );
-                            },
-                          ),
-
-                          // Paint information with enhanced typography
-                          if (widget.paint != null)
-                            Positioned(
-                              left: widget.isLocked ? 60 : 16,
-                              top: 0,
-                              bottom: 0,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  // Enhanced brand information
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: textColor.withValues(alpha: 0.1),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                      widget.paint!.brandName,
-                                      style: TextStyle(
-                                        color: textColor,
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  // Paint name with enhanced styling
-                                  Text(
-                                    widget.paint!.name,
-                                    style: TextStyle(
-                                      color: textColor,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
                               ),
-                            ),
 
-                          // Hex value display removed to reduce visual clutter
-                        ],
+                            // Hex value display removed to reduce visual clutter
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              );
+                );
 
                 // Wrap with drag functionality if enabled and preserving long-press
                 if (_RollerEnhancements.enableDragReordering &&
@@ -749,7 +838,8 @@ class _AnimatedPaintStripeState extends State<AnimatedPaintStripe>
                             _dragController.reverse();
                           },
                           child: DragTarget<int>(
-                            onWillAcceptWithDetails: (details) => details.data != widget.index,
+                            onWillAcceptWithDetails: (details) =>
+                                details.data != widget.index,
                             onAcceptWithDetails: (details) {
                               widget.onReorder!(details.data, widget.index!);
                               HapticFeedback.selectionClick();
@@ -816,10 +906,11 @@ class _AnimatedPaintStripeState extends State<AnimatedPaintStripe>
 
   void _copyPaintData() {
     if (widget.paint == null) return;
-    
-    final data = '${widget.paint!.name}\n${widget.paint!.brandName}\n${widget.paint!.code}\n${widget.paint!.hex}';
+
+    final data =
+        '${widget.paint!.name}\n${widget.paint!.brandName}\n${widget.paint!.code}\n${widget.paint!.hex}';
     Clipboard.setData(ClipboardData(text: data));
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Paint info copied to clipboard'),

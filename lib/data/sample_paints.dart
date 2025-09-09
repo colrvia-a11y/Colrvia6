@@ -183,15 +183,13 @@ class SamplePaints {
           ? null
           : original['id'].toString();
       if (id == null || id.isEmpty) {
-        final brand = (original['brandId'] ?? original['brandName'] ?? '')
-            .toString();
-        final codeOrName = (original['code'] ?? original['name'] ?? '')
-            .toString();
+        final brand =
+            (original['brandId'] ?? original['brandName'] ?? '').toString();
+        final codeOrName =
+            (original['code'] ?? original['name'] ?? '').toString();
         final hex = (original['hex'] ?? '').toString();
         final composite = '${brand}_${codeOrName}_${hex}_$i';
-        id = composite
-            .toLowerCase()
-            .replaceAll(RegExp(r'[^a-z0-9]+'), '-');
+        id = composite.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-');
       }
       final mapWithId = {
         ...original,
@@ -205,22 +203,30 @@ class SamplePaints {
   /// Get all unique brands from sample paints
   static Future<List<Brand>> getSampleBrands() async {
     final allPaints = await _loadPaintData();
-    final brandNames = allPaints.map((paint) => paint['brandName'] as String).toSet().toList()..sort();
-    return brandNames.map((name) => Brand(
-      id: name.toLowerCase().replaceAll(' ', '-'),
-      name: name,
-      slug: name.toLowerCase().replaceAll(' ', '-'),
-    )).toList();
+    final brandNames = allPaints
+        .map((paint) => paint['brandName'] as String)
+        .toSet()
+        .toList()
+      ..sort();
+    return brandNames
+        .map((name) => Brand(
+              id: name.toLowerCase().replaceAll(' ', '-'),
+              name: name,
+              slug: name.toLowerCase().replaceAll(' ', '-'),
+            ))
+        .toList();
   }
 
   /// Get paints by brand
-  static Future<List<Map<String, dynamic>>> getPaintsByBrand(String brand) async {
+  static Future<List<Map<String, dynamic>>> getPaintsByBrand(
+      String brand) async {
     final allPaints = await _loadPaintData();
     return allPaints.where((paint) => paint['brandName'] == brand).toList();
   }
 
   /// Get paints by family
-  static Future<List<Map<String, dynamic>>> getPaintsByFamily(String family) async {
+  static Future<List<Map<String, dynamic>>> getPaintsByFamily(
+      String family) async {
     final allPaints = await _loadPaintData();
     return allPaints.where((paint) => paint['family'] == family).toList();
   }
@@ -234,8 +240,8 @@ class SamplePaints {
       final code = paint['code'].toString().toLowerCase();
       final brand = paint['brandName'].toString().toLowerCase();
       return name.contains(lowerQuery) ||
-             code.contains(lowerQuery) ||
-             brand.contains(lowerQuery);
+          code.contains(lowerQuery) ||
+          brand.contains(lowerQuery);
     }).toList();
   }
 

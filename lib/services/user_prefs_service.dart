@@ -33,7 +33,8 @@ class UserPrefs {
       voiceModel: (data?['voice']?['model'] as String?) ?? 'gpt-realtime-nano',
       voiceVoice: (data?['voice']?['voice'] as String?) ?? 'alloy',
       voiceDailyCapMinutes: (data?['voice']?['dailyCapMinutes'] as int?) ?? 60,
-      featureVoiceInterview: (data?['features']?['voiceInterview'] as bool?) ?? true,
+      featureVoiceInterview:
+          (data?['features']?['voiceInterview'] as bool?) ?? true,
     );
   }
 }
@@ -86,7 +87,8 @@ class UserPrefsService {
   }
 
   // Convenience static mutators used by Labs UI (and elsewhere)
-  static Future<void> setVoicePrefs({String? model, String? voice, int? dailyCapMinutes}) async {
+  static Future<void> setVoicePrefs(
+      {String? model, String? voice, int? dailyCapMinutes}) async {
     final doc = _doc;
     if (doc != null) {
       await doc.set({
@@ -110,7 +112,8 @@ class UserPrefsService {
 }
 
 extension UserPrefsMutators on UserPrefsService {
-  static Future<void> setVoicePrefs({String? model, String? voice, int? dailyCapMinutes}) async {
+  static Future<void> setVoicePrefs(
+      {String? model, String? voice, int? dailyCapMinutes}) async {
     final doc = UserPrefsService._doc;
     if (doc != null) {
       await doc.set({
@@ -132,4 +135,3 @@ extension UserPrefsMutators on UserPrefsService {
     }
   }
 }
-

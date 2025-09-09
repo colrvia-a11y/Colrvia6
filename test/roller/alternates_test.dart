@@ -22,6 +22,7 @@ class _FakePaint extends Paint {
 }
 
 class MockRepo extends Mock implements PaintRepository {}
+
 class MockSvc extends Mock implements PaletteService {}
 
 void main() {
@@ -44,20 +45,27 @@ void main() {
     tearDown(() => container.dispose());
 
     test('applies alternate when available', () async {
-      when(() => repo.getAll()).thenAnswer((_) async => List.generate(10, (i) => _FakePaint('p$i', '#000000')));
-      when(() => repo.getPool(brandIds: any(named: 'brandIds'), theme: any(named: 'theme')))
-          .thenAnswer((_) async => List.generate(10, (i) => _FakePaint('p$i', '#000000')));
+      when(() => repo.getAll()).thenAnswer(
+          (_) async => List.generate(10, (i) => _FakePaint('p$i', '#000000')));
+      when(() =>
+          repo.getPool(
+              brandIds: any(named: 'brandIds'),
+              theme: any(named: 'theme'))).thenAnswer(
+          (_) async => List.generate(10, (i) => _FakePaint('p$i', '#000000')));
 
       when(() => svc.generate(
-            available: any(named: 'available'),
-            anchors: any(named: 'anchors'),
-            diversifyBrands: any(named: 'diversifyBrands'),
-            slotLrvHints: any(named: 'slotLrvHints'),
-            fixedUndertones: any(named: 'fixedUndertones'),
-            themeSpec: any(named: 'themeSpec'),
-            themeThreshold: any(named: 'themeThreshold'),
-            attempts: any(named: 'attempts'),
-          )).thenAnswer((_) async => List.generate(5, (i) => _FakePaint('r$i', '#ABCDEF')));
+                available: any(named: 'available'),
+                anchors: any(named: 'anchors'),
+                diversifyBrands: any(named: 'diversifyBrands'),
+                slotLrvHints: any(named: 'slotLrvHints'),
+                fixedUndertones: any(named: 'fixedUndertones'),
+                themeSpec: any(named: 'themeSpec'),
+                themeThreshold: any(named: 'themeThreshold'),
+                attempts: any(named: 'attempts'),
+                mode: any(named: 'mode'),
+              ))
+          .thenAnswer((_) async =>
+              List.generate(5, (i) => _FakePaint('r$i', '#ABCDEF')));
 
       when(() => svc.alternatesForSlot(
             available: any(named: 'available'),
@@ -67,7 +75,7 @@ void main() {
             fixedUndertones: any(named: 'fixedUndertones'),
             themeSpec: any(named: 'themeSpec'),
             targetCount: any(named: 'targetCount'),
-          )).thenAnswer((inv) async => [ _FakePaint('alt1', '#111111') ]);
+          )).thenAnswer((inv) async => [_FakePaint('alt1', '#111111')]);
 
       final ctrl = container.read(rollerControllerProvider.notifier);
       await ctrl.initIfNeeded();
@@ -79,20 +87,27 @@ void main() {
     });
 
     test('falls back to reroll when alternates empty', () async {
-      when(() => repo.getAll()).thenAnswer((_) async => List.generate(10, (i) => _FakePaint('p$i', '#000000')));
-      when(() => repo.getPool(brandIds: any(named: 'brandIds'), theme: any(named: 'theme')))
-          .thenAnswer((_) async => List.generate(10, (i) => _FakePaint('p$i', '#000000')));
+      when(() => repo.getAll()).thenAnswer(
+          (_) async => List.generate(10, (i) => _FakePaint('p$i', '#000000')));
+      when(() =>
+          repo.getPool(
+              brandIds: any(named: 'brandIds'),
+              theme: any(named: 'theme'))).thenAnswer(
+          (_) async => List.generate(10, (i) => _FakePaint('p$i', '#000000')));
 
       when(() => svc.generate(
-            available: any(named: 'available'),
-            anchors: any(named: 'anchors'),
-            diversifyBrands: any(named: 'diversifyBrands'),
-            slotLrvHints: any(named: 'slotLrvHints'),
-            fixedUndertones: any(named: 'fixedUndertones'),
-            themeSpec: any(named: 'themeSpec'),
-            themeThreshold: any(named: 'themeThreshold'),
-            attempts: any(named: 'attempts'),
-          )).thenAnswer((_) async => List.generate(5, (i) => _FakePaint('r$i', '#ABCDEF')));
+                available: any(named: 'available'),
+                anchors: any(named: 'anchors'),
+                diversifyBrands: any(named: 'diversifyBrands'),
+                slotLrvHints: any(named: 'slotLrvHints'),
+                fixedUndertones: any(named: 'fixedUndertones'),
+                themeSpec: any(named: 'themeSpec'),
+                themeThreshold: any(named: 'themeThreshold'),
+                attempts: any(named: 'attempts'),
+                mode: any(named: 'mode'),
+              ))
+          .thenAnswer((_) async =>
+              List.generate(5, (i) => _FakePaint('r$i', '#ABCDEF')));
 
       when(() => svc.alternatesForSlot(
             available: any(named: 'available'),

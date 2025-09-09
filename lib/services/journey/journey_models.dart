@@ -15,10 +15,11 @@ class JourneyStep {
   final String id;
   final String title;
   final StepType type;
-  final String? screenRoute;  // e.g., '/roller' (we use widget navigation directly too)
+  final String?
+      screenRoute; // e.g., '/roller' (we use widget navigation directly too)
   final Map<String, dynamic>? params;
-  final List<String> requires;      // required artifact keys
-  final List<TransitionRule> next;  // branching
+  final List<String> requires; // required artifact keys
+  final List<TransitionRule> next; // branching
 
   const JourneyStep({
     required this.id,
@@ -66,20 +67,22 @@ class JourneyState {
   }
 
   Map<String, dynamic> toJson() => {
-    'journeyId': journeyId,
-    'projectId': projectId,
-    'currentStepId': currentStepId,
-    'completedStepIds': completedStepIds,
-    'artifacts': artifacts,
-  };
+        'journeyId': journeyId,
+        'projectId': projectId,
+        'currentStepId': currentStepId,
+        'completedStepIds': completedStepIds,
+        'artifacts': artifacts,
+      };
 
   static JourneyState fromJson(Map<String, dynamic> json) {
     return JourneyState(
       journeyId: json['journeyId'] as String? ?? 'default_color_story_v1',
       projectId: json['projectId'] as String?,
       currentStepId: json['currentStepId'] as String?,
-      completedStepIds: (json['completedStepIds'] as List?)?.cast<String>() ?? const [],
-      artifacts: (json['artifacts'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{},
+      completedStepIds:
+          (json['completedStepIds'] as List?)?.cast<String>() ?? const [],
+      artifacts: (json['artifacts'] as Map?)?.cast<String, dynamic>() ??
+          <String, dynamic>{},
     );
   }
 }

@@ -16,16 +16,16 @@ void main() async {
 
   try {
     logger.info('Testing Firebase AI service...');
-    
+
     // Initialize Firebase AI service
     await FirebaseAIService.initialize();
     logger.info('Firebase AI service initialized');
-    
+
     // Test connection
     logger.info('Testing Firebase AI connection...');
     final connected = await FirebaseAIService.testConnection();
     logger.info('Firebase AI connection: ${connected ? 'SUCCESS' : 'FAILED'}');
-    
+
     // Test color story generation with sample data
     logger.info('Testing color story generation...');
     try {
@@ -55,20 +55,21 @@ void main() async {
           finish: 'satin',
         ),
       ];
-      
+
       final story = await FirebaseAIService.generateColorStory(
         colors: sampleColors,
         room: 'living room',
         style: 'modern',
         vibeWords: ['cozy', 'elegant', 'sophisticated'],
       );
-      logger.info('Color story generated successfully: ${story.substring(0, 50)}...');
+      logger.info(
+          'Color story generated successfully: ${story.substring(0, 50)}...');
     } catch (e) {
-      logger.warning('Color story generation failed (expected if Cloud Functions not deployed): $e');
+      logger.warning(
+          'Color story generation failed (expected if Cloud Functions not deployed): $e');
     }
-    
+
     logger.info('Firebase AI service test completed!');
-    
   } catch (e) {
     logger.severe('Error testing Firebase AI service: $e');
   }

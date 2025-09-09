@@ -22,8 +22,10 @@ typedef CreateProjectFn = Future<String> Function({
   String? activePaletteId,
   List<String> paletteIds,
 });
-typedef AttachPaletteFn = Future<void> Function(String projectId, String paletteId);
-typedef SetLastProjectFn = Future<void> Function(String projectId, String screen);
+typedef AttachPaletteFn = Future<void> Function(
+    String projectId, String paletteId);
+typedef SetLastProjectFn = Future<void> Function(
+    String projectId, String screen);
 typedef EnsureSignedInFn = Future<void> Function(BuildContext context);
 typedef GetUidFn = String? Function();
 
@@ -125,7 +127,8 @@ class _SavePalettePanelState extends State<SavePalettePanel> {
         return;
       }
 
-      debugPrint('Attempting to save palette for userId: $uid to collection: palettes');
+      debugPrint(
+          'Attempting to save palette for userId: $uid to collection: palettes');
 
       final palette = UserPalette(
         id: '', // Will be set by FirebaseService
@@ -166,7 +169,8 @@ class _SavePalettePanelState extends State<SavePalettePanel> {
           'tags': palette.tags,
         });
 
-        String? projectId = widget.projectId; // Use existing projectId if available
+        String? projectId =
+            widget.projectId; // Use existing projectId if available
 
         if (projectId == null) {
           // Create a new project if none exists
@@ -189,7 +193,8 @@ class _SavePalettePanelState extends State<SavePalettePanel> {
         if (curr != null && curr.projectId == null) {
           journey.state.value = curr.copyWith(projectId: projectId);
         }
-        await journey.completeCurrentStep(artifacts: {'paletteId': savedPaletteId});
+        await journey
+            .completeCurrentStep(artifacts: {'paletteId': savedPaletteId});
 
         // Show subtle success snackbar
         widget.onSaved(); // Close save panel first

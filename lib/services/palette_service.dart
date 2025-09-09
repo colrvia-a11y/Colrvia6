@@ -8,8 +8,9 @@ class PaletteService {
 
   final _fn = FirebaseFunctions.instance.httpsCallable('generatePaletteOnCall');
 
-  Future<Map<String, dynamic>> generateFromAnswers(Map<String, dynamic> answers) async {
-    final res = await _fn.call({ 'answers': answers });
+  Future<Map<String, dynamic>> generateFromAnswers(
+      Map<String, dynamic> answers) async {
+    final res = await _fn.call({'answers': answers});
     final data = (res.data as Map).cast<String, dynamic>();
     if (data['ok'] != true) throw Exception('Palette generation failed');
     final palette = (data['palette'] as Map).cast<String, dynamic>();

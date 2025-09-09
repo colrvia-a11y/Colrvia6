@@ -20,9 +20,10 @@ Future<LightingProfile?> showLightingProfilePicker(
                 const Padding(
                   padding: EdgeInsets.all(16),
                   child: Text('Lighting Profile',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
-                                Padding(
+                Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: SegmentedButton<LightingProfile>(
                     segments: LightingProfile.values

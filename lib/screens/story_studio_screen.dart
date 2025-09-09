@@ -1250,7 +1250,8 @@ class _StoryStudioScreenState extends State<StoryStudioScreen> {
                                 Positioned.fill(
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      color: Colors.black.withValues(alpha: 0.3),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.3),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: const Center(
@@ -1932,8 +1933,9 @@ class _StoryStudioScreenState extends State<StoryStudioScreen> {
                         label: const Text('Use This Color Story'),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor:
-                              Theme.of(context).primaryColor.withValues(alpha: 0.5),
+                          backgroundColor: Theme.of(context)
+                              .primaryColor
+                              .withValues(alpha: 0.5),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -1955,8 +1957,8 @@ class _StoryStudioScreenState extends State<StoryStudioScreen> {
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               foregroundColor: textColor.withValues(alpha: 0.5),
-                              side:
-                                  BorderSide(color: textColor.withValues(alpha: 0.3)),
+                              side: BorderSide(
+                                  color: textColor.withValues(alpha: 0.3)),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -1972,8 +1974,8 @@ class _StoryStudioScreenState extends State<StoryStudioScreen> {
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               foregroundColor: textColor.withValues(alpha: 0.5),
-                              side:
-                                  BorderSide(color: textColor.withValues(alpha: 0.3)),
+                              side: BorderSide(
+                                  color: textColor.withValues(alpha: 0.3)),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),

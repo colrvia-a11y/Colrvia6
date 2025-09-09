@@ -23,7 +23,8 @@ class GeminiAIService {
   static Future<Map<String, dynamic>> analyzeSpace(Uint8List imageBytes) async {
     try {
       final model = _analysisModel();
-      final prompt = '''Analyze this interior/exterior space image and provide a JSON response with:
+      final prompt =
+          '''Analyze this interior/exterior space image and provide a JSON response with:
 {
   "space_type": "living_room|kitchen|bathroom|bedroom|exterior|office",
   "paintable_surfaces": ["walls", "cabinets", "trim", "ceiling", "shutters", "doors"],
@@ -58,10 +59,7 @@ class GeminiAIService {
         "lighting_conditions": "natural",
         "style": "modern",
         "dominant_colors": ["#F5F5F5", "#E8E8E8"],
-        "surface_areas": {
-          "walls": "large",
-          "cabinets": "none"
-        },
+        "surface_areas": {"walls": "large", "cabinets": "none"},
         "perspective": "straight_on",
         "quality_score": 0.85,
         "_fallback": true,
@@ -127,9 +125,7 @@ class GeminiAIService {
   }) async {
     final prompt = _buildMockupPrompt(spaceType, style, surfaceColors);
     final model = _imageModel();
-    final resp = await model.generateContent([
-      Content.text(prompt)
-    ]);
+    final resp = await model.generateContent([Content.text(prompt)]);
 
     if (resp.inlineDataParts.isNotEmpty) {
       return resp.inlineDataParts.first.bytes;

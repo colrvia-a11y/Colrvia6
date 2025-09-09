@@ -1,3 +1,8 @@
+// Note: ThemeSpec works orthogonally to HarmonyMode.
+// When a theme is active, the candidate pool is prefiltered and scored per ThemeSpec,
+// and the generator (Analogous/Complementary/Triad/ColrVia) runs within that pool.
+// ColrVia enforces the universal value/role blueprint while respecting theme constraints.
+
 import 'dart:math';
 
 import 'package:color_canvas/firestore/firestore_data_schema.dart' show Paint;
@@ -23,6 +28,7 @@ class ThemeEngine {
     }
     return out;
   }
+
   // Prefilter paints by LCH windows in spec.neutrals or spec.accents
   static List<Paint> prefilter(List<Paint> paints, ThemeSpec spec) {
     if (spec.neutrals == null && spec.accents == null) return paints;
@@ -57,7 +63,8 @@ class ThemeEngine {
         out.add([_clamp01Range(anchorL.min), _clamp01Range(anchorL.max)]);
       } else if (i == 1) {
         if (secondaryL != null) {
-          out.add([_clamp01Range(secondaryL.min), _clamp01Range(secondaryL.max)]);
+          out.add(
+              [_clamp01Range(secondaryL.min), _clamp01Range(secondaryL.max)]);
         } else {
           // near anchor ±8
           final lo = (anchorL.min - 8.0).clamp(0.0, 100.0);
@@ -102,10 +109,13 @@ class ThemeEngine {
 
     // neutralShare
     final neutralCMax = spec.neutrals?.C?.max ?? 12.0;
-    final neutralCount = palette.where((p) => (p.lch.length > 1 ? p.lch[1] : 0.0) <= neutralCMax).length;
+    final neutralCount = palette
+        .where((p) => (p.lch.length > 1 ? p.lch[1] : 0.0) <= neutralCMax)
+        .length;
     final neutralShare = neutralCount / palette.length;
     _accumulate('neutralShare', neutralShare, weights, (s, w) {
-      weightedSum += s * w; sumWeights += w;
+      weightedSum += s * w;
+      sumWeights += w;
     });
 
     // forbidden hues -> hueAllowed (1.0 if none offending, else 1 - share offending)
@@ -115,9 +125,11 @@ class ThemeEngine {
       final hue = (p.lch.length > 2 ? p.lch[2] % 360 : 0.0);
       if (_inForbidden(hue, forbidden)) offending++;
     }
-    final hueAllowed = offending == 0 ? 1.0 : max(0.0, 1.0 - (offending / palette.length));
+    final hueAllowed =
+        offending == 0 ? 1.0 : max(0.0, 1.0 - (offending / palette.length));
     _accumulate('forbiddenHuePenalty', hueAllowed, weights, (s, w) {
-      weightedSum += s * w; sumWeights += w;
+      weightedSum += s * w;
+      sumWeights += w;
     });
 
     // saturationDiscipline: average of per-color (allowedMax / C) capped at 1.0
@@ -130,29 +142,36 @@ class ThemeEngine {
     }
     final saturationDiscipline = satSum / palette.length;
     _accumulate('saturationDiscipline', saturationDiscipline, weights, (s, w) {
-      weightedSum += s * w; sumWeights += w;
+      weightedSum += s * w;
+      sumWeights += w;
     });
 
     // harmonyMatch
     double harmonyMatch = 0.0;
     if (spec.harmonyBias.contains('analogous')) {
-      final hues = palette.map((p) => (p.lch.length > 2 ? p.lch[2] % 360 : 0.0)).toList();
+      final hues = palette
+          .map((p) => (p.lch.length > 2 ? p.lch[2] % 360 : 0.0))
+          .toList();
       if (hues.isNotEmpty) {
         final span = _hueSpan(hues);
         if (span <= 60.0) harmonyMatch = 1.0;
       }
     }
     if (spec.harmonyBias.contains('neutral-plus-accent')) {
-      final hasNeutral = palette.any((p) => (p.lch.length > 1 ? p.lch[1] : 0.0) <= neutralCMax);
-      final hasAccent = palette.any((p) => (p.lch.length > 1 ? p.lch[1] : 0.0) > neutralCMax);
+      final hasNeutral = palette
+          .any((p) => (p.lch.length > 1 ? p.lch[1] : 0.0) <= neutralCMax);
+      final hasAccent =
+          palette.any((p) => (p.lch.length > 1 ? p.lch[1] : 0.0) > neutralCMax);
       if (hasNeutral && hasAccent) harmonyMatch = max(harmonyMatch, 1.0);
     }
     _accumulate('harmonyMatch', harmonyMatch, weights, (s, w) {
-      weightedSum += s * w; sumWeights += w;
+      weightedSum += s * w;
+      sumWeights += w;
     });
 
     // accentContrast: contrast between darkest and lightest (by L) pair
-    final sortedByL = List<Paint>.from(palette)..sort((a, b) => (a.lch[0]).compareTo(b.lch[0]));
+    final sortedByL = List<Paint>.from(palette)
+      ..sort((a, b) => (a.lch[0]).compareTo(b.lch[0]));
     double accentContrast = 0.0;
     if (sortedByL.length >= 2) {
       final low = ColorUtils.hexToColor(sortedByL.first.hex);
@@ -161,23 +180,28 @@ class ThemeEngine {
       accentContrast = (contrast / 7.0).clamp(0.0, 1.0);
     }
     _accumulate('accentContrast', accentContrast, weights, (s, w) {
-      weightedSum += s * w; sumWeights += w;
+      weightedSum += s * w;
+      sumWeights += w;
     });
 
     // warmBias / coolBias
-    final hues = palette.map((p) => (p.lch.length > 2 ? p.lch[2] % 360 : 0.0)).toList();
-    final warmCount = hues.where((h) => (h >= 0 && h <= 90) || (h >= 330 && h <= 360)).length;
+    final hues =
+        palette.map((p) => (p.lch.length > 2 ? p.lch[2] % 360 : 0.0)).toList();
+    final warmCount =
+        hues.where((h) => (h >= 0 && h <= 90) || (h >= 330 && h <= 360)).length;
     final coolCount = hues.where((h) => (h >= 90 && h <= 270)).length;
     final warmProp = warmCount / palette.length;
     final coolProp = coolCount / palette.length;
     if (weights.containsKey('warmBias')) {
       _accumulate('warmBias', warmProp, weights, (s, w) {
-        weightedSum += s * w; sumWeights += w;
+        weightedSum += s * w;
+        sumWeights += w;
       });
     }
     if (weights.containsKey('coolBias')) {
       _accumulate('coolBias', coolProp, weights, (s, w) {
-        weightedSum += s * w; sumWeights += w;
+        weightedSum += s * w;
+        sumWeights += w;
       });
     }
 
@@ -185,7 +209,8 @@ class ThemeEngine {
     final uniqueBrands = palette.map((p) => p.brandName).toSet().length;
     final brandDiversity = uniqueBrands / palette.length;
     _accumulate('brandDiversity', brandDiversity, weights, (s, w) {
-      weightedSum += s * w; sumWeights += w;
+      weightedSum += s * w;
+      sumWeights += w;
     });
 
     // v2: varietyFitness (soft feature for score shaping)
@@ -201,7 +226,8 @@ class ThemeEngine {
       }
     }
     _accumulate('varietyFitness', varietyFitness, weights, (s, w) {
-      weightedSum += s * w; sumWeights += w;
+      weightedSum += s * w;
+      sumWeights += w;
     });
 
     // v2: accentHueFit (share of accent hues inside allowed_hue_ranges)
@@ -227,12 +253,20 @@ class ThemeEngine {
       }
     }
     _accumulate('accentHueFit', accentHueFit, weights, (s, w) {
-      weightedSum += s * w; sumWeights += w;
+      weightedSum += s * w;
+      sumWeights += w;
     });
 
     // If no weights provided, return simple average of some features
     if (sumWeights <= 0.0) {
-  final fallback = (neutralShare + hueAllowed + saturationDiscipline + harmonyMatch + accentContrast + warmProp + brandDiversity) / 7.0;
+      final fallback = (neutralShare +
+              hueAllowed +
+              saturationDiscipline +
+              harmonyMatch +
+              accentContrast +
+              warmProp +
+              brandDiversity) /
+          7.0;
       return fallback.clamp(0.0, 1.0);
     }
 
@@ -242,11 +276,11 @@ class ThemeEngine {
 
   static String explain(List<Paint> palette, ThemeSpec spec) {
     try {
-  final score = scorePalette(palette, spec);
-  final vc = spec.varietyControls;
-  final accents = _accentHues(palette, spec).length;
-  final neutrals = palette.where((p) => _isNeutral(p, spec)).length;
-  return 'score=${score.toStringAsFixed(3)},n=${palette.length},neutrals=$neutrals,accents=$accents,vc=${vc?.minColors}-${vc?.maxColors}';
+      final score = scorePalette(palette, spec);
+      final vc = spec.varietyControls;
+      final accents = _accentHues(palette, spec).length;
+      final neutrals = palette.where((p) => _isNeutral(p, spec)).length;
+      return 'score=${score.toStringAsFixed(3)},n=${palette.length},neutrals=$neutrals,accents=$accents,vc=${vc?.minColors}-${vc?.maxColors}';
     } catch (e) {
       return 'error:${e.toString()}';
     }
@@ -312,7 +346,8 @@ double _hueSpan(List<double> hues) {
 
 double _clamp01Range(double v) => v.clamp(0.0, 100.0);
 
-void _accumulate(String key, double featureValue, Map<String, double> weights, void Function(double, double) cb) {
+void _accumulate(String key, double featureValue, Map<String, double> weights,
+    void Function(double, double) cb) {
   final w = weights[key] ?? 0.0;
   if (w > 0.0) cb(featureValue.clamp(0.0, 1.0), w);
 }

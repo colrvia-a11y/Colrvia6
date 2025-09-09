@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:color_canvas/widgets/colr_via_icon_button.dart' as app;
@@ -94,7 +94,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 
   Widget _buildPlaceholderGrid() {
-    final bottomPadding = 24 + kBottomNavigationBarHeight + MediaQuery.of(context).padding.bottom;
+    final bottomPadding =
+        24 + kBottomNavigationBarHeight + MediaQuery.of(context).padding.bottom;
     return GridView.builder(
       controller: _scrollController,
       padding: EdgeInsets.fromLTRB(16, 16, 16, bottomPadding),

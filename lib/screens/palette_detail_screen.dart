@@ -110,15 +110,15 @@ class _PaletteDetailScreenState extends State<PaletteDetailScreen> {
 
   Future<void> _sharePaletteImage() async {
     try {
-      final boundary =
-          _shareKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      final boundary = _shareKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
       if (boundary == null) throw Exception('Preview not ready');
       final image = await boundary.toImage(pixelRatio: 3.0);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData!.buffer.asUint8List();
       final dir = await getTemporaryDirectory();
-      final file = await File('${dir.path}/palette_${widget.palette.id}.png')
-          .create();
+      final file =
+          await File('${dir.path}/palette_${widget.palette.id}.png').create();
       await file.writeAsBytes(pngBytes);
       await Share.shareXFiles([XFile(file.path)], text: widget.palette.name);
       AnalyticsService.instance.logEvent('palette_share_image', {

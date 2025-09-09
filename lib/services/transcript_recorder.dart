@@ -17,8 +17,12 @@ class TranscriptEvent {
     this.promptId,
     DateTime? at,
   }) : at = at ?? DateTime.now();
-  Map<String, dynamic> toJson() =>
-      {'type': type, 'text': text, 'promptId': promptId, 'at': at.toIso8601String()};
+  Map<String, dynamic> toJson() => {
+        'type': type,
+        'text': text,
+        'promptId': promptId,
+        'at': at.toIso8601String()
+      };
 }
 
 class TranscriptRecorder {
@@ -53,16 +57,15 @@ class TranscriptRecorder {
     return b.toString();
   }
 
-  String toJsonLines() =>
-      _events.map((e) => jsonEncode(e.toJson())).join('\n');
+  String toJsonLines() => _events.map((e) => jsonEncode(e.toJson())).join('\n');
 
   Future<String> uploadJson({String? sessionId}) async {
     final uid = AuthService.instance.uid ?? 'anon';
     final id = sessionId ??
-        (JourneyService.instance.state.value?.artifacts['interviewId'] as String? ??
+        (JourneyService.instance.state.value?.artifacts['interviewId']
+                as String? ??
             'adhoc');
-    final ref = FirebaseStorage.instance
-        .ref('users/$uid/transcripts/$id.json');
+    final ref = FirebaseStorage.instance.ref('users/$uid/transcripts/$id.json');
     final data = toJsonLines();
     await ref.putString(data,
         format: PutStringFormat.raw,

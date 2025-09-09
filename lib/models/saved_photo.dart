@@ -24,7 +24,7 @@ class SavedPhoto {
       userId: map['userId'] ?? '',
       imageData: map['imageData'] ?? Uint8List(0),
       description: map['description'] ?? '',
-      createdAt: map['createdAt'] != null 
+      createdAt: map['createdAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'])
           : DateTime.now(),
       metadata: map['metadata'],

@@ -20,14 +20,14 @@ class PaletteColor {
   });
 
   Map<String, dynamic> toJson() => {
-    'paintId': paintId,
-    'locked': locked,
-    'position': position,
-    'brand': brand,
-    'name': name,
-    'code': code,
-    'hex': hex,
-  };
+        'paintId': paintId,
+        'locked': locked,
+        'position': position,
+        'brand': brand,
+        'name': name,
+        'code': code,
+        'hex': hex,
+      };
 }
 
 class ColorPlan {
@@ -38,6 +38,6 @@ class ColorPlan {
   });
 
   Map<String, dynamic> toJson() => {
-    'colors': colors.map((c) => c.toJson()).toList(),
-  };
+        'colors': colors.map((c) => c.toJson()).toList(),
+      };
 }

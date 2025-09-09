@@ -1,12 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
+import 'package:color_canvas/utils/palette_generator.dart';
 import 'package:color_canvas/roller_theme/theme_spec.dart';
 
 /// A single "page" in the Roller feed.
 @immutable
 class RollerPage {
-  final List<Paint> strips;         // 5 paints, typically
-  final List<bool> locks;           // which strips are locked
+  final List<Paint> strips; // 5 paints, typically
+  final List<bool> locks; // which strips are locked
   final DateTime createdAt;
 
   RollerPage({
@@ -18,37 +19,48 @@ class RollerPage {
   RollerPage copyWith({
     List<Paint>? strips,
     List<bool>? locks,
-  }) => RollerPage(
-    strips: strips ?? this.strips,
-    locks: locks ?? this.locks,
-    createdAt: createdAt,
-  );
+  }) =>
+      RollerPage(
+        strips: strips ?? this.strips,
+        locks: locks ?? this.locks,
+        createdAt: createdAt,
+      );
 }
 
 @immutable
 class RollerFilters {
-  final Set<String> brandIds;         // IDs from Brand.id
-  final bool diversifyBrands;         // strategy toggle
+  final Set<String> brandIds; // IDs from Brand.id
+  final bool diversifyBrands; // strategy toggle
   final List<String>? fixedUndertones; // optional undertone constraints
+  final int stripCount; // NEW: 1..9, default 5
+  final HarmonyMode harmonyMode; // NEW: ColrVia/Analogous/Complementary/Triad
 
   const RollerFilters({
     this.brandIds = const {},
     this.diversifyBrands = true,
     this.fixedUndertones,
+    this.stripCount = 5,
+    this.harmonyMode = HarmonyMode.colrvia,
   });
 
   RollerFilters copyWith({
     Set<String>? brandIds,
     bool? diversifyBrands,
     List<String>? fixedUndertones,
-  }) => RollerFilters(
-    brandIds: brandIds ?? this.brandIds,
-    diversifyBrands: diversifyBrands ?? this.diversifyBrands,
-    fixedUndertones: fixedUndertones ?? this.fixedUndertones,
-  );
+    int? stripCount,
+    HarmonyMode? harmonyMode,
+  }) =>
+      RollerFilters(
+        brandIds: brandIds ?? this.brandIds,
+        diversifyBrands: diversifyBrands ?? this.diversifyBrands,
+        fixedUndertones: fixedUndertones ?? this.fixedUndertones,
+        stripCount: stripCount ?? this.stripCount,
+        harmonyMode: harmonyMode ?? this.harmonyMode,
+      );
 
   @override
-  String toString() => 'RollerFilters(brandIds: $brandIds, diversify: $diversifyBrands, fixed: $fixedUndertones)';
+  String toString() =>
+      'RollerFilters(brandIds: $brandIds, diversify: $diversifyBrands, fixed: $fixedUndertones)';
 }
 
 enum RollerStatus { idle, loading, rolling, error }
@@ -74,7 +86,8 @@ class RollerState {
   });
 
   bool get hasPages => pages.isNotEmpty;
-  RollerPage? get currentPage => hasPages && visiblePage < pages.length ? pages[visiblePage] : null;
+  RollerPage? get currentPage =>
+      hasPages && visiblePage < pages.length ? pages[visiblePage] : null;
 
   RollerState copyWith({
     List<RollerPage>? pages,
@@ -84,13 +97,14 @@ class RollerState {
     RollerStatus? status,
     Set<int>? generatingPages,
     String? error,
-  }) => RollerState(
-    pages: pages ?? this.pages,
-    visiblePage: visiblePage ?? this.visiblePage,
-    filters: filters ?? this.filters,
-    themeSpec: themeSpec ?? this.themeSpec,
-    status: status ?? this.status,
-    generatingPages: generatingPages ?? this.generatingPages,
-    error: error,
-  );
+  }) =>
+      RollerState(
+        pages: pages ?? this.pages,
+        visiblePage: visiblePage ?? this.visiblePage,
+        filters: filters ?? this.filters,
+        themeSpec: themeSpec ?? this.themeSpec,
+        status: status ?? this.status,
+        generatingPages: generatingPages ?? this.generatingPages,
+        error: error,
+      );
 }

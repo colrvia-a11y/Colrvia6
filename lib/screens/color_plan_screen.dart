@@ -5,7 +5,8 @@ import '../services/analytics_service.dart';
 import '../services/user_prefs_service.dart';
 import '../services/journey/journey_service.dart';
 
-typedef SetLastProjectFn = Future<void> Function(String projectId, String screen);
+typedef SetLastProjectFn = Future<void> Function(
+    String projectId, String screen);
 
 @visibleForTesting
 SetLastProjectFn setLastProjectFn = UserPrefsService.setLastProject;
@@ -43,7 +44,8 @@ class _ColorPlanScreenState extends State<ColorPlanScreen> {
     super.initState();
     _svc = widget.svc ?? ColorPlanService();
     AnalyticsService.instance.logEvent('journey_step_view', {
-      'step_id': JourneyService.instance.state.value?.currentStepId ?? 'plan.create',
+      'step_id':
+          JourneyService.instance.state.value?.currentStepId ?? 'plan.create',
     });
     setLastProjectFn(widget.projectId, 'plan');
     _generate();
@@ -90,9 +92,16 @@ class _ColorPlanScreenState extends State<ColorPlanScreen> {
 
   @override
   Widget build(BuildContext context) {
-  if (_loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
-  if (_error != null) return Scaffold(appBar: AppBar(title: const Text('Color Plan')), body: Center(child: Text(_error!)));
-  if (_plan == null) return Scaffold(appBar: AppBar(title: const Text('Color Plan')), body: const Center(child: Text('No plan generated')));
+    if (_loading)
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (_error != null)
+      return Scaffold(
+          appBar: AppBar(title: const Text('Color Plan')),
+          body: Center(child: Text(_error!)));
+    if (_plan == null)
+      return Scaffold(
+          appBar: AppBar(title: const Text('Color Plan')),
+          body: const Center(child: Text('No plan generated')));
 
     final plan = _plan!;
     final banner = _showRetry
@@ -117,52 +126,61 @@ class _ColorPlanScreenState extends State<ColorPlanScreen> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-          Text(plan.vibe, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 12),
-          _Section(
-            title: 'Placement Map',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: plan.placementMap.map((p) => Text('${p.area}: ${p.colorId}')).toList(),
-            ),
-          ),
-          _Section(
-            title: 'Cohesion Tips',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: plan.cohesionTips.map((t) => Text('• $t')).toList(),
-            ),
-          ),
-          _Section(
-            title: 'Accent Rules',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: plan.accentRules.map((a) => Text('• ${a.context}: ${a.guidance}')).toList(),
-            ),
-          ),
-          _Section(
-            title: 'Do / Don\'t',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: plan.doDont.map((d) => Text('✓ ${d.doText}   ✗ ${d.dontText}')).toList(),
-            ),
-          ),
-          _Section(
-            title: 'Sample Sequence',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: plan.sampleSequence.map((s) => Text('• $s')).toList(),
-            ),
-          ),
-          _Section(
-            title: 'Room-by-Room Playbook',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children:
-                  plan.roomPlaybook.map((r) => Text('${r.roomType}: ${r.notes}')).toList(),
-            ),
-          ),
-        ],
+                Text(plan.vibe, style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 12),
+                _Section(
+                  title: 'Placement Map',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: plan.placementMap
+                        .map((p) => Text('${p.area}: ${p.colorId}'))
+                        .toList(),
+                  ),
+                ),
+                _Section(
+                  title: 'Cohesion Tips',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children:
+                        plan.cohesionTips.map((t) => Text('• $t')).toList(),
+                  ),
+                ),
+                _Section(
+                  title: 'Accent Rules',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: plan.accentRules
+                        .map((a) => Text('• ${a.context}: ${a.guidance}'))
+                        .toList(),
+                  ),
+                ),
+                _Section(
+                  title: 'Do / Don\'t',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: plan.doDont
+                        .map((d) => Text('✓ ${d.doText}   ✗ ${d.dontText}'))
+                        .toList(),
+                  ),
+                ),
+                _Section(
+                  title: 'Sample Sequence',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children:
+                        plan.sampleSequence.map((s) => Text('• $s')).toList(),
+                  ),
+                ),
+                _Section(
+                  title: 'Room-by-Room Playbook',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: plan.roomPlaybook
+                        .map((r) => Text('${r.roomType}: ${r.notes}'))
+                        .toList(),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

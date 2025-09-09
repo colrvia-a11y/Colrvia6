@@ -11,8 +11,6 @@ class ProjectService {
   static String? get _uid => _auth.currentUser?.uid; // Keep this
   static CollectionReference get _col => _db.collection('projects');
 
-
-
   static Stream<List<ProjectDoc>> myProjectsStream({int limit = 50}) {
     final uid = _uid;
     if (uid == null) return const Stream.empty();
@@ -39,9 +37,12 @@ class ProjectService {
     final doc = _db.collection('projects').doc();
     final allPaletteIds = (paletteIds.isNotEmpty)
         ? paletteIds
-        : (activePaletteId != null && activePaletteId.isNotEmpty ? [activePaletteId] : <String>[]);
+        : (activePaletteId != null && activePaletteId.isNotEmpty
+            ? [activePaletteId]
+            : <String>[]);
 
-    debugPrint('Creating project for ownerId=$ownerId at /projects/${doc.id}'); // Changed ref.id to doc.id
+    debugPrint(
+        'Creating project for ownerId=$ownerId at /projects/${doc.id}'); // Changed ref.id to doc.id
     await doc.set({
       'ownerId': ownerId,
       'title': title ?? 'My Color Story',
@@ -63,14 +64,17 @@ class ProjectService {
     }, SetOptions(merge: true));
   }
 
-  static Future<void> setFunnelStage(String projectId, FunnelStage stage) async {
-    final stageStr = stage.toString().split('.').last; // build/story/visualize/share
+  static Future<void> setFunnelStage(
+      String projectId, FunnelStage stage) async {
+    final stageStr =
+        stage.toString().split('.').last; // build/story/visualize/share
     await _db.collection('projects').doc(projectId).set({
       'funnelStage': stageStr,
       'updatedAt': Timestamp.now(),
     }, SetOptions(merge: true));
     // Track stage change
-    AnalyticsService.instance.logProjectStageChanged(projectId, stage); // Keep this
+    AnalyticsService.instance
+        .logProjectStageChanged(projectId, stage); // Keep this
   }
 
   static Future<ProjectDoc?> fetch(String id) async {
@@ -87,7 +91,11 @@ class ProjectService {
     }
 
     try {
-      await _db.collection('projects').doc(projectId).collection('paletteHistory').add({
+      await _db
+          .collection('projects')
+          .doc(projectId)
+          .collection('paletteHistory')
+          .add({
         'kind': kind,
         'palette': palette,
         'createdAt': FieldValue.serverTimestamp(),

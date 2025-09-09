@@ -249,8 +249,9 @@ class _StoryGalleryScreenState extends State<StoryGalleryScreen>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 decoration: BoxDecoration(
-                  color:
-                      isSelected ? Colors.white : Colors.white.withValues(alpha: 0.1),
+                  color: isSelected
+                      ? Colors.white
+                      : Colors.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(25),
                   border: Border.all(
                     color: isSelected
@@ -436,7 +437,8 @@ class _StoryGalleryScreenState extends State<StoryGalleryScreen>
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                      border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.3)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,

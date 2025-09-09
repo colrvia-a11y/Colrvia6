@@ -18,9 +18,11 @@ class PaintDataImporter {
       // Then create paint documents in batches
       await _createPaints(paintData, brandIds);
 
-      Debug.info('PaintDataImporter', 'importPaintData', '✅ Successfully imported ${paintData.length} paints');
+      Debug.info('PaintDataImporter', 'importPaintData',
+          '✅ Successfully imported ${paintData.length} paints');
     } catch (e) {
-      Debug.error('PaintDataImporter', 'importPaintData', '❌ Error importing paint data: $e');
+      Debug.error('PaintDataImporter', 'importPaintData',
+          '❌ Error importing paint data: $e');
       rethrow;
     }
   }
@@ -62,7 +64,8 @@ class PaintDataImporter {
       await batch.commit();
     }
 
-    Debug.info('PaintDataImporter', '_createBrands', '✅ Created ${uniqueBrands.length} brand documents');
+    Debug.info('PaintDataImporter', '_createBrands',
+        '✅ Created ${uniqueBrands.length} brand documents');
     return brandIds;
   }
 
@@ -115,10 +118,12 @@ class PaintDataImporter {
           await batch.commit();
           batch = _firestore.batch();
           batchCount = 0;
-          Debug.info('PaintDataImporter', '_createPaints', '📦 Processed $totalProcessed/${paintData.length} paints...');
+          Debug.info('PaintDataImporter', '_createPaints',
+              '📦 Processed $totalProcessed/${paintData.length} paints...');
         }
       } catch (e) {
-        Debug.warning('PaintDataImporter', '_createPaints', '⚠️ Error processing paint ${paintMap['name']}: $e');
+        Debug.warning('PaintDataImporter', '_createPaints',
+            '⚠️ Error processing paint ${paintMap['name']}: $e');
         continue;
       }
     }
@@ -213,9 +218,11 @@ class PaintDataImporter {
       }
       if (count > 0) await batch.commit();
 
-      Debug.info('PaintDataImporter', 'clearAllPaintData', '✅ Cleared all paint and brand data');
+      Debug.info('PaintDataImporter', 'clearAllPaintData',
+          '✅ Cleared all paint and brand data');
     } catch (e) {
-      Debug.error('PaintDataImporter', 'clearAllPaintData', '❌ Error clearing data: $e');
+      Debug.error('PaintDataImporter', 'clearAllPaintData',
+          '❌ Error clearing data: $e');
       rethrow;
     }
   }
@@ -233,7 +240,8 @@ class PaintDataImporter {
         'brands': brandsSnapshot.count ?? 0,
       };
     } catch (e) {
-      Debug.error('PaintDataImporter', 'getDataCount', '❌ Error getting data count: $e');
+      Debug.error('PaintDataImporter', 'getDataCount',
+          '❌ Error getting data count: $e');
       return {'paints': 0, 'brands': 0};
     }
   }
@@ -248,7 +256,8 @@ class AdminMigrations {
   /// with mismatched brandId values to the correct standardized format
   static Future<void> fixSherwinBrandIds() async {
     try {
-      Debug.info('AdminMigrations', 'fixSherwinBrandIds', '🔧 Starting Sherwin-Williams brand ID migration...');
+      Debug.info('AdminMigrations', 'fixSherwinBrandIds',
+          '🔧 Starting Sherwin-Williams brand ID migration...');
 
       // Step 1: Ensure the correct brand document exists
       const correctBrandId = 'brand_sherwin_williams';
@@ -267,7 +276,8 @@ class AdminMigrations {
         );
 
         await correctBrandRef.set(correctBrand.toJson());
-        Debug.info('AdminMigrations', 'fixSherwinBrandIds', '✅ Created correct brand document: $correctBrandId');
+        Debug.info('AdminMigrations', 'fixSherwinBrandIds',
+            '✅ Created correct brand document: $correctBrandId');
       }
 
       // Step 2: Find and update paints with incorrect brandId values
@@ -287,7 +297,7 @@ class AdminMigrations {
             .where('brandId', isEqualTo: incorrectBrandId)
             .get();
 
-        Debug.info('AdminMigrations', 'fixSherwinBrandIds', 
+        Debug.info('AdminMigrations', 'fixSherwinBrandIds',
             '🔍 Found ${paintsSnapshot.docs.length} paints with brandId: $incorrectBrandId');
 
         for (QueryDocumentSnapshot doc in paintsSnapshot.docs) {
@@ -299,7 +309,8 @@ class AdminMigrations {
             await batch.commit();
             batch = _firestore.batch();
             batchCount = 0;
-            Debug.info('AdminMigrations', 'fixSherwinBrandIds', '📦 Updated $totalUpdated paints so far...');
+            Debug.info('AdminMigrations', 'fixSherwinBrandIds',
+                '📦 Updated $totalUpdated paints so far...');
           }
         }
       }
@@ -317,14 +328,18 @@ class AdminMigrations {
 
         if (oldBrandDoc.exists) {
           await oldBrandRef.delete();
-          Debug.info('AdminMigrations', 'fixSherwinBrandIds', '🗑️ Removed old brand document: $incorrectBrandId');
+          Debug.info('AdminMigrations', 'fixSherwinBrandIds',
+              '🗑️ Removed old brand document: $incorrectBrandId');
         }
       }
 
-      Debug.info('AdminMigrations', 'fixSherwinBrandIds', '✅ Sherwin-Williams brand ID migration completed!');
-      Debug.info('AdminMigrations', 'fixSherwinBrandIds', '📊 Total paints updated: $totalUpdated');
+      Debug.info('AdminMigrations', 'fixSherwinBrandIds',
+          '✅ Sherwin-Williams brand ID migration completed!');
+      Debug.info('AdminMigrations', 'fixSherwinBrandIds',
+          '📊 Total paints updated: $totalUpdated');
     } catch (e) {
-      Debug.error('AdminMigrations', 'fixSherwinBrandIds', '❌ Error during Sherwin-Williams brand ID migration: $e');
+      Debug.error('AdminMigrations', 'fixSherwinBrandIds',
+          '❌ Error during Sherwin-Williams brand ID migration: $e');
       rethrow;
     }
   }

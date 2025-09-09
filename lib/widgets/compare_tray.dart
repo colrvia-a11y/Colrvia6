@@ -38,17 +38,29 @@ class CompareTray extends StatelessWidget {
             decoration: BoxDecoration(
               color: theme.colorScheme.surface.withValues(alpha: 0.80),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.18)),
-              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.10), blurRadius: 22, offset: const Offset(0, 14))],
+              border: Border.all(
+                  color: theme.colorScheme.outline.withValues(alpha: 0.18)),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.10),
+                    blurRadius: 22,
+                    offset: const Offset(0, 14))
+              ],
             ),
             child: Column(
               children: [
                 // soft ridge
-                Container(height: 4, decoration: BoxDecoration(
-                  gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [
-                    Colors.black.withValues(alpha: .06), Colors.transparent
-                  ]),
-                )),
+                Container(
+                    height: 4,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withValues(alpha: .06),
+                            Colors.transparent
+                          ]),
+                    )),
                 const SizedBox(height: 6),
                 Row(
                   children: [
@@ -61,43 +73,55 @@ class CompareTray extends StatelessWidget {
                           itemCount: items.length,
                           separatorBuilder: (_, __) => const SizedBox(width: 8),
                           itemBuilder: (_, i) {
-                          final p = items[i];
-                          final c = ColorUtils.getPaintColor(p.hex);
-                          return GestureDetector(
-                            onTap: onTapPaint == null ? null : () => onTapPaint!(p),
-                            child: Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                Container(
-                                  width: 44,
-                                  height: 44,
-                                  decoration: BoxDecoration(
-                                    color: c,
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.25)),
-                                  ),
-                                ),
-                                if (onRemoveOne != null)
-                                  Positioned(
-                                    right: -6,
-                                    top: -6,
-                                    child: InkWell(
-                                      onTap: () => onRemoveOne!(p),
-                                      child: Container(
-                                        padding: const EdgeInsets.all(2),
-                                        decoration: BoxDecoration(
-                                          color: theme.colorScheme.surface,
-                                          shape: BoxShape.circle,
-                                          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 6)],
-                                        ),
-                                        child: Icon(Icons.close, size: 14, color: theme.colorScheme.onSurface.withValues(alpha: 0.7)),
-                                      ),
+                            final p = items[i];
+                            final c = ColorUtils.getPaintColor(p.hex);
+                            return GestureDetector(
+                              onTap: onTapPaint == null
+                                  ? null
+                                  : () => onTapPaint!(p),
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      color: c,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                          color: theme.colorScheme.outline
+                                              .withValues(alpha: 0.25)),
                                     ),
                                   ),
-                              ],
-                            ),
-                          );
-                        },
+                                  if (onRemoveOne != null)
+                                    Positioned(
+                                      right: -6,
+                                      top: -6,
+                                      child: InkWell(
+                                        onTap: () => onRemoveOne!(p),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(2),
+                                          decoration: BoxDecoration(
+                                            color: theme.colorScheme.surface,
+                                            shape: BoxShape.circle,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                  color: Colors.black
+                                                      .withValues(alpha: 0.12),
+                                                  blurRadius: 6)
+                                            ],
+                                          ),
+                                          child: Icon(Icons.close,
+                                              size: 14,
+                                              color: theme.colorScheme.onSurface
+                                                  .withValues(alpha: 0.7)),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ),

@@ -28,13 +28,15 @@ void main() {
       required List<PaletteColor> colors,
       List<String> tags = const [],
       String notes = '',
-    }) async => 'pal1';
+    }) async =>
+        'pal1';
     createProjectFn = ({
       required ownerId,
       String? title,
       String? activePaletteId,
       List<String> paletteIds = const [],
-    }) async => 'proj1';
+    }) async =>
+        'proj1';
     attachPaletteFn = (pid, paletteId) async {};
     setLastProjectFn = (pid, screen) async {};
     ensureSignedInFn = (_) async {};

@@ -28,7 +28,8 @@ class PhotoUploadService {
     return id;
   }
 
-  Future<List<String>> uploadAll(List<XFile> files, {void Function(double progress)? onProgress}) async {
+  Future<List<String>> uploadAll(List<XFile> files,
+      {void Function(double progress)? onProgress}) async {
     final user = await AuthService.instance.ensureSignedIn();
     final interviewId = await _ensureInterviewId();
 
@@ -45,12 +46,14 @@ class PhotoUploadService {
     return urls;
   }
 
-  Future<String> _uploadOne(String uid, String interviewId, XFile xf, void Function(double) onOneProgress) async {
+  Future<String> _uploadOne(String uid, String interviewId, XFile xf,
+      void Function(double) onOneProgress) async {
     // Compress to 85% quality and max 2560px (keeps detail, smaller size)
     final tmp = await _compress(xf);
     final ext = p.extension(xf.name).toLowerCase().replaceAll('.', '');
     final id = const Uuid().v4();
-    final path = 'users/$uid/intake/$interviewId/$id.${ext.isEmpty ? 'jpg' : ext}';
+    final path =
+        'users/$uid/intake/$interviewId/$id.${ext.isEmpty ? 'jpg' : ext}';
     final ref = _storage.ref(path);
 
     final uploadTask = ref.putFile(

@@ -23,7 +23,8 @@ class SuggestionChips extends StatelessWidget {
   final List<Suggestion> suggestions;
   final void Function(Suggestion s) onTap;
 
-  const SuggestionChips({super.key, required this.suggestions, required this.onTap});
+  const SuggestionChips(
+      {super.key, required this.suggestions, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +43,8 @@ class SuggestionChips extends StatelessWidget {
               onTap(s);
             },
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
+            backgroundColor: theme.colorScheme.surfaceContainerHighest
+                .withValues(alpha: 0.7),
           );
         },
         separatorBuilder: (_, __) => const SizedBox(width: 8),

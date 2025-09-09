@@ -26,13 +26,15 @@ class HeroSliverHeader {
       elevation: 0,
       flexibleSpace: FlexibleSpaceBar(
         background: ClipRRect(
-          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
+          borderRadius:
+              const BorderRadius.vertical(bottom: Radius.circular(28)),
           child: Stack(
             fit: StackFit.expand,
             children: [
               DecoratedBox(
                 decoration: BoxDecoration(
-                  image: DecorationImage(image: NetworkImage(imageUrl), fit: BoxFit.cover),
+                  image: DecorationImage(
+                      image: NetworkImage(imageUrl), fit: BoxFit.cover),
                 ),
               ),
               DecoratedBox(
@@ -60,10 +62,15 @@ class HeroSliverHeader {
                         children: [
                           if (title != null)
                             Text(title,
-                                style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800)),
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w800)),
                           if (subtitle != null) const SizedBox(height: 6),
                           if (subtitle != null)
-                            Text(subtitle, style: const TextStyle(color: Colors.white, fontSize: 13)),
+                            Text(subtitle,
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 13)),
                         ],
                       ),
                     ),
@@ -101,7 +108,9 @@ class SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
   SliverTabBarDelegate({required this.child, required this.height});
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) => child;
+  Widget build(
+          BuildContext context, double shrinkOffset, bool overlapsContent) =>
+      child;
 
   @override
   double get maxExtent => height;
@@ -110,5 +119,6 @@ class SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent => height;
 
   @override
-  bool shouldRebuild(covariant SliverTabBarDelegate oldDelegate) => oldDelegate.child != child || oldDelegate.height != height;
+  bool shouldRebuild(covariant SliverTabBarDelegate oldDelegate) =>
+      oldDelegate.child != child || oldDelegate.height != height;
 }

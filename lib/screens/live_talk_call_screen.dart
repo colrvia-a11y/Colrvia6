@@ -11,7 +11,8 @@ import 'package:color_canvas/screens/interview_review_screen.dart';
 class LiveTalkCallScreen extends StatefulWidget {
   final String sessionId;
   const LiveTalkCallScreen({super.key, required this.sessionId});
-  @override State<LiveTalkCallScreen> createState() => _LiveTalkCallScreenState();
+  @override
+  State<LiveTalkCallScreen> createState() => _LiveTalkCallScreenState();
 }
 
 class _LiveTalkCallScreenState extends State<LiveTalkCallScreen> {
@@ -22,14 +23,25 @@ class _LiveTalkCallScreenState extends State<LiveTalkCallScreen> {
   String _partial = '';
 
   @override
-  void initState() { super.initState(); _init(); }
+  void initState() {
+    super.initState();
+    _init();
+  }
+
   @override
-  void dispose() { LiveTalkService.instance.disconnect(); super.dispose(); }
+  void dispose() {
+    LiveTalkService.instance.disconnect();
+    super.dispose();
+  }
 
   Future<void> _init() async {
     // Listen to session doc
-    FirebaseFirestore.instance.doc('talkSessions/${widget.sessionId}').snapshots().listen((doc) {
-      final d = doc.data(); if (d == null) return;
+    FirebaseFirestore.instance
+        .doc('talkSessions/${widget.sessionId}')
+        .snapshots()
+        .listen((doc) {
+      final d = doc.data();
+      if (d == null) return;
       setState(() {
         _progress = (d['progress'] as num? ?? 0).toDouble();
         _question = (d['lastQuestion'] as String?) ?? _question;
@@ -53,13 +65,15 @@ class _LiveTalkCallScreenState extends State<LiveTalkCallScreen> {
     // Build an InterviewEngine from schema, seeded with JourneyService answers
     InterviewEngine engine;
     try {
-      final compiler = await SchemaInterviewCompiler.loadFromAsset('assets/schemas/single-room-color-intake.json');
+      final compiler = await SchemaInterviewCompiler.loadFromAsset(
+          'assets/schemas/single-room-color-intake.json');
       final prompts = compiler.compile();
       engine = InterviewEngine.fromPrompts(prompts);
     } catch (_) {
       engine = InterviewEngine.demo();
     }
-    final seed = JourneyService.instance.state.value?.artifacts['answers'] as Map<String, dynamic>?;
+    final seed = JourneyService.instance.state.value?.artifacts['answers']
+        as Map<String, dynamic>?;
     engine.start(seedAnswers: seed);
 
     if (!mounted) return;
@@ -72,7 +86,10 @@ class _LiveTalkCallScreenState extends State<LiveTalkCallScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Live AI Call'), actions: [
-        if (_progress > 0) Padding(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10), child: Center(child: Text('${(_progress * 100).round()}%'))),
+        if (_progress > 0)
+          Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Center(child: Text('${(_progress * 100).round()}%'))),
       ]),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -81,21 +98,40 @@ class _LiveTalkCallScreenState extends State<LiveTalkCallScreen> {
           const SizedBox(height: 12),
           Text(_question, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 6),
-          AnimatedOpacity(duration: const Duration(milliseconds: 200), opacity: _partial.isEmpty ? 0.5 : 1, child: Text(_partial, style: Theme.of(context).textTheme.bodyMedium)),
+          AnimatedOpacity(
+              duration: const Duration(milliseconds: 200),
+              opacity: _partial.isEmpty ? 0.5 : 1,
+              child: Text(_partial,
+                  style: Theme.of(context).textTheme.bodyMedium)),
           // Hidden video view used to play remote audio (attached in service)
           const SizedBox(height: 2),
-          SizedBox(height: 1, width: 1, child: RTCVideoView(LiveTalkService.instance.remoteRenderer)),
+          SizedBox(
+              height: 1,
+              width: 1,
+              child: RTCVideoView(LiveTalkService.instance.remoteRenderer)),
           const Spacer(),
           Row(children: [
-            OutlinedButton.icon(onPressed: _connecting ? null : _hangup, icon: const Icon(Icons.call_end, color: Colors.red), label: const Text('Hang up')),
+            OutlinedButton.icon(
+                onPressed: _connecting ? null : _hangup,
+                icon: const Icon(Icons.call_end, color: Colors.red),
+                label: const Text('Hang up')),
             const SizedBox(width: 8),
-            TextButton(onPressed: _switchToText, child: const Text('Switch to text')),
+            TextButton(
+                onPressed: _switchToText, child: const Text('Switch to text')),
           ]),
         ]),
       ),
     );
   }
 
-  Future<void> _hangup() async { await LiveTalkService.instance.disconnect(); if (mounted) Navigator.of(context).maybePop(); }
-  void _switchToText() { /* Pop back to InterviewScreen; engine already has current answers via gateway updates */ Navigator.of(context).maybePop(); }
+  Future<void> _hangup() async {
+    await LiveTalkService.instance.disconnect();
+    if (mounted) Navigator.of(context).maybePop();
+  }
+
+  void _switchToText() {
+    /* Pop back to InterviewScreen; engine already has current answers via gateway updates */ Navigator
+            .of(context)
+        .maybePop();
+  }
 }
