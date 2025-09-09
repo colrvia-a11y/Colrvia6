@@ -13,6 +13,16 @@ class RollerController extends AsyncNotifier<RollerState> {
   late final PaintRepository _repo;
   late final PaletteService _service;
 
+  static const bool _enableAlternates = true; // feature flag
+  final Map<String, Queue<Paint>> _slotAlternates = {}; // key: pageKey|slot
+
+  String _pageKey(RollerPage p, RollerFilters f, ThemeSpec? t) {
+    final ids = p.strips.map((e) => e.id).join('-');
+    final brands = (f.brandIds.toList()..sort()).join(',');
+    final theme = t?.id ?? 'none';
+    return '$ids|$brands|$theme';
+  }
+
   // configurable retention window
   static const int _retainWindow = 50;
 
@@ -47,8 +57,10 @@ class RollerController extends AsyncNotifier<RollerState> {
     );
 
     try {
-      final all = await _repo.getAll();
-      final pool = _repo.filterByBrands(all, s0.filters.brandIds);
+      final pool = await _repo.getPool(
+        brandIds: s0.filters.brandIds,
+        theme: s0.themeSpec,
+      );
 
       // anchors come from visible page locks if any
       final anchors = List<Paint?>.filled(5, null);
@@ -108,13 +120,10 @@ class RollerController extends AsyncNotifier<RollerState> {
   }
 
   void onPageChanged(int index) {
-    final s0 = state.valueOrNull;
-    if (s0 == null) return;
+    final s0 = state.valueOrNull; if (s0 == null) return;
     state = AsyncData(s0.copyWith(visiblePage: index));
-    // opportunistically prefetch
-    if (s0.pages.length - 1 - index <= 1) {
-      _ = rollNext();
-    }
+    if (s0.pages.length - 1 - index <= 1) { _ = rollNext(); }
+    _ = _primeAlternatesForVisible();
   }
 
   Future<void> rerollCurrent({int attempts = 4}) async {
@@ -128,8 +137,10 @@ class RollerController extends AsyncNotifier<RollerState> {
       status: RollerStatus.rolling,
     ));
 
-    final all = await _repo.getAll();
-    final pool = _repo.filterByBrands(all, s0.filters.brandIds);
+    final pool = await _repo.getPool(
+      brandIds: s0.filters.brandIds,
+      theme: s0.themeSpec,
+    );
     final current = s0.currentPage!;
     final anchors = <Paint?>[
       for (var i = 0; i < current.strips.length; i++)
@@ -153,6 +164,85 @@ class RollerController extends AsyncNotifier<RollerState> {
       status: RollerStatus.idle,
       generatingPages: {...s0.generatingPages}..remove(idx),
     ));
+  }
+
+  Future<void> rerollStrip(int stripIndex) async {
+    final s0 = state.valueOrNull; if (s0 == null || !s0.hasPages) return;
+    final idx = s0.visiblePage;
+    final current = s0.pages[idx];
+
+    final anchors = <Paint?>[
+      for (var i = 0; i < current.strips.length; i++)
+        i == stripIndex ? null : current.strips[i]
+    ];
+
+    state = AsyncData(s0.copyWith(
+      generatingPages: {...s0.generatingPages, idx},
+      status: RollerStatus.rolling,
+    ));
+
+    final pool = await _repo.getPool(brandIds: s0.filters.brandIds, theme: s0.themeSpec);
+    final rolled = await _service.generate(
+      available: pool,
+      anchors: anchors,
+      diversifyBrands: s0.filters.diversifyBrands,
+      fixedUndertones: s0.filters.fixedUndertones,
+      themeSpec: s0.themeSpec,
+    );
+
+    final nextStrips = [...current.strips]..[stripIndex] = rolled[stripIndex];
+    final pages = [...s0.pages]..[idx] = current.copyWith(strips: nextStrips);
+
+    state = AsyncData(s0.copyWith(
+      pages: pages,
+      status: RollerStatus.idle,
+      generatingPages: {...s0.generatingPages}..remove(idx),
+    ));
+  }
+
+  Future<void> _primeAlternatesForVisible() async {
+    if (!_enableAlternates) return;
+    final s0 = state.valueOrNull; if (s0 == null || !s0.hasPages) return;
+    final page = s0.currentPage!;
+    final keyBase = _pageKey(page, s0.filters, s0.themeSpec);
+    final pool = await _repo.getPool(brandIds: s0.filters.brandIds, theme: s0.themeSpec);
+
+    // build anchors that mirror the current page (null for unlocked)
+    final anchors = <Paint?>[
+      for (var i = 0; i < page.strips.length; i++) page.locks[i] ? page.strips[i] : null
+    ];
+
+    for (var i = 0; i < page.strips.length; i++) {
+      if (page.locks[i]) continue;
+      final k = '$keyBase|$i';
+      if (_slotAlternates[k]?.isNotEmpty == true) continue;
+      final alts = await _service.alternatesForSlot(
+        available: pool,
+        anchors: anchors,
+        slotIndex: i,
+        diversifyBrands: s0.filters.diversifyBrands,
+        fixedUndertones: s0.filters.fixedUndertones,
+        themeSpec: s0.themeSpec,
+        targetCount: 5,
+      );
+      _slotAlternates[k] = Queue.of(alts);
+    }
+  }
+
+  Future<void> useNextAlternateForStrip(int i) async {
+    if (!_enableAlternates) { await rerollStrip(i); return; }
+    final s0 = state.valueOrNull; if (s0 == null || !s0.hasPages) return;
+    final page = s0.currentPage!;
+    final key = '${_pageKey(page, s0.filters, s0.themeSpec)}|$i';
+    if (!_slotAlternates.containsKey(key) || _slotAlternates[key]!.isEmpty) {
+      await _primeAlternatesForVisible();
+    }
+    if (_slotAlternates[key]?.isEmpty ?? true) { await rerollStrip(i); return; }
+    final next = _slotAlternates[key]!.removeFirst();
+    final idx = s0.visiblePage;
+    final nextStrips = [...page.strips]..[i] = next;
+    final pages = [...s0.pages]..[idx] = page.copyWith(strips: nextStrips);
+    state = AsyncData(s0.copyWith(pages: pages));
   }
 
   void toggleLock(int stripIndex) {

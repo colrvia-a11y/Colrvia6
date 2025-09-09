@@ -58,6 +58,9 @@ class _RollerFeedState extends ConsumerState<RollerFeed> {
                     Expanded(
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
+                        onDoubleTap: () => ref
+                            .read(rollerControllerProvider.notifier)
+                            .useNextAlternateForStrip(i),
                         child: Stack(
                           children: [
                             Positioned.fill(
