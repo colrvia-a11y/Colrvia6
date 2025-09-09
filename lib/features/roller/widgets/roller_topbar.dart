@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:color_canvas/features/roller/roller_ui_mode.dart';
 import 'package:color_canvas/features/roller/roller_controller.dart';
+import 'package:color_canvas/features/favorites/favorite_status_provider.dart';
+import 'package:color_canvas/features/favorites/favorites_screen.dart';
 
 class RollerTopBar extends ConsumerWidget implements PreferredSizeWidget {
   const RollerTopBar({super.key});
@@ -36,40 +38,51 @@ class RollerTopBar extends ConsumerWidget implements PreferredSizeWidget {
           onPressed: () => _showHelp(context),
           icon: const Icon(Icons.help_outline),
         ),
-        Consumer(builder: (context, ref, _) {
+          Consumer(builder: (context, ref, _) {
+          final isFav = ref.watch(favoriteStatusProvider).asData?.value ?? false;
           final ctrl = ref.read(rollerControllerProvider.notifier);
-          return FutureBuilder<bool>(
-            future: ctrl.isCurrentFavorite(),
-            builder: (context, snap) {
-              final fav = snap.data == true;
-              return IconButton(
-                tooltip: fav ? 'Unfavorite' : 'Favorite',
-                onPressed: () async {
-                  await ctrl.toggleFavoriteCurrent();
-                  // Force rebuild to reflect new state
-                  (context as Element).markNeedsBuild();
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(fav ? 'Removed from favorites' : 'Added to favorites')),
-                    );
-                  }
-                },
-                icon: Icon(fav ? Icons.favorite : Icons.favorite_border),
-              );
+          return IconButton(
+            tooltip: isFav ? 'Unfavorite' : 'Favorite',
+            onPressed: () async {
+              await ctrl.toggleFavoriteCurrent();
+              // invalidate the favoriteStatusProvider so it re-queries
+              ref.invalidate(favoriteStatusProvider);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(isFav ? 'Removed from favorites' : 'Added to favorites')),
+                );
+              }
             },
+            onLongPress: () {
+              // open favorites list
+              Navigator.push<void>(context, MaterialPageRoute(builder: (_) => const FavoritesScreen()));
+            },
+            icon: Icon(isFav ? Icons.favorite : Icons.favorite_border),
           );
         }),
         Consumer(builder: (context, ref, _) {
-          return IconButton(
+          final ctrl = ref.read(rollerControllerProvider.notifier);
+          return PopupMenuButton<String>(
             tooltip: 'Copy HEX list',
-            onPressed: () async {
-              await ref.read(rollerControllerProvider.notifier).copyCurrentHexesToClipboard();
+            onSelected: (value) async {
+              if (value == 'comma') {
+                await ctrl.copyCurrentHexesToClipboard(CopyFormat.comma);
+              } else if (value == 'newline') {
+                await ctrl.copyCurrentHexesToClipboard(CopyFormat.newline);
+              } else if (value == 'labeled') {
+                await ctrl.copyCurrentHexesToClipboard(CopyFormat.labeled);
+              }
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('HEX codes copied')),
                 );
               }
             },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'comma', child: Text('Comma-separated')),
+              PopupMenuItem(value: 'newline', child: Text('New lines')),
+              PopupMenuItem(value: 'labeled', child: Text('Labeled (brand · name (code) — hex)')),
+            ],
             icon: const Icon(Icons.copy),
           );
         }),

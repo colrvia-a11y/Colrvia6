@@ -61,23 +61,30 @@ class _RollerFeedState extends ConsumerState<RollerFeed> {
                         onDoubleTap: () => ref
                             .read(rollerControllerProvider.notifier)
                             .useNextAlternateForStrip(i),
-                        child: Stack(
-                          children: [
-                            Positioned.fill(
-                              child: PaintStripe(
-                                paint: page.strips[i],
-                                isLocked: page.locks[i],
-                                onTap: () => ref.read(rollerControllerProvider.notifier).toggleLock(i),
-                                onLongPress: () => ref.read(rollerControllerProvider.notifier).toggleLock(i),
-                              ),
+                        child: Semantics(
+                          label: 'Strip ${i + 1}: ${page.locks[i] ? 'locked' : 'unlocked'}',
+                          button: true,
+                          child: Tooltip(
+                            message: 'Tap to lock/unlock · Double-tap for alternate',
+                            child: Stack(
+                              children: [
+                                Positioned.fill(
+                                  child: PaintStripe(
+                                    paint: page.strips[i],
+                                    isLocked: page.locks[i],
+                                    onTap: () => ref.read(rollerControllerProvider.notifier).toggleLock(i),
+                                    onLongPress: () => ref.read(rollerControllerProvider.notifier).toggleLock(i),
+                                  ),
+                                ),
+                                if (page.locks[i])
+                                  const Positioned(
+                                    top: 8,
+                                    right: 8,
+                                    child: Icon(Icons.lock, size: 18),
+                                  ),
+                              ],
                             ),
-                            if (page.locks[i])
-                              const Positioned(
-                                top: 8,
-                                right: 8,
-                                child: Icon(Icons.lock, size: 18),
-                              ),
-                          ],
+                          ),
                         ),
                       ),
                     ),

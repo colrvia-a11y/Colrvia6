@@ -36,8 +36,15 @@ class FavoritesRepository {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_storeKey);
     if (raw == null || raw.isEmpty) return [];
-    final list = List<Map<String, dynamic>>.from(jsonDecode(raw) as List);
-    return [for (final m in list) FavoritePalette.fromJson(m)];
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! List) return [];
+      final list = List<Map<String, dynamic>>.from(decoded);
+      return [for (final m in list) FavoritePalette.fromJson(m)];
+    } catch (_) {
+      // Malformed or unexpected data — return empty rather than throwing
+      return [];
+    }
   }
 
   Future<void> _saveAll(List<FavoritePalette> items) async {

@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
 import 'package:color_canvas/roller_theme/theme_spec.dart';
 import 'package:color_canvas/features/roller/roller_state.dart';
@@ -17,13 +18,25 @@ final paletteServiceProvider =
 final rollerControllerProvider =
     AsyncNotifierProvider<RollerController, RollerState>(RollerController.new);
 
+/// Formats for copying HEX values
+enum CopyFormat { comma, newline, labeled }
+
 class RollerController extends AsyncNotifier<RollerState> {
   late final PaintRepository _repo;
   late final PaletteService _service;
   late final FavoritesRepository _favorites;
 
   static const bool _enableAlternates = true; // feature flag
+  static const int _maxAlternateKeys = 30;
   final Map<String, Queue<Paint>> _slotAlternates = {}; // key: pageKey|slot
+
+  void _evictIfNeeded() {
+    // Map in Dart is insertion-ordered (LinkedHashMap), so .keys.first is the oldest.
+    while (_slotAlternates.length > _maxAlternateKeys) {
+      final firstKey = _slotAlternates.keys.first;
+      _slotAlternates.remove(firstKey);
+    }
+  }
 
   String _pageKey(RollerPage p, RollerFilters f, ThemeSpec? t) {
     final ids = p.strips.map((e) => e.id).join('-');
@@ -74,6 +87,7 @@ class RollerController extends AsyncNotifier<RollerState> {
     );
 
     try {
+      final sw = Stopwatch()..start();
       final pool = await _repo.getPool(
         brandIds: s0.filters.brandIds,
         theme: s0.themeSpec,
@@ -120,10 +134,26 @@ class RollerController extends AsyncNotifier<RollerState> {
         ),
       );
 
+      sw.stop();
+      final poolSize = pool.length;
+      final brandCount = s0.filters.brandIds.length;
+      final themeId = s0.themeSpec?.id ?? 'none';
+      final lockedCount = s0.hasPages
+          ? (s0.pages.last.locks.where((l) => l).length)
+          : 0;
       AnalyticsService.instance.logEvent('roll_next', {
         'pageCount': trimmed.length,
         'visible': newVisible,
+        'elapsedMs': sw.elapsedMilliseconds,
+        'poolSize': poolSize,
+        'brandCount': brandCount,
+        'themeId': themeId,
+        'lockedCount': lockedCount,
       });
+      debugPrint('roll_next: ${sw.elapsedMilliseconds}ms pool=$poolSize brands=$brandCount theme=$themeId locked=$lockedCount');
+
+  // (re)prime alternates after a successful roll - don't await
+  _primeAlternatesForVisible();
 
       // prefetch one ahead
       if (trimmed.length - 1 - newVisible <= 1) {
@@ -160,6 +190,7 @@ class RollerController extends AsyncNotifier<RollerState> {
     ));
 
     try {
+      final sw = Stopwatch()..start();
       final pool = await _repo.getPool(
         brandIds: s0.filters.brandIds,
         theme: s0.themeSpec,
@@ -188,9 +219,22 @@ class RollerController extends AsyncNotifier<RollerState> {
         generatingPages: {...s0.generatingPages}..remove(idx),
       ));
 
+      sw.stop();
+      final poolSize = pool.length;
+      final brandCount = s0.filters.brandIds.length;
+      final themeId = s0.themeSpec?.id ?? 'none';
+      final lockedCount = s0.currentPage!.locks.where((l) => l).length;
       AnalyticsService.instance.logEvent('reroll_current', {
         'pageIndex': idx,
+        'elapsedMs': sw.elapsedMilliseconds,
+        'poolSize': poolSize,
+        'brandCount': brandCount,
+        'themeId': themeId,
+        'lockedCount': lockedCount,
       });
+      debugPrint('reroll_current: idx=$idx ${sw.elapsedMilliseconds}ms pool=$poolSize brands=$brandCount theme=$themeId locked=$lockedCount');
+  // (re)prime alternates after a successful reroll - don't await
+  _primeAlternatesForVisible();
     } catch (e) {
       state = AsyncData(
         (state.valueOrNull ?? const RollerState()).copyWith(
@@ -212,12 +256,13 @@ class RollerController extends AsyncNotifier<RollerState> {
         i == stripIndex ? null : current.strips[i]
     ];
 
-    state = AsyncData(s0.copyWith(
+  state = AsyncData(s0.copyWith(
       generatingPages: {...s0.generatingPages, idx},
       status: RollerStatus.rolling,
     ));
 
     try {
+      final sw = Stopwatch()..start();
       final pool = await _repo.getPool(
           brandIds: s0.filters.brandIds, theme: s0.themeSpec);
       final rolled = await _service.generate(
@@ -237,8 +282,25 @@ class RollerController extends AsyncNotifier<RollerState> {
         generatingPages: {...s0.generatingPages}..remove(idx),
       ));
 
+      sw.stop();
+      final poolSize = pool.length;
+      final brandCount = s0.filters.brandIds.length;
+      final themeId = s0.themeSpec?.id ?? 'none';
+      final lockedCount = current.locks.where((l) => l).length;
       AnalyticsService.instance
-          .logEvent('reroll_strip', {'strip': stripIndex});
+          .logEvent('reroll_strip', {
+        'strip': stripIndex,
+        'elapsedMs': sw.elapsedMilliseconds,
+        'poolSize': poolSize,
+        'brandCount': brandCount,
+        'themeId': themeId,
+        'lockedCount': lockedCount,
+      });
+      debugPrint('reroll_strip: idx=$idx strip=$stripIndex ${sw.elapsedMilliseconds}ms pool=$poolSize brands=$brandCount theme=$themeId locked=$lockedCount');
+  // subtle haptic feedback to indicate a successful reroll
+  await HapticFeedback.lightImpact();
+  // (re)prime alternates after a successful reroll - don't await
+  _primeAlternatesForVisible();
     } catch (e) {
       state = AsyncData(
         (state.valueOrNull ?? const RollerState()).copyWith(
@@ -275,7 +337,8 @@ class RollerController extends AsyncNotifier<RollerState> {
         themeSpec: s0.themeSpec,
         targetCount: 5,
       );
-      _slotAlternates[k] = Queue.of(alts);
+  _slotAlternates[k] = Queue.of(alts);
+  _evictIfNeeded();
     }
   }
 
@@ -295,6 +358,10 @@ class RollerController extends AsyncNotifier<RollerState> {
     state = AsyncData(s0.copyWith(pages: pages));
     AnalyticsService.instance
         .logEvent('alternate_applied', {'strip': i});
+  // subtle haptic feedback to indicate an alternate was applied
+  await HapticFeedback.lightImpact();
+  // after applying an alternate, prefetch alternates for the visible page (don't await)
+  _primeAlternatesForVisible();
   }
 
   void toggleLock(int stripIndex) {
@@ -309,6 +376,8 @@ class RollerController extends AsyncNotifier<RollerState> {
     state = AsyncData(s0.copyWith(pages: pages));
     AnalyticsService.instance.logEvent(
         'toggle_lock', {'strip': stripIndex, 'locked': newLocks[stripIndex]});
+  // provide a small selection click to acknowledge the lock toggle
+  HapticFeedback.selectionClick();
   }
 
   void unlockAll() {
@@ -380,9 +449,37 @@ class RollerController extends AsyncNotifier<RollerState> {
     await _favorites.toggle(item);
   }
 
-  Future<void> copyCurrentHexesToClipboard() async {
-    final hexes = _currentHexes();
-    final text = hexes.join(', ');
+  Future<void> copyCurrentHexesToClipboard(CopyFormat format) async {
+    final s0 = state.valueOrNull;
+    if (s0 == null || !s0.hasPages) return;
+
+    final page = s0.currentPage!;
+
+    String text;
+    switch (format) {
+      case CopyFormat.comma:
+        text = page.strips.map((p) => p.hex.toUpperCase()).join(', ');
+        break;
+      case CopyFormat.newline:
+        text = page.strips.map((p) => p.hex.toUpperCase()).join('\n');
+        break;
+      case CopyFormat.labeled:
+        // Example: Sherwin-Williams · Alabaster (SW 7008) — #FAF6F0
+        text = page.strips.map((p) {
+          final brand = p.brandName.trim();
+          final name = p.name.trim();
+          final code = p.code.toString().trim();
+          final hex = p.hex.toUpperCase();
+          final brandPart = brand.isNotEmpty ? brand : 'Unknown';
+          final namePart = name.isNotEmpty ? name : 'Unnamed';
+          final codePart = code.isNotEmpty ? ' ($code)' : '';
+          return '$brandPart \u00B7 $namePart$codePart \u2014 $hex';
+        }).join('\n');
+        break;
+    }
+
     await Clipboard.setData(ClipboardData(text: text));
+    // subtle haptic to confirm copy action
+    await HapticFeedback.selectionClick();
   }
 }
