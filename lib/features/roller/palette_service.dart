@@ -56,6 +56,7 @@ class PaletteService {
     ThemeSpec? themeSpec,
     int targetCount = 5,
     int attemptsPerRound = 3,
+    String? roleName,
   }) async {
     final args = {
       'available': [for (final p in available) (p.toJson()..['id'] = p.id)],
@@ -70,6 +71,7 @@ class PaletteService {
       'themeSpec': themeSpec?.toJson(),
       'targetCount': targetCount,
       'attemptsPerRound': attemptsPerRound,
+      'roleName': roleName,
     };
     final result = await compute(isolate.alternatesForSlotInIsolate, args);
     return [for (final m in result) Paint.fromJson(m, m['id'] as String)];

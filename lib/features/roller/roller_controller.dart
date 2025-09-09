@@ -489,7 +489,13 @@ class RollerController extends AsyncNotifier<RollerState> {
 
     for (var i = 0; i < page.strips.length; i++) {
       if (i < page.locks.length && page.locks[i]) continue;
-      final k = '$keyBase|$i';
+      
+      // Use role name as key if available, otherwise fall back to slot index
+      final paint = page.strips[i];
+      final roleName = paint.metadata?['role'] as String?;
+      final keyIdentifier = roleName ?? i.toString();
+      final k = '$keyBase|$keyIdentifier';
+      
       if (_slotAlternates[k]?.isNotEmpty == true) continue;
       List<Paint> alts;
       try {
@@ -501,6 +507,7 @@ class RollerController extends AsyncNotifier<RollerState> {
           fixedUndertones: s0.filters.fixedUndertones,
           themeSpec: s0.themeSpec,
           targetCount: 5,
+          roleName: roleName,
         );
       } catch (_) {
         alts = <Paint>[];
@@ -518,7 +525,13 @@ class RollerController extends AsyncNotifier<RollerState> {
     final s0 = state.valueOrNull;
     if (s0 == null || !s0.hasPages) return;
     final page = s0.currentPage!;
-    final key = '${_pageKey(page, s0.filters, s0.themeSpec)}|$i';
+    
+    // Use role name as key if available, otherwise fall back to slot index
+    final paint = page.strips[i];
+    final roleName = paint.metadata?['role'] as String?;
+    final keyIdentifier = roleName ?? i.toString();
+    final key = '${_pageKey(page, s0.filters, s0.themeSpec)}|$keyIdentifier';
+    
     if (!_slotAlternates.containsKey(key) || _slotAlternates[key]!.isEmpty) {
       await _primeAlternatesForVisible();
     }

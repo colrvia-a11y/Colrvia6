@@ -43,9 +43,9 @@ class HeroSliverHeader {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      ThemeData.light().colorScheme.surface.withOpacity(0.18),
+                      ThemeData.light().colorScheme.surface.withAlpha((0.18 * 255).round()),
                       Colors.transparent,
-                      Colors.black.withOpacity(0.22),
+                      Colors.black.withAlpha((0.22 * 255).round()),
                     ],
                     stops: const [0, 0.5, 1],
                   ),

@@ -1088,7 +1088,7 @@ class _CardSkeleton extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.1),
+                              color: Colors.white.withAlpha((0.1 * 255).round()),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Text(
@@ -1103,7 +1103,7 @@ class _CardSkeleton extends StatelessWidget {
                           const Spacer(),
                           Icon(
                             Icons.arrow_forward_ios,
-                            color: Colors.white.withOpacity(0.6),
+                            color: Colors.white.withAlpha((0.6 * 255).round()),
                             size: 12,
                           ),
                         ],
@@ -1140,7 +1140,7 @@ class _CardSkeleton extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withAlpha((0.7 * 255).round()),
             ),
           ),
           const SizedBox(height: 40),
@@ -1160,7 +1160,7 @@ class _CardSkeleton extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF6366F1).withOpacity(0.6),
+                  color: const Color(0xFF6366F1).withAlpha((0.6 * 255).round()),
                   blurRadius: 30,
                   spreadRadius: 5,
                   offset: const Offset(0, 10),
@@ -1234,9 +1234,9 @@ class _CardSkeleton extends StatelessWidget {
                             center: Alignment.center,
                             radius: 1.5,
                             colors: [
-                              const Color(0xFF6366F1).withOpacity(0.15),
-                              const Color(0xFF8B5CF6).withOpacity(0.08),
-                              const Color(0xFF0A0A0B).withOpacity(0.95),
+                              const Color(0xFF6366F1).withAlpha((0.15 * 255).round()),
+                              const Color(0xFF8B5CF6).withAlpha((0.08 * 255).round()),
+                              const Color(0xFF0A0A0B).withAlpha((0.95 * 255).round()),
                             ],
                             stops: const [0.0, 0.4, 1.0],
                           ),
@@ -1349,7 +1349,7 @@ class _CardSkeleton extends StatelessWidget {
                                           fontWeight: FontWeight.w400,
                                           height: 1.6,
                                           letterSpacing: 0.5,
-                                          color: Colors.white.withOpacity(0.8),
+                                          color: Colors.white.withAlpha((0.8 * 255).round()),
                                         ),
                                       ),
                                     ),
@@ -1384,7 +1384,7 @@ class _CardSkeleton extends StatelessWidget {
                                           ),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: const Color(0xFF6366F1).withOpacity(0.6),
+                                              color: const Color(0xFF6366F1).withAlpha((0.6 * 255).round()),
                                               blurRadius: 30,
                                               spreadRadius: 5,
                                               offset: const Offset(0, 10),
@@ -1972,7 +1972,7 @@ class ColorStoryCard extends StatelessWidget {
                               child: Center(
                                 child: Icon(
                                   Icons.palette,
-                                  color: Colors.white.withOpacity(0.6),
+                                  color: Colors.white.withAlpha((0.6 * 255).round()),
                                   size: 24,
                                 ),
                               ),
@@ -2023,7 +2023,7 @@ class ColorStoryCard extends StatelessWidget {
                         if (story.isFeatured) const SizedBox(width: 4),
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.6),
+                            color: Colors.black.withAlpha((0.6 * 255).round()),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: PopupMenuButton<String>(
@@ -2346,7 +2346,7 @@ class _FeaturePatternPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paintBrush = ui.Paint()
-      ..color = Colors.white.withOpacity(0.1)
+  ..color = Colors.white.withAlpha((0.1 * 255).round())
       ..strokeWidth = 2
       ..style = ui.PaintingStyle.stroke;
     
@@ -2358,7 +2358,7 @@ class _FeaturePatternPainter extends CustomPainter {
         for (int i = 1; i <= 4; i++) {
           final radius = (size.width / 8) * i * animationValue;
           final circlePaint = ui.Paint()
-            ..color = Colors.white.withOpacity(0.1 - (i * 0.02))
+            ..color = Colors.white.withAlpha(((0.1 - (i * 0.02)) * 255).round())
             ..strokeWidth = 2
             ..style = ui.PaintingStyle.stroke;
           canvas.drawCircle(center, radius, circlePaint);

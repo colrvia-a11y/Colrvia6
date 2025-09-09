@@ -4,7 +4,7 @@ import 'package:flutter/material.dart' as m;
 import 'package:flutter/material.dart';
 
 class ImagesSection extends StatefulWidget {
-  const ImagesSection({Key? key}) : super(key: key);
+  const ImagesSection({super.key});
   @override
   State<ImagesSection> createState() => _ImagesSectionState();
 }
@@ -21,16 +21,18 @@ class _ImagesSectionState extends State<ImagesSection> {
   Future<void> _loadPhotos() async {
     try {
       final photos = await PhotoLibraryService.getUserPhotos();
-      if (mounted)
+      if (mounted) {
         setState(() {
           _photos = photos;
           _isLoading = false;
         });
+      }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _isLoading = false;
         });
+      }
     }
   }
 

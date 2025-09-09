@@ -235,11 +235,17 @@ class VarietyControls {
   final int maxColors;
   final bool mustIncludeNeutral;
   final bool mustIncludeAccent;
+  final double? popChromaMin;
+  final int? maxPops;
+  final bool? mutedPalettePrefersMutedPop;
   const VarietyControls({
     required this.minColors,
     required this.maxColors,
     required this.mustIncludeNeutral,
     required this.mustIncludeAccent,
+    this.popChromaMin,
+    this.maxPops,
+    this.mutedPalettePrefersMutedPop,
   });
   factory VarietyControls.fromJson(Map<String, dynamic>? m) {
     if (m == null)
@@ -248,13 +254,25 @@ class VarietyControls {
           maxColors: 99,
           mustIncludeNeutral: false,
           mustIncludeAccent: false);
-    int _i(String k, int d) => (m[k] == null) ? d : (m[k] as num).toInt();
-    bool _b(String k, bool d) => (m[k] == null) ? d : (m[k] as bool);
+    int i(String k, int d) {
+      return (m[k] == null) ? d : (m[k] as num).toInt();
+    }
+    bool b(String k, bool d) {
+      return (m[k] == null) ? d : (m[k] as bool);
+    }
+    double? d(String k) {
+      return (m[k] == null) ? null : (m[k] as num).toDouble();
+    }
     return VarietyControls(
-      minColors: _i('min_colors', 0),
-      maxColors: _i('max_colors', 99),
-      mustIncludeNeutral: _b('must_include_neutral', false),
-      mustIncludeAccent: _b('must_include_accent', false),
+    minColors: i('min_colors', 0),
+    maxColors: i('max_colors', 99),
+    mustIncludeNeutral: b('must_include_neutral', false),
+    mustIncludeAccent: b('must_include_accent', false),
+  popChromaMin: d('pop_chroma_min'),
+    maxPops: m['max_pops'] == null ? null : i('max_pops', 1),
+    mutedPalettePrefersMutedPop: m['muted_palette_prefers_muted_pop'] == null
+      ? null
+      : b('muted_palette_prefers_muted_pop', true),
     );
   }
   Map<String, dynamic> toJson() => {
@@ -262,5 +280,9 @@ class VarietyControls {
         'max_colors': maxColors,
         'must_include_neutral': mustIncludeNeutral,
         'must_include_accent': mustIncludeAccent,
+        if (popChromaMin != null) 'pop_chroma_min': popChromaMin,
+        if (maxPops != null) 'max_pops': maxPops,
+        if (mutedPalettePrefersMutedPop != null) 
+          'muted_palette_prefers_muted_pop': mutedPalettePrefersMutedPop,
       };
 }

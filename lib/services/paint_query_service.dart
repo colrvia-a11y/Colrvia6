@@ -108,18 +108,26 @@ class PaintQueryService {
     return paints.where((p) {
       final d = _derive(p);
       if (colorFamily != null &&
-          d.family.toLowerCase() != colorFamily.toLowerCase()) return false;
+          d.family.toLowerCase() != colorFamily.toLowerCase()) {
+        return false;
+      }
       if (undertone != null &&
-          (d.undertone ?? '').toLowerCase() != undertone.toLowerCase())
+          (d.undertone ?? '').toLowerCase() != undertone.toLowerCase()) {
         return false;
+      }
       if (temperature != null &&
-          d.temperature.toLowerCase() != temperature.toLowerCase())
+          d.temperature.toLowerCase() != temperature.toLowerCase()) {
         return false;
+      }
       if (lrvRange != null) {
-        if (d.lrv < lrvRange.start || d.lrv > lrvRange.end) return false;
+        if (d.lrv < lrvRange.start || d.lrv > lrvRange.end) {
+          return false;
+        }
       }
       if (brandName != null &&
-          p.brandName.toLowerCase() != brandName.toLowerCase()) return false;
+          p.brandName.toLowerCase() != brandName.toLowerCase()) {
+        return false;
+      }
       return true;
     }).toList();
   }

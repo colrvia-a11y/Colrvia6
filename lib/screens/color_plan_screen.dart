@@ -92,16 +92,19 @@ class _ColorPlanScreenState extends State<ColorPlanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading)
+    if (_loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    if (_error != null)
+    }
+    if (_error != null) {
       return Scaffold(
           appBar: AppBar(title: const Text('Color Plan')),
           body: Center(child: Text(_error!)));
-    if (_plan == null)
+    }
+    if (_plan == null) {
       return Scaffold(
           appBar: AppBar(title: const Text('Color Plan')),
           body: const Center(child: Text('No plan generated')));
+    }
 
     final plan = _plan!;
     final banner = _showRetry

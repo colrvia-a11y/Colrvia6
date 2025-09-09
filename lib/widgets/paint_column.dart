@@ -164,7 +164,7 @@ class _PaintStripeState extends State<PaintStripe> {
                           fontWeight: FontWeight.w500,
                           shadows: [
                             Shadow(
-                              color: Colors.black.withOpacity(0.18),
+                              color: Colors.black.withAlpha((0.18 * 255).round()),
                               blurRadius: 2,
                               offset: Offset(0, 1),
                             ),
@@ -181,7 +181,7 @@ class _PaintStripeState extends State<PaintStripe> {
                           fontWeight: FontWeight.w600,
                           shadows: [
                             Shadow(
-                              color: Colors.black.withOpacity(0.18),
+                              color: Colors.black.withAlpha((0.18 * 255).round()),
                               blurRadius: 2,
                               offset: Offset(0, 1),
                             ),

@@ -217,7 +217,7 @@ class PaletteGenerator {
     }
 
     // Helper: local scoring for a candidate given slot index
-    double localScore(int i, Paint p) {
+    double localScore(int i, Paint p, List<Paint?> currentResult) {
       // In-range check (slot L band adherence)
       final l = p.lch.isNotEmpty ? p.lch[0] : p.computedLrv;
       final hint = (i < slotLrvHints.length) ? slotLrvHints[i] : const [0.0, 100.0];
@@ -227,7 +227,27 @@ class PaletteGenerator {
       final toneBonus = (thread == null || u == thread) ? 1.0 : tonePenaltySoft;
       // Brand diversity bonus
       final brandBonus = (diversifyBrands && usedBrands.contains(p.brandName)) ? 0.6 : 1.0;
-      return inBand * toneBonus * brandBonus;
+      
+      // Pop accent constraint: if a pop already exists, prefer muted candidates
+      double popBonus = 1.0;
+      final c = p.lch.length > 1 ? p.lch[1] : 0.0;
+      final currentPaints = currentResult.whereType<Paint>().toList();
+      if (currentPaints.isNotEmpty) {
+        // Check if we already have a pop (C >= 18)
+        final hasExistingPop = currentPaints.any((paint) => 
+            (paint.lch.length > 1 ? paint.lch[1] : 0.0) >= 18.0);
+        
+        if (hasExistingPop) {
+          // Prefer muted colors (C ≈ 14-18) over high chroma (C > 24)
+          if (c >= 14.0 && c <= 18.0) {
+            popBonus = 1.2; // bonus for muted accent
+          } else if (c > 24.0) {
+            popBonus = 0.8; // penalty for high chroma
+          }
+        }
+      }
+      
+      return inBand * toneBonus * brandBonus * popBonus;
     }
 
     // Role order: keep natural index order [0..N-1]
@@ -304,7 +324,7 @@ class PaletteGenerator {
 
         if (pool.isNotEmpty) {
           // Pick the best by local score, with small randomness among equals
-          pool.sort((a, b) => localScore(i, b).compareTo(localScore(i, a)));
+          pool.sort((a, b) => localScore(i, b, result).compareTo(localScore(i, a, result)));
           // break ties in top-3 randomly for freshness
           final topK = math.min(3, pool.length);
           pick = pool[_random.nextInt(topK)];
@@ -393,7 +413,37 @@ class PaletteGenerator {
     result[i] = best;
   }
 
-  return result.whereType<Paint>().toList(growable: false);
+  final output = result.whereType<Paint>().toList(growable: false);
+  
+  // Tag roles on result paints for UI alternate preservation
+  // For constrained mode, use generic role names based on slot index
+  final List<String> genericRoles = ['Slot0', 'Slot1', 'Slot2', 'Slot3', 'Slot4', 'Slot5', 'Slot6', 'Slot7', 'Slot8'];
+  for (int i = 0; i < output.length; i++) {
+    final paint = output[i];
+    final roleName = i < genericRoles.length ? genericRoles[i] : 'Slot$i';
+    
+    // Create new metadata map or copy existing one
+    final newMetadata = Map<String, dynamic>.from(paint.metadata ?? {});
+    newMetadata['role'] = roleName;
+    
+    // Create new Paint with updated metadata
+    output[i] = Paint(
+      id: paint.id,
+      brandId: paint.brandId,
+      brandName: paint.brandName,
+      name: paint.name,
+      code: paint.code,
+      hex: paint.hex,
+      rgb: paint.rgb,
+      lab: paint.lab,
+      lch: paint.lch,
+      collection: paint.collection,
+      finish: paint.finish,
+      metadata: newMetadata,
+    );
+  }
+
+  return output;
   }
 
   // Generate a dynamic-size palette with optional locked colors
@@ -595,6 +645,124 @@ class PaletteGenerator {
 
     // All non-null by construction, but cast defensively
     return result.whereType<Paint>().toList(growable: false);
+  }
+
+  // Inject undertone bridge when warm & cool mix (Colrvia path)
+  static List<Paint> _injectUndertoneBridge(
+    List<Paint> palette, 
+    List<Paint> availablePaints, 
+    List<Paint?> anchors, 
+    List<_ColrViaRole> roles
+  ) {
+    if (palette.length < 3) return palette;
+    
+    // Classify chromatic paints by warm/cool using existing hue logic from ThemeEngine
+    bool isWarmHue(double h) => (h >= 20 && h <= 70) || (h >= 330 || h <= 20);
+    bool isCoolHue(double h) => (h >= 70 && h <= 250);
+    
+    // Default neutral chroma threshold (same as ThemeSpec default)
+    const double neutralCMax = 12.0;
+    
+    int warmCount = 0, coolCount = 0;
+    for (final paint in palette) {
+      final lch = ColorUtils.labToLch(paint.lab);
+      final c = lch[1];
+      final h = lch[2];
+      
+      // Only consider chromatic paints (C > neutralCMax)
+      if (c > neutralCMax) {
+        final normalizedH = ((h % 360) + 360) % 360;
+        if (isWarmHue(normalizedH)) {
+          warmCount++;
+        } else if (isCoolHue(normalizedH)) {
+          coolCount++;
+        }
+      }
+    }
+    
+    // Only inject bridge if both warm and cool are present
+    if (warmCount == 0 || coolCount == 0) return palette;
+    
+    // Check if we already have a bridge color (35 ≤ LRV ≤ 75 and C ≤ neutralCMax)
+    bool hasBridge = palette.any((paint) {
+      final lch = ColorUtils.labToLch(paint.lab);
+      final c = lch[1];
+      final l = paint.computedLrv;
+      return c <= neutralCMax && l >= 35.0 && l <= 75.0;
+    });
+    
+    if (hasBridge) return palette;
+    
+    // Find a bridge candidate in available paints
+    Paint? bridgeCandidate;
+    double bestScore = double.infinity;
+    final usedKeys = {for (final p in palette) paintIdentity(p)};
+    
+    for (final paint in availablePaints) {
+      if (usedKeys.contains(paintIdentity(paint))) continue;
+      
+      final lch = ColorUtils.labToLch(paint.lab);
+      final c = lch[1];
+      final l = paint.computedLrv;
+      
+      // Must be a mid-LRV neutral
+      if (c <= neutralCMax && l >= 35.0 && l <= 75.0) {
+        // Score by proximity to ideal bridge (LRV ~55, C ~8)
+        final lrvScore = (l - 55.0).abs();
+        final chromaScore = (c - 8.0).abs();
+        final totalScore = lrvScore + chromaScore * 2; // Prioritize low chroma
+        
+        if (totalScore < bestScore) {
+          bestScore = totalScore;
+          bridgeCandidate = paint;
+        }
+      }
+    }
+    
+    if (bridgeCandidate == null) return palette; // No suitable bridge found
+    
+    // Find the best slot to replace: prefer "Support Neutral" slots or closest mid slot by LRV
+    int targetSlotIndex = -1;
+    double bestSlotScore = double.infinity;
+    
+    for (int i = 0; i < palette.length; i++) {
+      // Don't replace locked anchors
+      if (i < anchors.length && anchors[i] != null) continue;
+      
+      final role = i < roles.length ? roles[i] : null;
+      final currentPaint = palette[i];
+      final currentLrv = currentPaint.computedLrv;
+      
+      double slotScore = 0.0;
+      
+      // Prefer Support Neutral slots
+      if (role?.name.contains('Support Neutral') == true) {
+        slotScore = 0.0; // Highest priority
+      } else {
+        // Score by LRV proximity to mid-range (35-75)
+        if (currentLrv < 35.0) {
+          slotScore = 35.0 - currentLrv;
+        } else if (currentLrv > 75.0) {
+          slotScore = currentLrv - 75.0;
+        } else {
+          slotScore = (currentLrv - 55.0).abs(); // Distance from ideal mid
+        }
+      }
+      
+      if (slotScore < bestSlotScore) {
+        bestSlotScore = slotScore;
+        targetSlotIndex = i;
+      }
+    }
+    
+    // Replace the target slot with the bridge candidate
+    if (targetSlotIndex >= 0) {
+      final result = List<Paint>.from(palette);
+      result[targetSlotIndex] = bridgeCandidate;
+      return result;
+    }
+    
+    return palette; // No suitable slot found
   }
 
   static List<Paint> _rollColrvia({
@@ -809,6 +977,35 @@ class PaletteGenerator {
         }
       }
     }
+
+    // Undertone bridge injection: if warm & cool chromatic hues both appear, ensure one mid-LRV low-C neutral
+    out = _injectUndertoneBridge(out, base, anchors, roles);
+
+    // Tag roles on result paints for UI alternate preservation
+    for (int i = 0; i < out.length && i < roles.length; i++) {
+      final paint = out[i];
+      final role = roles[i];
+      // Create new metadata map or copy existing one
+      final newMetadata = Map<String, dynamic>.from(paint.metadata ?? {});
+      newMetadata['role'] = role.name;
+      
+      // Create new Paint with updated metadata
+      out[i] = Paint(
+        id: paint.id,
+        brandId: paint.brandId,
+        brandName: paint.brandName,
+        name: paint.name,
+        code: paint.code,
+        hex: paint.hex,
+        rgb: paint.rgb,
+        lab: paint.lab,
+        lch: paint.lch,
+        collection: paint.collection,
+        finish: paint.finish,
+        metadata: newMetadata,
+      );
+    }
+
     return out;
   }
 

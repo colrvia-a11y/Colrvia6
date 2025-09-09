@@ -125,6 +125,7 @@ List<Map<String, dynamic>> rollPipelineInIsolate(Map<String, dynamic> argsMap) {
 
   double best = -1.0;
   List<Paint> bestPalette = const [];
+  List<Paint>? lastValidPalette; // Track valid candidates during attempts
   int attemptsUsed = 0;
   for (; attemptsUsed < maxAttempts; attemptsUsed++) {
     final hintsBase = args.slotLrvHints ??
@@ -150,6 +151,12 @@ List<Map<String, dynamic>> rollPipelineInIsolate(Map<String, dynamic> argsMap) {
       tonePenaltySoft: tonePenaltySoft,
     );
     final score = ThemeEngine.scorePalette(rolled, spec);
+    
+    // Track valid palettes for fallback
+    if (ThemeEngine.validatePaletteRules(rolled, spec) == null) {
+      lastValidPalette = rolled;
+    }
+    
     if (score > best) {
       best = score;
       bestPalette = rolled;
@@ -157,9 +164,35 @@ List<Map<String, dynamic>> rollPipelineInIsolate(Map<String, dynamic> argsMap) {
     if (score >= threshold) break; // early exit
   }
 
+  // Hard-rule gate: validate bestPalette and repair if needed
+  String? validationError = ThemeEngine.validatePaletteRules(bestPalette, spec);
+  if (validationError != null) {
+    // Attempt 1-2 repair strategies
+    List<Paint>? repairedPalette = _attemptPaletteRepair(bestPalette, pool, anchors, spec, validationError);
+    
+    if (repairedPalette != null) {
+      final repairedValidation = ThemeEngine.validatePaletteRules(repairedPalette, spec);
+      if (repairedValidation == null) {
+        // Repair successful
+        bestPalette = repairedPalette;
+        best = ThemeEngine.scorePalette(bestPalette, spec);
+        validationError = null;
+      }
+    } else if (lastValidPalette != null) {
+      // Fallback to last valid palette seen during attempts
+      bestPalette = lastValidPalette;
+      best = ThemeEngine.scorePalette(bestPalette, spec);
+      validationError = null;
+    }
+    // If still invalid, we'll return best but log it as invalid
+  }
+
   // Logs for visibility
   try {
-    final invalid = ThemeEngine.validatePaletteRules(bestPalette, spec);
+    final finalValidation = ThemeEngine.validatePaletteRules(bestPalette, spec);
+    final wasRepaired = validationError != null && finalValidation == null;
+    final hadValidFallback = lastValidPalette != null && validationError != null;
+    
     AnalyticsService.instance.logEvent('theme_roll_summary', {
       'themeId': spec.id,
       'attempts': maxAttempts,
@@ -167,14 +200,29 @@ List<Map<String, dynamic>> rollPipelineInIsolate(Map<String, dynamic> argsMap) {
       'poolSize': pool.length,
       'prefilterSize': pre.length,
       'relaxRounds': (attemptsUsed / 3).floor(),
-      if (invalid != null) 'invalidReason': invalid,
+      if (finalValidation != null) 'finalInvalidReason': finalValidation,
+      if (wasRepaired) 'repairedFromError': validationError,
+      if (hadValidFallback) 'usedValidFallback': true,
     });
+    
     if (best < threshold) {
       AnalyticsService.instance.logEvent('theme_roll_low_score', {
         'themeId': spec.id,
         'score': best,
         'explain': ThemeEngine.explain(bestPalette, spec),
-        if (invalid != null) 'invalidReason': invalid,
+        if (finalValidation != null) 'finalInvalidReason': finalValidation,
+      });
+    }
+    
+    // Log repair attempts for observability
+    if (validationError != null) {
+      AnalyticsService.instance.logEvent('theme_hard_rule_gate', {
+        'themeId': spec.id,
+        'originalError': validationError,
+        'repairAttempted': true,
+        'repairSuccessful': wasRepaired,
+        'fallbackUsed': hadValidFallback,
+        'finalValid': finalValidation == null,
       });
     }
   } catch (_) {}
@@ -191,7 +239,7 @@ List<Map<String, dynamic>> alternatesForSlotInIsolate(
     for (final m in List<Map<String, dynamic>?>.from(args['anchors'] as List))
       (m == null ? null : Paint.fromJson(m, m['id'] as String))
   ];
-  final slotIndex = args['slotIndex'] as int;
+  var slotIndex = args['slotIndex'] as int;
   final diversify = args['diversify'] as bool? ?? true;
   final fixedUndertones = args['fixedUndertones'] == null
       ? null
@@ -199,10 +247,22 @@ List<Map<String, dynamic>> alternatesForSlotInIsolate(
   final themeSpecMap = args['themeSpec'] as Map<String, dynamic>?;
   final targetCount = args['targetCount'] as int? ?? 5;
   final attemptsPerRound = args['attemptsPerRound'] as int? ?? 3;
+  final roleName = args['roleName'] as String?;
+
+  // If we have a role name, try to find the matching slot by role metadata
+  if (roleName != null) {
+    for (var i = 0; i < anchors.length; i++) {
+      final anchor = anchors[i];
+      if (anchor?.metadata?['role'] == roleName) {
+        slotIndex = i;
+        break;
+      }
+    }
+  }
 
   // Lock all other slots; leave only [slotIndex] as null
   for (var i = 0; i < anchors.length; i++) {
-    if (i != slotIndex)
+    if (i != slotIndex) {
       anchors[i] = anchors[i] ??
           Paint.fromJson({
             'hex': '#000000',
@@ -212,6 +272,7 @@ List<Map<String, dynamic>> alternatesForSlotInIsolate(
             'brandName': '',
             'brandId': ''
           }, 'LOCK');
+    }
   }
   anchors[slotIndex] = null; // ensure target slot is unlocked
 
@@ -410,4 +471,144 @@ List<Map<String, dynamic>> rollPaletteInIsolate(Map<String, dynamic> raw) {
   }
 
   return [for (final p in bestPalette) (p.toJson()..['id'] = p.id)];
+}
+
+/// Attempts to repair a palette that fails validation rules.
+/// Returns null if repair is not possible.
+List<Paint>? _attemptPaletteRepair(
+  List<Paint> invalidPalette,
+  List<Paint> availablePool,
+  List<Paint?> anchors,
+  ThemeSpec spec,
+  String validationError,
+) {
+  // Strategy 1: Re-roll with widened L bands for specific missing categories
+  if (validationError.contains('whisper') || validationError.contains('anchor')) {
+    return _repairMissingCategory(invalidPalette, availablePool, anchors, spec, validationError);
+  }
+  
+  // Strategy 2: Inject specific paint to fix bridge/spacing issues  
+  if (validationError.contains('bridge') || validationError.contains('spacing')) {
+    return _repairByInjection(invalidPalette, availablePool, spec, validationError);
+  }
+  
+  return null; // No repair strategy available
+}
+
+/// Repair by re-rolling with widened L bands for missing categories
+List<Paint>? _repairMissingCategory(
+  List<Paint> invalidPalette,
+  List<Paint> availablePool,
+  List<Paint?> anchors,
+  ThemeSpec spec,
+  String validationError,
+) {
+  // Determine which category is missing and widen its L range
+  List<List<double>>? hints = ThemeEngine.slotLrvHintsFor(anchors.length, spec);
+  if (hints == null) return null;
+  
+  // Widen L bands based on missing category
+  if (validationError.contains('whisper')) {
+    // Widen high L range for whisper (light colors)
+    hints = hints.map((h) => [h[0], (h[1] + 15.0).clamp(0.0, 100.0)]).toList();
+  } else if (validationError.contains('anchor')) {
+    // Widen low L range for anchor (dark colors)  
+    hints = hints.map((h) => [(h[0] - 15.0).clamp(0.0, 100.0), h[1]]).toList();
+  }
+  
+  // Try a single re-roll with widened bands
+  try {
+    final repaired = PaletteGenerator.rollPaletteConstrained(
+      availablePaints: availablePool,
+      anchors: anchors,
+      slotLrvHints: hints,
+      diversifyBrands: true,
+      tonePenaltySoft: 0.85, // More relaxed
+    );
+    return repaired;
+  } catch (_) {
+    return null;
+  }
+}
+
+/// Repair by swapping a single slot with the nearest candidate that fixes the rule
+List<Paint>? _repairByInjection(
+  List<Paint> invalidPalette,
+  List<Paint> availablePool,
+  ThemeSpec spec,
+  String validationError,
+) {
+  if (validationError.contains('bridge')) {
+    return _injectBridgeNeutral(invalidPalette, availablePool, spec);
+  }
+  
+  if (validationError.contains('spacing')) {
+    return _fixSpacingIssue(invalidPalette, availablePool, spec);
+  }
+  
+  return null;
+}
+
+/// Inject a bridge neutral when warm and cool chromatic colors mix
+List<Paint>? _injectBridgeNeutral(
+  List<Paint> palette,
+  List<Paint> availablePool,
+  ThemeSpec spec,
+) {
+  // Find best mid-LRV low-chroma neutral candidate
+  final candidates = availablePool
+      .where((p) => !palette.contains(p))
+      .where((p) => (p.lch.length > 1 ? p.lch[1] : 0.0) < 10.0) // Low chroma
+      .where((p) => p.computedLrv >= 20 && p.computedLrv <= 60); // Mid LRV
+  
+  if (candidates.isEmpty) return null;
+  
+  // Find candidate closest to LRV 40 (ideal bridge)
+  Paint? bestCandidate;
+  double bestDistance = double.infinity;
+  for (final candidate in candidates) {
+    final distance = (candidate.computedLrv - 40.0).abs();
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      bestCandidate = candidate;
+    }
+  }
+  
+  if (bestCandidate == null) return null;
+  
+  // Replace least important paint (typically last slot) with bridge
+  final result = List<Paint>.from(palette);
+  result[result.length - 1] = bestCandidate;
+  return result;
+}
+
+/// Fix spacing issues by swapping problematic paint
+List<Paint>? _fixSpacingIssue(
+  List<Paint> palette,
+  List<Paint> availablePool,
+  ThemeSpec spec,
+) {
+  // Find paints that are too close in LRV and try to replace one
+  for (int i = 0; i < palette.length - 1; i++) {
+    final current = palette[i];
+    final next = palette[i + 1];
+    final lrvDiff = (current.computedLrv - next.computedLrv).abs();
+    
+    if (lrvDiff < 10.0) { // Too close
+      // Try to find a replacement for the second paint
+      final targetLrv = current.computedLrv > 50 ? current.computedLrv - 20 : current.computedLrv + 20;
+      final candidates = availablePool
+          .where((p) => !palette.contains(p))
+          .where((p) => (p.computedLrv - targetLrv).abs() < 15.0);
+      
+      if (candidates.isNotEmpty) {
+        final replacement = candidates.first;
+        final result = List<Paint>.from(palette);
+        result[i + 1] = replacement;
+        return result;
+      }
+    }
+  }
+  
+  return null;
 }

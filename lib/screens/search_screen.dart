@@ -693,9 +693,9 @@ class _SearchScreenState extends State<SearchScreen>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  theme.colorScheme.surface.withOpacity(0.18),
+                  theme.colorScheme.surface.withAlpha((0.18 * 255).round()),
                   Colors.transparent,
-                  Colors.black.withOpacity(0.22),
+                  Colors.black.withAlpha((0.22 * 255).round()),
                 ],
                 stops: const [0, 0.5, 1],
               ),

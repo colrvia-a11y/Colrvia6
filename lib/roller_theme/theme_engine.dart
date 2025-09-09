@@ -50,9 +50,37 @@ class ThemeEngine {
     return out;
   }
 
+  // Count "pop" colors based on chroma threshold
+  static int _countPops(List<Paint> palette, double popChromaMin) {
+    return palette
+        .where((p) => (p.lch.length > 1 ? p.lch[1] : 0.0) >= popChromaMin)
+        .length;
+  }
+
+  // Check if palette is muted (median chroma of non-pop colors < threshold)
+  static bool _isMutedPalette(List<Paint> palette, double popChromaMin, double mutedThreshold) {
+    final nonPops = palette
+        .where((p) => (p.lch.length > 1 ? p.lch[1] : 0.0) < popChromaMin)
+        .map((p) => p.lch.length > 1 ? p.lch[1] : 0.0)
+        .toList();
+    
+    if (nonPops.isEmpty) {
+      return false;
+    }
+    
+    nonPops.sort();
+    final median = nonPops.length % 2 == 0
+        ? (nonPops[nonPops.length ~/ 2 - 1] + nonPops[nonPops.length ~/ 2]) / 2
+        : nonPops[nonPops.length ~/ 2];
+    
+    return median < mutedThreshold;
+  }
+
   // Prefilter paints by LCH windows in spec.neutrals or spec.accents
   static List<Paint> prefilter(List<Paint> paints, ThemeSpec spec) {
-    if (spec.neutrals == null && spec.accents == null) return paints;
+    if (spec.neutrals == null && spec.accents == null) {
+      return paints;
+    }
     final out = <Paint>[];
     for (final p in paints) {
       final l = p.lch.isNotEmpty ? p.lch[0] : 0.0;
@@ -79,7 +107,9 @@ class ThemeEngine {
   static List<List<double>>? slotLrvHintsFor(int size, ThemeSpec spec) {
     final rt = spec.roleTargets;
     final anchorL = rt?.anchor?.L;
-    if (anchorL == null) return null;
+    if (anchorL == null) {
+      return null;
+    }
     final secondaryL = rt?.secondary?.L;
     final accentL = rt?.accent?.L;
 
@@ -137,12 +167,13 @@ class ThemeEngine {
     int warm = 0, cool = 0, neutralish = 0;
     for (final x in p) {
       final h = x.lch.length > 2 ? ((x.lch[2] % 360) + 360) % 360 : 0.0;
-      if (_isWarmHue(h))
+      if (_isWarmHue(h)) {
         warm++;
-      else if (_isCoolHue(h))
+      } else if (_isCoolHue(h)) {
         cool++;
-      else
+      } else {
         neutralish++;
+      }
     }
     return {'warm': warm, 'cool': cool, 'neutral': neutralish};
   }
@@ -154,12 +185,18 @@ class ThemeEngine {
       return u.split('/').first.toLowerCase();
     }
     final h = p.lch.length > 2 ? ((p.lch[2] % 360) + 360) % 360 : 0.0;
-    if (_isWarmHue(h)) return 'warm';
-    if (_isCoolHue(h)) return 'cool';
+    if (_isWarmHue(h)) {
+      return 'warm';
+    }
+    if (_isCoolHue(h)) {
+      return 'cool';
+    }
     return 'neutral';
   }
   static double _undertoneVariance(List<Paint> p) {
-    if (p.isEmpty) return 0.0;
+    if (p.isEmpty) {
+      return 0.0;
+    }
     final groups = <String, int>{};
     for (final x in p) {
       final k = _undertoneKey(x);
@@ -197,6 +234,16 @@ class ThemeEngine {
     if (_needsBridge(palette) && !_hasBridgeColor(palette, spec)) {
       return 'no_bridge_for_warm_cool_mix';
     }
+    
+    // Pop accent constraint validation
+    final vc = spec.varietyControls;
+    if (vc?.maxPops != null && vc?.popChromaMin != null) {
+      final pops = _countPops(palette, vc!.popChromaMin!);
+      if (pops > vc.maxPops!) {
+        return 'too_many_pops';
+      }
+    }
+    
     return null;
   }
 
@@ -211,18 +258,28 @@ class ThemeEngine {
     final chroma = palette
         .where((p) => (p.lch.length > 1 ? p.lch[1] : 0.0) > neutralMax)
         .toList();
-    if (chroma.length <= 1) return 1.0; // single chromatic family or none
+    if (chroma.length <= 1) {
+      return 1.0; // single chromatic family or none
+    }
 
     // If we don't actually mix warm & cool, it's cohesive
     int warm = 0, cool = 0;
     for (final p in chroma) {
       final h = p.lch.length > 2 ? ((p.lch[2] % 360) + 360) % 360 : 0.0;
-      if (_isWarmHue(h)) warm++; else if (_isCoolHue(h)) cool++;
+      if (_isWarmHue(h)) {
+        warm++;
+      } else if (_isCoolHue(h)) {
+        cool++;
+      }
     }
-    if (warm == 0 || cool == 0) return 1.0;
+    if (warm == 0 || cool == 0) {
+      return 1.0;
+    }
 
     // Mixed warm/cool: require a neutral mid-L bridge, else penalize by variance
-    if (_hasBridgeColor(palette, spec)) return 1.0;
+    if (_hasBridgeColor(palette, spec)) {
+      return 1.0;
+    }
 
     // Variance across undertone families for chromatic paints
     final variance = _undertoneVariance(chroma); // 0 (cohesive) .. ~0.5 (evenly split)
@@ -283,6 +340,71 @@ class ThemeEngine {
     // linear falloff: 0.1..0.3 -> 1..0
     final t = ((0.3 - diff) / 0.2).clamp(0.0, 1.0);
     return t;
+  }
+
+  // Dominant vs. Secondary separation: ensure clear difference by hue or value
+  static List<Paint> _identifyDominantSecondary(List<Paint> palette) {
+    if (palette.length < 2) return palette;
+    
+    // Filter to mid-tone "body" colors (L between 25-75) suitable for dominant/secondary roles
+    final midTones = palette
+        .where((p) {
+          final l = p.lch.isNotEmpty ? p.lch[0] : 0.0;
+          return l >= 25.0 && l <= 75.0;
+        })
+        .toList();
+    
+    if (midTones.length < 2) {
+      // Fallback: use first two paints if not enough mid-tones
+      return [palette[0], palette[1]];
+    }
+    
+    // Sort by L value and pick two most representative mid-tones
+    midTones.sort((a, b) => (a.lch[0]).compareTo(b.lch[0]));
+    
+    // Take paints from different parts of the L range for better separation
+    if (midTones.length == 2) {
+      return midTones;
+    } else {
+      // Pick from lower and upper mid-tone ranges
+      final lowerMid = midTones.take(midTones.length ~/ 2).toList();
+      final upperMid = midTones.skip(midTones.length ~/ 2).toList();
+      return [lowerMid.last, upperMid.first];
+    }
+  }
+
+  static double _dominantSecondarySeparation(List<Paint> palette) {
+    if (palette.length < 2) return 1.0;
+    
+    final domSec = _identifyDominantSecondary(palette);
+    if (domSec.length < 2) return 1.0;
+    
+    final dominant = domSec[0];
+    final secondary = domSec[1];
+    
+    // Calculate L (value) difference
+    final lDom = dominant.lch.isNotEmpty ? dominant.lch[0] : 0.0;
+    final lSec = secondary.lch.isNotEmpty ? secondary.lch[0] : 0.0;
+    final deltaL = (lDom - lSec).abs();
+    
+    // Calculate H (hue) difference
+    final hDom = dominant.lch.length > 2 ? ((dominant.lch[2] % 360) + 360) % 360 : 0.0;
+    final hSec = secondary.lch.length > 2 ? ((secondary.lch[2] % 360) + 360) % 360 : 0.0;
+    var deltaH = (hDom - hSec).abs();
+    if (deltaH > 180) deltaH = 360 - deltaH; // shorter arc
+    
+    // Score 1.0 if ΔL ≥ 8 or ΔH ≥ 25°
+    if (deltaL >= 8.0 || deltaH >= 25.0) return 1.0;
+    
+    // Penalize when both ΔL < 5 and ΔH < 12°
+    if (deltaL < 5.0 && deltaH < 12.0) return 0.0;
+    
+    // Linear interpolation for intermediate cases
+    double lScore = deltaL < 5.0 ? 0.0 : ((deltaL - 5.0) / (8.0 - 5.0)).clamp(0.0, 1.0);
+    double hScore = deltaH < 12.0 ? 0.0 : ((deltaH - 12.0) / (25.0 - 12.0)).clamp(0.0, 1.0);
+    
+    // Return the maximum of L or H separation scores
+    return max(lScore, hScore);
   }
 
   static double scorePalette(List<Paint> palette, ThemeSpec spec) {
@@ -433,10 +555,15 @@ class ThemeEngine {
     // v3: spacing bonus encourages ≥20–30 gaps between adjacent levels
     final minGap = _minSpacing(palette);
     double spacingBonus;
-    if (minGap >= 20 && minGap <= 30) spacingBonus = 1.0;
-    else if (minGap < 8) spacingBonus = 0.0;
-    else if (minGap > 40) spacingBonus = 0.5; // too far apart; still okay
-    else spacingBonus = ((minGap - 8) / (20 - 8)).clamp(0.0, 1.0);
+    if (minGap >= 20 && minGap <= 30) {
+      spacingBonus = 1.0;
+    } else if (minGap < 8) {
+      spacingBonus = 0.0;
+    } else if (minGap > 40) {
+      spacingBonus = 0.5; // too far apart; still okay
+    } else {
+      spacingBonus = ((minGap - 8) / (20 - 8)).clamp(0.0, 1.0);
+    }
     _accumulate('spacingBonus', spacingBonus, weights, (s, w) {
       weightedSum += s * w;
       sumWeights += w;
@@ -498,6 +625,42 @@ class ThemeEngine {
       sumWeights += w;
     });
 
+    // Pop discipline: enforce the "0 or 1 pop accent" rule
+    double popDiscipline = 1.0;
+    if (vc?.popChromaMin != null) {
+      final popChromaMin = vc!.popChromaMin!;
+      final pops = _countPops(palette, popChromaMin);
+      
+      if (pops <= 1) {
+        popDiscipline = 1.0;
+      } else {
+        // Penalize additional pops linearly
+        popDiscipline = max(0.0, 1.0 - 0.5 * (pops - 1));
+      }
+      
+      // If muted palette prefers muted pop, penalize overly vivid pops
+      if (vc.mutedPalettePrefersMutedPop == true && 
+          _isMutedPalette(palette, popChromaMin, 14.0)) {
+        final vividPops = palette
+            .where((p) => (p.lch.length > 1 ? p.lch[1] : 0.0) > 24.0)
+            .length;
+        if (vividPops > 0) {
+          popDiscipline *= 0.7; // penalize vivid pops in muted palettes
+        }
+      }
+    }
+    _accumulate('popDiscipline', popDiscipline, weights, (s, w) {
+      weightedSum += s * w;
+      sumWeights += w;
+    });
+
+    // Dominant vs. Secondary separation: ensure clear difference by hue or value
+    final dominantSecondarySeparation = _dominantSecondarySeparation(palette);
+    _accumulate('dominantSecondarySeparation', dominantSecondarySeparation, weights, (s, w) {
+      weightedSum += s * w;
+      sumWeights += w;
+    });
+
     // If no weights provided, return simple average of a core set of features
     if (sumWeights <= 0.0) {
       final fallback = (neutralShare +
@@ -511,8 +674,10 @@ class ThemeEngine {
               valueSpread +
         spacingBonus +
               undertoneCohesion +
-              temperatureBalance) /
-      12.0;
+              temperatureBalance +
+              popDiscipline +
+              dominantSecondarySeparation) /
+      14.0;
       return fallback.clamp(0.0, 1.0);
     }
 
@@ -532,7 +697,8 @@ class ThemeEngine {
       final tb = _temperatureBalance(palette).toStringAsFixed(3);
       final minGap = _minSpacing(palette).toStringAsFixed(1);
       final needBridge = _needsBridge(palette).toString();
-      return 'score=${score.toStringAsFixed(3)},n=${palette.length},neutrals=$neutrals,accents=$accents,vc=${vc?.minColors}-${vc?.maxColors}, valueSpread=$vs, undertone=$uCoh, tempBalance=$tb, minGap=$minGap, needBridge=$needBridge';
+      final domSecSep = _dominantSecondarySeparation(palette).toStringAsFixed(3);
+      return 'score=${score.toStringAsFixed(3)},n=${palette.length},neutrals=$neutrals,accents=$accents,vc=${vc?.minColors}-${vc?.maxColors}, valueSpread=$vs, undertone=$uCoh, tempBalance=$tb, minGap=$minGap, needBridge=$needBridge, domSecSep=$domSecSep';
     } catch (e) {
       return 'error:${e.toString()}';
     }
@@ -561,11 +727,11 @@ bool _inHue(RangeH? h, double deg) {
   return false;
 }
 
-bool _inRange3(Range3? r3, double L, double C, double Hdeg) {
+bool _inRange3(Range3? r3, double L, double C, double hDeg) {
   if (r3 == null) return false;
   final okL = r3.L == null ? true : _inRange(r3.L, L);
   final okC = r3.C == null ? true : _inRange(r3.C, C);
-  final okH = r3.H == null ? true : _inHue(r3.H, Hdeg);
+  final okH = r3.H == null ? true : _inHue(r3.H, hDeg);
   return okL && okC && okH;
 }
 

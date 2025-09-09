@@ -64,7 +64,7 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen>
   }
 
   // Removed unused _isLoading; rely on provider/stream loading states
-  bool _hasPermissionError = false;
+  final bool _hasPermissionError = false;
   late LibraryFilter _filter;
   String? _lastProjectId;
   String? _lastScreen;
@@ -137,9 +137,9 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  theme.colorScheme.surface.withOpacity(0.18),
+                  theme.colorScheme.surface.withValues(alpha: 0.18),
                   Colors.transparent,
-                  Colors.black.withOpacity(0.22),
+                  Colors.black.withValues(alpha: 0.22),
                 ],
                 stops: const [0, 0.5, 1],
               ),
@@ -473,10 +473,10 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen>
                                       const EdgeInsets.fromLTRB(16, 12, 16, 8),
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: Colors.orange.withOpacity(0.1),
+                                    color: Colors.orange.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                        color: Colors.orange.withOpacity(0.3)),
+                                        color: Colors.orange.withValues(alpha: 0.3)),
                                   ),
                                   child: const Row(
                                     children: [
