@@ -5,6 +5,7 @@ import 'package:color_canvas/features/roller/roller_controller.dart';
 import 'package:color_canvas/features/roller/palette_service.dart';
 import 'package:color_canvas/features/roller/paint_repository.dart';
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
+import 'package:color_canvas/utils/palette_generator.dart' show HarmonyMode;
 
 class _FakePaint extends Paint {
   _FakePaint(String id, String hex)
@@ -27,6 +28,10 @@ class MockSvc extends Mock implements PaletteService {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() {
+    // Allow mocktail to match enum arguments
+    registerFallbackValue(HarmonyMode.colrvia);
+  });
 
   group('alternates', () {
     late MockRepo repo;
@@ -40,6 +45,9 @@ void main() {
         paintRepositoryProvider.overrideWithValue(repo),
         paletteServiceProvider.overrideWithValue(svc),
       ]);
+    // brand filter passthrough
+    when(() => repo.filterByBrands(any(), any()))
+      .thenAnswer((inv) => inv.positionalArguments[0] as List<Paint>);
     });
 
     tearDown(() => container.dispose());
@@ -53,7 +61,7 @@ void main() {
               theme: any(named: 'theme'))).thenAnswer(
           (_) async => List.generate(10, (i) => _FakePaint('p$i', '#000000')));
 
-      when(() => svc.generate(
+  when(() => svc.generate(
                 available: any(named: 'available'),
                 anchors: any(named: 'anchors'),
                 diversifyBrands: any(named: 'diversifyBrands'),
@@ -62,24 +70,27 @@ void main() {
                 themeSpec: any(named: 'themeSpec'),
                 themeThreshold: any(named: 'themeThreshold'),
                 attempts: any(named: 'attempts'),
-                mode: any(named: 'mode'),
+        mode: any(named: 'mode'),
+        availableBrandOnly: any(named: 'availableBrandOnly'),
               ))
           .thenAnswer((_) async =>
               List.generate(5, (i) => _FakePaint('r$i', '#ABCDEF')));
 
-      when(() => svc.alternatesForSlot(
+  when(() => svc.alternatesForSlot(
             available: any(named: 'available'),
             anchors: any(named: 'anchors'),
             slotIndex: any(named: 'slotIndex'),
             diversifyBrands: any(named: 'diversifyBrands'),
+    slotLrvHints: any(named: 'slotLrvHints'),
             fixedUndertones: any(named: 'fixedUndertones'),
             themeSpec: any(named: 'themeSpec'),
-            targetCount: any(named: 'targetCount'),
+    targetCount: any(named: 'targetCount'),
+    attemptsPerRound: any(named: 'attemptsPerRound'),
           )).thenAnswer((inv) async => [_FakePaint('alt1', '#111111')]);
 
       final ctrl = container.read(rollerControllerProvider.notifier);
       await ctrl.initIfNeeded();
-      await Future.delayed(const Duration(milliseconds: 10));
+  await Future.delayed(const Duration(milliseconds: 50));
 
       await ctrl.useNextAlternateForStrip(0);
       final state = container.read(rollerControllerProvider).value!;
@@ -95,7 +106,7 @@ void main() {
               theme: any(named: 'theme'))).thenAnswer(
           (_) async => List.generate(10, (i) => _FakePaint('p$i', '#000000')));
 
-      when(() => svc.generate(
+  when(() => svc.generate(
                 available: any(named: 'available'),
                 anchors: any(named: 'anchors'),
                 diversifyBrands: any(named: 'diversifyBrands'),
@@ -105,23 +116,26 @@ void main() {
                 themeThreshold: any(named: 'themeThreshold'),
                 attempts: any(named: 'attempts'),
                 mode: any(named: 'mode'),
+        availableBrandOnly: any(named: 'availableBrandOnly'),
               ))
           .thenAnswer((_) async =>
               List.generate(5, (i) => _FakePaint('r$i', '#ABCDEF')));
 
-      when(() => svc.alternatesForSlot(
+  when(() => svc.alternatesForSlot(
             available: any(named: 'available'),
             anchors: any(named: 'anchors'),
             slotIndex: any(named: 'slotIndex'),
             diversifyBrands: any(named: 'diversifyBrands'),
+    slotLrvHints: any(named: 'slotLrvHints'),
             fixedUndertones: any(named: 'fixedUndertones'),
             themeSpec: any(named: 'themeSpec'),
-            targetCount: any(named: 'targetCount'),
+    targetCount: any(named: 'targetCount'),
+    attemptsPerRound: any(named: 'attemptsPerRound'),
           )).thenAnswer((inv) async => <Paint>[]);
 
       final ctrl = container.read(rollerControllerProvider.notifier);
       await ctrl.initIfNeeded();
-      await Future.delayed(const Duration(milliseconds: 10));
+  await Future.delayed(const Duration(milliseconds: 50));
 
       await ctrl.useNextAlternateForStrip(0);
       final state = container.read(rollerControllerProvider).value!;

@@ -84,53 +84,8 @@ List<Paint> _pipeRollBase({
   );
 }
 
-List<Paint> _pipeMaybeScoreTheme({
-  required List<Paint> available,
-  required List<Paint?> anchors,
-  required int modeIndex,
-  required bool diversify,
-  required ThemeSpec spec,
-  double threshold = 0.68,
-  List<List<double>>? slotLrvHints,
-  List<String>? fixedUndertones,
-  int attempts = 5,
-}) {
-  // Prefilter to reduce search space
-  final pre = ThemeEngine.prefilter(available, spec);
-  final pool = pre.length < 200 ? available : pre;
-
-  double best = -1.0;
-  List<Paint> bestPalette = const [];
-
-  for (var i = 0; i < attempts; i++) {
-    final rolled = PaletteGenerator.rollPalette(
-      availablePaints: pool,
-      anchors: anchors,
-      mode: HarmonyMode.values[modeIndex],
-      diversifyBrands: diversify,
-      slotLrvHints:
-          slotLrvHints ?? ThemeEngine.slotLrvHintsFor(anchors.length, spec),
-      fixedUndertones: fixedUndertones,
-    );
-    final score = ThemeEngine.scorePalette(rolled, spec);
-    if (score > best) {
-      best = score;
-      bestPalette = rolled;
-    }
-  }
-
-  try {
-    if (best < threshold) {
-      AnalyticsService.instance.logEvent('theme_roll_low_score', {
-        'themeId': spec.id,
-        'score': best,
-        'explain': ThemeEngine.explain(bestPalette, spec),
-      });
-    }
-  } catch (_) {}
-
-  return bestPalette;
-}
+// _pipeMaybeScoreTheme was used by pre-constrained themed alternates; removed after
+// switching to constrained generator in both main roll and alternates paths.
 
 // ---------- New public entrypoints ----------
 List<Map<String, dynamic>> rollPipelineInIsolate(Map<String, dynamic> argsMap) {
@@ -170,15 +125,29 @@ List<Map<String, dynamic>> rollPipelineInIsolate(Map<String, dynamic> argsMap) {
 
   double best = -1.0;
   List<Paint> bestPalette = const [];
-  for (var i = 0; i < maxAttempts; i++) {
-    final rolled = PaletteGenerator.rollPalette(
+  int attemptsUsed = 0;
+  for (; attemptsUsed < maxAttempts; attemptsUsed++) {
+    final hintsBase = args.slotLrvHints ??
+        ThemeEngine.slotLrvHintsFor(anchors.length, spec) ??
+        List<List<double>>.generate(anchors.length, (_) => [0.0, 100.0]);
+    final relaxRound = attemptsUsed ~/ 3; // every 3 attempts, widen a bit
+    final double relaxL = relaxRound == 0 ? 0.0 : (relaxRound * 3.0).clamp(0.0, 8.0);
+    final hints = [
+      for (final h in hintsBase)
+        [
+          (h[0] - relaxL).clamp(0.0, 100.0),
+          (h[1] + relaxL).clamp(0.0, 100.0),
+        ]
+    ];
+    final tonePenaltySoft = relaxRound == 0 ? 0.7 : 0.85;
+
+    final rolled = PaletteGenerator.rollPaletteConstrained(
       availablePaints: pool,
       anchors: anchors,
-      mode: HarmonyMode.values[args.modeIndex],
-      diversifyBrands: args.diversify,
-      slotLrvHints: args.slotLrvHints ??
-          ThemeEngine.slotLrvHintsFor(anchors.length, spec),
+      slotLrvHints: hints,
       fixedUndertones: args.fixedUndertones,
+      diversifyBrands: args.diversify,
+      tonePenaltySoft: tonePenaltySoft,
     );
     final score = ThemeEngine.scorePalette(rolled, spec);
     if (score > best) {
@@ -190,18 +159,22 @@ List<Map<String, dynamic>> rollPipelineInIsolate(Map<String, dynamic> argsMap) {
 
   // Logs for visibility
   try {
+    final invalid = ThemeEngine.validatePaletteRules(bestPalette, spec);
     AnalyticsService.instance.logEvent('theme_roll_summary', {
       'themeId': spec.id,
       'attempts': maxAttempts,
       'bestScore': best,
       'poolSize': pool.length,
       'prefilterSize': pre.length,
+      'relaxRounds': (attemptsUsed / 3).floor(),
+      if (invalid != null) 'invalidReason': invalid,
     });
     if (best < threshold) {
       AnalyticsService.instance.logEvent('theme_roll_low_score', {
         'themeId': spec.id,
         'score': best,
         'explain': ThemeEngine.explain(bestPalette, spec),
+        if (invalid != null) 'invalidReason': invalid,
       });
     }
   } catch (_) {}
@@ -256,23 +229,31 @@ List<Map<String, dynamic>> alternatesForSlotInIsolate(
 
   while (out.length < targetCount) {
     for (var i = 0; i < attemptsPerRound && out.length < targetCount; i++) {
-      final rolled = (spec == null)
-          ? _pipeRollBase(
-              available: available,
-              anchors: anchors,
-              modeIndex: 0,
-              diversify: diversify,
-              fixedUndertones: fixedUndertones,
-            )
-          : _pipeMaybeScoreTheme(
-              available: available,
-              anchors: anchors,
-              modeIndex: 0,
-              diversify: diversify,
-              spec: spec,
-              fixedUndertones: fixedUndertones,
-              attempts: 2,
-            );
+      List<Paint> rolled;
+      if (spec == null) {
+        // Non-themed: keep legacy behavior
+        rolled = _pipeRollBase(
+          available: available,
+          anchors: anchors,
+          modeIndex: 0,
+          diversify: diversify,
+          fixedUndertones: fixedUndertones,
+        );
+      } else {
+        // Themed alternates: prefilter (with auto-relax) and use constrained per-slot roll
+        final pre = ThemeEngine.prefilter(available, spec);
+        final pool = pre.length < 80 ? available : pre;
+        final hints = ThemeEngine.slotLrvHintsFor(anchors.length, spec) ??
+            List<List<double>>.generate(anchors.length, (_) => [0.0, 100.0]);
+        rolled = PaletteGenerator.rollPaletteConstrained(
+          availablePaints: pool,
+          anchors: anchors,
+          slotLrvHints: hints,
+          fixedUndertones: fixedUndertones,
+          diversifyBrands: diversify,
+        );
+      }
+      if (rolled.isEmpty) continue;
       final candidate = rolled[slotIndex];
       if (!seenIds.contains(candidate.id)) {
         seenIds.add(candidate.id);
@@ -396,13 +377,15 @@ List<Map<String, dynamic>> rollPaletteInIsolate(Map<String, dynamic> raw) {
   List<Paint> bestPalette = [];
 
   for (var i = 0; i < maxAttempts; i++) {
-    final rolled = PaletteGenerator.rollPalette(
+    final hints = args.slotLrvHints ??
+        ThemeEngine.slotLrvHintsFor(anchors.length, spec) ??
+        List<List<double>>.generate(anchors.length, (_) => [0.0, 100.0]);
+    final rolled = PaletteGenerator.rollPaletteConstrained(
       availablePaints: availableForRoll,
       anchors: anchors,
-      mode: HarmonyMode.values[args.modeIndex],
-      diversifyBrands: args.diversify,
-      slotLrvHints: args.slotLrvHints,
+      slotLrvHints: hints,
       fixedUndertones: args.fixedUndertones,
+      diversifyBrands: args.diversify,
     );
 
     final score = ThemeEngine.scorePalette(rolled, spec);
@@ -416,10 +399,12 @@ List<Map<String, dynamic>> rollPaletteInIsolate(Map<String, dynamic> raw) {
   // If bestScore is below threshold, record a breadcrumb for debugging but still return best
   if (bestScore < threshold) {
     try {
+      final invalid = ThemeEngine.validatePaletteRules(bestPalette, spec);
       AnalyticsService.instance.logEvent('theme_roll_low_score', {
         'themeId': spec.id,
         'score': bestScore,
         'explain': ThemeEngine.explain(bestPalette, spec),
+        if (invalid != null) 'invalidReason': invalid,
       });
     } catch (_) {}
   }

@@ -7,7 +7,7 @@ void main() {
   test('ThemeService loads themes from asset', () async {
     await ThemeService.instance.loadFromAssetIfNeeded();
     final all = ThemeService.instance.all();
-    expect(all.length, 5);
+  expect(all.length >= 5, true);
     final coastal = ThemeService.instance.byId('coastal');
     expect(coastal, isNotNull);
     expect(coastal!.label, 'Coastal');

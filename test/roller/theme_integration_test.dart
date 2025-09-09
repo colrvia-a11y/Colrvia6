@@ -7,6 +7,7 @@ import 'package:color_canvas/features/roller/paint_repository.dart';
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
 import 'package:color_canvas/roller_theme/theme_service.dart';
 import 'package:color_canvas/roller_theme/theme_engine.dart';
+import 'package:color_canvas/utils/palette_generator.dart' show HarmonyMode;
 
 class _FakePaint extends Paint {
   _FakePaint(String id, List<double> lch,
@@ -30,6 +31,9 @@ class MockSvc extends Mock implements PaletteService {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() {
+    registerFallbackValue(HarmonyMode.colrvia);
+  });
 
   group('Theme integration', () {
     late MockRepo repo;

@@ -5,9 +5,10 @@ import 'package:color_canvas/services/analytics_service.dart';
 
 String paintIdentity(Paint p) {
   final brand = p.brandId.isNotEmpty ? p.brandId : p.brandName;
-  final code = (p.code.isNotEmpty ? p.code : p.name).toLowerCase();
+  final codeOrName = (p.code.isNotEmpty ? p.code : p.name).toLowerCase();
+  final keyPart = codeOrName.isNotEmpty ? codeOrName : p.id.toLowerCase();
   final collection = (p.collection ?? '').toLowerCase();
-  return '$brand|$collection|$code';
+  return '$brand|$collection|$keyPart';
 }
 
 bool isCompatibleUndertone(
@@ -149,8 +150,251 @@ enum HarmonyMode {
   colrvia, // NEW: ColrVia universal recipe
 }
 
+/// Palette generation strategies
+///
+/// Two primary paths:
+/// 1) Constrained (theme-guided): rollPaletteConstrained()
+///    - Uses per-slot L (LRV) bands from ThemeEngine.slotLrvHintsFor(...)
+///    - Picks role-by-role in slot order, honoring locks and (optionally) fixed undertones
+///    - Progressive relaxation tries multiple rounds:
+///      • Widen L bands gradually only when hints are generic [0,100]
+///      • Never widen beyond specific theme-provided bands
+///      • Soft undertone penalty increases tolerance over rounds
+///    - Final safety fill ensures all slots are populated; when hints are specific, the
+///      nearest-by-L is chosen in-band; otherwise any nearest may be used as last resort
+///
+/// 2) Generic (harmony-based): rollPalette() with Designer/Analogous/etc.
+///    - Computes harmony targets, optionally merges slot hints with anchor-derived bands
+///    - Fills with nearest-in-harmony candidates, with fallback widening by tolerance
+///
+/// Brand diversity is favored when enabled; ordering preserves slot semantics (no final L sort).
 class PaletteGenerator {
   static final math.Random _random = math.Random();
+
+  // Themed, role-by-role constrained roll guided by slot hints and theme windows.
+  // When a ThemeSpec is active, pass slotLrvHints from ThemeEngine.slotLrvHintsFor(size, spec).
+  // These per-slot [Lmin,Lmax] ranges act as the source of truth for role targets:
+  //  - slot 0 = anchor L-range
+  //  - slot 1 = secondary L-range (or anchor±Δ if missing)
+  //  - slots 2+ = accent L-range (or anchor spread if missing)
+  // If no theme hints are provided, this function falls back to generic, unconstrained
+  // buckets ([0,100]) and relies on harmony/brand/undertone heuristics.
+  static List<Paint> rollPaletteConstrained({
+    required List<Paint> availablePaints,
+    required List<Paint?> anchors,
+    required List<List<double>> slotLrvHints,
+    List<String>? fixedUndertones,
+    bool diversifyBrands = true,
+  double tonePenaltySoft = 0.7, // penalty when undertone mismatches thread; increased during relax
+  }) {
+    if (availablePaints.isEmpty) return [];
+    final size = anchors.length.clamp(1, 9);
+    // Narrow by fixed undertones first, if any
+    final base = (fixedUndertones == null || fixedUndertones.isEmpty)
+        ? availablePaints
+        : filterByFixedUndertones(availablePaints, fixedUndertones);
+    if (base.isEmpty) return [];
+
+    // Track used keys and brands
+    final usedKeys = <String>{
+      for (final p in anchors.whereType<Paint>()) paintIdentity(p),
+    };
+    final usedBrands = <String>{
+      for (final p in anchors.whereType<Paint>()) p.brandName,
+    };
+
+    // Determine emergent undertone thread from anchors if present
+    String undertoneOf(Paint p) {
+      final h = p.lch.length > 2 ? ((p.lch[2] % 360) + 360) % 360 : 0.0;
+      return (h >= 45 && h <= 225) ? 'cool' : 'warm';
+    }
+    String? thread;
+    for (final a in anchors) {
+      if (a != null) {
+        thread = undertoneOf(a);
+        break;
+      }
+    }
+
+    // Helper: local scoring for a candidate given slot index
+    double localScore(int i, Paint p) {
+      // In-range check (slot L band adherence)
+      final l = p.lch.isNotEmpty ? p.lch[0] : p.computedLrv;
+      final hint = (i < slotLrvHints.length) ? slotLrvHints[i] : const [0.0, 100.0];
+      final inBand = _within(l, hint[0], hint[1]) ? 1.0 : 0.0;
+      // Undertone cohesion (bonus when matching thread)
+      final u = undertoneOf(p);
+      final toneBonus = (thread == null || u == thread) ? 1.0 : tonePenaltySoft;
+      // Brand diversity bonus
+      final brandBonus = (diversifyBrands && usedBrands.contains(p.brandName)) ? 0.6 : 1.0;
+      return inBand * toneBonus * brandBonus;
+    }
+
+    // Role order: keep natural index order [0..N-1]
+    final List<Paint?> result = List.filled(size, null);
+    // Determine if all hints are generic [0,100]
+    bool allHintsGeneric = true;
+    for (int k = 0; k < size && k < slotLrvHints.length; k++) {
+      final h = slotLrvHints[k];
+      if (!(h[0] <= 0.0 && h[1] >= 100.0)) {
+        allHintsGeneric = false; break;
+      }
+    }
+
+    for (int i = 0; i < size; i++) {
+      if (anchors[i] != null) {
+        result[i] = anchors[i];
+        continue;
+      }
+
+      // Start with strict L band, then relax progressively
+      double lMin = 0, lMax = 100;
+      if (i < slotLrvHints.length) {
+        lMin = slotLrvHints[i][0].clamp(0.0, 100.0);
+        lMax = slotLrvHints[i][1].clamp(0.0, 100.0);
+      }
+      final hasSpecificHint = !(lMin <= 0.0 && lMax >= 100.0);
+
+      // Size-aware defaults when no theme hints are provided
+      if (!hasSpecificHint && allHintsGeneric && anchors.every((a) => a == null)) {
+        if (size == 1) {
+          // Favor versatile dominant mid
+          lMin = 40.0; lMax = 60.0;
+        } else if (size == 3) {
+          // Enforce light + mid + dark bands per slot index
+          if (i == 0) { lMin = 72.0; lMax = 90.0; }
+          if (i == 1) { lMin = 35.0; lMax = 60.0; }
+          if (i == 2) { lMin = 0.0;  lMax = 15.0; }
+        }
+      }
+
+      // Progressive relaxation caps
+      double relaxL = 0.0; // grow to ±8
+      double relaxStep = 3.0;
+
+      Paint? pick;
+      int relaxRounds = 0;
+      while (pick == null && relaxRounds < 5) {
+        // If theme hints are specific, do not widen beyond [lMin,lMax]
+        final lowRaw = (lMin - relaxL).clamp(0.0, 100.0);
+        final highRaw = (lMax + relaxL).clamp(0.0, 100.0);
+        final low = hasSpecificHint ? lMin : lowRaw;
+        final high = hasSpecificHint ? lMax : highRaw;
+        final pool = base.where((p) {
+          final l = p.lch.isNotEmpty ? p.lch[0] : p.computedLrv;
+          if (!_within(l, low, high)) return false;
+          final key = paintIdentity(p);
+          if (usedKeys.contains(key)) return false;
+          if (diversifyBrands && usedBrands.contains(p.brandName)) return false;
+          // For 2-color generic case, enforce contrast and undertone match with the other pick
+          if (size == 2 && allHintsGeneric) {
+            final Paint? other = result.whereType<Paint>().cast<Paint?>().firstWhere(
+              (e) => e != null,
+              orElse: () => null,
+            );
+            if (other != null) {
+              final lOther = other.lch.isNotEmpty ? other.lch[0] : other.computedLrv;
+              if ((l - lOther).abs() < 25.0) return false; // need >= ~25 L contrast
+              final u = undertoneOf(p);
+              if (undertoneOf(other) != u) return false; // undertone match
+            }
+          }
+          return true;
+        }).toList();
+
+        if (pool.isNotEmpty) {
+          // Pick the best by local score, with small randomness among equals
+          pool.sort((a, b) => localScore(i, b).compareTo(localScore(i, a)));
+          // break ties in top-3 randomly for freshness
+          final topK = math.min(3, pool.length);
+          pick = pool[_random.nextInt(topK)];
+          break;
+        }
+        // widen and try again
+        relaxRounds++;
+        // Only expand the window when there is no specific theme hint
+        if (!hasSpecificHint) {
+          relaxL = math.min(8.0, relaxL + relaxStep);
+        }
+      }
+
+      // Fallback: nearest by L, respecting hints when specific
+      if (pick == null) {
+        double bestD = double.infinity;
+        Paint? best;
+        final target = (lMin + lMax) / 2.0;
+        for (final p in base) {
+          final key = paintIdentity(p);
+          if (usedKeys.contains(key)) continue;
+          if (diversifyBrands && usedBrands.contains(p.brandName)) continue;
+          final l = p.lch.isNotEmpty ? p.lch[0] : p.computedLrv;
+          if (hasSpecificHint && !_within(l, lMin, lMax)) continue;
+          final d = (l - target).abs();
+          if (d < bestD) {
+            bestD = d;
+            best = p;
+          }
+        }
+        if (best == null && !hasSpecificHint) {
+          // last resort when no specific hint
+          for (final p in base) {
+            final key = paintIdentity(p);
+            if (usedKeys.contains(key)) continue;
+            if (diversifyBrands && usedBrands.contains(p.brandName)) continue;
+            final l = p.lch.isNotEmpty ? p.lch[0] : p.computedLrv;
+            final d = (l - target).abs();
+            if (d < bestD) {
+              bestD = d;
+              best = p;
+            }
+          }
+        }
+        pick = best;
+      }
+
+      result[i] = pick;
+      if (pick != null) {
+        usedKeys.add(paintIdentity(pick));
+        usedBrands.add(pick.brandName);
+        // establish undertone thread if not yet determined
+        thread ??= undertoneOf(pick);
+      }
+    }
+
+  // Preserve slot order to respect slotLrvHints mapping
+  // Final safety: fill any nulls with nearest-by-L in-band to maintain size
+  for (int i = 0; i < result.length; i++) {
+    if (result[i] != null) continue;
+    double lMin = 0, lMax = 100;
+    if (i < slotLrvHints.length) {
+      lMin = slotLrvHints[i][0].clamp(0.0, 100.0);
+      lMax = slotLrvHints[i][1].clamp(0.0, 100.0);
+    }
+    // Prefer in-band
+    double bestD = double.infinity;
+    Paint? best;
+    final target = (lMin + lMax) / 2.0;
+    for (final p in base) {
+      final l = p.lch.isNotEmpty ? p.lch[0] : p.computedLrv;
+      if (_within(l, lMin, lMax)) {
+        final d = (l - target).abs();
+        if (d < bestD) { bestD = d; best = p; }
+      }
+    }
+    // If none strictly in-band, pick any nearest
+    if (best == null) {
+      bestD = double.infinity;
+      for (final p in base) {
+        final l = p.lch.isNotEmpty ? p.lch[0] : p.computedLrv;
+        final d = (l - target).abs();
+        if (d < bestD) { bestD = d; best = p; }
+      }
+    }
+    result[i] = best;
+  }
+
+  return result.whereType<Paint>().toList(growable: false);
+  }
 
   // Generate a dynamic-size palette with optional locked colors
   static List<Paint> rollPalette({
@@ -169,6 +413,7 @@ class PaletteGenerator {
         anchors: anchors,
         diversifyBrands: diversifyBrands,
         fixedUndertones: fixedUndertones ?? const [],
+  slotLrvHints: slotLrvHints,
       );
     }
 
@@ -357,6 +602,7 @@ class PaletteGenerator {
     required List<Paint?> anchors,
     required bool diversifyBrands,
     required List<String> fixedUndertones,
+  List<List<double>>? slotLrvHints,
   }) {
     final size = anchors.length.clamp(1, 9);
     final roles = _colrviaPlanForSize(size);
@@ -391,12 +637,27 @@ class PaletteGenerator {
         continue;
       }
       final role = roles[i];
+      // Intersect role LRV with slot hint if provided
+      double roleMin = role.minL, roleMax = role.maxL;
+      if (slotLrvHints != null && i < slotLrvHints.length) {
+        final hint = slotLrvHints[i];
+        if (hint.length >= 2) {
+          final hMin = hint[0].clamp(0.0, 100.0);
+          final hMax = hint[1].clamp(0.0, 100.0);
+          final low = math.max(roleMin, hMin);
+          final high = math.min(roleMax, hMax);
+          if (low <= high) {
+            roleMin = low;
+            roleMax = high;
+          }
+        }
+      }
       // Candidate pool by LRV band (computedLrv) and chroma cap if provided
       final candidates = base.where((p) {
         final l = p.computedLrv;
         final lch = ColorUtils.labToLch(p.lab);
         final c = lch[1];
-        final okL = _within(l, role.minL, role.maxL);
+        final okL = _within(l, roleMin, roleMax);
         final okC = (role.maxC == null || c <= role.maxC!) &&
             (role.minC == null || c >= role.minC!);
         if (!okL || !okC) return false;
@@ -425,10 +686,14 @@ class PaletteGenerator {
         pick = candidates.first;
       } else {
         // Widen strategy: drop brand diversity first, then widen LRV band a bit
+        // For whisper-like roles (roleMin >= 70), do not widen below the min.
+        // For deep anchor-like roles (roleMax <= 15), do not widen above the max.
+        final widenLow = roleMin >= 70 ? roleMin : (roleMin - 3);
+        final widenHigh = roleMax <= 15 ? roleMax : (roleMax + 3);
         final wide = base.where((p) {
           if (used.contains(paintIdentity(p))) return false;
           final l = p.computedLrv;
-          return _within(l, role.minL - 3, role.maxL + 3);
+          return _within(l, widenLow, widenHigh);
         }).toList();
         if (wide.isNotEmpty) {
           wide.sort((a, b) {
@@ -467,10 +732,82 @@ class PaletteGenerator {
       if (result[i] != null) used.add(paintIdentity(result[i]!));
     }
 
-    final out = result.whereType<Paint>().toList(growable: false);
+    var out = result.whereType<Paint>().toList(growable: false);
     // Sort by LRV desc iff there were no locks (fits your existing UX)
     if (anchors.every((a) => a == null)) {
       out.sort((a, b) => b.computedLrv.compareTo(a.computedLrv));
+    }
+
+    // Post-pass: enforce at least one very light (>=70) and one very dark (<15) when size >= 3
+    if (size >= 3) {
+      double minL = 101, maxL = -1;
+      for (int i = 0; i < out.length; i++) {
+        final l = out[i].computedLrv;
+        if (l < minL) minL = l;
+        if (l > maxL) maxL = l;
+      }
+      // Ensure light
+      if (maxL < 70.0) {
+        // Prefer replacing a non-locked slot with the highest L
+        int targetIdx = -1;
+        double bestL = -1;
+        for (int i = 0; i < out.length; i++) {
+          if (anchors[i] != null) continue; // don't replace locked anchors
+          final l = out[i].computedLrv;
+          if (l > bestL) {
+            bestL = l;
+            targetIdx = i;
+          }
+        }
+        if (targetIdx >= 0) {
+          Paint? repl;
+          double best = double.infinity;
+          final usedKeys = {for (final p in out) paintIdentity(p)};
+          for (final p in base) {
+            if (usedKeys.contains(paintIdentity(p))) continue;
+            final l = p.computedLrv;
+            if (l >= 72.0) {
+              final d = (l - 80.0).abs();
+              if (d < best) {
+                best = d;
+                repl = p;
+              }
+            }
+          }
+          if (repl != null) out[targetIdx] = repl;
+        }
+      }
+      // Ensure dark
+      if (minL >= 15.0) {
+        // Prefer replacing a non-locked slot with the lowest L
+        int targetIdx = -1;
+        double bestL = 999;
+        for (int i = 0; i < out.length; i++) {
+          if (anchors[i] != null) continue; // don't replace locked anchors
+          final l = out[i].computedLrv;
+          if (l < bestL) {
+            bestL = l;
+            targetIdx = i;
+          }
+        }
+        if (targetIdx >= 0) {
+          Paint? repl;
+          double best = double.infinity;
+          final usedKeys = {for (final p in out) paintIdentity(p)};
+          for (final p in base) {
+            if (usedKeys.contains(paintIdentity(p))) continue;
+            final l = p.computedLrv;
+            if (l < 15.0) {
+              final d = (l - 8.0).abs();
+              if (d < best) {
+                best = d;
+                repl = p;
+              }
+            }
+          }
+          if (repl != null) out[targetIdx] = repl;
+        }
+      }
     }
     return out;
   }
