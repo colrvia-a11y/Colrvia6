@@ -29,7 +29,7 @@ class _RollerFeedState extends ConsumerState<RollerFeed> {
     return async.when(
       data: (s) => _buildBody(context, s),
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Error: $e')),
+      error: (e, _) => _ErrorView(message: e.toString()),
     );
   }
 
@@ -163,6 +163,39 @@ class _BottomBar extends ConsumerWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _ErrorView extends ConsumerWidget {
+  final String message;
+  const _ErrorView({required this.message});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline, size: 40),
+            const SizedBox(height: 12),
+            Text('Something went wrong', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Text(message, textAlign: TextAlign.center),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: () async {
+                ref.read(rollerControllerProvider.notifier).clearError();
+                await ref.read(rollerControllerProvider.notifier).rollNext();
+              },
+              icon: const Icon(Icons.refresh),
+              label: const Text('Try again'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
