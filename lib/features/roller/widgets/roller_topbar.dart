@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:color_canvas/features/roller/roller_ui_mode.dart';
+import 'package:color_canvas/features/roller/roller_controller.dart';
 
 class RollerTopBar extends ConsumerWidget implements PreferredSizeWidget {
   const RollerTopBar({super.key});
@@ -35,6 +36,43 @@ class RollerTopBar extends ConsumerWidget implements PreferredSizeWidget {
           onPressed: () => _showHelp(context),
           icon: const Icon(Icons.help_outline),
         ),
+        Consumer(builder: (context, ref, _) {
+          final ctrl = ref.read(rollerControllerProvider.notifier);
+          return FutureBuilder<bool>(
+            future: ctrl.isCurrentFavorite(),
+            builder: (context, snap) {
+              final fav = snap.data == true;
+              return IconButton(
+                tooltip: fav ? 'Unfavorite' : 'Favorite',
+                onPressed: () async {
+                  await ctrl.toggleFavoriteCurrent();
+                  // Force rebuild to reflect new state
+                  (context as Element).markNeedsBuild();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(fav ? 'Removed from favorites' : 'Added to favorites')),
+                    );
+                  }
+                },
+                icon: Icon(fav ? Icons.favorite : Icons.favorite_border),
+              );
+            },
+          );
+        }),
+        Consumer(builder: (context, ref, _) {
+          return IconButton(
+            tooltip: 'Copy HEX list',
+            onPressed: () async {
+              await ref.read(rollerControllerProvider.notifier).copyCurrentHexesToClipboard();
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('HEX codes copied')),
+                );
+              }
+            },
+            icon: const Icon(Icons.copy),
+          );
+        }),
       ],
     );
   }

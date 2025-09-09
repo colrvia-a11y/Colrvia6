@@ -65,6 +65,30 @@ class EditorPanel extends ConsumerWidget {
                             icon: const Icon(Icons.lock_open),
                             label: const Text('Unlock all'),
                           ),
+                          OutlinedButton.icon(
+                            onPressed: () async {
+                              await ref.read(rollerControllerProvider.notifier).toggleFavoriteCurrent();
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Toggled favorite for current palette')),
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.favorite_border),
+                            label: const Text('Favorite'),
+                          ),
+                          OutlinedButton.icon(
+                            onPressed: () async {
+                              await ref.read(rollerControllerProvider.notifier).copyCurrentHexesToClipboard();
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('HEX copied')),
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.copy),
+                            label: const Text('Copy HEX'),
+                          ),
                         ],
                       ),
                       const Divider(height: 20),
