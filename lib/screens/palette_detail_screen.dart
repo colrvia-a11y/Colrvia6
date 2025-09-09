@@ -121,7 +121,7 @@ class _PaletteDetailScreenState extends State<PaletteDetailScreen> {
           .create();
       await file.writeAsBytes(pngBytes);
       await Share.shareXFiles([XFile(file.path)], text: widget.palette.name);
-      await AnalyticsService.instance.logEvent('palette_share_image', {
+      AnalyticsService.instance.logEvent('palette_share_image', {
         'palette_id': widget.palette.id,
         'color_count': widget.palette.colors.length,
       });
@@ -743,14 +743,11 @@ class _HomeScreenWithRollerInitialColors extends StatefulWidget {
 class _HomeScreenWithRollerInitialColorsState
     extends State<_HomeScreenWithRollerInitialColors> {
   int _currentIndex = 0; // Start with roller tab
-  late final GlobalKey<RollerScreenStatePublic> _rollerKey =
-      GlobalKey<RollerScreenStatePublic>();
+  late final GlobalKey _rollerKey = GlobalKey();
 
   late final List<Widget> _screens = [
     RollerScreen(
       key: _rollerKey,
-      initialPaintIds: widget.initialPaintIds,
-      initialPaints: widget.initialPaints,
     ),
     const SearchScreen(),
     const ExploreScreen(),

@@ -86,7 +86,7 @@ class ColorPlanService {
       });
 
       await doc.set(plan.toJson());
-      await AnalyticsService.instance.planGenerated(projectId, doc.id);
+      AnalyticsService.instance.planGenerated(projectId, doc.id);
       DiagnosticsService.instance
           .logBreadcrumb('plan_generated:${doc.id}');
       NotificationsService.instance.scheduleNudge(
@@ -117,7 +117,7 @@ class ColorPlanService {
         isFallback: true,
       );
       await doc.set(fallback.toJson());
-      await AnalyticsService.instance.planFallbackCreated();
+      AnalyticsService.instance.planFallbackCreated();
       return fallback;
     }
   }

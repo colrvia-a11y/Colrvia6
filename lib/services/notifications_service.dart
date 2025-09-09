@@ -33,13 +33,13 @@ class NotificationsService {
       final uid = FirebaseAuth.instance.currentUser?.uid;
       if (uid != null) {
         await _messaging.subscribeToTopic('user_$uid');
-        AnalyticsService.instance.log('push_token_registered');
+        AnalyticsService.instance.logEvent('push_token_registered');
       }
     }
 
     FirebaseMessaging.onMessage.listen((m) {
       AnalyticsService.instance
-          .log('push_received', {'type': m.data['type']});
+          .logEvent('push_received', {'type': m.data['type']});
       if (m.notification != null) {
         _showLocal(m);
       }
@@ -80,7 +80,7 @@ class NotificationsService {
           builder: (_) => VisualizerScreen(
               )));
       AnalyticsService.instance
-          .log('viz_hq_push_opened', {'jobId': jobId});
+          .logEvent('viz_hq_push_opened', {'jobId': jobId});
     }
   }
 

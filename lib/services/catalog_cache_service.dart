@@ -50,7 +50,7 @@ class CatalogCacheService {
 
     final mem = _memory[key];
     if (mem != null && mem.version == version && mem.expiresAt.isAfter(now)) {
-      AnalyticsService.instance.log('perf_cache_hit', {'type': 'catalog'});
+      AnalyticsService.instance.logEvent('perf_cache_hit', {'type': 'catalog'});
       return mem.value as T;
     }
 
@@ -59,11 +59,11 @@ class CatalogCacheService {
         persisted.version == version &&
         persisted.expiresAt.isAfter(now)) {
       _memory[key] = persisted;
-      AnalyticsService.instance.log('perf_cache_hit', {'type': 'catalog'});
+      AnalyticsService.instance.logEvent('perf_cache_hit', {'type': 'catalog'});
       return persisted.value as T;
     }
 
-    AnalyticsService.instance.log('perf_cache_miss', {'type': 'catalog'});
+    AnalyticsService.instance.logEvent('perf_cache_miss', {'type': 'catalog'});
     if (_inflight.containsKey(key)) {
       return await _inflight[key] as T;
     }

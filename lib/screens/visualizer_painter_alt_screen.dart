@@ -45,7 +45,7 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
     Palette? pal; if (pjson != null) pal = Palette.fromJson(pjson);
     final photos = (art['answers']?['photos'] as List?)?.cast<String>() ?? const [];
     setState(() { _pal = pal; _photos = photos; });
-    try { await AnalyticsService.instance.visualizerOpened(); } catch (_) {}
+    try { AnalyticsService.instance.visualizerOpened(); } catch (_) {}
   }
 
   Color _parse(String hex) {
@@ -88,7 +88,7 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
 
   Future<void> _end() async {
     if (_current != null) {
-      try { await AnalyticsService.instance.visualizerStroke(role: _current!.role); } catch (_) {}
+      try { AnalyticsService.instance.visualizerStroke(role: _current!.role); } catch (_) {}
     }
     _current = null; _lastPt = null;
   }
@@ -109,7 +109,7 @@ class _VisualizerPainterAltScreenState extends State<VisualizerPainterAltScreen>
       if (!mounted) return;
       // ignore: deprecated_member_use
       await Share.shareXFiles([XFile(f.path)], text: 'Colrvia Paint Overlay');
-      try { await AnalyticsService.instance.vizExport(); } catch (_) {}
+      try { AnalyticsService.instance.vizExport(); } catch (_) {}
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Export failed')));

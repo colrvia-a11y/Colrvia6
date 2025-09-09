@@ -23,7 +23,7 @@ class _ExportGuideScreenState extends State<ExportGuideScreen> {
   @override
   void initState() {
     super.initState();
-    AnalyticsService.instance.log('journey_step_view', {
+    AnalyticsService.instance.logEvent('journey_step_view', {
       'step_id': JourneyService.instance.state.value?.currentStepId ?? 'guide.export',
     });
     _load();

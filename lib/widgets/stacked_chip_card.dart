@@ -188,7 +188,7 @@ class StackedChipCard extends StatelessWidget {
                                               Navigator.of(context).push(
                                                 MaterialPageRoute(
                                                   builder: (_) =>
-                                                      RollerScreen(initialPaints: [paint]),
+                                                      const RollerScreen(),
                                                 ),
                                               );
                                             },

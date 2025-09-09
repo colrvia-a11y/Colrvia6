@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:color_canvas/features/roller/roller_controller.dart';
-import 'package:color_canvas/features/roller/roller_state.dart';
 import 'package:color_canvas/features/roller/palette_service.dart';
 import 'package:color_canvas/features/roller/paint_repository.dart';
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
@@ -14,6 +13,7 @@ class _FakePaint extends Paint {
           brandId: 'b',
           brandName: 'Brand',
           name: 'N$id',
+          code: 'C$id',
           rgb: const [0, 0, 0],
           hex: hex,
           lab: const [0, 0, 0],

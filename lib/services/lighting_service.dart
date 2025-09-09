@@ -34,7 +34,7 @@ class LightingService {
     if (uid == null) return; // fail silently if not signed in
     await _settingsDoc(projectId)
         .set({'lightingProfile': profile.name}, SetOptions(merge: true));
-    await AnalyticsService.instance
+    AnalyticsService.instance
         .logEvent('lighting_profile_selected', {'profile': profile.name});
   }
 }

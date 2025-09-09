@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
-import 'roller_screen.dart';
 import 'package:color_canvas/utils/palette_generator.dart';
 
 class FeaturesScreen extends StatefulWidget {
-  final RollerScreenStatePublic rollerState;
   final List<Paint> currentPalette;
   final List<Brand> availableBrands;
   final Set<String> selectedBrandIds;
@@ -19,7 +17,6 @@ class FeaturesScreen extends StatefulWidget {
 
   const FeaturesScreen({
     super.key,
-    required this.rollerState,
     required this.currentPalette,
     required this.availableBrands,
     required this.selectedBrandIds,

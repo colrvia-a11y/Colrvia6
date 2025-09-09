@@ -34,7 +34,7 @@ class HomeScreenState extends State<HomeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => RollerScreen(initialPaintIds: [paint.id]),
+        builder: (_) => const RollerScreen(),
       ),
     );
   }

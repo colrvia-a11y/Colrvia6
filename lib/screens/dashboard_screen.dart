@@ -571,7 +571,7 @@ class _ProjectListTile extends StatelessWidget {
     switch (p.funnelStage) {
       case FunnelStage.build:
         Navigator.of(context)
-            .push(MaterialPageRoute(builder: (_) => RollerScreen(projectId: p.id)));
+            .push(MaterialPageRoute(builder: (_) => const RollerScreen()));
         break;
       case FunnelStage.story:
         Navigator.of(context)

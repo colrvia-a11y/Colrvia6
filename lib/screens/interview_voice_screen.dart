@@ -58,12 +58,12 @@ class _InterviewVoiceScreenState extends State<InterviewVoiceScreen>
     final started = _talk.sessionStartedAt ?? DateTime.now();
     final durSec = DateTime.now().difference(started).inSeconds;
     final uid = FirebaseAuth.instance.currentUser?.uid ?? 'anon';
-    await AnalyticsService.instance.voiceSessionEnd(
-      uid: uid,
-      durationSec: durSec,
-      turns: _assistantTurns.length,
-      path: _talk.mode.value,
-    );
+    AnalyticsService.instance.logEvent('voice_session_end', {
+      'uid': uid,
+      'duration_sec': durSec,
+      'turns': _assistantTurns.length,
+      'path': _talk.mode.value,
+    });
     final rec = _recorder;
     await _talk.disconnect();
     if (rec != null) {

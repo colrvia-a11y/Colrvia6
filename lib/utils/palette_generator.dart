@@ -28,7 +28,7 @@ List<Paint> filterByFixedUndertones(
     return isCompatibleUndertone(u, fixedUndertones);
   }).toList();
   if (filtered.length != paints.length) {
-    AnalyticsService().logEvent('palette_constraint_applied', {
+    AnalyticsService.instance.logEvent('palette_constraint_applied', {
       'constraint': 'fixed_undertone',
       'count': fixedUndertones.length,
     });

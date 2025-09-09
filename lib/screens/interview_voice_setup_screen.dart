@@ -67,7 +67,16 @@ class _InterviewVoiceSetupScreenState extends State<InterviewVoiceSetupScreen> {
   Future<(String, Map<String, dynamic>)> _buildPersonaAndContext() async {
     final persona = 'Friendly, practical color coach with great follow-up questions.';
     final ctx = <String, dynamic>{
+      'timestamp': DateTime.now().toIso8601String(),
+      'screen': 'interview_voice_setup',
       // TODO: populate from recent answers (roomType, style, constraints, last 2 answers)
+      // This would require integration with InterviewEngine/Journey state or Firestore
+      'placeholders': {
+        'roomType': null,
+        'style': null,
+        'constraints': null,
+        'recentAnswers': <String>[],
+      }
     };
     return (persona, ctx);
   }
@@ -129,11 +138,15 @@ class _InterviewVoiceSetupScreenState extends State<InterviewVoiceSetupScreen> {
               label: const Text('Continue with Voice'),
               onPressed: micGranted
                   ? () async {
+                      // Store context before async operations
+                      final scaffoldMessenger = ScaffoldMessenger.of(context);
+                      final navigator = Navigator.of(context);
+                      
                       // Ensure permission again and start realtime connect
                       final ok = await ensureMicPermission();
                       if (!ok) {
                         if (!mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        scaffoldMessenger.showSnackBar(
                           const SnackBar(content: Text('Microphone permission is required')),
                         );
                         return;
@@ -144,7 +157,7 @@ class _InterviewVoiceSetupScreenState extends State<InterviewVoiceSetupScreen> {
                       final okMinutes = await _checkDailyCap();
                       if (!okMinutes) {
                         if (!mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        scaffoldMessenger.showSnackBar(
                           const SnackBar(content: Text('Daily Live Talk limit reached. Please try again tomorrow.')),
                         );
                         return;
@@ -168,10 +181,10 @@ class _InterviewVoiceSetupScreenState extends State<InterviewVoiceSetupScreen> {
                           path: path,
                         );
                         if (!mounted) return;
-                        Navigator.pushNamed(context, '/interview/voice');
+                        navigator.pushNamed('/interview/voice');
                       } catch (e) {
                         if (!mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        scaffoldMessenger.showSnackBar(
                           SnackBar(content: Text('Failed to start voice session: $e')),
                         );
                       }

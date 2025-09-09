@@ -128,7 +128,7 @@ class RollerController extends AsyncNotifier<RollerState> {
       // prefetch one ahead
       if (trimmed.length - 1 - newVisible <= 1) {
         // don't await
-        _ = rollNext();
+        rollNext();
       }
     } catch (e) {
       state = AsyncData(
@@ -144,8 +144,8 @@ class RollerController extends AsyncNotifier<RollerState> {
   void onPageChanged(int index) {
     final s0 = state.valueOrNull; if (s0 == null) return;
     state = AsyncData(s0.copyWith(visiblePage: index));
-    if (s0.pages.length - 1 - index <= 1) { _ = rollNext(); }
-    _ = _primeAlternatesForVisible();
+    if (s0.pages.length - 1 - index <= 1) { rollNext(); }
+    _primeAlternatesForVisible();
   }
 
   Future<void> rerollCurrent({int attempts = 4}) async {

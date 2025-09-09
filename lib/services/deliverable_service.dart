@@ -18,12 +18,12 @@ class DeliverableService {
       final data = Map<String, dynamic>.from(resp.data as Map);
       final url = data['url'] as String;
       await JourneyService.instance.setArtifact('guideUrl', url);
-      await AnalyticsService.instance.logEvent('guide_export_success');
+      AnalyticsService.instance.logEvent('guide_export_success');
       await JourneyService.instance.completeCurrentStep();
       _log.info('guide_export_success');
       return url;
     } catch (e, st) {
-      await AnalyticsService.instance.logEvent('guide_export_fail');
+      AnalyticsService.instance.logEvent('guide_export_fail');
       _log.severe('guide_export_fail', e, st);
       rethrow;
     }

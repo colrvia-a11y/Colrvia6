@@ -64,7 +64,7 @@ class _VisualizerScreenState extends State<VisualizerScreen>
   @override
   void initState() {
     super.initState();
-    AnalyticsService.instance.log('journey_step_view', {
+    AnalyticsService.instance.logEvent('journey_step_view', {
       'step_id': JourneyService.instance.state.value?.currentStepId ?? 'visualizer.photo',
     });
     _initializeAnimations();

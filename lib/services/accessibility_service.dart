@@ -113,7 +113,7 @@ class AccessibilityService extends ChangeNotifier {
     _loaded = true;
     notifyListeners();
     await _persist();
-    await AnalyticsService.instance.logEvent(
+    AnalyticsService.instance.logEvent(
         'accessibility_setting_changed', {'name': 'reduce_motion', 'value': value});
   }
 
@@ -122,7 +122,7 @@ class AccessibilityService extends ChangeNotifier {
     _loaded = true;
     notifyListeners();
     await _persist();
-    await AnalyticsService.instance.logEvent(
+    AnalyticsService.instance.logEvent(
         'accessibility_setting_changed', {'name': 'cb_friendly', 'value': value});
   }
 

@@ -42,7 +42,7 @@ class _ColorPlanScreenState extends State<ColorPlanScreen> {
   void initState() {
     super.initState();
     _svc = widget.svc ?? ColorPlanService();
-    AnalyticsService.instance.log('journey_step_view', {
+    AnalyticsService.instance.logEvent('journey_step_view', {
       'step_id': JourneyService.instance.state.value?.currentStepId ?? 'plan.create',
     });
     setLastProjectFn(widget.projectId, 'plan');
@@ -71,7 +71,7 @@ class _ColorPlanScreenState extends State<ColorPlanScreen> {
           .completeCurrentStep(artifacts: {'planId': plan.id});
 
       // Telemetry - record plan generation details using structured params
-      await AnalyticsService.instance.logEvent('plan_generated', {
+      AnalyticsService.instance.logEvent('plan_generated', {
         'count': plan.paletteColorIds.length,
         'has_map': plan.placementMap.isNotEmpty,
         'has_playbook': plan.roomPlaybook.isNotEmpty,

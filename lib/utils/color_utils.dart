@@ -241,7 +241,7 @@ class ColorUtils {
     final result = await AsyncCompute.run(_computeLrvList, hexes);
     sw.stop();
     AnalyticsService.instance
-        .log('perf_isolate_used', {'task': 'batch_lrv', 'ms': sw.elapsedMilliseconds});
+        .logEvent('perf_isolate_used', {'task': 'batch_lrv', 'ms': sw.elapsedMilliseconds});
     return result;
   }
 
@@ -261,7 +261,7 @@ class ColorUtils {
     final sw = Stopwatch()..start();
     final result = await AsyncCompute.run(_contrastList, flat);
     sw.stop();
-    AnalyticsService.instance.log(
+    AnalyticsService.instance.logEvent(
         'perf_isolate_used', {'task': 'batch_contrast', 'ms': sw.elapsedMilliseconds});
     return result;
   }

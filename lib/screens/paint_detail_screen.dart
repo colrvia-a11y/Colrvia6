@@ -328,7 +328,7 @@ class _PaintDetailScreenState extends State<PaintDetailScreen> {
                   Navigator.of(ctx).pop();
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => RollerScreen(initialPaints: [widget.paint]),
+                      builder: (_) => const RollerScreen(),
                     ),
                   );
                 },

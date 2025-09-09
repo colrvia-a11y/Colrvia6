@@ -104,7 +104,7 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
   }
 
   void _close() {
-    AnalyticsService.instance.log('via_close', {'context': widget.contextLabel});
+    AnalyticsService.instance.logEvent('via_close', {'context': widget.contextLabel});
     Navigator.of(context).maybePop();
   }
 
@@ -176,7 +176,7 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
     _composer.clear();
     _scrollToBottomSoon();
 
-    AnalyticsService.instance.log('via_send', {'context': widget.contextLabel, 'chars': trimmed.length});
+    AnalyticsService.instance.logEvent('via_send', {'context': widget.contextLabel, 'chars': trimmed.length});
 
     Future<String> ask(String q) async {
       if (widget.onAsk != null) {
@@ -301,7 +301,7 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                                       suggestions: _suggestions(),
                                       onChip: (s) {
                                         AnalyticsService.instance
-                                            .log('via_chip', {'label': s.label, 'context': widget.contextLabel});
+                                            .logEvent('via_chip', {'label': s.label, 'context': widget.contextLabel});
                                         _send(s.prompt);
                                         _expand();
                                       },
@@ -324,7 +324,7 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                                           icon: Icons.mic_none_rounded,
                                           onTap: () {
                                             AnalyticsService.instance
-                                                .log('via_mic', {'context': widget.contextLabel});
+                                                .logEvent('via_mic', {'context': widget.contextLabel});
                                             _expand();
                                           },
                                         ),
@@ -349,7 +349,7 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                             sending: _sending,
                             onSend: _send,
                             onMic: () {
-                              AnalyticsService.instance.log('via_mic', {'context': widget.contextLabel});
+                              AnalyticsService.instance.logEvent('via_mic', {'context': widget.contextLabel});
                               if (_voiceActive) {
                                 _stopMiniVoice();
                               } else {
@@ -357,9 +357,9 @@ class _ViaOverlayState extends State<ViaOverlay> with TickerProviderStateMixin {
                               }
                             },
                             onAttachImage: () => AnalyticsService.instance
-                                .log('via_attach_image', {'context': widget.contextLabel}),
+                                .logEvent('via_attach_image', {'context': widget.contextLabel}),
                             onAttachDoc: () => AnalyticsService.instance
-                                .log('via_attach_doc', {'context': widget.contextLabel}),
+                                .logEvent('via_attach_doc', {'context': widget.contextLabel}),
                           ),
                           const SizedBox(height: AppDims.gap),
                           if (_voiceActive) ...[

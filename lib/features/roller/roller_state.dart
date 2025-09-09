@@ -9,7 +9,7 @@ class RollerPage {
   final List<bool> locks;           // which strips are locked
   final DateTime createdAt;
 
-  const RollerPage({
+  RollerPage({
     required this.strips,
     required this.locks,
     DateTime? createdAt,

@@ -54,7 +54,7 @@ class FeatureFlags {
 
   void _logStates() {
     _cache.forEach((flag, enabled) {
-      AnalyticsService.instance.featureFlagState(flag, enabled);
+      AnalyticsService.instance.setUserProperty(flag, enabled.toString());
     });
   }
 }

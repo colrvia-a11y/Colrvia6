@@ -19,7 +19,7 @@ class _ReviewContrastScreenState extends State<ReviewContrastScreen> {
     colors = (journey.state.value?.artifacts['palettePreview'] as List?)
             ?.cast<String>() ??
         const <String>[];
-    AnalyticsService.instance.log('journey_step_view', {
+    AnalyticsService.instance.logEvent('journey_step_view', {
       'step_id': journey.state.value?.currentStepId ?? 'review.contrast',
     });
   }

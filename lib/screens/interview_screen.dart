@@ -113,7 +113,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
   Future<void> _finish() async {
     // Persist current answers
     await journey.setArtifact('answers', _engine.answers);
-    await AnalyticsService.instance.logEvent('interview_completed');
+    AnalyticsService.instance.logEvent('interview_completed');
 
     if (!mounted) return;
     // Navigate to Review (and await potential deep-link edit requests)

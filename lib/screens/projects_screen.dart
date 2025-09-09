@@ -340,7 +340,7 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> with TickerProv
         await roller.loadLibrary();
         if (!mounted || !nav.mounted) return;
         nav.push(MaterialPageRoute(
-            builder: (_) => roller.RollerScreen(projectId: pid)));
+            builder: (_) => roller.RollerScreen()));
         break;
       case 'plan':
         await plan.loadLibrary();
@@ -575,7 +575,7 @@ class _ProjectCard extends ConsumerWidget {
         await roller.loadLibrary();
         // ignore: use_build_context_synchronously
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => roller.RollerScreen(projectId: project.id)));
+            builder: (_) => roller.RollerScreen()));
         break;
       case FunnelStage.story:
         await plan.loadLibrary();
@@ -691,7 +691,7 @@ class _PalettesSection extends ConsumerWidget {
     nav.popUntil((route) => route.settings.name == '/' || route.isFirst);
     nav.pushReplacement(
       MaterialPageRoute(
-        builder: (_) => roller.RollerScreen(seedPaletteId: palette.id),
+        builder: (_) => roller.RollerScreen(),
       ),
     );
   }
@@ -1415,7 +1415,7 @@ class _HomeScreenWithRollerInitialColorsState
             if (snap.connectionState != ConnectionState.done) {
               return const Center(child: CircularProgressIndicator());
             }
-            return roller.RollerScreen(initialPaintIds: widget.initialPaintIds);
+            return roller.RollerScreen();
           },
         );
       },

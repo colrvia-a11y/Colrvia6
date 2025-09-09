@@ -45,7 +45,7 @@ class FixedElementService {
       batch.set(col.doc(e.id), e.toJson());
     }
     await batch.commit();
-    await AnalyticsService().logEvent('fixed_elements_saved', {
+    AnalyticsService.instance.logEvent('fixed_elements_saved', {
       'project_id': projectId,
       'count': elements.length,
     });

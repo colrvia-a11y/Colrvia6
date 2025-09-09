@@ -119,13 +119,13 @@ class JourneyService {
       await ProjectService.setFunnelStage(s.projectId!, stage);
     }
     final analytics = AnalyticsService.instance;
-    analytics.log('journey_step_complete', {
+    analytics.logEvent('journey_step_complete', {
       'step_id': step.id,
       'next_step_id': nextId,
     });
     if (artifacts != null) {
       for (final key in artifacts.keys) {
-        analytics.log('artifact_created', {'key': key});
+        analytics.logEvent('artifact_created', {'key': key});
       }
     }
 
@@ -137,7 +137,7 @@ class JourneyService {
     if (s == null) return;
     final art = Map<String, dynamic>.of(s.artifacts);
     art[key] = value;
-    AnalyticsService.instance.log('artifact_created', {'key': key});
+    AnalyticsService.instance.logEvent('artifact_created', {'key': key});
     await _persist(s.copyWith(artifacts: art));
   }
 
