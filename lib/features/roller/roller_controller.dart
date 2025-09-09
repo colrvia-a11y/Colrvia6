@@ -257,6 +257,14 @@ class RollerController extends AsyncNotifier<RollerState> {
     state = AsyncData(s0.copyWith(pages: pages));
   }
 
+  void unlockAll() {
+    final s0 = state.valueOrNull; if (s0 == null || !s0.hasPages) return;
+    final idx = s0.visiblePage;
+    final page = s0.pages[idx];
+    final pages = [...s0.pages]..[idx] = page.copyWith(locks: List<bool>.filled(page.locks.length, false));
+    state = AsyncData(s0.copyWith(pages: pages));
+  }
+
   Future<void> setFilters(RollerFilters filters) async {
     final s0 = state.valueOrNull ?? const RollerState();
     state = AsyncData(s0.copyWith(filters: filters));
