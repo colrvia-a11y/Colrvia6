@@ -1,10 +1,12 @@
 import 'dart:collection';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
 import 'package:color_canvas/roller_theme/theme_spec.dart';
 import 'package:color_canvas/features/roller/roller_state.dart';
 import 'package:color_canvas/features/roller/palette_service.dart';
 import 'package:color_canvas/features/roller/paint_repository.dart';
+import 'package:color_canvas/features/favorites/favorites_repository.dart';
 
 final rollerControllerProvider =
     AsyncNotifierProvider<RollerController, RollerState>(RollerController.new);
@@ -12,6 +14,7 @@ final rollerControllerProvider =
 class RollerController extends AsyncNotifier<RollerState> {
   late final PaintRepository _repo;
   late final PaletteService _service;
+  late final FavoritesRepository _favorites;
 
   static const bool _enableAlternates = true; // feature flag
   final Map<String, Queue<Paint>> _slotAlternates = {}; // key: pageKey|slot
@@ -30,6 +33,7 @@ class RollerController extends AsyncNotifier<RollerState> {
   Future<RollerState> build() async {
     _repo = PaintRepository();
     _service = PaletteService();
+    _favorites = FavoritesRepository();
     // eager-load paints so first roll is fast
     await _repo.getAll();
     // seed empty
@@ -276,5 +280,59 @@ class RollerController extends AsyncNotifier<RollerState> {
     final s0 = state.valueOrNull ?? const RollerState();
     state = AsyncData(s0.copyWith(themeSpec: spec));
     await rerollCurrent();
+  }
+
+  String _currentKey() {
+    final s0 = state.valueOrNull; if (s0 == null || !s0.hasPages) return '';
+    final p = s0.currentPage!;
+    return p.strips.map((e) => e.id).join('-');
+  }
+
+  List<String> _currentHexes() {
+    final s0 = state.valueOrNull; if (s0 == null || !s0.hasPages) return const [];
+    final p = s0.currentPage!;
+    return [
+      for (final paint in p.strips)
+        (() {
+          try {
+            final m = paint.toJson();
+            final hex = (m['hex'] as String?)?.toUpperCase();
+            if (hex != null) return hex.startsWith('#') ? hex : '#$hex';
+            final rgb = (m['rgb'] as List?)?.cast<num>();
+            if (rgb != null && rgb.length >= 3) {
+              int r = rgb[0].toInt().clamp(0, 255);
+              int g = rgb[1].toInt().clamp(0, 255);
+              int b = rgb[2].toInt().clamp(0, 255);
+              String h(int v) => v.toRadixString(16).padLeft(2, '0').toUpperCase();
+              return '#${h(r)}${h(g)}${h(b)}';
+            }
+          } catch (_) {}
+          return '#000000';
+        })(),
+    ];
+  }
+
+  Future<bool> isCurrentFavorite() async {
+    final key = _currentKey();
+    if (key.isEmpty) return false;
+    return _favorites.isFavorite(key);
+  }
+
+  Future<void> toggleFavoriteCurrent() async {
+    final s0 = state.valueOrNull; if (s0 == null || !s0.hasPages) return;
+    final key = _currentKey();
+    final p = s0.currentPage!;
+    final item = FavoritePalette(
+      key: key,
+      paintIds: [for (final e in p.strips) e.id],
+      hexes: _currentHexes(),
+    );
+    await _favorites.toggle(item);
+  }
+
+  Future<void> copyCurrentHexesToClipboard() async {
+    final hexes = _currentHexes();
+    final text = hexes.join(', ');
+    await Clipboard.setData(ClipboardData(text: text));
   }
 }
