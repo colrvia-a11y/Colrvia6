@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
@@ -47,6 +48,79 @@ class RollerController extends AsyncNotifier<RollerState> {
 
   // configurable retention window
   static const int _retainWindow = 50;
+
+  // --- LRV helpers ---------------------------------------------------------
+  double _lrvOf(Paint p) {
+    try {
+      final m = p.toJson();
+      // Prefer explicit LRV if available
+      final explicit = m['lrv'];
+      if (explicit is num) {
+        final v = explicit.toDouble();
+        return v.clamp(0.0, 100.0);
+      }
+
+      // Next: CIELAB L* (0..100), but ignore obviously zeroed placeholders
+      final lab = (m['lab'] as List?)?.cast<num>();
+      if (lab != null && lab.isNotEmpty) {
+        final l = lab[0].toDouble();
+        final a = lab.length > 1 ? lab[1].toDouble() : 0.0;
+        final b = lab.length > 2 ? lab[2].toDouble() : 0.0;
+        final looksZeroed = l == 0.0 && a == 0.0 && b == 0.0;
+        if (!looksZeroed) return l.clamp(0.0, 100.0);
+      }
+
+      // Fallback: parse HEX if present and compute WCAG luminance (Y*100)
+      final hex = (m['hex'] as String?)?.toUpperCase();
+      if (hex != null && hex.isNotEmpty) {
+        List<int>? rgbFromHex() {
+          String h = hex.startsWith('#') ? hex.substring(1) : hex;
+          if (h.length == 3) {
+            h = h.split('').map((c) => '$c$c').join();
+          }
+          if (h.length != 6) return null;
+          final r = int.parse(h.substring(0, 2), radix: 16);
+          final g = int.parse(h.substring(2, 4), radix: 16);
+          final b = int.parse(h.substring(4, 6), radix: 16);
+          return [r, g, b];
+        }
+
+        final rgb = rgbFromHex();
+        if (rgb != null) {
+          double lin(int v) {
+            final x = v / 255.0;
+            return x <= 0.03928 ? x / 12.92 : pow((x + 0.055) / 1.055, 2.4).toDouble();
+          }
+          final r = lin(rgb[0]);
+          final g = lin(rgb[1]);
+          final b = lin(rgb[2]);
+          final y = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+          return (y * 100.0).clamp(0.0, 100.0);
+        }
+      }
+
+      // Last resort: use provided RGB if available
+      final rgb = (m['rgb'] as List?)?.cast<num>();
+      if (rgb != null && rgb.length >= 3) {
+        double lin(num v) {
+          final x = v.toDouble() / 255.0;
+          return x <= 0.03928 ? x / 12.92 : pow((x + 0.055) / 1.055, 2.4).toDouble();
+        }
+        final r = lin(rgb[0]);
+        final g = lin(rgb[1]);
+        final b = lin(rgb[2]);
+        final y = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        return (y * 100.0).clamp(0.0, 100.0);
+      }
+    } catch (_) {}
+    return 0.0;
+  }
+
+  List<Paint> _sortByLrvDesc(List<Paint> paints) {
+    final list = [...paints];
+    list.sort((a, b) => _lrvOf(b).compareTo(_lrvOf(a)));
+    return list;
+  }
 
   @override
   Future<RollerState> build() async {
@@ -110,9 +184,13 @@ class RollerController extends AsyncNotifier<RollerState> {
         themeSpec: s0.themeSpec,
       );
 
+      // Sort only if we didn’t anchor any slot (no locks active)
+      final noLocks = anchors.every((e) => e == null);
+      final paints = noLocks ? _sortByLrvDesc(rolled) : rolled;
+
       final page = RollerPage(
-        strips: rolled,
-        locks: List<bool>.filled(rolled.length, false),
+        strips: paints,
+        locks: List<bool>.filled(paints.length, false),
       );
 
       // trim window
@@ -210,7 +288,11 @@ class RollerController extends AsyncNotifier<RollerState> {
         attempts: attempts,
       );
 
-      final nextPage = current.copyWith(strips: rolled);
+  // Sort only when page has zero locks
+  final hasAnyLock = current.locks.any((l) => l);
+  final sorted = hasAnyLock ? rolled : _sortByLrvDesc(rolled);
+
+  final nextPage = current.copyWith(strips: sorted);
 
       final pages = [...s0.pages]..[idx] = nextPage;
       state = AsyncData(s0.copyWith(
