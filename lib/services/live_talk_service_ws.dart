@@ -36,6 +36,15 @@ class LiveTalkServiceWs {
       StreamController<String>.broadcast();
 
   WebSocket? _ws;
+  // Optional platform-provided audio callbacks. The app can assign these
+  // to integrate a native audio capture/playback implementation.
+  // audioFrameCallback should return the next PCM16 bytes to send (or null
+  // when no more data is available at the moment).
+  Uint8List? Function()? audioFrameCallback;
+
+  // onRemoteAudioChunk will be called when the WS sends binary audio frames
+  // (playback implementer can feed these into an audio player/buffer).
+  void Function(Uint8List chunk)? onRemoteAudioChunk;
   String _acc = '';
   String? _ephemeralKey;
   Uri? _lastTokenEndpoint;
@@ -139,8 +148,13 @@ class LiveTalkServiceWs {
 
       connectionState.value = LiveTalkConnectionState.connected;
 
-      // TODO: Capture PCM16 frames and stream as input_audio_buffer.append over WS.
-      // This requires a mic capture plugin exposing PCM on Dart side.
+      // Start a lightweight loop to read PCM frames from `audioFrameCallback`
+      // and send them over the websocket as binary frames. This is a scaffold
+      // only — assign `audioFrameCallback` from platform code to enable.
+      if (audioFrameCallback != null) {
+        // Fire-and-forget loop; stops when connection closes.
+        unawaited(_startSendingAudioFrames());
+      }
     } catch (e, st) {
       debugPrint('LiveTalkServiceWs connect error (${e.runtimeType}): $e\n$st');
       connectionState.value = LiveTalkConnectionState.error;
