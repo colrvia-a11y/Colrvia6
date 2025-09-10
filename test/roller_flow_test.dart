@@ -26,7 +26,7 @@ void main() {
       skip:
           true); // Skipped: depends on Firebase.initializeApp() which isn't available in tests
 
-  test('rollPaletteInIsolate with coastal theme returns palette', () async {
+  test('rollPipelineInIsolate with coastal theme returns palette', () async {
     TestWidgetsFlutterBinding.ensureInitialized();
 
     await ThemeService.instance.loadFromAssetIfNeeded();
@@ -69,7 +69,7 @@ void main() {
       'attempts': 5,
     };
 
-  final result = rollPaletteInIsolate(args);
+  final result = rollPipelineInIsolate(args);
     expect(result, isNotNull);
     expect(result, isA<List>());
     expect((result as List).isNotEmpty, true);

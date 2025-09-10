@@ -24,6 +24,8 @@ class _PipelineArgs {
     this.themeSpec,
     this.themeThreshold,
     this.attempts,
+  this.seed,
+  this.excludeIds,
   });
 
   final List<Map<String, dynamic>> available;
@@ -35,6 +37,8 @@ class _PipelineArgs {
   final Map<String, dynamic>? themeSpec;
   final double? themeThreshold;
   final int? attempts;
+  final int? seed; // optional external seed to influence randomness (future use)
+  final List<String>? excludeIds;
 
   Map<String, dynamic> toMap() => {
         'available': available,
@@ -46,6 +50,8 @@ class _PipelineArgs {
         'themeSpec': themeSpec,
         'themeThreshold': themeThreshold,
         'attempts': attempts,
+  'seed': seed,
+  'excludeIds': excludeIds,
       };
 
   static _PipelineArgs from(Map<String, dynamic> m) => _PipelineArgs(
@@ -63,6 +69,8 @@ class _PipelineArgs {
         themeSpec: m['themeSpec'] as Map<String, dynamic>?,
         themeThreshold: (m['themeThreshold'] as num?)?.toDouble(),
         attempts: m['attempts'] as int?,
+  seed: m['seed'] as int?,
+  excludeIds: m['excludeIds'] == null ? null : List<String>.from(m['excludeIds'] as List),
       );
 }
 
@@ -96,6 +104,10 @@ List<Map<String, dynamic>> rollPipelineInIsolate(Map<String, dynamic> argsMap) {
       (m == null ? null : Paint.fromJson(m, m['id'] as String))
   ];
 
+  // If a seed is provided, we could seed any custom randomness here.
+  // Current generators use a static Random; this hook allows future extension
+  // without altering behavior when seed is absent.
+
   // Optional wider brand-only pool for auto-relax fallback
   final brandOnlyRaw =
       (argsMap['availableBrandOnly'] as List?)?.cast<Map<String, dynamic>>();
@@ -103,13 +115,16 @@ List<Map<String, dynamic>> rollPipelineInIsolate(Map<String, dynamic> argsMap) {
       brandOnlyRaw == null ? themedOrBrandOnly : _rehydrate(brandOnlyRaw);
 
   if (args.themeSpec == null) {
-    final rolled = _pipeRollBase(
-      available: themedOrBrandOnly,
+    final mode = HarmonyMode.values[args.modeIndex];
+    final List<List<double>>? effectiveSlotHints = (mode == HarmonyMode.colrvia) ? null : args.slotLrvHints;
+    final rolled = PaletteGenerator.rollPalette(
+      availablePaints: themedOrBrandOnly,
       anchors: anchors,
-      modeIndex: args.modeIndex,
-      diversify: args.diversify,
-      slotLrvHints: args.slotLrvHints,
+      mode: mode,
+      diversifyBrands: args.diversify,
+      slotLrvHints: effectiveSlotHints,
       fixedUndertones: args.fixedUndertones,
+      seed: args.seed,
     );
     return _dehydrate(rolled);
   }
@@ -327,151 +342,6 @@ List<Map<String, dynamic>> alternatesForSlotInIsolate(
   return _dehydrate(out);
 }
 
-/// Arguments passed to the isolate. All data must be simple/serializable.
-class _RollArgs {
-  final List<Map<String, dynamic>> available; // Paint.toJson() + 'id'
-  final List<Map<String, dynamic>?> anchors; // nullable Paint maps
-  final int modeIndex;
-  final bool diversify;
-  final List<List<double>>? slotLrvHints;
-  final List<String>? fixedUndertones;
-  final Map<String, dynamic>? themeSpec; // ThemeSpec.toJson()
-  final double? themeThreshold;
-  final int? attempts;
-
-  _RollArgs({
-    required this.available,
-    required this.anchors,
-    required this.modeIndex,
-    required this.diversify,
-    this.slotLrvHints,
-    this.fixedUndertones,
-    this.themeSpec,
-    this.themeThreshold,
-    this.attempts,
-  });
-
-  Map<String, dynamic> toMap() => {
-        'available': available,
-        'anchors': anchors,
-        'modeIndex': modeIndex,
-        'diversify': diversify,
-        'slotLrvHints': slotLrvHints,
-        'fixedUndertones': fixedUndertones,
-        'themeSpec': themeSpec,
-        'themeThreshold': themeThreshold,
-        'attempts': attempts,
-      };
-
-  static _RollArgs fromMap(Map<String, dynamic> m) => _RollArgs(
-        available: List<Map<String, dynamic>>.from(m['available'] as List),
-        anchors: List<Map<String, dynamic>?>.from(m['anchors'] as List),
-        modeIndex: m['modeIndex'] as int,
-        diversify: m['diversify'] as bool,
-        slotLrvHints: m['slotLrvHints'] != null
-            ? List<List<double>>.from(
-                (m['slotLrvHints'] as List).map((e) => List<double>.from(e)))
-            : null,
-        fixedUndertones: m['fixedUndertones'] != null
-            ? List<String>.from(m['fixedUndertones'] as List)
-            : null,
-        themeSpec: m['themeSpec'] as Map<String, dynamic>?,
-        themeThreshold: m['themeThreshold'] == null
-            ? null
-            : (m['themeThreshold'] as num).toDouble(),
-        attempts: m['attempts'] as int?,
-      );
-}
-
-/// Top-level function for compute(). Returns a List<Map> (Paint.toJson + id).
-List<Map<String, dynamic>> rollPaletteInIsolate(Map<String, dynamic> raw) {
-  final args = _RollArgs.fromMap(raw);
-
-  // Rehydrate Paint objects inside the isolate
-  final available = [
-    for (final j in args.available) Paint.fromJson(j, j['id'] as String),
-  ];
-  final anchors = [
-    for (final j in args.anchors)
-      (j == null ? null : Paint.fromJson(j, j['id'] as String))
-  ];
-
-  // If no theme specified, keep previous behavior
-  if (args.themeSpec == null) {
-    final rolled = PaletteGenerator.rollPalette(
-      availablePaints: available,
-      anchors: anchors,
-      mode: HarmonyMode.values[args.modeIndex],
-      diversifyBrands: args.diversify,
-      slotLrvHints: args.slotLrvHints,
-      fixedUndertones: args.fixedUndertones,
-    );
-
-    return [for (final p in rolled) (p.toJson()..['id'] = p.id)];
-  }
-
-  // Rehydrate ThemeSpec
-  ThemeSpec spec;
-  try {
-    spec = ThemeSpec.fromJson(args.themeSpec!);
-  } catch (_) {
-    // fallback to no-theme behavior on parse error
-    final rolled = PaletteGenerator.rollPalette(
-      availablePaints: available,
-      anchors: anchors,
-      mode: HarmonyMode.values[args.modeIndex],
-      diversifyBrands: args.diversify,
-      slotLrvHints: args.slotLrvHints,
-      fixedUndertones: args.fixedUndertones,
-    );
-    return [for (final p in rolled) (p.toJson()..['id'] = p.id)];
-  }
-
-  // Prefilter paints by theme
-  final prefiltered = ThemeEngine.prefilter(available, spec);
-  final availableForRoll = prefiltered.isEmpty ? available : prefiltered;
-
-  final maxAttempts = args.attempts ?? 10;
-  final threshold = args.themeThreshold ?? 0.6;
-
-  double bestScore = -1.0;
-  List<Paint> bestPalette = [];
-
-  for (var i = 0; i < maxAttempts; i++) {
-    final hints = args.slotLrvHints ??
-        ThemeEngine.slotLrvHintsFor(anchors.length, spec) ??
-        List<List<double>>.generate(anchors.length, (_) => [0.0, 100.0]);
-    final rolled = PaletteGenerator.rollPaletteConstrained(
-      availablePaints: availableForRoll,
-      anchors: anchors,
-      slotLrvHints: hints,
-      fixedUndertones: args.fixedUndertones,
-      diversifyBrands: args.diversify,
-    );
-
-    final score = ThemeEngine.scorePalette(rolled, spec);
-    if (score > bestScore) {
-      bestScore = score;
-      bestPalette = rolled;
-    }
-    if (score >= threshold) break;
-  }
-
-  // If bestScore is below threshold, record a breadcrumb for debugging but still return best
-  if (bestScore < threshold) {
-    try {
-      final invalid = ThemeEngine.validatePaletteRules(bestPalette, spec);
-      AnalyticsService.instance.logEvent('theme_roll_low_score', {
-        'themeId': spec.id,
-        'score': bestScore,
-        'explain': ThemeEngine.explain(bestPalette, spec),
-        if (invalid != null) 'invalidReason': invalid,
-      });
-    } catch (_) {}
-  }
-
-  return [for (final p in bestPalette) (p.toJson()..['id'] = p.id)];
-}
 
 /// Attempts to repair a palette that fails validation rules.
 /// Returns null if repair is not possible.

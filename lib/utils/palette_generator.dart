@@ -3,6 +3,7 @@ import 'package:color_canvas/firestore/firestore_data_schema.dart';
 import 'package:color_canvas/roller_theme/theme_engine.dart';
 import 'package:color_canvas/utils/color_utils.dart';
 import 'package:color_canvas/services/analytics_service.dart';
+import 'package:flutter/foundation.dart' show kDebugMode, debugPrint; // for optional debug instrumentation
 
 String paintIdentity(Paint p) {
   final brand = p.brandId.isNotEmpty ? p.brandId : p.brandName;
@@ -54,23 +55,54 @@ class _ColrViaRole {
   _ColrViaRole(this.name, this.minL, this.maxL, {this.maxC, this.minC});
 }
 
-// Scales the "universal" role plan across sizes 1..9
-List<_ColrViaRole> _colrviaPlanForSize(int size) {
-  // Bands inspired by the PDF’s guidance:
-  // Anchor <10–15, Midtones ~30–60, Support neutrals ~50–70 (low C),
-  // Off-white 70–82 (low C), Bright white 82–92 (very low C).
-  // Refs: value spacing & role breakdown.
+// Role target heuristic for sorting when not anchor/light extremes
+double _roleTargetL(_ColrViaRole role) {
+  final n = role.name.toLowerCase();
+  if (n.contains('anchor')) return 8;
+  if (n.contains('bright white')) return 88;
+  if (n.contains('off-white') || n.contains('light')) return 78;
+  if (n.contains('bridge')) return 40;
+  if (n.contains('primary')) return 45;
+  if (n.contains('secondary')) return 52;
+  if (n.contains('support')) return 62;
+  if (n.contains('dominant')) return 52;
+  return (role.minL + role.maxL) / 2.0;
+}
 
+int _compareByTargetLThenThread(Paint a, Paint b, double targetL, String? thread, String Function(Paint) tempLabel) {
+  final da = (a.computedLrv - targetL).abs();
+  final db = (b.computedLrv - targetL).abs();
+  if (da != db) return da.compareTo(db);
+  if (thread != null) {
+    final am = tempLabel(a) == thread ? 0 : 1;
+    final bm = tempLabel(b) == thread ? 0 : 1;
+    if (am != bm) return am - bm;
+  }
+  return 0;
+}
+
+
+// Sherwin-Williams ColrVia role formula (PDF-aligned) for palette sizes 1–9.
+// Each role provides an LRV (light reflectance value) band and optional chroma
+// constraints: maxC limits saturation for neutrals/whites, minC enforces
+// chroma for accent / mid-tone interest. Bridge / Bright White / Off-White
+// follow explicit ranges ensuring value hierarchy and functional usage.
+// This mirrors the earlier _colrviaPlanForSize but is explicitly named after
+// the ColrVia (capital V) PDF spec and can evolve separately if needed.
+List<_ColrViaRole> _colrViaPlanForSize(int size) {
   final roles = <_ColrViaRole>[];
   switch (size) {
     case 1:
+      // Single versatile dominant mid (slightly muted for flexibility)
       roles.add(_ColrViaRole('Dominant', 45, 60, maxC: 30));
       break;
     case 2:
+      // Dark anchor + light neutral
       roles.add(_ColrViaRole('Anchor', 0, 15, maxC: 40));
       roles.add(_ColrViaRole('Light', 72, 90, maxC: 12));
       break;
     case 3:
+      // Anchor + chromatic dominant + light neutral
       roles.addAll([
         _ColrViaRole('Anchor', 0, 15, maxC: 40),
         _ColrViaRole('Dominant', 45, 60),
@@ -137,7 +169,7 @@ List<_ColrViaRole> _colrviaPlanForSize(int size) {
         _ColrViaRole('Support Neutral C', 55, 70, maxC: 14),
         _ColrViaRole('Off-White', 72, 82, maxC: 10),
         _ColrViaRole('Bright White', 83, 92, maxC: 8),
-        _ColrViaRole('Bridge Mid', 30, 45), // extra mid bridge if 9 slots
+        _ColrViaRole('Bridge Mid', 30, 45),
       ]);
       break;
   }
@@ -175,6 +207,17 @@ enum HarmonyMode {
 /// Brand diversity is favored when enabled; ordering preserves slot semantics (no final L sort).
 class PaletteGenerator {
   static final math.Random _random = math.Random();
+  // Helper to decide top-K window per role name for seeded random selection.
+  static int _topKForRole(_ColrViaRole role) {
+    final n = role.name.toLowerCase();
+    if (n.contains('anchor')) return 6;
+    if (n.contains('bright white')) return 6;
+    if (n.contains('off-white') || n.contains('light')) return 8;
+    if (n.contains('support')) return 10;
+    if (n.contains('primary') || n.contains('secondary')) return 12;
+    if (n.contains('bridge') || n.contains('dominant')) return 10;
+    return 8;
+  }
 
   // Themed, role-by-role constrained roll guided by slot hints and theme windows.
   // When a ThemeSpec is active, pass slotLrvHints from ThemeEngine.slotLrvHintsFor(size, spec).
@@ -410,14 +453,11 @@ class PaletteGenerator {
 
   final output = result.whereType<Paint>().toList(growable: false);
   
-  // Potential bridge injection (undertone neutral mid) after initial selection.
-  // If project later provides _injectUndertoneBridge, call it here. Placeholder logic:
+  // Potential bridge injection (undertone neutral mid) would occur later in the
+  // unified Colrvia pipeline (see second invocation near end of _rollColrvia).
+  // Here we simply carry forward the output; early injection was removed to avoid
+  // referencing role data that is not yet available in this branch.
   List<Paint> injected = output;
-  try {
-    // ignore: unused_local_variable
-    final needsBridge = ThemeEngine.disablePopAccents == false; // placeholder condition
-    // TODO: wire actual _injectUndertoneBridge if available
-  } catch (_) {}
 
   // Semantic role labeling: Anchor, Secondary, Accent
   String labelForIndex(int i) {
@@ -474,6 +514,7 @@ class PaletteGenerator {
     bool diversifyBrands = true,
     List<List<double>>? slotLrvHints, // NEW: optional [min,max] per slot
     List<String>? fixedUndertones,
+  int? seed,
   }) {
     if (availablePaints.isEmpty) return [];
 
@@ -491,6 +532,7 @@ class PaletteGenerator {
         diversifyBrands: diversifyBrands,
         fixedUndertones: fixedUndertones ?? const [],
   slotLrvHints: slotLrvHints,
+  seed: seed,
       );
     }
 
@@ -798,42 +840,63 @@ class PaletteGenerator {
     required bool diversifyBrands,
     required List<String> fixedUndertones,
   List<List<double>>? slotLrvHints,
+  int? seed,
+  List<String>? excludeIds,
   }) {
     final size = anchors.length.clamp(1, 9);
-    final roles = _colrviaPlanForSize(size);
+  // Use PDF-aligned ColrVia role plan
+  final roles = _colrViaPlanForSize(size);
 
-    // Undertone discipline: optional narrowing by fixed undertones or muted chroma.
-    final base = fixedUndertones.isNotEmpty
-        ? filterByFixedUndertones(availablePaints, fixedUndertones)
-        : availablePaints;
+    if (kDebugMode) {
+      try {
+        debugPrint(
+          '[ColrVia] plan(size=$size): ${roles.map((r) => '${r.name}[${r.minL}-${r.maxL}'
+              '${r.minC != null ? ',minC=${r.minC}' : ''}'
+              '${r.maxC != null ? ',maxC=${r.maxC}' : ''}]').join('  ')}',
+        );
+      } catch (_) {}
+    }
+
+    // Undertone discipline: apply fixed undertone constraints (warm/cool/neutral) if provided.
+    // If filtering would eliminate all paints, fall back to full pool to avoid empty palette.
+    List<Paint> base;
+    if (fixedUndertones.isNotEmpty) {
+      final filtered = filterByFixedUndertones(availablePaints, fixedUndertones);
+      base = filtered.isEmpty ? availablePaints : filtered; // fallback safeguard
+    } else {
+      base = availablePaints;
+    }
     if (base.isEmpty) return [];
 
     // Choose a seed hue from any unlocked non-neutral paint to steer analogous bias.
-    final rnd = _random;
-    Paint seed = base[rnd.nextInt(base.length)];
-    for (final a in anchors) {
-      if (a != null) {
-        seed = a;
-        break;
-      }
-    }
-    final seedLch = ColorUtils.labToLch(seed.lab);
-    final seedHue = seedLch[2];
+  // Random seed previously used for hue bias removed in refactor.
 
     final result = List<Paint?>.filled(size, null);
-    final used = <String>{};
+    final used = <String>{}; // paint identity keys
     final usedBrands = <String>{};
+    String? thread; // emergent undertone thread captured after first selection
+
+  String getTemperatureLabel(Paint p) {
+      final h = p.lch.length > 2 ? ((p.lch[2] % 360) + 360) % 360 : 0.0;
+      return (h >= 45 && h <= 225) ? 'cool' : 'warm';
+    }
 
     for (int i = 0; i < size; i++) {
+      // Preserve locked slot
       if (anchors[i] != null) {
         result[i] = anchors[i];
         used.add(paintIdentity(anchors[i]!));
         usedBrands.add(anchors[i]!.brandName);
         continue;
       }
+
       final role = roles[i];
-      // Intersect role LRV with slot hint if provided
-      double roleMin = role.minL, roleMax = role.maxL;
+      if (kDebugMode) {
+        debugPrint('[ColrVia] slot=$i role=${role.name} band=${role.minL}-${role.maxL} diversify=$diversifyBrands usedBrands=${usedBrands.length} usedIds=${used.length}');
+      }
+      // Base role band (possibly intersected with slot hints)
+      double roleMin = role.minL;
+      double roleMax = role.maxL;
       if (slotLrvHints != null && i < slotLrvHints.length) {
         final hint = slotLrvHints[i];
         if (hint.length >= 2) {
@@ -841,70 +904,152 @@ class PaletteGenerator {
           final hMax = hint[1].clamp(0.0, 100.0);
           final low = math.max(roleMin, hMin);
           final high = math.min(roleMax, hMax);
-          if (low <= high) {
-            roleMin = low;
-            roleMax = high;
-          }
+          if (low <= high) { roleMin = low; roleMax = high; }
         }
       }
-      // Candidate pool by LRV band (computedLrv) and chroma cap if provided
-      final candidates = base.where((p) {
+
+      // Initial candidates by L band + chroma + uniqueness (brand diversity soft later)
+      List<Paint> candidates = base.where((p) {
+        final key = paintIdentity(p);
+        if (used.contains(key)) return false;
         final l = p.computedLrv;
+        if (!_within(l, roleMin, roleMax)) return false;
         final lch = ColorUtils.labToLch(p.lab);
         final c = lch[1];
-        final okL = _within(l, roleMin, roleMax);
-        final okC = (role.maxC == null || c <= role.maxC!) &&
-            (role.minC == null || c >= role.minC!);
-        if (!okL || !okC) return false;
-        if (used.contains(paintIdentity(p))) return false;
-        if (diversifyBrands && usedBrands.contains(p.brandName)) return false;
+        if (role.maxC != null && c > role.maxC!) return false;
+        if (role.minC != null && c < role.minC!) return false;
         return true;
       }).toList();
 
-      // Hue bias: keep analogous cluster for Primary/Secondary; neutrals are free.
-      candidates.sort((a, b) {
-        final ha = ColorUtils.labToLch(a.lab)[2];
-        final hb = ColorUtils.labToLch(b.lab)[2];
-        double dh(double h) {
-          final d = (h - seedHue).abs();
-          return d > 180 ? 360 - d : d;
+      // Apply recent-exclusion filter; fallback if it empties candidates
+      if (excludeIds != null && excludeIds.isNotEmpty) {
+        final filtered = candidates.where((p) => !excludeIds.contains(p.id)).toList();
+        if (filtered.isNotEmpty) {
+          candidates = filtered;
         }
+      }
 
-        final dA = dh(ha);
-        final dB = dh(hb);
-        return dA.compareTo(dB);
-      });
+      if (kDebugMode) {
+        final lows = candidates.map((p) => p.computedLrv).toList()..sort();
+        debugPrint('[ColrVia] role=${role.name} candidates=${candidates.length} minLrv=${lows.isEmpty ? '—' : lows.first} maxLrv=${lows.isEmpty ? '—' : lows.last}');
+      }
 
-      Paint? pick;
-      // Try nearest-by-hue within same brand diversity rules and not-yet-used
-      if (candidates.isNotEmpty) {
-        pick = candidates.first;
+      final bool isAnchor = role.name.toLowerCase().contains('anchor');
+      final bool isLightExtreme = role.name.toLowerCase().contains('off-white') || role.name.toLowerCase().contains('bright white') || role.name.toLowerCase().contains('light');
+
+      if (kDebugMode && isAnchor) {
+        debugPrint('[ColrVia] Anchor candidates: ${candidates.length}, usedBrands=${usedBrands.length}, diversify=$diversifyBrands');
+      }
+
+      // Soft brand diversity except for extremes
+      List<Paint> baseList = candidates;
+      if (diversifyBrands && !(isAnchor || isLightExtreme)) {
+        final preferred = candidates.where((p) => !usedBrands.contains(p.brandName)).toList();
+        if (preferred.isNotEmpty) baseList = preferred;
+      }
+
+      // Sorting
+      List<Paint> sorted = List.of(baseList);
+      if (isAnchor) {
+        sorted.sort((a, b) {
+          final la = a.computedLrv, lb = b.computedLrv;
+          final lrvCmp = la.compareTo(lb); // ascending LRV
+          if (lrvCmp != 0) return lrvCmp; // keep lowest L first
+          if (thread != null) {
+            final ta = getTemperatureLabel(a) == thread ? 0 : 1;
+            final tb = getTemperatureLabel(b) == thread ? 0 : 1;
+            if (ta != tb) return ta - tb;
+          }
+          return 0;
+        });
+      } else if (isLightExtreme) {
+        sorted.sort((a, b) {
+          final la = a.computedLrv, lb = b.computedLrv;
+          final lrvCmp = lb.compareTo(la); // lightest first
+          if (lrvCmp != 0) return lrvCmp;
+            if (thread != null) {
+              final ta = getTemperatureLabel(a) == thread ? 0 : 1;
+              final tb = getTemperatureLabel(b) == thread ? 0 : 1;
+              if (ta != tb) return ta - tb;
+            }
+          return 0;
+        });
       } else {
-        // Widen strategy: drop brand diversity first, then widen LRV band a bit
-        // For whisper-like roles (roleMin >= 70), do not widen below the min.
-        // For deep anchor-like roles (roleMax <= 15), do not widen above the max.
-        final widenLow = roleMin >= 70 ? roleMin : (roleMin - 3);
-        final widenHigh = roleMax <= 15 ? roleMax : (roleMax + 3);
-        final wide = base.where((p) {
-          if (used.contains(paintIdentity(p))) return false;
+        final targetL = _roleTargetL(role);
+  sorted.sort((a, b) => _compareByTargetLThenThread(a, b, targetL, thread, getTemperatureLabel));
+      }
+
+      // Relaxation if empty
+      if (sorted.isEmpty) {
+        final low = (role.minL - 5).clamp(0, 100).toDouble();
+        final high = (role.maxL + 5).clamp(0, 100).toDouble();
+        final widened = availablePaints.where((p) {
+          final key = paintIdentity(p);
+          if (used.contains(key)) return false;
           final l = p.computedLrv;
-          return _within(l, widenLow, widenHigh);
+          return l >= low && l <= high; // chroma limits dropped
         }).toList();
-        if (wide.isNotEmpty) {
-          wide.sort((a, b) {
-            final da = ColorUtils.deltaE2000(seed.lab, a.lab);
-            final db = ColorUtils.deltaE2000(seed.lab, b.lab);
-            return da.compareTo(db);
-          });
-          pick = wide.first;
+        if (widened.isNotEmpty) {
+          if (isAnchor) {
+            widened.sort((a, b) => a.computedLrv.compareTo(b.computedLrv));
+          } else if (isLightExtreme) {
+            widened.sort((a, b) => b.computedLrv.compareTo(a.computedLrv));
+          } else {
+            final targetL = _roleTargetL(role);
+            widened.sort((a, b) => _compareByTargetLThenThread(a, b, targetL, thread, getTemperatureLabel));
+          }
+          sorted = widened;
+        } else {
+          // Global fallback
+          final poolSansUsed = availablePaints.where((p) => !used.contains(paintIdentity(p))).toList();
+          if (poolSansUsed.isNotEmpty) {
+            if (isAnchor) {
+              poolSansUsed.sort((a, b) => a.computedLrv.compareTo(b.computedLrv));
+            } else if (isLightExtreme) {
+              poolSansUsed.sort((a, b) => b.computedLrv.compareTo(a.computedLrv));
+            } else {
+              final targetL = _roleTargetL(role);
+              poolSansUsed.sort((a, b) => _compareByTargetLThenThread(a, b, targetL, thread, getTemperatureLabel));
+            }
+            sorted = poolSansUsed;
+          }
         }
       }
 
-      if (pick != null) {
-        result[i] = pick;
-        used.add(paintIdentity(pick));
-        usedBrands.add(pick.brandName);
+  // Deterministic extremes and guarded fallback for Anchor / Light extremes
+  // Re-apply shortlist logic per user spec (soft brand diversity already applied above for mid roles)
+  // sorted already honors extremes ordering, but enforce band satisfaction fallback.
+  List<Paint> shortlist = sorted;
+      bool bandSatisfied = shortlist.isNotEmpty && (!isAnchor || shortlist.first.computedLrv < 15) && (!isLightExtreme || shortlist.first.computedLrv >= 70);
+      if (!bandSatisfied) {
+        // Global widened fallback ignoring band to guarantee presence
+        var widened = availablePaints.where((p) => !used.contains(paintIdentity(p))).toList();
+        if (isAnchor) {
+          widened.sort((a,b)=>a.computedLrv.compareTo(b.computedLrv));
+        } else if (isLightExtreme) {
+          widened.sort((a,b)=>b.computedLrv.compareTo(a.computedLrv));
+        } else {
+          final targetL = _roleTargetL(role);
+          widened.sort((a,b)=>_compareByTargetLThenThread(a,b,targetL,thread,getTemperatureLabel));
+        }
+        if (widened.isNotEmpty) {
+          shortlist = widened;
+          if (kDebugMode) debugPrint('[ColrVia] Fallback engaged for role=${role.name}; picked from global pool.');
+        }
       }
+
+  // Seeded top-K random pick: stable within a roll, varies per swipe via seed.
+  final int baseSeed = seed ?? 0;
+  final int dynamicSeed = baseSeed ^ i ^ used.length;
+  final rnd = math.Random(dynamicSeed & 0x7fffffff);
+  final int k = _topKForRole(role);
+  final int limit = math.min(k, shortlist.length);
+  final int pickIndex = limit > 0 ? rnd.nextInt(limit) : 0;
+  final Paint chosen = shortlist[pickIndex];
+      result[i] = chosen;
+      used.add(paintIdentity(chosen));
+      usedBrands.add(chosen.brandName);
+  thread ??= getTemperatureLabel(chosen);
     }
 
     // If any slot failed, backfill globally nearest by LRV band to maintain size
@@ -927,96 +1072,56 @@ class PaletteGenerator {
       if (result[i] != null) used.add(paintIdentity(result[i]!));
     }
 
-    var out = result.whereType<Paint>().toList(growable: false);
-    // Sort by LRV desc iff there were no locks (fits your existing UX)
-    if (anchors.every((a) => a == null)) {
-      out.sort((a, b) => b.computedLrv.compareTo(a.computedLrv));
-    }
+  var out = result.whereType<Paint>().toList(growable: false);
+  // Keep original slot order for guardrail adjustments; defer optional sort to end.
 
-    // Post-pass: enforce at least one very light (>=70) and one very dark (<15) when size >= 3
+    // Post-pass guard (safety) ensuring at least one dark & one light for size >=3
     if (size >= 3) {
-      double minL = 101, maxL = -1;
-      for (int i = 0; i < out.length; i++) {
-        final l = out[i].computedLrv;
-        if (l < minL) minL = l;
-        if (l > maxL) maxL = l;
-      }
-      // Ensure light
-      if (maxL < 70.0) {
-        // Prefer replacing a non-locked slot with the highest L
-        int targetIdx = -1;
-        double bestL = -1;
-        for (int i = 0; i < out.length; i++) {
-          if (anchors[i] != null) continue; // don't replace locked anchors
-          final l = out[i].computedLrv;
-          if (l > bestL) {
-            bestL = l;
-            targetIdx = i;
+      final sortedByL = List.of(out)..sort((a,b)=>a.computedLrv.compareTo(b.computedLrv));
+      final hasDark = sortedByL.first.computedLrv < 15.0;
+      final hasLight = sortedByL.last.computedLrv >= 70.0;
+      if (!hasDark) {
+        final replacement = availablePaints.where((p) => !out.any((o)=>paintIdentity(o)==paintIdentity(p))).toList()
+          ..sort((a,b)=>a.computedLrv.compareTo(b.computedLrv));
+        if (replacement.isNotEmpty) {
+          for (int i=0;i<out.length;i++) {
+            if (anchors[i] == null) { out[i] = replacement.first; if (kDebugMode) debugPrint('[ColrVia] Post-guard injected dark ${replacement.first.computedLrv}'); break; }
           }
-        }
-        if (targetIdx >= 0) {
-          Paint? repl;
-          double best = double.infinity;
-          final usedKeys = {for (final p in out) paintIdentity(p)};
-          for (final p in base) {
-            if (usedKeys.contains(paintIdentity(p))) continue;
-            final l = p.computedLrv;
-            if (l >= 72.0) {
-              final d = (l - 80.0).abs();
-              if (d < best) {
-                best = d;
-                repl = p;
-              }
-            }
-          }
-          if (repl != null) out[targetIdx] = repl;
         }
       }
-      // Ensure dark
-      if (minL >= 15.0) {
-        // Prefer replacing a non-locked slot with the lowest L
-        int targetIdx = -1;
-        double bestL = 999;
-        for (int i = 0; i < out.length; i++) {
-          if (anchors[i] != null) continue; // don't replace locked anchors
-          final l = out[i].computedLrv;
-          if (l < bestL) {
-            bestL = l;
-            targetIdx = i;
+      if (!hasLight) {
+        final replacement = availablePaints.where((p) => !out.any((o)=>paintIdentity(o)==paintIdentity(p))).toList()
+          ..sort((a,b)=>b.computedLrv.compareTo(a.computedLrv));
+        if (replacement.isNotEmpty) {
+          for (int i=out.length-1;i>=0;i--) {
+            if (anchors[i] == null) { out[i] = replacement.first; if (kDebugMode) debugPrint('[ColrVia] Post-guard injected light ${replacement.first.computedLrv}'); break; }
           }
-        }
-        if (targetIdx >= 0) {
-          Paint? repl;
-          double best = double.infinity;
-          final usedKeys = {for (final p in out) paintIdentity(p)};
-          for (final p in base) {
-            if (usedKeys.contains(paintIdentity(p))) continue;
-            final l = p.computedLrv;
-            if (l < 15.0) {
-              final d = (l - 8.0).abs();
-              if (d < best) {
-                best = d;
-                repl = p;
-              }
-            }
-          }
-          if (repl != null) out[targetIdx] = repl;
         }
       }
     }
 
-    // Undertone bridge injection: if warm & cool chromatic hues both appear, ensure one mid-LRV low-C neutral
+    // Undertone bridge injection after extremes enforcement
     out = _injectUndertoneBridge(out, base, anchors, roles);
 
-    // Tag roles on result paints for UI alternate preservation
+    // Build role mapping AFTER guardrail modifications (& bridge) but BEFORE optional sort
+    final Map<String, String> roleById = {};
     for (int i = 0; i < out.length && i < roles.length; i++) {
+      roleById[out[i].id] = roles[i].name;
+    }
+
+    // Optional final sort (only when no locks) for consistent presentation
+    final bool noLocks = anchors.every((a) => a == null);
+    if (noLocks) {
+      out.sort((a, b) => b.computedLrv.compareTo(a.computedLrv)); // descending (lightest first)
+    }
+
+    // Apply role metadata (preserve original role even if sorted)
+    for (int i = 0; i < out.length; i++) {
       final paint = out[i];
-      final role = roles[i];
-      // Create new metadata map or copy existing one
+      final roleName = roleById[paint.id];
+      if (roleName == null) continue; // safety guard
       final newMetadata = Map<String, dynamic>.from(paint.metadata ?? {});
-      newMetadata['role'] = role.name;
-      
-      // Create new Paint with updated metadata
+      newMetadata['role'] = roleName;
       out[i] = Paint(
         id: paint.id,
         brandId: paint.brandId,
@@ -1027,13 +1132,62 @@ class PaletteGenerator {
         rgb: paint.rgb,
         lab: paint.lab,
         lch: paint.lch,
+  lrv: paint.lrv,
         collection: paint.collection,
         finish: paint.finish,
         metadata: newMetadata,
       );
     }
 
+    // Enforce single pop accent (ColrVia only) and log final selection
+    _enforceSinglePop(out, availablePaints, anchors, roles);
+    if (kDebugMode) {
+      try {
+        final ids = out.map((p) => p.id).join(',');
+        final hash = ids.hashCode;
+        debugPrint('[ColrVia] CHOSEN ids=$ids hash=$hash seed=${seed ?? 0}');
+      } catch (_) {}
+    }
+
     return out;
+  }
+
+  // Enforce at most one "pop" (high chroma) accent in ColrVia mode for mid roles.
+  static void _enforceSinglePop(List<Paint> colors, List<Paint> availablePaints, List<Paint?> anchors, List<_ColrViaRole> roles) {
+    if (colors.length != roles.length) return;
+    final popIdx = <int>[];
+    for (int i = 0; i < colors.length; i++) {
+      final rName = roles[i].name.toLowerCase();
+      if (rName.contains('off-white') || rName.contains('bright white') || rName.contains('anchor') || rName.contains('support')) continue;
+      final c = colors[i].lch.length>1 ? colors[i].lch[1] : 0.0;
+      if (c >= 18.0) popIdx.add(i);
+    }
+    if (popIdx.length <= 1) return;
+    popIdx.sort((a,b){
+      final ca = colors[a].lch.length>1 ? colors[a].lch[1] : 0.0;
+      final cb = colors[b].lch.length>1 ? colors[b].lch[1] : 0.0;
+      return cb.compareTo(ca); // keep highest chroma at index 0
+    });
+    for (int k=1; k<popIdx.length; k++) {
+      final i = popIdx[k];
+      if (anchors[i] != null) continue; // don't replace locked
+      final role = roles[i];
+      final lowChroma = availablePaints.where((p){
+        if (p.id == colors[i].id) return false;
+        final l = p.computedLrv;
+        if (l < role.minL || l > role.maxL) return false;
+        final c = p.lch.length>1 ? p.lch[1] : 0.0;
+        return c <= math.min(14.0, (role.maxC ?? 14.0));
+      }).toList();
+      if (lowChroma.isNotEmpty) {
+        lowChroma.sort((a,b){
+          final ta = (a.computedLrv - _roleTargetL(role)).abs();
+          final tb = (b.computedLrv - _roleTargetL(role)).abs();
+          return ta.compareTo(tb);
+        });
+        colors[i] = lowChroma.first;
+      }
+    }
   }
 
   // Generate target LAB values based on harmony mode
@@ -1652,34 +1806,5 @@ class PaletteGenerator {
     final a = C * math.cos(h);
     final b = C * math.sin(h);
     return [L, a, b];
-  }
-
-  static List<Paint> applyAdjustments(
-    List<Paint> palette,
-    List<Paint> pool,
-    List<bool> lockedStates,
-    double hueShift,
-    double satScale,
-  ) {
-    if (pool.isEmpty) return palette;
-    return [
-      for (var i = 0; i < palette.length; i++)
-        (lockedStates.length > i && lockedStates[i])
-            ? palette[i]
-            : _adjustPaint(palette[i], pool, hueShift, satScale)
-    ];
-  }
-
-  static Paint _adjustPaint(
-    Paint p,
-    List<Paint> pool,
-    double hueShift,
-    double satScale,
-  ) {
-    final l = p.lch[0];
-    final c = (satScale * p.lch[1]).clamp(0.0, 150.0);
-    final h = (hueShift + p.lch[2]) % 360.0;
-    final targetLab = ColorUtils.lchToLab(l, c, h);
-    return ColorUtils.nearestToTargetLab(targetLab, pool) ?? pool.first;
   }
 }

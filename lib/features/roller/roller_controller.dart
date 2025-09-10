@@ -29,6 +29,9 @@ class RollerController extends AsyncNotifier<RollerState> {
   late final PaletteService _service;
   late final FavoritesRepository _favorites;
   int _epoch = 0; // bump to invalidate in-flight rolls on theme changes
+  int _rollEpoch = 0; // per-swipe epoch to derive varying seeds
+  final Queue<String> _recentPaintIds = Queue<String>();
+  static const int _maxRecent = 20;
   DateTime? _lastRollStart; // for simple debounce
 
   static const bool _enableAlternates = true; // feature flag
@@ -226,7 +229,9 @@ class RollerController extends AsyncNotifier<RollerState> {
       }
 
       List<Paint> rolled;
-      try {
+    try {
+        // Increment per-roll epoch and derive a deterministic-but-changing seed.
+        final seed = _computeSeed(++_rollEpoch);
         final res = await _service.generate(
           available: pool,
           anchors: anchors,
@@ -235,6 +240,8 @@ class RollerController extends AsyncNotifier<RollerState> {
           themeSpec: s0.themeSpec,
           availableBrandOnly: brandOnly,
           mode: s0.filters.harmonyMode,
+          seed: seed,
+      excludeIds: _recentPaintIds.toList(),
         );
         rolled = res;
       } catch (e) {
@@ -247,6 +254,12 @@ class RollerController extends AsyncNotifier<RollerState> {
       // Sort only if we didn’t anchor any slot (no locks active)
       final noLocks = anchors.every((e) => e == null);
       final paints = noLocks ? _sortByLrvDesc(rolled) : rolled;
+
+      // Update recent history
+      for (final p in paints) {
+        _recentPaintIds.addLast(p.id);
+        if (_recentPaintIds.length > _maxRecent) _recentPaintIds.removeFirst();
+      }
 
       final page = RollerPage(
         strips: paints,
@@ -363,6 +376,7 @@ class RollerController extends AsyncNotifier<RollerState> {
 
       List<Paint> rolled;
       try {
+        final seed = _computeSeed(++_rollEpoch);
         rolled = await _service.generate(
           available: pool,
           anchors: anchors,
@@ -372,6 +386,8 @@ class RollerController extends AsyncNotifier<RollerState> {
           availableBrandOnly: brandOnly,
           attempts: attempts,
           mode: s0.filters.harmonyMode,
+          seed: seed,
+          excludeIds: _recentPaintIds.toList(),
         );
       } catch (e) {
         rolled = <Paint>[];
@@ -384,6 +400,11 @@ class RollerController extends AsyncNotifier<RollerState> {
   // Adjust locks to the new strips length
   final adjustedLocks = _normalizedLocks(current.locks, sorted.length);
   final nextPage = current.copyWith(strips: sorted, locks: adjustedLocks);
+
+      for (final p in nextPage.strips) {
+        _recentPaintIds.addLast(p.id);
+        if (_recentPaintIds.length > _maxRecent) _recentPaintIds.removeFirst();
+      }
 
       final pages = [...s0.pages]..[idx] = nextPage;
       // Abort if theme changed mid-flight
@@ -448,6 +469,7 @@ class RollerController extends AsyncNotifier<RollerState> {
       );
       List<Paint> rolled;
       try {
+        final seed = _computeSeed(++_rollEpoch);
         rolled = await _service.generate(
           available: pool,
           anchors: anchors,
@@ -456,6 +478,8 @@ class RollerController extends AsyncNotifier<RollerState> {
           themeSpec: s0.themeSpec,
           availableBrandOnly: brandOnly,
           mode: s0.filters.harmonyMode,
+          seed: seed,
+          excludeIds: _recentPaintIds.toList(),
         );
       } catch (e) {
         rolled = <Paint>[];
@@ -472,6 +496,11 @@ class RollerController extends AsyncNotifier<RollerState> {
 
       final nextStrips = [...current.strips]..[stripIndex] = rolled[stripIndex];
       final pages = [...s0.pages]..[idx] = current.copyWith(strips: nextStrips);
+
+  // Update history with replaced strip only
+  final replaced = rolled.length > stripIndex ? rolled[stripIndex] : nextStrips[stripIndex];
+  _recentPaintIds.addLast(replaced.id);
+  if (_recentPaintIds.length > _maxRecent) _recentPaintIds.removeFirst();
 
       state = AsyncData(s0.copyWith(
         pages: pages,
@@ -771,5 +800,12 @@ class RollerController extends AsyncNotifier<RollerState> {
     await Clipboard.setData(ClipboardData(text: text));
     // subtle haptic to confirm copy action
     await HapticFeedback.selectionClick();
+  }
+
+  // Compute a pseudo-random seed for palette generation based on rolling epoch
+  // XOR with current time to ensure variation even if user swipes very fast.
+  int _computeSeed(int epoch) {
+    final now = DateTime.now().microsecondsSinceEpoch;
+    return (epoch ^ now) & 0x7fffffff; // positive 31-bit int
   }
 }

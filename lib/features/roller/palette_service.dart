@@ -16,6 +16,8 @@ class PaletteService {
     int attempts = 6,
     List<Paint>? availableBrandOnly,
     HarmonyMode mode = HarmonyMode.colrvia,
+  int? seed,
+  List<String>? excludeIds,
   }) async {
     final isThemed = themeSpec != null;
     final threshold = isThemed ? (themeThreshold ?? 0.6) : themeThreshold;
@@ -40,6 +42,8 @@ class PaletteService {
         for (final p in (availableBrandOnly ?? available))
           (p.toJson()..['id'] = p.id)
       ],
+  if (seed != null) 'seed': seed,
+  if (excludeIds != null) 'excludeIds': excludeIds,
     };
     final result = await compute(isolate.rollPipelineInIsolate, args);
     return [for (final m in result) Paint.fromJson(m, m['id'] as String)];
