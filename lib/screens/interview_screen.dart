@@ -435,8 +435,9 @@ class _InterviewScreenState extends State<InterviewScreen> {
                                         type: 'question',
                                         text: _engine.current!.title,
                                         promptId: _engine.current!.id));
-                                    if (_mode == InterviewMode.talk)
+                                    if (_mode == InterviewMode.talk) {
                                       _voice.speak(_engine.current!.title);
+                                    }
                                   } else {
                                     await _finish();
                                   }
@@ -482,8 +483,9 @@ class _InterviewScreenState extends State<InterviewScreen> {
                                       type: 'question',
                                       text: _engine.current!.title,
                                       promptId: _engine.current!.id));
-                                  if (_mode == InterviewMode.talk)
+                                  if (_mode == InterviewMode.talk) {
                                     _voice.speak(_engine.current!.title);
+                                  }
                                 } else {
                                   await _finish();
                                 }

@@ -1,20 +1,18 @@
 part of 'example.dart';
 
 class ListMyColorStoriesVariablesBuilder {
+  
   final FirebaseDataConnect _dataConnect;
-  ListMyColorStoriesVariablesBuilder(
-    this._dataConnect,
-  );
-  Deserializer<ListMyColorStoriesData> dataDeserializer =
-      (dynamic json) => ListMyColorStoriesData.fromJson(jsonDecode(json));
-
+  ListMyColorStoriesVariablesBuilder(this._dataConnect, );
+  Deserializer<ListMyColorStoriesData> dataDeserializer = (dynamic json)  => ListMyColorStoriesData.fromJson(jsonDecode(json));
+  
   Future<QueryResult<ListMyColorStoriesData, void>> execute() {
     return ref().execute();
   }
 
   QueryRef<ListMyColorStoriesData, void> ref() {
-    return _dataConnect.query(
-        "ListMyColorStories", dataDeserializer, emptySerializer, null);
+    
+    return _dataConnect.query("ListMyColorStories", dataDeserializer, emptySerializer, null);
   }
 }
 
@@ -22,12 +20,11 @@ class ListMyColorStoriesColorStories {
   String id;
   String title;
   String? description;
-  ListMyColorStoriesColorStories.fromJson(dynamic json)
-      : id = nativeFromJson<String>(json['id']),
-        title = nativeFromJson<String>(json['title']),
-        description = json['description'] == null
-            ? null
-            : nativeFromJson<String>(json['description']);
+  ListMyColorStoriesColorStories.fromJson(dynamic json):
+  
+  id = nativeFromJson<String>(json['id']),
+  title = nativeFromJson<String>(json['title']),
+  description = json['description'] == null ? null : nativeFromJson<String>(json['description']);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -48,10 +45,11 @@ class ListMyColorStoriesColorStories {
 
 class ListMyColorStoriesData {
   List<ListMyColorStoriesColorStories> colorStories;
-  ListMyColorStoriesData.fromJson(dynamic json)
-      : colorStories = (json['colorStories'] as List<dynamic>)
-            .map((e) => ListMyColorStoriesColorStories.fromJson(e))
-            .toList();
+  ListMyColorStoriesData.fromJson(dynamic json):
+  
+  colorStories = (json['colorStories'] as List<dynamic>)
+        .map((e) => ListMyColorStoriesColorStories.fromJson(e))
+        .toList();
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -63,3 +61,4 @@ class ListMyColorStoriesData {
     required this.colorStories,
   });
 }
+

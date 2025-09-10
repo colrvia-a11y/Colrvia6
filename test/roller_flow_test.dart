@@ -69,7 +69,7 @@ void main() {
       'attempts': 5,
     };
 
-    final result = await rollPaletteInIsolate(args);
+  final result = rollPaletteInIsolate(args);
     expect(result, isNotNull);
     expect(result, isA<List>());
     expect((result as List).isNotEmpty, true);

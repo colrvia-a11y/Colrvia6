@@ -153,7 +153,7 @@ class LiveTalkServiceWs {
       // only — assign `audioFrameCallback` from platform code to enable.
       if (audioFrameCallback != null) {
         // Fire-and-forget loop; stops when connection closes.
-        unawaited(_startSendingAudioFrames());
+        _startSendingAudioFrames();
       }
     } catch (e, st) {
       debugPrint('LiveTalkServiceWs connect error (${e.runtimeType}): $e\n$st');
@@ -219,6 +219,15 @@ class LiveTalkServiceWs {
 
   void _onMessage(dynamic data) {
     try {
+      // If we receive binary data, forward to the remote audio handler.
+      if (data is List<int> || data is Uint8List) {
+        final bytes = data is Uint8List ? data : Uint8List.fromList(data as List<int>);
+        try {
+          onRemoteAudioChunk?.call(bytes);
+        } catch (_) {}
+        return;
+      }
+
       final m = jsonDecode(data as String) as Map<String, dynamic>;
       final type = m['type'] as String?;
       if (type == null) return;
@@ -241,13 +250,47 @@ class LiveTalkServiceWs {
         assistantSpeaking.value = false;
       }
 
-      // TODO: handle audio chunks when available
+      // Handle audio chunks in JSON payloads. Some servers inline base64
+      // audio frames in string fields like `audio` or `audio_chunk`.
+      // If present, decode and forward to `onRemoteAudioChunk` so the
+      // playback implementer can consume the PCM/audio bytes.
+      try {
+        final audioField = m['audio'] ?? m['audio_chunk'] ?? m['binary_audio'];
+        if (audioField is String && audioField.isNotEmpty) {
+          try {
+            final bytes = base64Decode(audioField);
+            onRemoteAudioChunk?.call(bytes);
+          } catch (_) {
+            // ignore invalid base64
+          }
+        }
+      } catch (_) {}
     } catch (_) {}
   }
 
   void _sendJson(Map<String, dynamic> m) {
     try {
       _ws?.add(jsonEncode(m));
+    } catch (_) {}
+  }
+
+  Future<void> _startSendingAudioFrames() async {
+    try {
+      while (_ws != null && _ws!.closeCode == null) {
+        try {
+          final frame = audioFrameCallback?.call();
+          if (frame != null && frame.isNotEmpty) {
+            // Send as binary frame
+            _ws?.add(frame);
+          } else {
+            // No data available right now; back off briefly
+            await Future.delayed(const Duration(milliseconds: 40));
+          }
+        } catch (_) {
+          // Ignore individual frame errors and continue
+          await Future.delayed(const Duration(milliseconds: 80));
+        }
+      }
     } catch (_) {}
   }
 

@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
+import 'package:color_canvas/roller_theme/theme_engine.dart';
 import 'package:color_canvas/utils/color_utils.dart';
 import 'package:color_canvas/services/analytics_service.dart';
 
@@ -17,9 +18,13 @@ bool isCompatibleUndertone(
   if (fixedUndertones.contains('neutral')) return true;
   if (paintUndertone == 'neutral') return true;
   if (fixedUndertones.contains('warm') && paintUndertone == 'cool')
-    return false;
+    {
+      return false;
+    }
   if (fixedUndertones.contains('cool') && paintUndertone == 'warm')
-    return false;
+    {
+      return false;
+    }
   return true;
 }
 
@@ -189,10 +194,18 @@ class PaletteGenerator {
   }) {
     if (availablePaints.isEmpty) return [];
     final size = anchors.length.clamp(1, 9);
+    // Global pop elimination: strip any paints exceeding chroma threshold so they can never appear
+    final filteredAvailable = ThemeEngine.disablePopAccents
+        ? availablePaints.where((p) {
+            final c = p.lch.length > 1 ? p.lch[1] : 0.0;
+            return c < ThemeEngine.globalPopChromaMin;
+          }).toList()
+        : availablePaints;
     // Narrow by fixed undertones first, if any
-    final base = (fixedUndertones == null || fixedUndertones.isEmpty)
-        ? availablePaints
-        : filterByFixedUndertones(availablePaints, fixedUndertones);
+  final baseSource = filteredAvailable;
+  final base = (fixedUndertones == null || fixedUndertones.isEmpty)
+    ? baseSource
+    : filterByFixedUndertones(baseSource, fixedUndertones);
     if (base.isEmpty) return [];
 
     // Track used keys and brands
@@ -228,26 +241,8 @@ class PaletteGenerator {
       // Brand diversity bonus
       final brandBonus = (diversifyBrands && usedBrands.contains(p.brandName)) ? 0.6 : 1.0;
       
-      // Pop accent constraint: if a pop already exists, prefer muted candidates
-      double popBonus = 1.0;
-      final c = p.lch.length > 1 ? p.lch[1] : 0.0;
-      final currentPaints = currentResult.whereType<Paint>().toList();
-      if (currentPaints.isNotEmpty) {
-        // Check if we already have a pop (C >= 18)
-        final hasExistingPop = currentPaints.any((paint) => 
-            (paint.lch.length > 1 ? paint.lch[1] : 0.0) >= 18.0);
-        
-        if (hasExistingPop) {
-          // Prefer muted colors (C ≈ 14-18) over high chroma (C > 24)
-          if (c >= 14.0 && c <= 18.0) {
-            popBonus = 1.2; // bonus for muted accent
-          } else if (c > 24.0) {
-            popBonus = 0.8; // penalty for high chroma
-          }
-        }
-      }
-      
-      return inBand * toneBonus * brandBonus * popBonus;
+  // Pop accent bias removed when global disable is active
+  return inBand * toneBonus * brandBonus;
     }
 
     // Role order: keep natural index order [0..N-1]
@@ -457,6 +452,13 @@ class PaletteGenerator {
   }) {
     if (availablePaints.isEmpty) return [];
 
+  // Global pop elimination for generic paths
+  final sourcePaints = ThemeEngine.disablePopAccents
+    ? availablePaints
+      .where((p) => (p.lch.length > 1 ? p.lch[1] : 0.0) < ThemeEngine.globalPopChromaMin)
+      .toList()
+    : availablePaints;
+
     if (mode == HarmonyMode.colrvia) {
       return _rollColrvia(
         availablePaints: availablePaints,
@@ -467,10 +469,10 @@ class PaletteGenerator {
       );
     }
 
-    final undertones = fixedUndertones ?? const [];
-    final List<Paint> paints = undertones.isNotEmpty
-        ? filterByFixedUndertones(availablePaints, undertones)
-        : availablePaints;
+  final undertones = fixedUndertones ?? const [];
+  final List<Paint> paints = undertones.isNotEmpty
+    ? filterByFixedUndertones(sourcePaints, undertones)
+    : sourcePaints;
     if (paints.isEmpty) return [];
 
     final int size = anchors.length;

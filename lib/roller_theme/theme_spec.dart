@@ -248,12 +248,13 @@ class VarietyControls {
     this.mutedPalettePrefersMutedPop,
   });
   factory VarietyControls.fromJson(Map<String, dynamic>? m) {
-    if (m == null)
+    if (m == null) {
       return const VarietyControls(
           minColors: 0,
           maxColors: 99,
           mustIncludeNeutral: false,
           mustIncludeAccent: false);
+    }
     int i(String k, int d) {
       return (m[k] == null) ? d : (m[k] as num).toInt();
     }

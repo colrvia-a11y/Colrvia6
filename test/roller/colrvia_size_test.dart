@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/foundation.dart';
 import 'package:color_canvas/utils/palette_generator.dart';
 import 'package:color_canvas/firestore/firestore_data_schema.dart';
 
@@ -49,7 +50,7 @@ void main() {
     );
     final lrvs = out.map((p) => p.computedLrv).toList()..sort();
     // Debug: print chosen LRVs
-    print('chosen lrvs: ${lrvs.map((v) => v.toStringAsFixed(1)).toList()}');
+  debugPrint('chosen lrvs: ${lrvs.map((v) => v.toStringAsFixed(1)).toList()}');
     expect(lrvs.first <= 15, true); // anchor-ish
     expect(lrvs.last >= 72, true); // off-white or bright
   });

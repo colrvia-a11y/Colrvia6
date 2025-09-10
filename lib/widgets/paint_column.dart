@@ -207,9 +207,20 @@ class _PaintStripeState extends State<PaintStripe> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 2),
                         child: Text(
-                          // Simple heuristic by LRV for display only
+                          // Prefer generator-assigned role metadata; fallback to legacy heuristic
                           () {
                             try {
+                              final metaRole = widget.paint!.metadata?['role'] as String?;
+                              if (metaRole != null && metaRole.isNotEmpty) {
+                                // Normalize internal role variants to concise display labels
+                                String r = metaRole;
+                                if (r.startsWith('Support Neutral')) r = 'Neutral';
+                                if (r == 'Bright White') r = 'Bright';
+                                if (r == 'Off-White') r = 'Off-White';
+                                if (r == 'Bridge Mid') r = 'Bridge';
+                                return r;
+                              }
+                              // Fallback heuristic (should rarely execute now)
                               final l = widget.paint!.computedLrv;
                               if (l < 16) return 'Anchor';
                               if (l > 82) return 'Bright';
@@ -772,6 +783,15 @@ class _AnimatedPaintStripeState extends State<AnimatedPaintStripe>
                                     child: Text(
                                       () {
                                         try {
+                                          final metaRole = widget.paint!.metadata?['role'] as String?;
+                                          if (metaRole != null && metaRole.isNotEmpty) {
+                                            String r = metaRole;
+                                            if (r.startsWith('Support Neutral')) r = 'Neutral';
+                                            if (r == 'Bright White') r = 'Bright';
+                                            if (r == 'Off-White') r = 'Off-White';
+                                            if (r == 'Bridge Mid') r = 'Bridge';
+                                            return r;
+                                          }
                                           final l = widget.paint!.computedLrv;
                                           if (l < 16) return 'Anchor';
                                           if (l > 82) return 'Bright';

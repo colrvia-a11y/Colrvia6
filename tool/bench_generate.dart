@@ -15,8 +15,9 @@ Future<void> main() async {
   for (var i = 0; i < runs; i++) {
     final anchors = List<Paint?>.filled(5, null);
     // random single anchor ~30% of time
-    if (rand.nextDouble() < 0.3)
+    if (rand.nextDouble() < 0.3) {
       anchors[rand.nextInt(5)] = all[rand.nextInt(all.length)];
+    }
     final sw = Stopwatch()..start();
     final out = await svc.generate(
         available: all, anchors: anchors, diversifyBrands: true);

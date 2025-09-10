@@ -8,7 +8,7 @@ class VoiceTokenEndpoint {
 
   /// Returns the HTTPS URL for the callable gateway that mints the OpenAI
   /// Realtime ephemeral session token.
-  /// Example: https://us-central1-<projectId>.cloudfunctions.net/issueVoiceGatewayToken
+  /// Example: https://us-central1-`<projectId>`.cloudfunctions.net/issueVoiceGatewayToken
   static Uri issueVoiceGatewayToken() {
     final opts = Firebase.app().options;
     final projectId = opts.projectId;

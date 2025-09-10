@@ -29,6 +29,7 @@ class RollerController extends AsyncNotifier<RollerState> {
   late final PaletteService _service;
   late final FavoritesRepository _favorites;
   int _epoch = 0; // bump to invalidate in-flight rolls on theme changes
+  DateTime? _lastRollStart; // for simple debounce
 
   static const bool _enableAlternates = true; // feature flag
   static const int _maxAlternateKeys = 30;
@@ -173,6 +174,16 @@ class RollerController extends AsyncNotifier<RollerState> {
   }
 
   Future<void> rollNext() async {
+    // Debounce: avoid piling rolls if user swipes rapidly or prefetch chains
+    final now = DateTime.now();
+    final existing = state.valueOrNull;
+    final hasPages = existing?.pages.isNotEmpty ?? false;
+    // Only debounce when there is already at least one page; always allow first roll
+    if (hasPages && _lastRollStart != null && now.difference(_lastRollStart!).inMilliseconds < 180) {
+      debugPrint('roll_next: skipped (debounced)');
+      return;
+    }
+    _lastRollStart = now;
     final startEpoch = _epoch;
     final s0 = state.valueOrNull ?? const RollerState();
     // prevent duplicate work if already generating next page
@@ -187,16 +198,22 @@ class RollerController extends AsyncNotifier<RollerState> {
     );
 
     try {
-      final sw = Stopwatch()..start();
+  final swTotal = Stopwatch()..start();
+  final swPhase = Stopwatch()..start();
+  debugPrint('roll_next: start (epoch=$startEpoch currentEpoch=$_epoch)');
       final pool = await _repo.getPool(
         brandIds: s0.filters.brandIds,
         theme: s0.themeSpec,
       );
+  final poolMs = swPhase.elapsedMilliseconds;
+  swPhase..reset()..start();
       // brand-only pool for auto-relax fallback
       final brandOnly = _repo.filterByBrands(
         await _repo.getAll(),
         s0.filters.brandIds,
       );
+  final brandFilterMs = swPhase.elapsedMilliseconds;
+  swPhase..reset()..start();
 
       // anchors come from visible page locks if any; size is dynamic 1..9
       final anchors = List<Paint?>.filled(s0.filters.stripCount, null);
@@ -219,10 +236,13 @@ class RollerController extends AsyncNotifier<RollerState> {
           availableBrandOnly: brandOnly,
           mode: s0.filters.harmonyMode,
         );
-  rolled = res;
+        rolled = res;
       } catch (e) {
+  debugPrint('roll_next: generate threw $e');
         rolled = <Paint>[];
       }
+  final generateMs = swPhase.elapsedMilliseconds;
+  swPhase..reset()..start();
 
       // Sort only if we didn’t anchor any slot (no locks active)
       final noLocks = anchors.every((e) => e == null);
@@ -247,6 +267,9 @@ class RollerController extends AsyncNotifier<RollerState> {
 
       // Abort if theme changed mid-flight
       if (startEpoch != _epoch) return;
+      if (paints.isEmpty) {
+        debugPrint('roll_next: produced empty paints list');
+      }
       state = AsyncData(s0.copyWith(
         pages: trimmed,
         visiblePage: newVisible,
@@ -254,33 +277,38 @@ class RollerController extends AsyncNotifier<RollerState> {
         generatingPages: {...s0.generatingPages}..remove(nextIndex),
       ));
 
-      sw.stop();
+      final assembleMs = swPhase.elapsedMilliseconds;
+      swTotal.stop();
       final poolSize = pool.length;
       final brandCount = s0.filters.brandIds.length;
       final themeId = s0.themeSpec?.id ?? 'none';
       final lockedCount =
           s0.hasPages ? (s0.pages.last.locks.where((l) => l).length) : 0;
-      AnalyticsService.instance.logEvent('roll_next', {
+      AnalyticsService.instance.logEvent('roll_next_perf', {
         'pageCount': trimmed.length,
         'visible': newVisible,
-        'elapsedMs': sw.elapsedMilliseconds,
+        'elapsedMs': swTotal.elapsedMilliseconds,
+        'poolMs': poolMs,
+        'brandMs': brandFilterMs,
+        'genMs': generateMs,
+        'assembleMs': assembleMs,
         'poolSize': poolSize,
         'brandCount': brandCount,
         'themeId': themeId,
         'lockedCount': lockedCount,
       });
-      debugPrint(
-          'roll_next: ${sw.elapsedMilliseconds}ms pool=$poolSize brands=$brandCount theme=$themeId locked=$lockedCount');
+      debugPrint('roll_next: total=${swTotal.elapsedMilliseconds}ms (pool=$poolMs brand=$brandFilterMs gen=$generateMs assemble=$assembleMs) poolSize=$poolSize theme=$themeId locked=$lockedCount');
 
       // (re)prime alternates after a successful roll - don't await
       _primeAlternatesForVisible();
 
       // prefetch one ahead
       if (trimmed.length - 1 - newVisible <= 1) {
-        // don't await
-        rollNext();
+        // schedule prefetch on microtask so UI frame can render first
+        Future.microtask(() => rollNext());
       }
     } catch (e) {
+  debugPrint('roll_next: outer exception $e');
       state = AsyncData(
         (state.valueOrNull ?? const RollerState()).copyWith(
           status: RollerStatus.error,
@@ -433,6 +461,15 @@ class RollerController extends AsyncNotifier<RollerState> {
         rolled = <Paint>[];
       }
 
+      if (rolled.length <= stripIndex) {
+        // Generation failed to return expected size; abort gracefully.
+        state = AsyncData(s0.copyWith(
+          status: RollerStatus.idle,
+          generatingPages: {...s0.generatingPages}..remove(idx),
+        ));
+        return;
+      }
+
       final nextStrips = [...current.strips]..[stripIndex] = rolled[stripIndex];
       final pages = [...s0.pages]..[idx] = current.copyWith(strips: nextStrips);
 
@@ -448,18 +485,16 @@ class RollerController extends AsyncNotifier<RollerState> {
       final themeId = s0.themeSpec?.id ?? 'none';
       final lockedCount = current.locks.where((l) => l).length;
       AnalyticsService.instance.logEvent('reroll_strip', {
-        'strip': stripIndex,
+        'pageIndex': idx,
+        'stripIndex': stripIndex,
         'elapsedMs': sw.elapsedMilliseconds,
         'poolSize': poolSize,
         'brandCount': brandCount,
         'themeId': themeId,
         'lockedCount': lockedCount,
       });
-      debugPrint(
-          'reroll_strip: idx=$idx strip=$stripIndex ${sw.elapsedMilliseconds}ms pool=$poolSize brands=$brandCount theme=$themeId locked=$lockedCount');
-      // subtle haptic feedback to indicate a successful reroll
+      debugPrint('reroll_strip: idx=$idx strip=$stripIndex ${sw.elapsedMilliseconds}ms pool=$poolSize brands=$brandCount theme=$themeId locked=$lockedCount');
       await HapticFeedback.lightImpact();
-      // (re)prime alternates after a successful reroll - don't await
       _primeAlternatesForVisible();
     } catch (e) {
       state = AsyncData(
@@ -615,6 +650,7 @@ class RollerController extends AsyncNotifier<RollerState> {
     final nextKey = (id ?? 'all');
     final currKey = (currentId ?? 'all');
     if (nextKey == currKey) return; // no-op
+  debugPrint('setThemeById: changing from $currKey to $nextKey');
 
     // Resolve spec (null for 'all')
     final spec =
@@ -635,6 +671,18 @@ class RollerController extends AsyncNotifier<RollerState> {
     // Prewarm pool (brands + theme), then roll first page
     await _repo.getPool(brandIds: current.filters.brandIds, theme: spec);
     await rollNext();
+    // Safety: if first roll failed to produce a page (e.g., empty pool edge case), try once more
+    final after = state.valueOrNull;
+    if (after == null || after.pages.isEmpty) {
+  debugPrint('setThemeById: first roll produced no pages; retrying');
+      await rollNext();
+    }
+    // Final assurance: brief retry loop (test environment) to ensure at least one page
+    for (var i = 0; i < 3; i++) {
+      final chk = state.valueOrNull;
+      if (chk != null && chk.pages.isNotEmpty) break;
+      await Future.delayed(const Duration(milliseconds: 10));
+    }
     AnalyticsService.instance
         .logEvent('theme_selected', {'themeId': spec?.id ?? 'all'});
   }

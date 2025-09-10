@@ -11,11 +11,9 @@ import 'package:color_canvas/utils/palette_generator.dart' show HarmonyMode;
 
 class _FakePaint extends Paint {
   _FakePaint(String id, List<double> lch,
-      {String brandId = 'b', String brandName = 'B'})
+      {super.brandId = 'b', super.brandName = 'B'})
       : super(
           id: id,
-          brandId: brandId,
-          brandName: brandName,
           name: 'N$id',
           code: 'C$id',
           rgb: const [0, 0, 0],

@@ -93,15 +93,7 @@ class _InterviewWizardScreenState extends State<InterviewWizardScreen> {
     setState(() {});
   }
 
-  void _prev() {
-    if (_engine.index > 0) {
-      _engine.back();
-      _syncTextToPrompt();
-      setState(() {});
-    } else {
-      Navigator.maybePop(context);
-    }
-  }
+  
 
   bool _isValid(InterviewPrompt p) {
     final v = _engine.answers[p.id];

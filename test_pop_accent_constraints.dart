@@ -60,16 +60,14 @@ void main() {
     ),
   ];
 
-  // Test validation - should fail with "too_many_pops"
+  // Test validation - with global disable should fail with 'contains_pop_accent_disabled'
   final validationResult = ThemeEngine.validatePaletteRules(highChromaPalette, themeSpec);
   log('High chroma palette validation: ${validationResult ?? "PASSED"}');
-  
-  // Test shows the pop accent constraint is working
-  if (validationResult == 'too_many_pops') {
-    log('✓ Pop accent constraint validation is working correctly!');
+  if (validationResult == 'contains_pop_accent_disabled') {
+    log('✓ Global pop accent disable is enforced.');
   } else {
-    log('✗ Unexpected validation result: $validationResult');
+    log('✗ Expected contains_pop_accent_disabled, got: $validationResult');
   }
 
-  log('\n=== Pop Accent Constraints Implementation Complete ===');
+  log('\n=== Pop Accent Disable Verification Complete ===');
 }

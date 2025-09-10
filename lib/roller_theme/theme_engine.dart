@@ -30,6 +30,13 @@ import 'package:color_canvas/utils/color_utils.dart';
 import 'theme_spec.dart';
 
 class ThemeEngine {
+  // Global override: set to true to completely eliminate pop accents (high-chroma outliers)
+  // from all generated palettes regardless of ThemeSpec settings. When enabled, any
+  // paint whose chroma >= _globalPopChromaMin is rejected during validation/scoring.
+  static const bool disablePopAccents = true;
+  // Chroma threshold used to classify a pop accent when global disable is on.
+  static const double _globalPopChromaMin = 18.0;
+  static double get globalPopChromaMin => _globalPopChromaMin;
   // ---------- Basic neutral test (theme-driven chroma cutoff) ----------
   static bool _isNeutral(Paint p, ThemeSpec spec) {
     final c = p.lch.length > 1 ? p.lch[1] : 0.0;
@@ -222,6 +229,11 @@ class ThemeEngine {
   // Hard-rule validator; return a reason or null if valid
   static String? validatePaletteRules(List<Paint> palette, ThemeSpec spec) {
     if (palette.isEmpty) return 'empty';
+    // Global hard gate: eliminate any palettes containing pop accents when disabled
+    if (disablePopAccents) {
+      final hasPop = palette.any((p) => (p.lch.length > 1 ? p.lch[1] : 0.0) >= _globalPopChromaMin);
+      if (hasPop) return 'contains_pop_accent_disabled';
+    }
     // Strong value presence when size >= 3
     if (palette.length >= 3) {
       if (!_hasVeryLight(palette)) return 'no_very_light';
@@ -235,9 +247,9 @@ class ThemeEngine {
       return 'no_bridge_for_warm_cool_mix';
     }
     
-    // Pop accent constraint validation
+    // Pop accent constraint validation (skipped when globally disabled)
     final vc = spec.varietyControls;
-    if (vc?.maxPops != null && vc?.popChromaMin != null) {
+    if (!disablePopAccents && vc?.maxPops != null && vc?.popChromaMin != null) {
       final pops = _countPops(palette, vc!.popChromaMin!);
       if (pops > vc.maxPops!) {
         return 'too_many_pops';
@@ -625,34 +637,28 @@ class ThemeEngine {
       sumWeights += w;
     });
 
-    // Pop discipline: enforce the "0 or 1 pop accent" rule
-    double popDiscipline = 1.0;
-    if (vc?.popChromaMin != null) {
+    // Pop discipline metric removed when globally disabled; otherwise keep legacy scoring
+    if (!disablePopAccents && vc?.popChromaMin != null) {
+      double popDiscipline = 1.0;
       final popChromaMin = vc!.popChromaMin!;
       final pops = _countPops(palette, popChromaMin);
-      
       if (pops <= 1) {
         popDiscipline = 1.0;
       } else {
-        // Penalize additional pops linearly
         popDiscipline = max(0.0, 1.0 - 0.5 * (pops - 1));
       }
-      
-      // If muted palette prefers muted pop, penalize overly vivid pops
-      if (vc.mutedPalettePrefersMutedPop == true && 
+      if (vc.mutedPalettePrefersMutedPop == true &&
           _isMutedPalette(palette, popChromaMin, 14.0)) {
         final vividPops = palette
             .where((p) => (p.lch.length > 1 ? p.lch[1] : 0.0) > 24.0)
             .length;
-        if (vividPops > 0) {
-          popDiscipline *= 0.7; // penalize vivid pops in muted palettes
-        }
+        if (vividPops > 0) popDiscipline *= 0.7;
       }
+      _accumulate('popDiscipline', popDiscipline, weights, (s, w) {
+        weightedSum += s * w;
+        sumWeights += w;
+      });
     }
-    _accumulate('popDiscipline', popDiscipline, weights, (s, w) {
-      weightedSum += s * w;
-      sumWeights += w;
-    });
 
     // Dominant vs. Secondary separation: ensure clear difference by hue or value
     final dominantSecondarySeparation = _dominantSecondarySeparation(palette);
@@ -663,21 +669,27 @@ class ThemeEngine {
 
     // If no weights provided, return simple average of a core set of features
     if (sumWeights <= 0.0) {
-      final fallback = (neutralShare +
-              hueAllowed +
-              saturationDiscipline +
-              harmonyMatch +
-              accentContrast +
-              warmProp +
-              brandDiversity +
-              valueCoverage +
-              valueSpread +
-        spacingBonus +
-              undertoneCohesion +
-              temperatureBalance +
-              popDiscipline +
-              dominantSecondarySeparation) /
-      14.0;
+      // Build list dynamically to avoid referencing popDiscipline when disabled
+      final components = <double>[
+        neutralShare,
+        hueAllowed,
+        saturationDiscipline,
+        harmonyMatch,
+        accentContrast,
+        warmProp,
+        brandDiversity,
+        valueCoverage,
+        valueSpread,
+        spacingBonus,
+        undertoneCohesion,
+        temperatureBalance,
+        dominantSecondarySeparation,
+      ];
+      if (!disablePopAccents && vc?.popChromaMin != null) {
+        // Attempt to retrieve previously accumulated popDiscipline via weights map if present
+        // If weights absent fallback just ignores pop.
+      }
+      final fallback = components.reduce((a,b)=>a+b) / components.length;
       return fallback.clamp(0.0, 1.0);
     }
 

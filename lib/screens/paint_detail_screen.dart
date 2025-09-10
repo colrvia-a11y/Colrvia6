@@ -1037,12 +1037,12 @@ class _InActionTab extends StatelessWidget {
   Widget build(BuildContext context) {
     // Keep a harmless reference to _UsageTab so the class isn't flagged as unused
     // by aggressive static analysis in some environments.
-    final _usageRef = _UsageTab(paint: paint);
-    final _visualsRef = _VisualsTab(paint: paint);
+    final usageRef = _UsageTab(paint: paint);
+    final visualsRef = _VisualsTab(paint: paint);
     // reference in debug-only closure to avoid unused-variable lint
     assert(() {
-      _usageRef.hashCode;
-      _visualsRef.hashCode;
+      usageRef.hashCode;
+      visualsRef.hashCode;
       return true;
     }());
 
