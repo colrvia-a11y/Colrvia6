@@ -33,7 +33,7 @@ class ThemeEngine {
   // Global override: set to true to completely eliminate pop accents (high-chroma outliers)
   // from all generated palettes regardless of ThemeSpec settings. When enabled, any
   // paint whose chroma >= _globalPopChromaMin is rejected during validation/scoring.
-  static const bool disablePopAccents = true;
+  static const bool disablePopAccents = false; // allow pop accents by default
   // Chroma threshold used to classify a pop accent when global disable is on.
   static const double _globalPopChromaMin = 18.0;
   static double get globalPopChromaMin => _globalPopChromaMin;
@@ -90,7 +90,7 @@ class ThemeEngine {
     }
     final out = <Paint>[];
     for (final p in paints) {
-      final l = p.lch.isNotEmpty ? p.lch[0] : 0.0;
+      final l = p.computedLrv;
       final c = p.lch.length > 1 ? p.lch[1] : 0.0;
       double h = 0.0;
       if (p.lch.length > 2) {
@@ -148,16 +148,14 @@ class ThemeEngine {
 
   // ---------- Blueprint helper utilities ----------
   // Value buckets & spacing
-  static bool _hasVeryLight(List<Paint> p) =>
-      p.any((x) => (x.lch.isNotEmpty ? x.lch[0] : 0.0) >= 70.0);
-  static bool _hasVeryDark(List<Paint> p) =>
-      p.any((x) => (x.lch.isNotEmpty ? x.lch[0] : 0.0) < 15.0);
+  static bool _hasVeryLight(List<Paint> p) => p.any((x) => x.computedLrv >= 70.0);
+  static bool _hasVeryDark(List<Paint> p) => p.any((x) => x.computedLrv < 15.0);
   static double _valueSpread(List<Paint> p) {
-    final l = p.map((x) => x.lch.isNotEmpty ? x.lch[0] : 0.0).toList()..sort();
+    final l = p.map((x) => x.computedLrv).toList()..sort();
     return l.isEmpty ? 0.0 : ((l.last - l.first) / 100.0).clamp(0.0, 1.0);
   }
   static double _minSpacing(List<Paint> p) {
-    final l = p.map((x) => x.lch.isNotEmpty ? x.lch[0] : 0.0).toList()..sort();
+    final l = p.map((x) => x.computedLrv).toList()..sort();
     if (l.length < 2) return 1.0;
     double minGap = 999.0;
     for (var i = 1; i < l.length; i++) {
@@ -221,7 +219,7 @@ class ThemeEngine {
     final cMax = spec.neutrals?.C?.max ?? 12.0;
     return p.any((x) {
       final c = x.lch.length > 1 ? x.lch[1] : 0.0;
-      final l = x.lch.isNotEmpty ? x.lch[0] : 0.0;
+      final l = x.computedLrv;
       return c <= cMax && l >= 35.0 && l <= 75.0; // mid neutral bridge
     });
   }
@@ -304,7 +302,7 @@ class ThemeEngine {
   // and at least one mid (30..60) when size >= 3. Returns 1.0 if satisfied, else 0..0.7.
   static double _valueCoverage(List<Paint> palette) {
     if (palette.isEmpty) return 0.0;
-    final lrvs = palette.map((p) => p.lch.isNotEmpty ? p.lch[0] : 0.0).toList();
+  final lrvs = palette.map((p) => p.computedLrv).toList();
     final minL = lrvs.reduce(min);
     final maxL = lrvs.reduce(max);
     final hasLight = maxL >= 70.0;
@@ -372,7 +370,7 @@ class ThemeEngine {
     }
     
     // Sort by L value and pick two most representative mid-tones
-    midTones.sort((a, b) => (a.lch[0]).compareTo(b.lch[0]));
+  midTones.sort((a, b) => a.computedLrv.compareTo(b.computedLrv));
     
     // Take paints from different parts of the L range for better separation
     if (midTones.length == 2) {
@@ -395,8 +393,8 @@ class ThemeEngine {
     final secondary = domSec[1];
     
     // Calculate L (value) difference
-    final lDom = dominant.lch.isNotEmpty ? dominant.lch[0] : 0.0;
-    final lSec = secondary.lch.isNotEmpty ? secondary.lch[0] : 0.0;
+  final lDom = dominant.computedLrv;
+  final lSec = secondary.computedLrv;
     final deltaL = (lDom - lSec).abs();
     
     // Calculate H (hue) difference
@@ -511,7 +509,7 @@ class ThemeEngine {
 
     // accentContrast: contrast between darkest and lightest (by L) pair
     final sortedByL = List<Paint>.from(palette)
-      ..sort((a, b) => (a.lch[0]).compareTo(b.lch[0]));
+      ..sort((a, b) => a.computedLrv.compareTo(b.computedLrv));
     double accentContrast = 0.0;
     if (sortedByL.length >= 2) {
       final low = ColorUtils.hexToColor(sortedByL.first.hex);

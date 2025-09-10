@@ -214,6 +214,7 @@ class _PaintStripeState extends State<PaintStripe> {
                               if (metaRole != null && metaRole.isNotEmpty) {
                                 // Normalize internal role variants to concise display labels
                                 String r = metaRole;
+                                if (r == 'Accent') r = 'Accent'; // no-op mapping to preserve label
                                 if (r.startsWith('Support Neutral')) r = 'Neutral';
                                 if (r == 'Bright White') r = 'Bright';
                                 if (r == 'Off-White') r = 'Off-White';

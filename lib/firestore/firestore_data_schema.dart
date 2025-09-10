@@ -46,6 +46,11 @@ class Paint {
   final List<int> rgb;
   final List<double> lab;
   final List<double> lch;
+  // Optional explicit Light Reflectance Value override (0-100). When present,
+  // all palette/theme logic that uses L-based comparisons should rely on
+  // computedLrv which resolves to this value before falling back to a hex
+  // luminance derived approximation.
+  final double? lrv;
   final String? collection;
   final String? finish;
   final Map<String, dynamic>? metadata;
@@ -60,6 +65,7 @@ class Paint {
     required this.rgb,
     required this.lab,
     required this.lch,
+  this.lrv,
     this.collection,
     this.finish,
     this.metadata,
@@ -179,6 +185,16 @@ class Paint {
       brandId = '';
     }
 
+    // Parse optional LRV if numeric
+    double? parsedLrv;
+    final rawLrv = json['lrv'];
+    if (rawLrv is num) {
+      parsedLrv = rawLrv.toDouble().clamp(0.0, 100.0);
+    } else if (rawLrv is String) {
+      final v = double.tryParse(rawLrv);
+      if (v != null) parsedLrv = v.clamp(0.0, 100.0);
+    }
+
     return Paint(
       id: id,
       brandId: brandId,
@@ -189,6 +205,7 @@ class Paint {
       rgb: rgb,
       lab: lab,
       lch: lch,
+      lrv: parsedLrv,
       collection: json['collection'],
       finish: json['finish'],
       metadata: json['metadata'],
@@ -196,7 +213,39 @@ class Paint {
   }
 
   // Computed LRV (Light Reflectance Value) using LAB lightness or hex fallback
-  double get computedLrv => lrvForPaint(paintLrv: null, hex: hex);
+  double get computedLrv => lrvForPaint(paintLrv: lrv, hex: hex);
+
+  Paint copyWith({
+    String? id,
+    String? brandId,
+    String? brandName,
+    String? name,
+    String? code,
+    String? hex,
+    List<int>? rgb,
+    List<double>? lab,
+    List<double>? lch,
+    double? lrv,
+    String? collection,
+    String? finish,
+    Map<String, dynamic>? metadata,
+  }) {
+    return Paint(
+      id: id ?? this.id,
+      brandId: brandId ?? this.brandId,
+      brandName: brandName ?? this.brandName,
+      name: name ?? this.name,
+      code: code ?? this.code,
+      hex: hex ?? this.hex,
+      rgb: rgb ?? this.rgb,
+      lab: lab ?? this.lab,
+      lch: lch ?? this.lch,
+      lrv: lrv ?? this.lrv,
+      collection: collection ?? this.collection,
+      finish: finish ?? this.finish,
+      metadata: metadata ?? this.metadata,
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -208,6 +257,7 @@ class Paint {
       'rgb': rgb,
       'lab': lab,
       'lch': lch,
+  'lrv': lrv,
       'collection': collection,
       'finish': finish,
       'metadata': metadata,
@@ -274,6 +324,7 @@ class PaletteColor {
         ColorUtils.hexToRgb(hex)[2],
       ),
       lch: [0.0, 0.0, 0.0],
+  lrv: null,
     );
   }
 }

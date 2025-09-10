@@ -231,8 +231,8 @@ class PaletteGenerator {
 
     // Helper: local scoring for a candidate given slot index
     double localScore(int i, Paint p, List<Paint?> currentResult) {
-      // In-range check (slot L band adherence)
-      final l = p.lch.isNotEmpty ? p.lch[0] : p.computedLrv;
+      // In-range check using computedLrv (LRV authoritative over raw L*)
+      final l = p.computedLrv;
       final hint = (i < slotLrvHints.length) ? slotLrvHints[i] : const [0.0, 100.0];
       final inBand = _within(l, hint[0], hint[1]) ? 1.0 : 0.0;
       // Undertone cohesion (bonus when matching thread)
@@ -296,7 +296,7 @@ class PaletteGenerator {
         final low = hasSpecificHint ? lMin : lowRaw;
         final high = hasSpecificHint ? lMax : highRaw;
         final pool = base.where((p) {
-          final l = p.lch.isNotEmpty ? p.lch[0] : p.computedLrv;
+          final l = p.computedLrv;
           if (!_within(l, low, high)) return false;
           final key = paintIdentity(p);
           if (usedKeys.contains(key)) return false;
@@ -308,7 +308,7 @@ class PaletteGenerator {
               orElse: () => null,
             );
             if (other != null) {
-              final lOther = other.lch.isNotEmpty ? other.lch[0] : other.computedLrv;
+              final lOther = other.computedLrv;
               if ((l - lOther).abs() < 25.0) return false; // need >= ~25 L contrast
               final u = undertoneOf(p);
               if (undertoneOf(other) != u) return false; // undertone match
@@ -342,7 +342,7 @@ class PaletteGenerator {
           final key = paintIdentity(p);
           if (usedKeys.contains(key)) continue;
           if (diversifyBrands && usedBrands.contains(p.brandName)) continue;
-          final l = p.lch.isNotEmpty ? p.lch[0] : p.computedLrv;
+          final l = p.computedLrv;
           if (hasSpecificHint && !_within(l, lMin, lMax)) continue;
           final d = (l - target).abs();
           if (d < bestD) {
@@ -356,7 +356,7 @@ class PaletteGenerator {
             final key = paintIdentity(p);
             if (usedKeys.contains(key)) continue;
             if (diversifyBrands && usedBrands.contains(p.brandName)) continue;
-            final l = p.lch.isNotEmpty ? p.lch[0] : p.computedLrv;
+            final l = p.computedLrv;
             final d = (l - target).abs();
             if (d < bestD) {
               bestD = d;
@@ -390,7 +390,7 @@ class PaletteGenerator {
     Paint? best;
     final target = (lMin + lMax) / 2.0;
     for (final p in base) {
-      final l = p.lch.isNotEmpty ? p.lch[0] : p.computedLrv;
+  final l = p.computedLrv;
       if (_within(l, lMin, lMax)) {
         final d = (l - target).abs();
         if (d < bestD) { bestD = d; best = p; }
@@ -400,7 +400,7 @@ class PaletteGenerator {
     if (best == null) {
       bestD = double.infinity;
       for (final p in base) {
-        final l = p.lch.isNotEmpty ? p.lch[0] : p.computedLrv;
+    final l = p.computedLrv;
         final d = (l - target).abs();
         if (d < bestD) { bestD = d; best = p; }
       }
@@ -410,35 +410,60 @@ class PaletteGenerator {
 
   final output = result.whereType<Paint>().toList(growable: false);
   
-  // Tag roles on result paints for UI alternate preservation
-  // For constrained mode, use generic role names based on slot index
-  final List<String> genericRoles = ['Slot0', 'Slot1', 'Slot2', 'Slot3', 'Slot4', 'Slot5', 'Slot6', 'Slot7', 'Slot8'];
-  for (int i = 0; i < output.length; i++) {
-    final paint = output[i];
-    final roleName = i < genericRoles.length ? genericRoles[i] : 'Slot$i';
-    
-    // Create new metadata map or copy existing one
-    final newMetadata = Map<String, dynamic>.from(paint.metadata ?? {});
-    newMetadata['role'] = roleName;
-    
-    // Create new Paint with updated metadata
-    output[i] = Paint(
-      id: paint.id,
-      brandId: paint.brandId,
-      brandName: paint.brandName,
-      name: paint.name,
-      code: paint.code,
-      hex: paint.hex,
-      rgb: paint.rgb,
-      lab: paint.lab,
-      lch: paint.lch,
-      collection: paint.collection,
-      finish: paint.finish,
-      metadata: newMetadata,
-    );
+  // Potential bridge injection (undertone neutral mid) after initial selection.
+  // If project later provides _injectUndertoneBridge, call it here. Placeholder logic:
+  List<Paint> injected = output;
+  try {
+    // ignore: unused_local_variable
+    final needsBridge = ThemeEngine.disablePopAccents == false; // placeholder condition
+    // TODO: wire actual _injectUndertoneBridge if available
+  } catch (_) {}
+
+  // Semantic role labeling: Anchor, Secondary, Accent
+  String labelForIndex(int i) {
+    if (i == 0) return 'Anchor';
+    if (i == 1) return 'Secondary';
+    return 'Accent';
+  }
+  // Determine max LRV for Whisper tagging
+  double maxLrv = injected.isEmpty ? 0.0 : injected.map((p) => p.computedLrv).reduce(math.max);
+  bool hasWarm = injected.any((p) { final h = p.lch.length>2 ? ((p.lch[2]%360)+360)%360 : 0.0; return (h >=20 && h <=70) || (h>=330 || h<=20); });
+  bool hasCool = injected.any((p) { final h = p.lch.length>2 ? ((p.lch[2]%360)+360)%360 : 0.0; return (h >=70 && h <=250); });
+  bool hasBridge = injected.any((p){ final c = p.lch.length>1? p.lch[1]:0.0; final l = p.computedLrv; return c <= (ThemeEngine.disablePopAccents?12.0:14.0) && l>=35 && l<=75;});
+
+  for (int i = 0; i < injected.length; i++) {
+    final paint = injected[i];
+    final meta = Map<String, dynamic>.from(paint.metadata ?? {});
+    meta['role'] = labelForIndex(i);
+    if (maxLrv >= 70.0 && paint.computedLrv >= 70.0) {
+      meta['whisperCandidate'] = true;
+    }
+    if (hasWarm && hasCool && hasBridge) {
+      // identify bridge candidate (first matching neutral mid)
+      if (meta['role'] == 'Accent') {
+        final c = paint.lch.length>1? paint.lch[1]:0.0; final l=paint.computedLrv;
+        if (c <= 14.0 && l>=35 && l<=75) {
+          meta['role'] = 'Bridge';
+        }
+      }
+    }
+    injected[i] = paint.copyWith(metadata: meta);
   }
 
-  return output;
+  // Post-pass: convert any whisperCandidate with highest LRV to Whisper label
+  final whisperables = [for(final p in injected) if(p.metadata?['whisperCandidate']==true) p];
+  if (whisperables.isNotEmpty) {
+    whisperables.sort((a,b)=> b.computedLrv.compareTo(a.computedLrv));
+    final top = whisperables.first;
+    final idx = injected.indexWhere((p)=>p.id==top.id);
+    if (idx>=0) {
+      final meta = Map<String,dynamic>.from(injected[idx].metadata ?? {});
+      meta['role']='Whisper';
+      injected[idx]= injected[idx].copyWith(metadata: meta);
+    }
+  }
+
+  return injected;
   }
 
   // Generate a dynamic-size palette with optional locked colors
